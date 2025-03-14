@@ -13,8 +13,6 @@ const tabs = [
 export default function NavBarLinks(): React.ReactElement {
   const pathname = usePathname();
 
-  console.log("check: ", pathname, tabs[0].href);
-
   return (
     <div className="flex items-center ml-12 gap-4">
       {tabs.map((tab) => (
