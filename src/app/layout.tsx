@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Stability Bingo",
-  description: "An app for tracking Stability clan events",
+  title: "Stability",
+  description: "The webpage for all things Stability OSRS",
 };
 
 export default function RootLayout({
