@@ -1,4 +1,5 @@
 import { signOut } from "@/auth";
+import { Button } from "@/components/ui/button";
 
 export function SignOut() {
   return (
@@ -9,9 +10,9 @@ export function SignOut() {
         await signOut({ redirect: true, redirectTo: "/login" });
       }}
     >
-      <button type="submit" className="w-full">
+      <Button type="submit" className="w-full">
         Sign Out
-      </button>
+      </Button>
     </form>
   );
 }

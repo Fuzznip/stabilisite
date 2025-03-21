@@ -1,5 +1,9 @@
-import SignInButton from "@/components/SignInButton";
+import SignInButton from "./_components/SignInButton";
 
 export default function LoginPage(): React.ReactElement {
-  return <SignInButton />;
+  return (
+    <div className="mt-20 w-full">
+      <SignInButton />
+    </div>
+  );
 }

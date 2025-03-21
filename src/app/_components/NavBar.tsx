@@ -2,8 +2,7 @@ import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
 import NavBarLinks from "./NavBarLinks";
-import SignInButton from "@/components/SignInButton";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { SignOut } from "./SignOut";
 
 export default async function NavBar(): Promise<React.ReactElement> {

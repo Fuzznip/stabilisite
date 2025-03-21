@@ -1,4 +1,5 @@
 import { signIn } from "@/auth";
+import { Button } from "@/components/ui/button";
 
 export default function SignInButton() {
   return (
@@ -7,8 +8,9 @@ export default function SignInButton() {
         "use server";
         await signIn("discord", { redirect: true, redirectTo: "/" });
       }}
+      className="w-fit mx-auto"
     >
-      <button type="submit">Signin with Discord</button>
+      <Button type="submit">Signin with Discord</Button>
     </form>
   );
 }
