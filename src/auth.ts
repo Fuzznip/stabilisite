@@ -8,12 +8,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     authorized: async ({ auth }) => {
-      // Logged in users are authenticated, otherwise redirect to login page
       return !!auth;
+    },
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      session.user.id = token.id as string;
+      return session;
     },
   },
 });
-
-export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|login).*)"],
-};

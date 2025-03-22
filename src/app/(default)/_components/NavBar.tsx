@@ -25,7 +25,7 @@ export default async function NavBar(): Promise<React.ReactElement> {
             className="object-contain"
           />
         </Link>
-        <NavBarLinks />
+        <NavBarLinks user={session?.user} />
       </div>
       <div className="flex items-center gap-2">
         <Popover>
