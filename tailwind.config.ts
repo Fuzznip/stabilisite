@@ -63,6 +63,7 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        discord: "hsl(var(--discord))",
       },
       borderRadius: {
         lg: "var(--radius)",
