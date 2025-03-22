@@ -7,6 +7,7 @@ import { SignOut } from "./SignOut";
 import { Popover } from "@/components/ui/popover";
 import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default async function NavBar(): Promise<React.ReactElement> {
   const session = await auth();
@@ -28,29 +29,35 @@ export default async function NavBar(): Promise<React.ReactElement> {
         <NavBarLinks user={session?.user} />
       </div>
       <div className="flex items-center gap-2">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              className="relative size-10 aspect-square rounded-full overflow-hidden active:outline-2 active:outline-blue-500"
+        {session?.user ? (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={session?.user ? "ghost" : "default"}
+                className="size-10 aspect-square rounded-full relative overflow-hidden active:outline-2 active:outline-blue-500"
+              >
+                <Image
+                  src={session?.user?.image || ""}
+                  alt="Profile pic"
+                  className="absolute"
+                  objectFit="cover"
+                  fill
+                />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="flex flex-col gap-2 bg-background border p-4 items-center mt-2 rounded-sm"
             >
-              <Image
-                src={session?.user?.image || ""}
-                alt="Profile pic"
-                className="absolute"
-                objectFit="cover"
-                fill
-              />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            className="flex flex-col gap-2 bg-background border p-4 items-center mt-2 rounded-sm"
-          >
-            <ThemeToggle />
-            <SignOut />
-          </PopoverContent>
-        </Popover>
+              <ThemeToggle />
+              <SignOut />
+            </PopoverContent>
+          </Popover>
+        ) : (
+          <Button className={"px-4 bg-primary text-primary-foreground"} asChild>
+            <Link href="/login">Login</Link>
+          </Button>
+        )}
       </div>
     </div>
   );
