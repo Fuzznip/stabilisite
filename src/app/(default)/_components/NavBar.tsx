@@ -7,7 +7,6 @@ import { SignOut } from "./SignOut";
 import { Popover } from "@/components/ui/popover";
 import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export default async function NavBar(): Promise<React.ReactElement> {
   const session = await auth();
