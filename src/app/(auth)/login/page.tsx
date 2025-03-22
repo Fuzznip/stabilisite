@@ -13,7 +13,7 @@ export default function LoginPage(): React.ReactElement {
           className="object-contain"
         />
       </div>
-      <h1 className="text-3xl mx-auto mb-8 mt-2">
+      <h1 className="text-3xl mx-auto mb-8 mt-2 text-center">
         Welcome to the Stability OSRS Clan website!
       </h1>
       <SignInButton />
