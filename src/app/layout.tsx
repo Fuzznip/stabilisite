@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "./_components/theme.provider";
-import NavBar from "./_components/NavBar";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
+import NavBar from "./_components/NavBar";
+import { ThemeProvider } from "./_components/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +45,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NavBar />
-          <main className="p-8">{children}</main>
+          {children}
         </ThemeProvider>
       </body>
     </html>

@@ -3,15 +3,19 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { User } from "next-auth";
 
-const tabs = [
-  { href: "/", title: "Home" },
-  { href: "/profile", title: "Profile" },
-  { href: "/leaderboards", title: "Leaderboards" },
-];
-
-export default function NavBarLinks(): React.ReactElement {
+export default function NavBarLinks({
+  user,
+}: {
+  user?: User;
+}): React.ReactElement {
   const pathname = usePathname();
+  const tabs = [
+    { href: "/", title: "Home" },
+    { href: `/profile/${user?.id}`, title: "Profile" },
+    { href: "/leaderboards", title: "Leaderboards" },
+  ];
 
   return (
     <div className="flex items-center ml-12 gap-4">
