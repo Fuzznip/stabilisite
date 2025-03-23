@@ -11,7 +11,6 @@ export default function NavBarLinks({
   user?: User;
 }): React.ReactElement {
   const pathname = usePathname();
-  console.log(user);
   const tabs = [
     { href: "/", title: "Home" },
     { href: `/profile/${user?.id}`, title: "Profile" },
