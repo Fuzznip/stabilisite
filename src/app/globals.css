@@ -57,6 +57,7 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     --discord: 235 86% 65%;
+    --stability: 0 73% 44%;
   }
 }
 
@@ -71,4 +72,5 @@
 
 @theme inline {
   --color-discord: var(--discord);
+  --color-stability: var(--stability);
 }
