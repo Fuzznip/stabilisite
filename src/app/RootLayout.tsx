@@ -1,24 +1,5 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
-import { ThemeProvider } from "./_components/theme.provider";
-import NavBar from "./_components/NavBar";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Stability",
-  description: "The webpage for all things Stability OSRS",
-};
+import { geistSans, geistMono } from "./layout";
 
 export default function RootLayout({
   children,
@@ -44,7 +25,6 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NavBar />
           {children}
         </ThemeProvider>
       </body>
