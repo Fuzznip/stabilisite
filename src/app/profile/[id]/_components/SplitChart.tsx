@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import Image from "next/image";
 import { User } from "next-auth";
+import { cn } from "@/lib/utils";
 
 export default function SplitChart({
   user,
@@ -105,9 +106,16 @@ export default function SplitChart({
       <h2 className="text-2xl font-bold mb-2">Splits</h2>
       <Card className="bg-card py-6 px-4 -ml-4">
         <CardContent className="p-0">
-          <div className="flex text-xl mb-8 ml-4">
-            <span>Total Split Value:</span>
-            <span className="flex items-center gap-2 ml-4">
+          <div className="flex flex-col mb-6 ml-4">
+            <span className="text-base text-muted-foreground">
+              Total Split Value
+            </span>
+            <span
+              className={cn(
+                "flex items-center gap-2 text-3xl",
+                true && "text-[#23FE9A]"
+              )}
+            >
               <div className="relative size-6">
                 <Image
                   src="/coins.png"
@@ -132,11 +140,14 @@ export default function SplitChart({
                 }
                 tickLine={false}
                 tickMargin={8}
+                axisLine={false}
               />
               <YAxis
                 dataKey="cumulativeValue"
                 tickMargin={8}
                 tickFormatter={(value: number) => value / 1000000 + "m"}
+                axisLine={false}
+                tickLine={false}
               />
               <ChartTooltip
                 cursor={false}
@@ -148,7 +159,12 @@ export default function SplitChart({
                       <div className="flex flex-col">
                         <div className="flex gap-4">
                           <span>{payload.item}</span>
-                          <div className="flex items-center ml-auto">
+                          <div
+                            className={cn(
+                              "flex items-center ml-auto",
+                              payload.value >= 10000000 && "text-[#23FE9A]"
+                            )}
+                          >
                             <div className="relative size-4 mr-1">
                               <Image
                                 src="/coins.png"
