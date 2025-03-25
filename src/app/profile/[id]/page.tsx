@@ -1,7 +1,21 @@
 import Image from "next/image";
 import { auth } from "@/auth";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import SplitChart from "./_components/SplitChart";
 
 export default function ProfilePage(): React.ReactElement {
   return (
@@ -56,7 +70,7 @@ function ProfileStats(): React.ReactElement {
         <UserRank />
         <UserAchievements />
       </div>
-      <UserSplits />
+      <SplitChart />
     </div>
   );
 }
@@ -74,14 +88,6 @@ function UserAchievements(): React.ReactElement {
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Achievements</h2>
       <Card className="p-4 bg-card">achievemnt stuff</Card>
-    </section>
-  );
-}
-function UserSplits(): React.ReactElement {
-  return (
-    <section className="flex flex-col w-full">
-      <h2 className="text-2xl font-bold mb-2">Splits</h2>
-      <Card className="p-4 bg-card">split stuff</Card>
     </section>
   );
 }
