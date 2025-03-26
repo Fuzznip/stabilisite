@@ -13,7 +13,6 @@ export async function storeUser(
   authUser: NextAuthUser,
   username: string
 ): Promise<UserResponse> {
-  console.log("bronze");
   return (
     await fetch(`${process.env.API_URL}/users`, {
       method: "POST",

@@ -23,7 +23,6 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 export default function StabilityClanForm() {
   const [applied, setApplied] = useState(false);
-  console.log(applied);
   return applied ? <AppliedMessage /> : <ClanForm setApplied={setApplied} />;
 }
 
@@ -41,7 +40,6 @@ function ClanForm({
   });
 
   const onSubmit = async (data: FormData) => {
-    console.log(data);
     setApplied(true);
   };
   return (
