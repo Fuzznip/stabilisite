@@ -28,3 +28,14 @@ export async function storeUser(
     })
   ).json();
 }
+
+export async function deleteUser(id: string): Promise<boolean> {
+  return (
+    await fetch(`${process.env.API_URL}/users/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  ).ok;
+}

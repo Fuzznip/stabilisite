@@ -7,7 +7,7 @@ export default function SignInButton() {
     <form
       action={async () => {
         "use server";
-        await signIn("discord", { redirect: true, redirectTo: "/" });
+        await signIn("discord", { redirect: true, redirectTo: "/apply" });
       }}
       className="w-fit mx-auto"
     >

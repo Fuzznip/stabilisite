@@ -6,7 +6,6 @@ import { User } from "@/lib/types";
 
 export async function getAuthUser(): Promise<User | null> {
   const session = await auth();
-  console.log(session);
   if (!session?.user?.id) {
     return null;
   }
@@ -21,6 +20,8 @@ export async function getAuthUser(): Promise<User | null> {
       rank: storedUser.rank,
       progressionData: JSON.parse(JSON.stringify(storedUser.progression_data)),
       image: session.user.image,
+      isStabilityMember: session.user.isStabilityMember,
+      name: session.user.name,
     };
 
     return user;

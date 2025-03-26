@@ -1,16 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import NewPlayerSignUp from "./_components/NewPlayerSignup";
 import { TextAnimate } from "@/components/magicui/text-animate";
 import { getAuthUser } from "../_actions/getAuthUser";
 import { redirect } from "next/navigation";
+import StabilityClanForm from "./_components/StabilityClanForm";
 
 export default async function WelcomeRuneScape() {
   const user = await getAuthUser();
-  if (user?.runescapeName) redirect("/");
+  // if (user?.isStabilityMember) redirect("/sync");
+
   return (
-    <div className="max-w-lg mx-auto mt-20 px-4">
-      <Card className="bg-background text-foreground shadow-xl">
-        <CardHeader>
+    <div className="w-full h-full flex">
+      <Card className="bg-background text-foreground shadow-xl mx-auto mt-12 max-w-lg h-fit px-4 py-2">
+        <CardHeader className="pb-2">
           <CardTitle className="text-3xl flex items-center gap-2 flex-col sm:flex-row">
             <span>Welcome to Stability,</span>
             <TextAnimate
@@ -25,10 +26,10 @@ export default async function WelcomeRuneScape() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-base text-muted-foreground mb-8">
-            Enter your OSRS username to begin your journey with the clan.
+          <p className="text-base text-muted-foreground">
+            Apply to the clan by submitting the form below
           </p>
-          <NewPlayerSignUp />
+          <StabilityClanForm />
         </CardContent>
       </Card>
     </div>
