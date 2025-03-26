@@ -6,7 +6,7 @@ import StabilityClanForm from "./_components/StabilityClanForm";
 
 export default async function WelcomeRuneScape() {
   const user = await getAuthUser();
-  // if (user?.isStabilityMember) redirect("/sync");
+  if (user?.isStabilityMember) redirect("/sync");
 
   return (
     <div className="w-full h-full flex">

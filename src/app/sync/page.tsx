@@ -27,7 +27,7 @@ export default async function WelcomeRuneScape() {
         </CardHeader>
         <CardContent>
           <p className="text-base text-muted-foreground mb-8">
-            Enter your OSRS username to enter the site
+            Enter your OSRS username to sync with the site
           </p>
           <PlayerSyncForm />
         </CardContent>

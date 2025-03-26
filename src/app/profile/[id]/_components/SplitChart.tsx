@@ -12,7 +12,9 @@ import Image from "next/image";
 import { User } from "next-auth";
 import { cn } from "@/lib/utils";
 
-export default function SplitChart({}: { user?: User }): React.ReactElement {
+export default function SplitChart({}: {
+  user: User | null;
+}): React.ReactElement {
   const chartConfig = {
     cumulativeValue: {
       label: "Split Total",

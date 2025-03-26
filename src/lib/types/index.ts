@@ -17,13 +17,13 @@ export type UserResponse = {
 };
 
 type Rank =
-  | "Unranked"
-  | "Bronze"
-  | "Iron"
-  | "Steel"
-  | "Mithril"
-  | "Adamant"
-  | "Rune"
-  | "Dragon";
+  | "unranked"
+  | "bronze"
+  | "iron"
+  | "steel"
+  | "mithril"
+  | "adamantite"
+  | "rune"
+  | "dragon";
 
 type ProgressionData = { [key: string]: unknown };

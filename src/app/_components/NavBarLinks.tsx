@@ -13,7 +13,7 @@ export default function NavBarLinks({
   const pathname = usePathname();
   const tabs = [
     { href: "/", title: "Home" },
-    { href: `/profile/${user?.id}`, title: "Profile" },
+    { href: `/profile/${user?.discordId}`, title: "Profile" },
     { href: "/leaderboards", title: "Leaderboards" },
   ];
 
