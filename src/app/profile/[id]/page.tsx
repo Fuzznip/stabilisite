@@ -71,9 +71,9 @@ async function ProfileStats(): Promise<React.ReactElement> {
 
 async function UserRank(): Promise<React.ReactElement> {
   const user = await getAuthUser();
-  const rank = "steel";
+  const rank = user?.rank || "unranked";
   let color;
-  console.log(rank);
+
   switch (rank) {
     case "bronze":
       color = "text-[#5B462A]";
@@ -99,6 +99,7 @@ async function UserRank(): Promise<React.ReactElement> {
     default:
       color = "text-foreground";
   }
+
   return (
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Rank</h2>
