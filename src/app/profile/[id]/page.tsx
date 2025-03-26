@@ -1,23 +1,14 @@
 import Image from "next/image";
 import { auth } from "@/auth";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import SplitChart from "./_components/SplitChart";
+import { Card } from "@/components/ui/card";
+// import { WOMClient } from "@wise-old-man/utils";
 
-export default function ProfilePage(): React.ReactElement {
+// const client = new WOMClient();
+
+export default async function ProfilePage(): Promise<React.ReactElement> {
+  // const player = await client.players.getPlayerDetailsById(56382);
   return (
     <div className="flex flex-col w-2/3 min-w-96 mx-auto mt-12 gap-12">
       <ProfileHeader />
@@ -63,14 +54,15 @@ async function ProfileHeader(): Promise<React.ReactElement> {
   );
 }
 
-function ProfileStats(): React.ReactElement {
+async function ProfileStats(): Promise<React.ReactElement> {
+  const session = await auth();
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between gap-8">
         <UserRank />
         <UserAchievements />
       </div>
-      <SplitChart />
+      <SplitChart user={session?.user} />
     </div>
   );
 }

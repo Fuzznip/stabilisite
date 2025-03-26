@@ -1,29 +1,18 @@
 "use client";
 
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import {
-  CartesianGrid,
-  XAxis,
-  Line,
-  LineChart,
-  YAxis,
-  TooltipProps,
-} from "recharts";
+import { CartesianGrid, XAxis, Line, LineChart, YAxis } from "recharts";
 import Image from "next/image";
 import { User } from "next-auth";
 import { cn } from "@/lib/utils";
 
-export default function SplitChart({
-  user,
-}: {
-  user?: User;
-}): React.ReactElement {
+export default function SplitChart({}: { user?: User }): React.ReactElement {
   const chartConfig = {
     cumulativeValue: {
       label: "Split Total",
@@ -155,6 +144,7 @@ export default function SplitChart({
                 content={
                   <ChartTooltipContent
                     hideLabel
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     formatter={(value, name, item, index, payload: any) => (
                       <div className="flex flex-col">
                         <div className="flex gap-4">

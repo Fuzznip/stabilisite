@@ -7,14 +7,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/login",
   },
   callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
+    async jwt({ token, account, profile }) {
+      if (account && profile) {
+        const res = await fetch("https://discord.com/api/users/@me/guilds", {
+          headers: {
+            Authorization: `Bearer ${account.access_token}`,
+          },
+        });
+        const guilds = await res.json();
+        token.discordId = profile.id;
+        token.isStabilityMember = guilds
+          .map((guild: { id: string }) => guild.id)
+          .includes(process.env.STABILITY_GUILD_ID);
       }
       return token;
     },
     session({ session, token }) {
-      session.user.id = token.id as string;
+      session.user.id = token.discordId as string;
+      session.user.isStabilityMember = token.isStabilityMember as boolean;
       return session;
     },
   },
