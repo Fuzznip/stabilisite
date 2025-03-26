@@ -2,7 +2,6 @@ import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
 import NavBarLinks from "./NavBarLinks";
-import { auth } from "@/auth";
 import { SignOut } from "./SignOut";
 import { Popover } from "@/components/ui/popover";
 import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
@@ -26,9 +25,14 @@ export default async function NavBar(): Promise<React.ReactElement> {
             className="object-contain"
           />
         </Link>
-        {user?.isStabilityMember && <NavBarLinks user={user} />}
+        <NavBarLinks user={user} />
       </div>
       <div className="flex items-center gap-2">
+        {user && !user.isStabilityMember && (
+          <Button className="px-4 bg-stability text-white mr-4" asChild>
+            <Link href="/apply">Apply</Link>
+          </Button>
+        )}
         {user ? (
           <Popover>
             <PopoverTrigger asChild>
@@ -54,7 +58,7 @@ export default async function NavBar(): Promise<React.ReactElement> {
             </PopoverContent>
           </Popover>
         ) : (
-          <Button className={"px-4 bg-primary text-primary-foreground"} asChild>
+          <Button className="px-4 bg-stability text-white" asChild>
             <Link href="/login">Login</Link>
           </Button>
         )}

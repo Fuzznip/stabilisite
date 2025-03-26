@@ -8,7 +8,7 @@ import { User } from "next-auth";
 export default function NavBarLinks({
   user,
 }: {
-  user?: User;
+  user: User | null;
 }): React.ReactElement {
   const pathname = usePathname();
   const tabs = [

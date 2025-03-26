@@ -7,11 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useState } from "react";
+import Link from "next/link";
 
 const formSchema = z.object({
-  username: z.string().min(1, "Username is required"),
+  username: z
+    .string()
+    .min(1, "Username is required")
+    .max(20, "Maximum 20 characters"),
   heardAbout: z.string().max(100, "Maximum 100 characters"),
   whyJoin: z.string().max(1000, "Maximum 1000 characters"),
   goals: z.string().max(1000, "Maximum 1000 characters"),
@@ -20,7 +23,15 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 export default function StabilityClanForm() {
   const [applied, setApplied] = useState(false);
+  console.log(applied);
+  return applied ? <AppliedMessage /> : <ClanForm setApplied={setApplied} />;
+}
 
+function ClanForm({
+  setApplied,
+}: {
+  setApplied: (applied: boolean) => void;
+}): React.ReactElement {
   const {
     register,
     handleSubmit,
@@ -100,5 +111,22 @@ export default function StabilityClanForm() {
         Submit
       </Button>
     </form>
+  );
+}
+
+function AppliedMessage(): React.ReactElement {
+  return (
+    <div className="flex flex-col">
+      <p className="mt-8 text-lg">
+        Thank you for applying to Stability! While your application is being
+        reviewed, feel free to explore our website!
+      </p>
+      <Button
+        className="px-4 bg-stability text-white w-fit ml-auto hover:bg-stability/90"
+        asChild
+      >
+        <Link href="/">Continue</Link>
+      </Button>
+    </div>
   );
 }
