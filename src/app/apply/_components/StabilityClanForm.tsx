@@ -19,7 +19,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 export default function StabilityClanForm() {
-  const [isApplying, setIsApplying] = useState(false);
+  const [applied, setApplied] = useState(false);
 
   const {
     register,
@@ -29,8 +29,9 @@ export default function StabilityClanForm() {
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: FormData) => {
-    setIsApplying(true);
+  const onSubmit = async (data: FormData) => {
+    console.log(data);
+    setApplied(true);
   };
   return (
     <form
@@ -96,7 +97,7 @@ export default function StabilityClanForm() {
         type="submit"
         className="w-24 ml-auto bg-stability text-white hover:bg-stability/90"
       >
-        {isApplying ? <LoadingSpinner /> : "Submit"}
+        Submit
       </Button>
     </form>
   );

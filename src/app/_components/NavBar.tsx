@@ -7,9 +7,10 @@ import { SignOut } from "./SignOut";
 import { Popover } from "@/components/ui/popover";
 import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
+import { getAuthUser } from "../_actions/getAuthUser";
 
 export default async function NavBar(): Promise<React.ReactElement> {
-  const session = await auth();
+  const user = await getAuthUser();
   return (
     <div className="flex w-full h-16 px-4 justify-between items-center mt-2">
       <div className="flex items-center h-full w-full">
@@ -25,18 +26,18 @@ export default async function NavBar(): Promise<React.ReactElement> {
             className="object-contain"
           />
         </Link>
-        <NavBarLinks user={session?.user} />
+        {user?.isStabilityMember && <NavBarLinks user={user} />}
       </div>
       <div className="flex items-center gap-2">
-        {session?.user ? (
+        {user ? (
           <Popover>
             <PopoverTrigger asChild>
               <Button
-                variant={session?.user ? "ghost" : "default"}
+                variant={user ? "ghost" : "default"}
                 className="size-10 aspect-square rounded-full relative overflow-hidden active:outline-2 active:outline-blue-500"
               >
                 <Image
-                  src={session?.user?.image || ""}
+                  src={user?.image || ""}
                   alt="Profile pic"
                   className="absolute"
                   objectFit="cover"
