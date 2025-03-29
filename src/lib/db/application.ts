@@ -12,6 +12,7 @@ export async function createApplication(
     reason: application.reason,
     goals: application.goals,
   };
+  console.log(clanApplication);
   const response = await fetch(`${process.env.API_URL}/applications`, {
     method: "POST",
     headers: {
