@@ -1,7 +1,11 @@
 import Image from "next/image";
 import SignInButton from "./_components/SignInButton";
+import { getAuthUser } from "../_actions/getAuthUser";
+import { redirect } from "next/navigation";
 
-export default function LoginPage(): React.ReactElement {
+export default async function LoginPage(): Promise<React.ReactElement> {
+  const user = await getAuthUser();
+  if (user?.runescapeName) redirect(`/profile/${user.discordId}`);
   return (
     <div className="h-full m-auto w-1/2 flex flex-col mt-20">
       <div className="w-auto h-20 relative">
