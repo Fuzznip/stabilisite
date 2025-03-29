@@ -7,13 +7,13 @@ export default function SignInButton() {
     <form
       action={async () => {
         "use server";
-        await signIn("discord", { redirect: true, redirectTo: "/" });
+        await signIn("discord", { redirect: true, redirectTo: "/apply" });
       }}
       className="w-fit mx-auto"
     >
       <Button
         type="submit"
-        className="bg-discord text-white hover:bg-discord/90 active:bg-discord/80"
+        className="bg-discord text-white hover:bg-discord/90 active:bg-discord/80 hover:cursor-pointer"
       >
         <DiscordIcon /> Connect with Discord
       </Button>

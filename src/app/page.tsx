@@ -1,3 +1,3 @@
-export default function HomePage(): React.ReactElement {
+export default async function HomePage(): Promise<React.ReactElement> {
   return <>Home page</>;
 }
