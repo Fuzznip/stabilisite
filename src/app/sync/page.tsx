@@ -9,7 +9,6 @@ export default async function SyncPage() {
   console.log(user);
   if (!user?.image) redirect("/login");
   if (user?.runescapeName) redirect(`/profile/${user.discordId}`);
-  user!.name = undefined;
 
   return (
     <div className="w-full h-full flex">
