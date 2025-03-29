@@ -4,8 +4,9 @@ import { TextAnimate } from "@/components/magicui/text-animate";
 import { getAuthUser } from "../_actions/getAuthUser";
 import { redirect } from "next/navigation";
 
-export default async function WelcomeRuneScape() {
+export default async function SyncPage() {
   const user = await getAuthUser();
+  if (user?.image) redirect("/login");
   if (user?.runescapeName) redirect(`/profile/${user.discordId}`);
   user!.name = undefined;
 

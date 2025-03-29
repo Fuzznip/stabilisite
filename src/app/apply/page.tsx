@@ -4,9 +4,10 @@ import { getAuthUser } from "../_actions/getAuthUser";
 import { redirect } from "next/navigation";
 import StabilityClanForm from "./_components/StabilityClanForm";
 
-export default async function WelcomeRuneScape() {
+export default async function ApplyPage() {
   const user = await getAuthUser();
-  if (user?.isStabilityMember) redirect("/sync");
+  if (user?.id) redirect("/sync");
+  if (user?.image) redirect("/login");
 
   return (
     <div className="w-full h-full flex">
