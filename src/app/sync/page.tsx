@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 export default async function WelcomeRuneScape() {
   const user = await getAuthUser();
-  if (user?.runescapeName) redirect("/");
+  if (user?.runescapeName) redirect(`/profile/${user.discordId}`);
 
   return (
     <div className="w-full h-full flex">

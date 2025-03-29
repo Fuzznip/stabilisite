@@ -9,14 +9,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import Link from "next/link";
+import { submitClanApplication } from "../_actions/submitClanApplication";
 
 const formSchema = z.object({
-  username: z
+  runescapeName: z
     .string()
     .min(1, "Username is required")
     .max(20, "Maximum 20 characters"),
-  heardAbout: z.string().max(100, "Maximum 100 characters"),
-  whyJoin: z.string().max(1000, "Maximum 1000 characters"),
+  referral: z.string().max(100, "Maximum 100 characters"),
+  reason: z.string().max(1000, "Maximum 1000 characters"),
   goals: z.string().max(1000, "Maximum 1000 characters"),
 });
 
@@ -40,6 +41,7 @@ function ClanForm({
   });
 
   const onSubmit = async (data: FormData) => {
+    submitClanApplication(data);
     setApplied(true);
   };
   return (
@@ -51,26 +53,26 @@ function ClanForm({
         <Label htmlFor="username">What Is Your OSRS Username?</Label>
         <Input
           id="username"
-          {...register("username")}
+          {...register("runescapeName")}
           placeholder="Zezima"
           className="bg-background"
         />
-        {errors.username && (
-          <p className="text-sm text-red-500">{errors.username.message}</p>
+        {errors.runescapeName && (
+          <p className="text-sm text-red-500">{errors.runescapeName.message}</p>
         )}
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="heardAbout">How Did You Hear About Us?</Label>
+        <Label htmlFor="referral">How Did You Hear About Us?</Label>
         <Textarea
-          id="heardAbout"
+          id="referral"
           className="bg-background"
-          {...register("heardAbout")}
+          {...register("referral")}
           placeholder="Reddit/OSRS discord/Word of Mouth"
           maxLength={100}
         />
-        {errors.heardAbout && (
-          <p className="text-sm text-red-500">{errors.heardAbout.message}</p>
+        {errors.referral && (
+          <p className="text-sm text-red-500">{errors.referral.message}</p>
         )}
       </div>
 
@@ -79,12 +81,12 @@ function ClanForm({
         <Textarea
           id="whyJoin"
           className="bg-background"
-          {...register("whyJoin")}
+          {...register("reason")}
           placeholder="I want to learn to PvM"
           maxLength={1000}
         />
-        {errors.whyJoin && (
-          <p className="text-sm text-red-500">{errors.whyJoin.message}</p>
+        {errors.reason && (
+          <p className="text-sm text-red-500">{errors.reason.message}</p>
         )}
       </div>
 

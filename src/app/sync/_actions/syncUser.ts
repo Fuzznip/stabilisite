@@ -11,8 +11,8 @@ export async function syncUser(username: string): Promise<void> {
     return;
   }
   try {
-    await storeUser(session.user, username);
-    redirect("/");
+    const userResponse = await storeUser(session.user, username);
+    redirect(`/profile/${userResponse.discord_id}`);
   } catch (err) {
     if (isRedirectError(err)) throw err;
     console.debug("Unauthenticated user", err);

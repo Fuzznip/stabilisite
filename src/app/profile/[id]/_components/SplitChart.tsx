@@ -95,8 +95,9 @@ export default function SplitChart({}: {
   return (
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Splits</h2>
-      <Card className="bg-card py-6 px-4 -ml-4">
-        <CardContent className="p-0">
+      <Card className="bg-card py-6 pl-2 pr-4 h-48 text-5xl text-muted-foreground flex items-center justify-center">
+        Coming soon...
+        {/* <CardContent className="p-0">
           <div className="flex flex-col mb-6 ml-4">
             <span className="text-base text-muted-foreground">
               Total Split Value
@@ -107,7 +108,7 @@ export default function SplitChart({}: {
                 true && "text-[#23FE9A]"
               )}
             >
-              <div className="relative size-6">
+              <div className="relative size-8">
                 <Image
                   src="/coins.png"
                   alt="coins"
@@ -118,7 +119,7 @@ export default function SplitChart({}: {
               463m
             </span>
           </div>
-          <ChartContainer config={chartConfig}>
+          <ChartContainer config={chartConfig} className="max-h-80 w-full">
             <LineChart accessibilityLayer data={cumulativeSplits}>
               <CartesianGrid vertical={false} />
               <XAxis
@@ -142,7 +143,6 @@ export default function SplitChart({}: {
               />
               <ChartTooltip
                 cursor={false}
-                defaultIndex={1}
                 content={
                   <ChartTooltipContent
                     hideLabel
@@ -203,7 +203,7 @@ export default function SplitChart({}: {
               />
             </LineChart>
           </ChartContainer>
-        </CardContent>
+        </CardContent> */}
       </Card>
     </section>
   );

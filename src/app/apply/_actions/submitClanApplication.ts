@@ -1,16 +1,20 @@
 "use server";
 
 import { auth } from "@/auth";
+import { createApplication } from "@/lib/db/application";
+import { Application } from "@/lib/types";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { redirect } from "next/navigation";
 
-export async function submitClanApplication(): Promise<void> {
+export async function submitClanApplication(
+  application: Application
+): Promise<void> {
   const session = await auth();
   if (!session?.user?.id) {
     return;
   }
   try {
-    redirect("/");
+    await createApplication(session.user, application);
+    return;
   } catch (err) {
     if (isRedirectError(err)) throw err;
     console.debug("Unauthenticated user", err);

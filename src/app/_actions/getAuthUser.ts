@@ -18,6 +18,8 @@ export async function getAuthUser(): Promise<User | null> {
       discordId: storedUser.discord_id,
       runescapeName: storedUser.runescape_name,
       rank: storedUser.rank,
+      rankPoints: storedUser.rank_points,
+      joinDate: new Date(storedUser.join_date || ""),
       progressionData: JSON.parse(JSON.stringify(storedUser.progression_data)),
       image: session.user.image,
       isStabilityMember: session.user.isStabilityMember,
