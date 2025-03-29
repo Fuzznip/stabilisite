@@ -7,6 +7,8 @@ import { Progress } from "@/components/ui/progress";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ranks } from "@/lib/utils";
+import { Rank } from "@/lib/types";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -36,7 +38,7 @@ async function ProfileHeader(): Promise<React.ReactElement> {
       </div>
       <div className="flex flex-col">
         <div className="flex gap-4 items-end">
-          <h1 className="text-3xl font-extrabold">{user?.runescapeName}</h1>
+          <h1 className="text-5xl font-extrabold">{user?.runescapeName}</h1>
           {/* <span className="text-foreground/60 text-2xl">
             Previously: ABoodle, BBoodle
           </span> */}
@@ -72,37 +74,9 @@ async function ProfileStats(): Promise<React.ReactElement> {
 
 async function UserRank(): Promise<React.ReactElement> {
   const user = await getAuthUser();
-  const rank = user?.rank || "unranked";
   const rankPoints = user?.rankPoints || 0;
-  let color;
-
-  switch (rank) {
-    case "bronze":
-      color = "text-[#5B462A] bg-[#5B462A]/50 [&>div]:bg-[#5B462A]";
-      break;
-    case "iron":
-      color = "text-[#635C5B] bg-[#635C5B]/50 [&>div]:bg-[#635C5B]";
-      break;
-    case "steel":
-      color = "text-[#8F8586] bg-[#8F8586]/50 [&>div]:bg-[#8F8586]";
-      break;
-    case "mithril":
-      color = "text-[#4C4C6F] bg-[#4C4C6F]/50 [&>div]:bg-[#4C4C6F]";
-      break;
-    case "adamantite":
-      color = "text-[#506350] bg-[#506350]/50 [&>div]:bg-[#506350]";
-      break;
-    case "rune":
-      color = "text-[#516D78] bg-[#516D78]/50 [&>div]:bg-[#516D78]";
-      break;
-    case "dragon":
-      color = "text-[#69140A] bg-[#69140A]/50 [&>div]:bg-[#69140A]";
-      break;
-    default:
-      color = "text-foreground bg-foreground/50 [&>div]:bg-foreground";
-  }
-
   const nextRank = { name: "Iron", points: 2000 };
+  const rank = ranks.find((rank) => rank.name === (user?.rank || "unranked"));
 
   return (
     <section className="flex flex-col w-full">
@@ -112,30 +86,35 @@ async function UserRank(): Promise<React.ReactElement> {
           <div className="flex gap-4 items-center">
             <div className="relative size-12">
               <Image
-                src={`/${rank}.png`}
-                alt={`${rank} rank`}
+                src={`/${rank?.name}.png`}
+                alt={`${rank?.name} rank`}
                 className="absolute object-contain"
                 fill
               />
             </div>
             <div
-              className={`capitalize text-4xl font-extrabold ${color} bg-transparent dark:brightness-150 brightness-90`}
+              className={`capitalize text-4xl font-extrabold ${rank?.textColor} dark:brightness-150 brightness-90`}
             >
-              {rank}
+              {rank?.name}
             </div>
           </div>
 
-          <div className="flex gap-4 w-full items-center">
-            <Progress
-              value={(rankPoints / nextRank.points) * 100}
-              className={`h-4 ${color}`}
-            />
+          {rank?.name &&
+            rank?.name !== "unranked" &&
+            rank?.name !== "guest" &&
+            rank?.name !== "trialist" && (
+              <div className="flex gap-4 w-full items-center">
+                <Progress
+                  value={(rankPoints / nextRank.points) * 100}
+                  className={`h-4 ${rank?.bgColor} ${rank?.progressColor} ${rank?.textColor}`}
+                />
 
-            <div className="text-muted-foreground w-fit text-nowrap font-bold">
-              {rankPoints.toLocaleString()} / {nextRank.points.toLocaleString()}{" "}
-              pts
-            </div>
-          </div>
+                <div className="text-muted-foreground w-fit text-nowrap font-bold">
+                  {rankPoints.toLocaleString()} /{" "}
+                  {nextRank.points.toLocaleString()} pts
+                </div>
+              </div>
+            )}
         </div>
       </Card>
     </section>

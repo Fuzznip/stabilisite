@@ -1,4 +1,5 @@
 import { User as NextAuthUser } from "next-auth";
+import { ranks } from "../utils";
 
 export type User = {
   id?: string;
@@ -6,6 +7,7 @@ export type User = {
   runescapeName?: string;
   rank?: Rank;
   rankPoints?: number;
+  joinDate?: Date;
   progressionData?: ProgressionData;
 } & NextAuthUser;
 
@@ -14,18 +16,12 @@ export type UserResponse = {
   discord_id?: string;
   runescape_name?: string;
   rank?: Rank;
+  rank_points?: number;
+  join_date?: string;
   progression_data?: string;
 };
 
-type Rank =
-  | "unranked"
-  | "bronze"
-  | "iron"
-  | "steel"
-  | "mithril"
-  | "adamantite"
-  | "rune"
-  | "dragon";
+export type Rank = (typeof ranks)[number]["name"];
 
 type ProgressionData = { [key: string]: unknown };
 

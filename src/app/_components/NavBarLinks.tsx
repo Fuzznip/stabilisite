@@ -18,13 +18,13 @@ export default function NavBarLinks({
   ];
 
   return (
-    <div className="flex items-center ml-12 gap-4">
+    <div className="flex items-center ml-8 gap-4">
       {tabs.map((tab) => (
         <Link
           key={tab.href}
           href={`${tab.href}`}
           className={cn(
-            "p-2 text-muted-foreground hover:text-foreground",
+            "p-2 text-muted-foreground hover:text-foreground font-bold",
             tab.href === pathname && "text-primary hover:text-primary"
           )}
         >
