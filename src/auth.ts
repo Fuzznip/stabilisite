@@ -14,6 +14,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             Authorization: `Bearer ${account.access_token}`,
           },
         });
+        if (!res.ok) return null;
         const guilds = await res.json();
         token.discordId = profile.id;
         token.isStabilityMember = guilds
