@@ -8,6 +8,7 @@ import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ranks } from "@/lib/utils";
+import { User } from "@/lib/types";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -17,7 +18,7 @@ export default async function ProfilePage(): Promise<React.ReactElement> {
       <ProfileStats />
     </div>
   ) : (
-    <NoProfileMessage />
+    <NoProfileMessage user={user} />
   );
 }
 
@@ -184,8 +185,7 @@ async function UserStats(): Promise<React.ReactElement> {
 //   );
 // }
 
-export async function NoProfileMessage(): Promise<React.ReactElement> {
-  const user = await getAuthUser();
+function NoProfileMessage({ user }: { user: User | null }): React.ReactElement {
   return (
     <Card className="w-fit mx-auto px-8 py-6 mt-42 flex flex-col">
       <div className="flex items-center">
