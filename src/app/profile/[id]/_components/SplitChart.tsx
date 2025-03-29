@@ -1,96 +1,87 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { CartesianGrid, XAxis, Line, LineChart, YAxis } from "recharts";
-import Image from "next/image";
+import { Card } from "@/components/ui/card";
 import { User } from "next-auth";
-import { cn } from "@/lib/utils";
 
 export default function SplitChart({}: {
   user: User | null;
 }): React.ReactElement {
-  const chartConfig = {
-    cumulativeValue: {
-      label: "Split Total",
-      color: "hsl(var(--stability))",
-    },
-  } satisfies ChartConfig;
-  const splits = [
-    {
-      date: new Date("03/12/24"),
-      value: 0,
-    },
-    {
-      date: new Date("04/21/24"),
-      item: "Torva Platebody",
-      source: "Nex",
-      value: 415200000,
-      team: ["Barsk", "SoccerTheNub"],
-    },
-    {
-      date: new Date("06/09/24"),
-      item: "Voidwaker Blade",
-      source: "Vet'ion",
-      value: 39800000,
-      team: ["Indy500", "Biapa"],
-    },
-    {
-      date: new Date("12/13/24"),
-      item: "Osmunten's Fang",
-      source: "Tombs of Amascut",
-      value: 14530000,
-      team: ["HeavenlyFist", "TermiinusEST"],
-    },
-    {
-      date: new Date("2/02/25"),
-      item: "Dexterous Prayer Scroll",
-      source: "Chambers of Xeric",
-      value: 18329400,
-      team: ["Funzip"],
-    },
-  ];
-  const sortedSplits = [...splits].sort(
-    (a, b) => a.date.getTime() - b.date.getTime()
-  );
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    year: "numeric",
-  });
+  // const chartConfig = {
+  //   cumulativeValue: {
+  //     label: "Split Total",
+  //     color: "hsl(var(--stability))",
+  //   },
+  // } satisfies ChartConfig;
+  // const splits = [
+  //   {
+  //     date: new Date("03/12/24"),
+  //     value: 0,
+  //   },
+  //   {
+  //     date: new Date("04/21/24"),
+  //     item: "Torva Platebody",
+  //     source: "Nex",
+  //     value: 415200000,
+  //     team: ["Barsk", "SoccerTheNub"],
+  //   },
+  //   {
+  //     date: new Date("06/09/24"),
+  //     item: "Voidwaker Blade",
+  //     source: "Vet'ion",
+  //     value: 39800000,
+  //     team: ["Indy500", "Biapa"],
+  //   },
+  //   {
+  //     date: new Date("12/13/24"),
+  //     item: "Osmunten's Fang",
+  //     source: "Tombs of Amascut",
+  //     value: 14530000,
+  //     team: ["HeavenlyFist", "TermiinusEST"],
+  //   },
+  //   {
+  //     date: new Date("2/02/25"),
+  //     item: "Dexterous Prayer Scroll",
+  //     source: "Chambers of Xeric",
+  //     value: 18329400,
+  //     team: ["Funzip"],
+  //   },
+  // ];
+  // const sortedSplits = [...splits].sort(
+  //   (a, b) => a.date.getTime() - b.date.getTime()
+  // );
+  // const formatter = new Intl.DateTimeFormat("en-US", {
+  //   month: "short",
+  //   year: "numeric",
+  // });
 
-  let cumulative = 0;
-  const cumulativeSplits = sortedSplits.map((split) => {
-    cumulative += split.value;
-    return {
-      ...split,
-      date: split.date.getTime(), // convert Date to timestamp (number)
-      cumulativeValue: cumulative,
-    };
-  });
+  // let cumulative = 0;
+  // const cumulativeSplits = sortedSplits.map((split) => {
+  //   cumulative += split.value;
+  //   return {
+  //     ...split,
+  //     date: split.date.getTime(), // convert Date to timestamp (number)
+  //     cumulativeValue: cumulative,
+  //   };
+  // });
 
   // Get range of dates from the cumulativeSplits
-  const dates = cumulativeSplits.map((d) => d.date);
-  const minDate = new Date(Math.min(...dates));
-  const maxDate = new Date(Math.max(...dates));
+  // const dates = cumulativeSplits.map((d) => d.date);
+  // const minDate = new Date(Math.min(...dates));
+  // const maxDate = new Date(Math.max(...dates));
 
-  const getMonthlyTicks = (start: Date, end: Date): number[] => {
-    const ticks: number[] = [];
-    const current = new Date(start.getFullYear(), start.getMonth(), 1);
+  // const getMonthlyTicks = (start: Date, end: Date): number[] => {
+  //   const ticks: number[] = [];
+  //   const current = new Date(start.getFullYear(), start.getMonth(), 1);
 
-    while (current <= end) {
-      ticks.push(current.getTime());
-      current.setMonth(current.getMonth() + 1);
-    }
+  //   while (current <= end) {
+  //     ticks.push(current.getTime());
+  //     current.setMonth(current.getMonth() + 1);
+  //   }
 
-    return ticks;
-  };
+  //   return ticks;
+  // };
 
-  const monthlyTicks = getMonthlyTicks(minDate, maxDate);
+  // const monthlyTicks = getMonthlyTicks(minDate, maxDate);
 
   return (
     <section className="flex flex-col w-full">

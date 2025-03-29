@@ -8,7 +8,6 @@ import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ranks } from "@/lib/utils";
-import { Rank } from "@/lib/types";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
