@@ -8,7 +8,8 @@ import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Button } from "@/lib/components/ui/button";
 import { getAuthUser } from "../_actions/getAuthUser";
 import { Card } from "@/lib/components/ui/card";
-import { ChevronDown, Coins, Notebook } from "lucide-react";
+import { ChevronDown, Coins } from "lucide-react";
+import { DiaryDialog } from "./DiaryDialog";
 
 export default async function NavBar(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -81,16 +82,10 @@ function SubmitPopover(): React.ReactElement {
       </PopoverTrigger>
       <PopoverContent className="w-fit p-2">
         <Card className="flex flex-col p-2">
+          <DiaryDialog />
           <Button
             variant="ghost"
-            className="w-full hover:cursor-pointer justify-start"
-          >
-            <Notebook className="size-8 mr-1" />
-            <span>Diary</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full hover:cursor-pointer justify-start"
+            className="w-full hover:cursor-pointer justify-start px-6"
           >
             <Coins className="size-8 mr-1" />
             <span>Split</span>
