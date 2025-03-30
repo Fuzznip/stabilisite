@@ -162,8 +162,6 @@ async function UserStats(): Promise<React.ReactElement> {
 // async function UserAchievements(): Promise<React.ReactElement> {
 //   const details = await getPlayerDetails();
 
-//   console.log(details?.latestSnapshot?.data.skills.overall);
-
 //   const infernoComplete =
 //     (details?.latestSnapshot?.data.bosses.tzkal_zuk.kills || 0) > 0;
 //   return (

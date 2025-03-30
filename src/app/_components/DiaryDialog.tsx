@@ -14,7 +14,6 @@ import {
 import { Badge } from "@/lib/components/ui/badge";
 import { Button } from "@/lib/components/ui/button";
 import { Input } from "@/lib/components/ui/input";
-import { Label } from "@/lib/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -43,6 +42,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { submitDiary } from "../_actions/submitDiary";
 
 const diarySchema = z.object({
   diary: z.string(),
@@ -54,11 +54,15 @@ const diarySchema = z.object({
     required_error: "A date of birth is required.",
   }),
   teamMembers: z.array(z.string()).optional(),
+  proof: z.any().refine((file) => file instanceof File && file.size > 0, {
+    message: "Please upload an image file",
+  }),
 });
 
 type DiaryForm = z.infer<typeof diarySchema>;
 
 export function DiaryDialog(): React.ReactElement {
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedDiary, setSelectedDiary] = useState(diaries[0]);
   const [selectedScale, setSelectedScale] = useState(diaries[0].scales[0]);
   const [teamInput, setTeamInput] = useState("");
@@ -67,16 +71,16 @@ export function DiaryDialog(): React.ReactElement {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
-  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const form = useForm<DiaryForm>({
     resolver: zodResolver(diarySchema),
     defaultValues: {
-      diary: selectedDiary.name,
-      scale: selectedScale,
+      diary: diaries[0].name,
+      scale: diaries[0].scales[0],
       time: "",
       date: new Date(),
       teamMembers: [],
+      proof: undefined,
     },
   });
 
@@ -87,8 +91,9 @@ export function DiaryDialog(): React.ReactElement {
   }, [selectedDate, form]);
 
   const onSubmit = (data: DiaryForm) => {
-    console.log("Form Submitted:", data);
-    form.reset();
+    submitDiary(data);
+    setDialogOpen(false);
+    setTimeout(() => form.reset(), 1000);
     setTeamMembers([]);
   };
 
@@ -108,7 +113,7 @@ export function DiaryDialog(): React.ReactElement {
   };
 
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" className="w-full justify-start px-6">
           <NotebookPen className="size-8 mr-1" />
@@ -191,11 +196,6 @@ export function DiaryDialog(): React.ReactElement {
                           if (newDiary) {
                             setSelectedDiary(newDiary);
                             if (!newDiary.scales.includes(selectedScale)) {
-                              console.log(
-                                "new ",
-                                newDiary.scales[0],
-                                selectedScale
-                              );
                               setSelectedScale(newDiary.scales[0]);
                               form.setValue("scale", newDiary.scales[0]);
                             }
@@ -282,7 +282,18 @@ export function DiaryDialog(): React.ReactElement {
                 )}
               />
             </div>
-            <ProofField onFileSelect={setImageFile} />
+            <FormField
+              control={form.control}
+              name="proof"
+              render={() => (
+                <ProofField
+                  onFileSelect={(file) => {
+                    form.setValue("proof", file);
+                  }}
+                />
+              )}
+            />
+
             <FormField
               control={form.control}
               name="teamMembers"
@@ -374,30 +385,35 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
   });
 
   return (
-    <div className="space-y-2">
-      <Label className="text-muted-foreground 2">Proof</Label>
-      <Card
-        {...getRootProps()}
-        className={`border-dashed border-2 cursor-pointer transition-all h-32 w-full flex items-center justify-center text-sm text-muted-foreground dark:bg-input/30 ${
-          isDragActive ? "border-primary bg-muted" : "border-muted"
-        }`}
-      >
-        <input {...getInputProps()} />
-        {preview ? (
-          <CardContent className="p-0 w-full h-full relative overflow-hidden">
-            <Image
-              src={preview}
-              alt="Preview"
-              fill
-              className="object-contain"
-            />
-          </CardContent>
-        ) : (
-          <p className="mx-auto w-fit text-center">
-            Drag & drop or click to upload your screenshot
-          </p>
-        )}
-      </Card>
-    </div>
+    <FormItem className="flex flex-col w-full max-w-4/5 relative">
+      <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+        Party Members
+      </FormLabel>
+      <FormControl>
+        <Card
+          {...getRootProps()}
+          className={`border-dashed border-2 cursor-pointer transition-all h-32 w-full flex items-center justify-center text-sm text-muted-foreground dark:bg-input/30 ${
+            isDragActive ? "border-primary bg-muted" : "border-muted"
+          }`}
+        >
+          <input {...getInputProps()} />
+          {preview ? (
+            <CardContent className="p-0 w-full h-full relative overflow-hidden">
+              <Image
+                src={preview}
+                alt="Preview"
+                fill
+                className="object-contain"
+              />
+            </CardContent>
+          ) : (
+            <p className="mx-auto w-fit text-center">
+              Drag & drop or click to upload your screenshot
+            </p>
+          )}
+        </Card>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
   );
 }

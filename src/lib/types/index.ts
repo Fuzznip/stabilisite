@@ -79,3 +79,12 @@ export type Application = Partial<{
   verdictTimestamp: string;
   timestamp: string;
 }>;
+
+export type DiaryForm = {
+  time: string;
+  scale: string;
+  diary: string;
+  date: Date;
+  teamMembers?: string[] | undefined;
+  proof?: File | null;
+};
