@@ -98,7 +98,7 @@ export default function Diaries({
 
         <Table>
           {!currentAttempts.length && (
-            <TableCaption className="w-full w-max-24">
+            <TableCaption className="w-full w-max-24 text-lg">
               {user
                 ? `You have no submitted ${currentDiary} (${currentScale}) times.`
                 : `There are no entries submitted for ${currentDiary} (${currentScale})`}
