@@ -22,9 +22,9 @@ import { cn, diaries, formatDate } from "@/lib/utils";
 import { User } from "next-auth";
 import { useState } from "react";
 import Link from "next/link";
-import { Camera } from "lucide-react";
 import useDiaryAttempts from "../hooks/useDiaryAttempts";
 import { Button } from "./ui/button";
+import { Camera } from "lucide-react";
 
 export default function Diaries({
   user,
@@ -129,15 +129,19 @@ export default function Diaries({
                 </TableCell>
                 <TableCell>{attempt.time}</TableCell>
                 <TableCell>{formatDate(attempt.date)}</TableCell>
-                <TableCell className="flex flex-col items-start">
+                <TableCell
+                  className={cn(
+                    attempt.team.length > 1 && "flex flex-col items-start"
+                  )}
+                >
                   {attempt.team.map((teammate) => (
                     <span key={`${attempt.id}-${teammate}`}>{teammate}</span>
                   ))}
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" asChild>
-                    <Link href={attempt.proof}>
-                      <Camera />
+                  <Button variant="ghost" asChild className="text-3xl">
+                    <Link href={attempt.proof} className="w-auto h-auto">
+                      <Camera className="!size-6" />
                     </Link>
                   </Button>
                 </TableCell>
