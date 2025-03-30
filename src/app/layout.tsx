@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Lato } from "next/font/google";
 import "./globals.css";
-import { FlickeringGrid } from "@/components/magicui/flickering-grid";
+import { FlickeringGrid } from "@/lib/components/magicui/flickering-grid";
 import NavBar from "./_components/NavBar";
 import { ThemeProvider } from "./_components/ThemeProvider";
 

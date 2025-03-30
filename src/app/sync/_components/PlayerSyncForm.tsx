@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/lib/components/ui/button";
+import { Input } from "@/lib/components/ui/input";
 import { useState } from "react";
 import { syncUser } from "../_actions/syncUser";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { LoadingSpinner } from "@/lib/components/LoadingSpinner";
 
 export default function PlayerSyncForm(): React.ReactElement {
   const [username, setUsername] = useState("");

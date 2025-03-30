@@ -1,14 +1,15 @@
 import Image from "next/image";
 import SplitChart from "./_components/SplitChart";
-import { Card } from "@/components/ui/card";
+import { Card } from "@/lib/components/ui/card";
 import { getAuthUser } from "@/app/_actions/getAuthUser";
 import getPlayerDetails from "./_actions/getPlayerDetails";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "@/lib/components/ui/progress";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/components/ui/button";
 import { ranks } from "@/lib/utils";
 import { User } from "@/lib/types";
+import Diaries from "../../../lib/components/Diaries";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -67,6 +68,7 @@ async function ProfileStats(): Promise<React.ReactElement> {
         <UserRank />
         <UserStats />
       </div>
+      <Diaries user={user} />
       <SplitChart user={user} />
     </div>
   );
@@ -129,7 +131,7 @@ async function UserStats(): Promise<React.ReactElement> {
   return (
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Stats</h2>
-      <Card className="flex items-center p-4 text-4xl h-full font-extrabold">
+      <Card className="flex items-center p-4 text-4xl h-full font-extrabold gap-4">
         <div className="flex items-center w-1/2 justify-center">
           <div className="relative size-8 mr-2">
             <Image

@@ -3,9 +3,9 @@ import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
 import NavBarLinks from "./NavBarLinks";
 import { SignOut } from "./SignOut";
-import { Popover } from "@/components/ui/popover";
+import { Popover } from "@/lib/components/ui/popover";
 import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/components/ui/button";
 import { getAuthUser } from "../_actions/getAuthUser";
 
 export default async function NavBar(): Promise<React.ReactElement> {

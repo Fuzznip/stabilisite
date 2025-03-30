@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
+import { Card } from "@/lib/components/ui/card";
 import { User } from "next-auth";
 
 export default function SplitChart({}: {
