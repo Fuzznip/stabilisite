@@ -31,10 +31,18 @@ import { cn, diaries, formatDate } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, NotebookPen, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useDropzone } from "react-dropzone";
 import { Card, CardContent } from "@/lib/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 const diarySchema = z.object({
   diary: z.string(),
@@ -61,27 +69,26 @@ export function DiaryDialog(): React.ReactElement {
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const { control, register, setValue, handleSubmit, reset } =
-    useForm<DiaryForm>({
-      resolver: zodResolver(diarySchema),
-      defaultValues: {
-        diary: selectedDiary.name,
-        scale: selectedScale,
-        time: "",
-        date: new Date(),
-        teamMembers: [],
-      },
-    });
+  const form = useForm<DiaryForm>({
+    resolver: zodResolver(diarySchema),
+    defaultValues: {
+      diary: selectedDiary.name,
+      scale: selectedScale,
+      time: "",
+      date: new Date(),
+      teamMembers: [],
+    },
+  });
 
   useEffect(() => {
     if (selectedDate) {
-      setValue("date", selectedDate);
+      form.setValue("date", selectedDate);
     }
-  }, [selectedDate, setValue]);
+  }, [selectedDate, form]);
 
   const onSubmit = (data: DiaryForm) => {
     console.log("Form Submitted:", data);
-    reset();
+    form.reset();
     setTeamMembers([]);
   };
 
@@ -89,7 +96,7 @@ export function DiaryDialog(): React.ReactElement {
     if (teamInput && !teamMembers.includes(teamInput)) {
       const updated = [...teamMembers, teamInput];
       setTeamMembers(updated);
-      setValue("teamMembers", updated);
+      form.setValue("teamMembers", updated);
       setTeamInput("");
     }
   };
@@ -97,7 +104,7 @@ export function DiaryDialog(): React.ReactElement {
   const handleTeamRemove = (name: string) => {
     const updated = teamMembers.filter((m) => m !== name);
     setTeamMembers(updated);
-    setValue("teamMembers", updated);
+    form.setValue("teamMembers", updated);
   };
 
   return (
@@ -115,197 +122,230 @@ export function DiaryDialog(): React.ReactElement {
             Submit a diary entry to claim credit for your achievements
           </DialogDescription>
         </DialogHeader>
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 text-base"
-        >
-          <div className="flex flex-col">
-            <Controller
-              name="date"
-              control={control}
-              render={() => (
-                <div className="flex flex-col">
-                  <Label className="text-muted-foreground mb-2">Date</Label>
-                  <Popover open={dateOpen} onOpenChange={setDateOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "justify-start text-left font-normal w-64 px-3 dark:bg-input/30",
-                          !selectedDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                        {selectedDate ? (
-                          formatDate(selectedDate)
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="p-0 w-auto"
-                      side="bottom"
-                      collisionPadding={-100}
-                    >
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={(value) => {
-                          setSelectedDate(value);
-                          setDateOpen(false);
-                        }}
-                        disabled={(date) => date > new Date()}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              )}
-            />
-          </div>
-          <div className="flex gap-4">
-            <Controller
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4 text-base"
+          >
+            <FormField
+              control={form.control}
               name="diary"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Label className="text-muted-foreground mb-2">Diary</Label>
-                  <Select
-                    value={field.value}
-                    onValueChange={(val) => {
-                      const newDiary = diaries.find((d) => d.name === val);
-                      if (newDiary) {
-                        setSelectedDiary(newDiary);
-                        if (!newDiary.scales.includes(selectedScale)) {
-                          console.log(
-                            "new ",
-                            newDiary.scales[0],
-                            selectedScale
-                          );
-                          setSelectedScale(newDiary.scales[0]);
-                          setValue("scale", newDiary.scales[0]);
-                        }
-                      }
-                      field.onChange(val);
-                    }}
-                  >
-                    <SelectTrigger className="w-64">
-                      <SelectValue placeholder="Select a diary" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {diaries.map((d) => (
-                        <SelectItem key={d.name} value={d.name}>
-                          {d.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            />
-            <Controller
-              name="scale"
-              control={control}
-              render={({ field }) => (
-                <div className="w-full">
-                  <Label className="text-muted-foreground mb-2">Scale</Label>
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      if (value) {
-                        setSelectedScale(value);
-                        field.onChange(value);
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a scale">
-                        <span className="capitalize">{field.value}</span>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {selectedDiary?.scales?.map((scale) => (
-                        <SelectItem
-                          key={scale}
-                          value={scale}
-                          className="capitalize"
+              render={() => (
+                <FormItem>
+                  <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                    Date
+                  </FormLabel>
+                  <FormControl>
+                    <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "justify-start text-left font-normal w-64 px-3 dark:bg-input/30",
+                            !selectedDate && "text-muted-foreground"
+                          )}
                         >
-                          {scale}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                          <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                          {selectedDate ? (
+                            formatDate(selectedDate)
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="p-0 w-auto"
+                        side="bottom"
+                        collisionPadding={-100}
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(value) => {
+                            setSelectedDate(value);
+                            setDateOpen(false);
+                          }}
+                          disabled={(date) => date > new Date()}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
-          </div>
-
-          <div className="flex flex-col">
-            <Label htmlFor="time" className="text-muted-foreground mb-2">
-              Duration
-            </Label>
-            <Input
-              id="time"
-              className="w-64 dark:bg-input/30"
-              placeholder="e.g. 01:21:38"
-              {...register("time")}
-              pattern="^\d{1,2}:\d{2}:\d{2}$"
-            />
-          </div>
-          <ProofField onFileSelect={setImageFile} />
-          <div className="flex flex-col w-full max-w-4/5 relative">
-            <Label htmlFor="team" className="text-muted-foreground mb-2">
-              Team Members
-            </Label>
             <div className="flex gap-4">
-              <Input
-                id="team"
-                disabled={selectedScale === "solo"}
-                value={teamInput}
-                onChange={(e) => setTeamInput(e.target.value)}
-                onKeyDown={(e) =>
-                  e.key === "Enter" && (e.preventDefault(), handleTeamAdd())
-                }
-                className="w-64 dark:bg-input/30"
-                placeholder="Add team member"
+              <FormField
+                control={form.control}
+                name="diary"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                      Scale
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={(val) => {
+                          const newDiary = diaries.find((d) => d.name === val);
+                          if (newDiary) {
+                            setSelectedDiary(newDiary);
+                            if (!newDiary.scales.includes(selectedScale)) {
+                              console.log(
+                                "new ",
+                                newDiary.scales[0],
+                                selectedScale
+                              );
+                              setSelectedScale(newDiary.scales[0]);
+                              form.setValue("scale", newDiary.scales[0]);
+                            }
+                          }
+                          field.onChange(val);
+                        }}
+                      >
+                        <SelectTrigger className="w-64">
+                          <SelectValue placeholder="Select a diary" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {diaries.map((d) => (
+                            <SelectItem key={d.name} value={d.name}>
+                              {d.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
+              <FormField
+                control={form.control}
+                name="scale"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                      Scale
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          if (value) {
+                            setSelectedScale(value);
+                            field.onChange(value);
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a scale">
+                            <span className="capitalize">{field.value}</span>
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedDiary?.scales?.map((scale) => (
+                            <SelectItem
+                              key={scale}
+                              value={scale}
+                              className="capitalize"
+                            >
+                              {scale}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <FormField
+                control={form.control}
+                name="time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                      Duration (HH:MM:SS)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. 01:21:38"
+                        {...field}
+                        className="w-64 dark:bg-input/30"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <ProofField onFileSelect={setImageFile} />
+            <FormField
+              control={form.control}
+              name="teamMembers"
+              render={() => (
+                <FormItem className="flex flex-col w-full max-w-4/5 relative">
+                  <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                    Party Members
+                  </FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-4">
+                      <Input
+                        id="team"
+                        disabled={selectedScale === "solo"}
+                        value={teamInput}
+                        onChange={(e) => setTeamInput(e.target.value)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" &&
+                          (e.preventDefault(), handleTeamAdd())
+                        }
+                        className="w-64 dark:bg-input/30"
+                        placeholder="Add team member"
+                      />
+                      <Button
+                        type="button"
+                        disabled={selectedScale === "solo"}
+                        onClick={handleTeamAdd}
+                        className={
+                          "w-fit bg-stability hover:bg-stability/90 text-white"
+                        }
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                  <div className="flex flex-wrap mt-2 gap-2 max-w-full absolute top-14">
+                    {teamMembers.map((name) => (
+                      <Badge
+                        key={name}
+                        variant="outline"
+                        className="flex items-center px-2 py-1 rounded-lg text-sm"
+                      >
+                        {name}
+                        <X
+                          className="ml-1 h-4 w-4 cursor-pointer"
+                          onClick={() => handleTeamRemove(name)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
               <Button
-                type="button"
-                disabled={selectedScale === "solo"}
-                onClick={handleTeamAdd}
-                className={
-                  "w-fit bg-stability hover:bg-stability/90 text-white"
-                }
+                type="submit"
+                className="w-fit ml-auto bg-stability hover:bg-stability/90 text-white"
               >
-                Add
+                Submit
               </Button>
-            </div>
-            <div className="flex flex-wrap mt-2 gap-2 max-w-full absolute top-14">
-              {teamMembers.map((name) => (
-                <Badge
-                  key={name}
-                  variant="outline"
-                  className="flex items-center px-2 py-1 rounded-lg text-sm"
-                >
-                  {name}
-                  <X
-                    className="ml-1 h-4 w-4 cursor-pointer"
-                    onClick={() => handleTeamRemove(name)}
-                  />
-                </Badge>
-              ))}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="submit"
-              className="w-fit ml-auto bg-stability hover:bg-stability/90 text-white"
-            >
-              Submit
-            </Button>
-          </DialogFooter>
-        </form>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
