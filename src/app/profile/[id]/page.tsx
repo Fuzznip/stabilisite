@@ -203,8 +203,16 @@ function NoProfileMessage({ user }: { user: User | null }): React.ReactElement {
         asChild
         className="bg-stability text-white hover:bg-stability/90 w-fit ml-auto mt-8 text-lg px-8"
       >
-        <Link href={!user?.isStabilityMember ? "/apply" : "/sync"}>
-          {!user?.isStabilityMember ? "Apply" : "Sync"}
+        <Link
+          href={
+            !user?.image
+              ? "/login"
+              : !user?.isStabilityMember
+              ? "/apply"
+              : "/sync"
+          }
+        >
+          {!user?.image ? "Login" : !user?.isStabilityMember ? "Apply" : "Sync"}
         </Link>
       </Button>
     </Card>
