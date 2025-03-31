@@ -12,7 +12,7 @@ export async function submitDiaryEntry(
     activity: diaryForm.diary,
     scale: diaryForm.scale,
     time: diaryForm.time,
-    proof_url: fileUrl,
+    proof: fileUrl,
   };
   console.log(diaryRequest);
   //   const response = await fetch(`${process.env.API_URL}/diary`, {

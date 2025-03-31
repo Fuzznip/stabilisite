@@ -1,6 +1,6 @@
 "use server";
 
-import { DiaryForm, User } from "@/lib/types";
+import { DiaryForm } from "@/lib/types";
 import { getAuthUser } from "./getAuthUser";
 import { submitDiaryEntry } from "@/lib/db/diary";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
