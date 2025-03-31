@@ -18,22 +18,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/lib/components/ui/table";
-import { cn, diaries, formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { User } from "next-auth";
 import { useState } from "react";
 import Link from "next/link";
 import useDiaryAttempts from "../hooks/useDiaryAttempts";
 import { Button } from "./ui/button";
 import { Camera } from "lucide-react";
+import { ShortDiary } from "../types";
 
 export default function Diaries({
   user,
+  diaries,
 }: {
   user?: User | null;
+  diaries: ShortDiary[];
 }): React.ReactElement {
   const attempts = useDiaryAttempts(user);
   const [currentDiary, setCurrentDiary] = useState(diaries[0].name);
-  const [currentScale, setCurrentScale] = useState(diaries[0].scales[0]);
+  const [currentScale, setCurrentScale] = useState(diaries[0].scales[0].scale);
 
   const currentAttempts = attempts
     .filter(
@@ -56,8 +59,13 @@ export default function Diaries({
               onValueChange={(value) => {
                 setCurrentDiary(value);
                 const newDiary = diaries.find((d) => d.name === value);
-                if (newDiary && !newDiary.scales.includes(currentScale)) {
-                  setCurrentScale(newDiary.scales[0]);
+                if (
+                  newDiary &&
+                  !newDiary.scales
+                    .map((scale) => scale.scale)
+                    .includes(currentScale)
+                ) {
+                  setCurrentScale(newDiary.scales[0].scale);
                 }
               }}
             >
@@ -87,8 +95,12 @@ export default function Diaries({
               </SelectTrigger>
               <SelectContent>
                 {selectedDiary?.scales.map((scale) => (
-                  <SelectItem key={scale} value={scale} className="capitalize">
-                    {scale}
+                  <SelectItem
+                    key={scale.scale}
+                    value={scale.scale}
+                    className="capitalize"
+                  >
+                    {scale.scale}
                   </SelectItem>
                 ))}
               </SelectContent>

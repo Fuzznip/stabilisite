@@ -7,22 +7,20 @@ export async function submitDiaryEntry(
 ): Promise<void> {
   const diaryRequest = {
     user_id: user?.discordId,
-    date: diaryForm.date,
-    members: diaryForm.teamMembers,
-    activity: diaryForm.diary,
-    scale: diaryForm.scale,
-    time: diaryForm.time,
+    party: diaryForm.teamMembers,
+    diary_shorthand: diaryForm.shorthand,
+    time_split: diaryForm.time,
     proof: fileUrl,
   };
   console.log(diaryRequest);
-  //   const response = await fetch(`${process.env.API_URL}/diary`, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify(diaryRequest),
-  //   });
+  const response = await fetch(`${process.env.API_URL}/applications/diary`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(diaryRequest),
+  });
 
-  //   return response.json();
+  return response.json();
   return;
 }

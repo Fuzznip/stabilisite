@@ -75,19 +75,3 @@ export const ranks = [
     progressColor: "[&>div]:bg-[#69140A]",
   },
 ] as const;
-
-export const diaries = [
-  { name: "Fight Caves", scales: ["solo"] },
-  { name: "Inferno", scales: ["solo"] },
-  { name: "Fortis Colosseum", scales: ["solo"] },
-  {
-    name: "Theatre of Blood",
-    scales: ["duo", "trio", "4 man", "5 man"],
-  },
-  {
-    name: "Theatre of Blood: Hard Mode",
-    scales: ["duo", "trio", "4 man", "5 man"],
-  },
-  { name: "Challenge Mode COX", scales: ["solo", "trio", "5 man"] },
-  { name: "Expert TOA", scales: ["solo", "8 man"] },
-];

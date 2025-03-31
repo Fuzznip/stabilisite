@@ -82,9 +82,23 @@ export type Application = Partial<{
 
 export type DiaryForm = {
   time: string;
-  scale: string;
-  diary: string;
-  date: Date;
+  shorthand: string;
   teamMembers?: string[] | undefined;
   proof?: File | null;
+};
+
+export type Diary = {
+  id: string;
+  diaryName: string;
+  diaryShorthand: string;
+  bossName: string;
+  scale: string;
+  diaryDescription: string;
+  diaryTime: string;
+  diaryPoints: number;
+};
+
+export type ShortDiary = {
+  name: string;
+  scales: { scale: string; shorthand: string }[];
 };

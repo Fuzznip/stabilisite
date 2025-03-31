@@ -10,6 +10,8 @@ import { Button } from "@/lib/components/ui/button";
 import { cn, ranks } from "@/lib/utils";
 import { User } from "@/lib/types";
 import Diaries from "../../../lib/components/Diaries";
+import { getDiaries } from "@/app/_actions/getDiaries";
+import { Suspense } from "react";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -62,13 +64,14 @@ async function ProfileHeader(): Promise<React.ReactElement> {
 
 async function ProfileStats(): Promise<React.ReactElement> {
   const user = await getAuthUser();
+  const diaries = await getDiaries();
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between gap-8">
         <UserRank />
         <UserStats />
       </div>
-      <Diaries user={user} />
+      <Diaries user={user} diaries={diaries} />
       <SplitChart user={user} />
     </div>
   );

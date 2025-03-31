@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -15,21 +14,15 @@ import { Badge } from "@/lib/components/ui/badge";
 import { Button } from "@/lib/components/ui/button";
 import { Input } from "@/lib/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/lib/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/lib/components/ui/select";
-import { cn, diaries, formatDate } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon, NotebookPen, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { NotebookPen, X } from "lucide-react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useDropzone } from "react-dropzone";
@@ -43,6 +36,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { submitDiary } from "../_actions/submitDiary";
+import { ShortDiary } from "@/lib/types";
 
 const diarySchema = z.object({
   diary: z.string(),
@@ -50,9 +44,6 @@ const diarySchema = z.object({
   time: z
     .string()
     .regex(/^\d{1,2}:\d{2}:\d{2}$/, "Invalid duration format (HH:MM:SS)"),
-  date: z.date({
-    required_error: "A date of birth is required.",
-  }),
   teamMembers: z.array(z.string()).optional(),
   proof: z.any().refine((file) => file instanceof File && file.size > 0, {
     message: "Please upload an image file",
@@ -61,37 +52,37 @@ const diarySchema = z.object({
 
 type DiaryForm = z.infer<typeof diarySchema>;
 
-export function DiaryDialog(): React.ReactElement {
+export function DiaryDialog({
+  diaries,
+}: {
+  diaries: ShortDiary[];
+}): React.ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedDiary, setSelectedDiary] = useState(diaries[0]);
-  const [selectedScale, setSelectedScale] = useState(diaries[0].scales[0]);
+  const [selectedScale, setSelectedScale] = useState(
+    diaries[0].scales[0].scale
+  );
   const [teamInput, setTeamInput] = useState("");
   const [teamMembers, setTeamMembers] = useState<string[]>([]);
-  const [dateOpen, setDateOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
-  );
 
   const form = useForm<DiaryForm>({
     resolver: zodResolver(diarySchema),
     defaultValues: {
       diary: diaries[0].name,
-      scale: diaries[0].scales[0],
+      scale: diaries[0].scales[0].scale,
       time: "",
-      date: new Date(),
       teamMembers: [],
       proof: undefined,
     },
   });
 
-  useEffect(() => {
-    if (selectedDate) {
-      form.setValue("date", selectedDate);
-    }
-  }, [selectedDate, form]);
-
   const onSubmit = (data: DiaryForm) => {
-    submitDiary(data);
+    submitDiary({
+      ...data,
+      shorthand:
+        selectedDiary.scales.find((scale) => scale.scale === selectedScale)
+          ?.shorthand || "",
+    });
     setDialogOpen(false);
     setTimeout(() => form.reset(), 1000);
     setTeamMembers([]);
@@ -132,53 +123,6 @@ export function DiaryDialog(): React.ReactElement {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-4 text-base"
           >
-            <FormField
-              control={form.control}
-              name="diary"
-              render={() => (
-                <FormItem>
-                  <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
-                    Date
-                  </FormLabel>
-                  <FormControl>
-                    <Popover open={dateOpen} onOpenChange={setDateOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "justify-start text-left font-normal w-64 px-3 dark:bg-input/30",
-                            !selectedDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                          {selectedDate ? (
-                            formatDate(selectedDate)
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="p-0 w-auto"
-                        side="bottom"
-                        collisionPadding={-100}
-                      >
-                        <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={(value) => {
-                            setSelectedDate(value);
-                            setDateOpen(false);
-                          }}
-                          disabled={(date) => date > new Date()}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <div className="flex gap-4">
               <FormField
                 control={form.control}
@@ -195,9 +139,13 @@ export function DiaryDialog(): React.ReactElement {
                           const newDiary = diaries.find((d) => d.name === val);
                           if (newDiary) {
                             setSelectedDiary(newDiary);
-                            if (!newDiary.scales.includes(selectedScale)) {
-                              setSelectedScale(newDiary.scales[0]);
-                              form.setValue("scale", newDiary.scales[0]);
+                            if (
+                              !newDiary.scales
+                                .map((scale) => scale.scale)
+                                .includes(selectedScale)
+                            ) {
+                              setSelectedScale(newDiary.scales[0].scale);
+                              form.setValue("scale", newDiary.scales[0].scale);
                             }
                           }
                           field.onChange(val);
@@ -245,11 +193,11 @@ export function DiaryDialog(): React.ReactElement {
                         <SelectContent>
                           {selectedDiary?.scales?.map((scale) => (
                             <SelectItem
-                              key={scale}
-                              value={scale}
+                              key={scale.scale}
+                              value={scale.scale}
                               className="capitalize"
                             >
-                              {scale}
+                              {scale.scale}
                             </SelectItem>
                           ))}
                         </SelectContent>

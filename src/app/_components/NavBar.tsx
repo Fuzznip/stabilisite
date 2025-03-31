@@ -10,6 +10,7 @@ import { getAuthUser } from "../_actions/getAuthUser";
 import { Card } from "@/lib/components/ui/card";
 import { ChevronDown, Coins } from "lucide-react";
 import { DiaryDialog } from "./DiaryDialog";
+import { getDiaries } from "../_actions/getDiaries";
 
 export default async function NavBar(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -71,7 +72,8 @@ export default async function NavBar(): Promise<React.ReactElement> {
   );
 }
 
-function SubmitPopover(): React.ReactElement {
+async function SubmitPopover(): Promise<React.ReactElement> {
+  const diaries = await getDiaries();
   return (
     <Popover>
       <PopoverTrigger asChild className="mr-4">
@@ -82,7 +84,7 @@ function SubmitPopover(): React.ReactElement {
       </PopoverTrigger>
       <PopoverContent className="w-fit p-2">
         <Card className="flex flex-col p-2">
-          <DiaryDialog />
+          <DiaryDialog diaries={diaries} />
           <Button
             variant="ghost"
             className="w-full hover:cursor-pointer justify-start px-6"
