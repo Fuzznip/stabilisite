@@ -20,7 +20,5 @@ export async function submitDiaryEntry(
     },
     body: JSON.stringify(diaryRequest),
   });
-
   return response.json();
-  return;
 }

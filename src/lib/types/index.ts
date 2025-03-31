@@ -102,3 +102,10 @@ export type ShortDiary = {
   name: string;
   scales: { scale: string; shorthand: string }[];
 };
+
+export type SplitForm = {
+  item: string;
+  price: number;
+  teamSize: number;
+  proof?: File | null;
+}

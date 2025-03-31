@@ -44,8 +44,8 @@ const diarySchema = z.object({
   time: z
     .string()
     .regex(
-      /^\d{1,2}:\d{2}:\d{2}:\d{2}$/,
-      "Invalid duration format (HH:MM:SS:MS)"
+      /^\d{1,2}:\d{2}:\d{2}.\d{2}$/,
+      "Invalid duration format (HH:MM:SS.MS)"
     ),
   teamMembers: z.array(z.string()).optional(),
   proof: z.any().refine((file) => file instanceof File && file.size > 0, {
