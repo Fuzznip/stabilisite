@@ -1,14 +1,14 @@
 "use client";
 
-import { Card } from "@/lib/components/ui/card";
-import { Label } from "@/lib/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/lib/components/ui/select";
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -17,15 +17,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/lib/components/ui/table";
-import { cn, formatDate } from "@/lib/utils";
+} from "@/components/ui/table";
+import { cn, formatDate, getScaleDisplay } from "@/lib/utils";
 import { User } from "next-auth";
 import { useState } from "react";
 import Link from "next/link";
-import useDiaryAttempts from "../hooks/useDiaryAttempts";
+import useDiaryAttempts from "../lib/hooks/useDiaryAttempts";
 import { Button } from "./ui/button";
 import { Camera } from "lucide-react";
-import { ShortDiary } from "../types";
+import { ShortDiary } from "../lib/types";
 
 export default function Diaries({
   user,
@@ -69,7 +69,7 @@ export default function Diaries({
                 }
               }}
             >
-              <SelectTrigger className="w-64">
+              <SelectTrigger className="w-72">
                 <SelectValue placeholder="Select diary" />
               </SelectTrigger>
               <SelectContent>
@@ -90,7 +90,9 @@ export default function Diaries({
             >
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Select scale">
-                  <span className="capitalize">{currentScale}</span>
+                  <span className="capitalize">
+                    {getScaleDisplay(currentScale)}
+                  </span>
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -100,7 +102,7 @@ export default function Diaries({
                     value={scale.scale}
                     className="capitalize"
                   >
-                    {scale.scale}
+                    {getScaleDisplay(scale.scale)}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -75,3 +75,22 @@ export const ranks = [
     progressColor: "[&>div]:bg-[#69140A]",
   },
 ] as const;
+
+export function getScaleDisplay(scale: string): string {
+  switch (scale) {
+    case "1":
+      return "Solo";
+    case "2":
+      return "Duo";
+    case "3":
+      return "Trio";
+    case "4":
+      return "4 Man";
+    case "5":
+      return "5 Man";
+    case "8":
+      return "8 Man";
+    default:
+      return ":(";
+  }
+}

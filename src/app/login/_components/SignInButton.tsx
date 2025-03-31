@@ -1,5 +1,5 @@
 import { signIn } from "@/auth";
-import { Button } from "@/lib/components/ui/button";
+import { Button } from "@/components/ui/button";
 import DiscordIcon from "./DiscordIcon";
 
 export default function SignInButton() {

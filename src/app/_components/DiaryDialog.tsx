@@ -10,23 +10,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Badge } from "@/lib/components/ui/badge";
-import { Button } from "@/lib/components/ui/button";
-import { Input } from "@/lib/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/lib/components/ui/select";
+} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NotebookPen, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useDropzone } from "react-dropzone";
-import { Card, CardContent } from "@/lib/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -43,14 +43,17 @@ const diarySchema = z.object({
   scale: z.string(),
   time: z
     .string()
-    .regex(/^\d{1,2}:\d{2}:\d{2}$/, "Invalid duration format (HH:MM:SS)"),
+    .regex(
+      /^\d{1,2}:\d{2}:\d{2}:\d{2}$/,
+      "Invalid duration format (HH:MM:SS:MS)"
+    ),
   teamMembers: z.array(z.string()).optional(),
   proof: z.any().refine((file) => file instanceof File && file.size > 0, {
     message: "Please upload an image file",
   }),
 });
 
-type DiaryForm = z.infer<typeof diarySchema>;
+type DiaryZodForm = z.infer<typeof diarySchema>;
 
 export function DiaryDialog({
   diaries,
@@ -65,7 +68,7 @@ export function DiaryDialog({
   const [teamInput, setTeamInput] = useState("");
   const [teamMembers, setTeamMembers] = useState<string[]>([]);
 
-  const form = useForm<DiaryForm>({
+  const form = useForm<DiaryZodForm>({
     resolver: zodResolver(diarySchema),
     defaultValues: {
       diary: diaries[0].name,
@@ -76,7 +79,7 @@ export function DiaryDialog({
     },
   });
 
-  const onSubmit = (data: DiaryForm) => {
+  const onSubmit = (data: DiaryZodForm) => {
     submitDiary({
       ...data,
       shorthand:
@@ -107,7 +110,7 @@ export function DiaryDialog({
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" className="w-full justify-start px-6">
-          <NotebookPen className="size-8 mr-1" />
+          <NotebookPen className="size-4 mr-1" />
           <span>Diary</span>
         </Button>
       </DialogTrigger>
@@ -130,7 +133,7 @@ export function DiaryDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
-                      Scale
+                      Diary
                     </FormLabel>
                     <FormControl>
                       <Select
@@ -151,7 +154,7 @@ export function DiaryDialog({
                           field.onChange(val);
                         }}
                       >
-                        <SelectTrigger className="w-64">
+                        <SelectTrigger className="w-72">
                           <SelectValue placeholder="Select a diary" />
                         </SelectTrigger>
                         <SelectContent>
@@ -216,11 +219,11 @@ export function DiaryDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
-                      Duration (HH:MM:SS)
+                      Duration (HH:MM:SS:MS)
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g. 01:21:38"
+                        placeholder="e.g. 01:21:38:49"
                         {...field}
                         className="w-64 dark:bg-input/30"
                       />
@@ -335,7 +338,7 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
   return (
     <FormItem className="flex flex-col w-full max-w-4/5 relative">
       <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
-        Party Members
+        Proof
       </FormLabel>
       <FormControl>
         <Card

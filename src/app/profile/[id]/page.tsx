@@ -1,17 +1,16 @@
 import Image from "next/image";
 import SplitChart from "./_components/SplitChart";
-import { Card } from "@/lib/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { getAuthUser } from "@/app/_actions/getAuthUser";
 import getPlayerDetails from "./_actions/getPlayerDetails";
-import { Progress } from "@/lib/components/ui/progress";
+import { Progress } from "@/components/ui/progress";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/lib/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { cn, ranks } from "@/lib/utils";
 import { User } from "@/lib/types";
-import Diaries from "../../../lib/components/Diaries";
+import Diaries from "../../../components/Diaries";
 import { getDiaries } from "@/app/_actions/getDiaries";
-import { Suspense } from "react";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();

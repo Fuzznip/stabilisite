@@ -3,11 +3,11 @@ import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
 import NavBarLinks from "./NavBarLinks";
 import { SignOut } from "./SignOut";
-import { Popover } from "@/lib/components/ui/popover";
+import { Popover } from "@/components/ui/popover";
 import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
-import { Button } from "@/lib/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { getAuthUser } from "../_actions/getAuthUser";
-import { Card } from "@/lib/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { ChevronDown, Coins } from "lucide-react";
 import { DiaryDialog } from "./DiaryDialog";
 import { getDiaries } from "../_actions/getDiaries";
@@ -89,7 +89,7 @@ async function SubmitPopover(): Promise<React.ReactElement> {
             variant="ghost"
             className="w-full hover:cursor-pointer justify-start px-6"
           >
-            <Coins className="size-8 mr-1" />
+            <Coins className="size-4 mr-1" />
             <span>Split</span>
           </Button>
         </Card>

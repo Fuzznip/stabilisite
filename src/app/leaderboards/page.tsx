@@ -1,4 +1,4 @@
-import Diaries from "../../lib/components/Diaries";
+import Diaries from "../../components/Diaries";
 import { getDiaries } from "../_actions/getDiaries";
 
 export default async function LeaderboardPage(): Promise<React.ReactElement> {
