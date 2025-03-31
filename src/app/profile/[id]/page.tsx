@@ -7,7 +7,7 @@ import { Progress } from "@/lib/components/ui/progress";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/lib/components/ui/button";
-import { ranks } from "@/lib/utils";
+import { cn, ranks } from "@/lib/utils";
 import { User } from "@/lib/types";
 import Diaries from "../../../lib/components/Diaries";
 
@@ -76,20 +76,28 @@ async function ProfileStats(): Promise<React.ReactElement> {
 
 async function UserRank(): Promise<React.ReactElement> {
   const user = await getAuthUser();
-  const rankPoints = user?.rankPoints || 0;
+  const rankPoints = 500;
+  // const rankPoints = user?.rankPoints || 0;
   const nextRank = { name: "Iron", points: 2000 };
-  const rank = ranks.find((rank) => rank.name === (user?.rank || "unranked"));
+  const rank = ranks.find((rank) => rank.name === (user?.rank || "Guest"));
 
   return (
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Rank</h2>
       <Card className="p-4 bg-card w-full min-h-20 flex items-center">
-        <div className="mx-auto flex flex-col w-full items-center gap-4">
+        <div
+          className={cn(
+            "mx-auto flex flex-col w-full items-center",
+            ["Quester", "Bronze", "Iron", "Steel"].includes(rank?.name || "")
+              ? "gap-2"
+              : "gap-4"
+          )}
+        >
           <div className="flex gap-4 items-center">
             <div className="relative size-12">
               <Image
-                src={`/${rank?.name}.png`}
-                alt={`${rank?.name} rank`}
+                src={`/${rank?.name.toLowerCase()}.png`}
+                alt={`${rank?.name.toLowerCase()} rank`}
                 className="absolute object-contain"
                 fill
               />
@@ -102,19 +110,25 @@ async function UserRank(): Promise<React.ReactElement> {
           </div>
 
           {rank?.name &&
-            rank?.name !== "unranked" &&
-            rank?.name !== "guest" &&
-            rank?.name !== "trialist" && (
+            rank?.name !== "Guest" &&
+            rank?.name !== "Trialist" && (
               <div className="flex gap-4 w-full items-center">
-                <Progress
-                  value={(rankPoints / nextRank.points) * 100}
-                  className={`h-4 ${rank?.bgColor} ${rank?.progressColor} ${rank?.textColor}`}
-                />
-
-                <div className="text-muted-foreground w-fit text-nowrap font-bold">
-                  {rankPoints.toLocaleString()} /{" "}
-                  {nextRank.points.toLocaleString()} pts
-                </div>
+                {["Quester", "Bronze", "Iron", "Steel"].includes(rank.name) ? (
+                  <div className="text-muted-foreground w-full text-nowrap font-bold items-center text-center">
+                    {rankPoints.toLocaleString()} Clan Points
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center w-full gap-1">
+                    <Progress
+                      value={(rankPoints / nextRank.points) * 100}
+                      className={`h-4 ${rank?.bgColor} ${rank?.progressColor} ${rank?.textColor}`}
+                    />
+                    <div className="text-muted-foreground w-fit text-nowrap font-bold">
+                      {rankPoints.toLocaleString()} /
+                      {nextRank.points.toLocaleString()} Clan Points
+                    </div>
+                  </div>
+                )}
               </div>
             )}
         </div>

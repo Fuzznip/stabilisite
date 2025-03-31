@@ -14,7 +14,7 @@ const s3 = new S3Client({
   },
 });
 
-export async function submitDiary(diaryForm: DiaryForm): Promise<User | null> {
+export async function submitDiary(diaryForm: DiaryForm): Promise<void> {
   try {
     const user = await getAuthUser();
     if (
@@ -45,9 +45,9 @@ export async function submitDiary(diaryForm: DiaryForm): Promise<User | null> {
     });
 
     await submitDiaryEntry(user, diaryForm, fileUrl);
-    return user;
+    return;
   } catch (err) {
     console.debug("Unauthenticated user", err);
-    return null;
+    return;
   }
 }

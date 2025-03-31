@@ -17,7 +17,7 @@ export async function getAuthUser(): Promise<User | null> {
       id: storedUser.id,
       discordId: storedUser.discord_id,
       runescapeName: storedUser.runescape_name,
-      rank: storedUser.rank,
+      rank: storedUser.rank || "Guest",
       rankPoints: storedUser.rank_points,
       joinDate: new Date(storedUser.join_date || ""),
       progressionData: JSON.parse(JSON.stringify(storedUser.progression_data)),
