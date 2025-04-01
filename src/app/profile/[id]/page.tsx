@@ -67,7 +67,7 @@ async function ProfileStats(): Promise<React.ReactElement> {
   const diaries = await getDiaries();
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex justify-between gap-8">
+      <div className="flex justify-between gap-8 flex-col lg:flex-row">
         <UserRank />
         <Suspense fallback={<UserStatsLoading />}>
           <UserStats />
@@ -89,8 +89,8 @@ async function UserRank(): Promise<React.ReactElement> {
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Rank</h2>
       <Card className="p-4 bg-card w-full min-h-20 flex items-center">
-        <div className="mx-auto flex w-full items-center">
-          <div className="flex gap-2 items-center pr-4 border-r-2 border-r-border">
+        <div className="mx-auto flex w-full items-center gap-2 md:gap-0">
+          <div className="flex gap-2 items-center justify-center pr-4a md:pr-0 border-r-2 border-r-border w-1/2">
             <div className="relative size-10">
               <Image
                 src={`/${rank?.name.toLowerCase()}.png`}
@@ -105,11 +105,11 @@ async function UserRank(): Promise<React.ReactElement> {
               {rank?.name}
             </div>
           </div>
-          <div className="flex ml-4">
-            <span className="text-foreground text-3xl mr-2">
+          <div className="flex items-center w-1/2 justify-center">
+            <span className="text-foreground text-4xl mr-2">
               {rankPoints.toLocaleString()}
             </span>
-            <span className="mt-auto text-lg">Clan Points</span>
+            <span className="mt-auto text-lg lg:text-xl">Clan Points</span>
           </div>
         </div>
       </Card>

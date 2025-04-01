@@ -51,7 +51,7 @@ export default function Diaries({
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Diaries</h2>
       <Card className="flex flex-col gap-4 p-4 min-h-72">
-        <div className="flex gap-12 w-full">
+        <div className="flex gap-2 sm:gap-12 w-full flex-col sm:flex-row">
           <div className="flex gap-2 flex-col">
             <Label className="text-muted-foreground">Diary</Label>
             <Select
@@ -112,7 +112,7 @@ export default function Diaries({
 
         <Table>
           {!currentAttempts.length && (
-            <TableCaption className="w-full w-max-24 text-lg">
+            <TableCaption className="w-full w-max-24 text-lg mt-6 mb-4">
               {user
                 ? `You have no submitted ${currentDiary} (${currentScale}) times.`
                 : `There are no entries submitted for ${currentDiary} (${currentScale})`}
