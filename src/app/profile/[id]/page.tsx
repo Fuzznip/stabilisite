@@ -90,8 +90,8 @@ async function UserRank(): Promise<React.ReactElement> {
       <h2 className="text-2xl font-bold mb-2">Rank</h2>
       <Card className="p-4 bg-card w-full min-h-20 flex items-center">
         <div className="mx-auto flex w-full items-center gap-2 md:gap-0">
-          <div className="flex gap-2 items-center justify-center pr-4a md:pr-0 border-r-2 border-r-border w-1/2">
-            <div className="relative size-10">
+          <div className="flex items-center justify-center pr-4 border-r-2 border-r-border w-1/2">
+            <div className="relative size-10 mr-2">
               <Image
                 src={`/${rank?.name.toLowerCase()}.png`}
                 alt={`${rank?.name.toLowerCase()} rank`}
@@ -105,8 +105,8 @@ async function UserRank(): Promise<React.ReactElement> {
               {rank?.name}
             </div>
           </div>
-          <div className="flex items-center w-1/2 justify-center">
-            <span className="text-foreground text-4xl mr-2">
+          <div className="flex items-center w-1/2 justify-center lg:ml-4">
+            <span className="text-foreground text-4xl mr-4">
               {rankPoints.toLocaleString()}
             </span>
             <span className="mt-auto text-lg lg:text-xl">Clan Points</span>
