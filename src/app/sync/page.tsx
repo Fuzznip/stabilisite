@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 
 export default async function SyncPage() {
   const user = await getAuthUser();
-  console.log(user);
   if (!user?.image) redirect("/login");
   if (user?.runescapeName) redirect(`/profile/${user.discordId}`);
 

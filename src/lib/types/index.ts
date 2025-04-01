@@ -79,3 +79,33 @@ export type Application = Partial<{
   verdictTimestamp: string;
   timestamp: string;
 }>;
+
+export type DiaryForm = {
+  time: string;
+  shorthand: string;
+  teamMembers?: string[] | undefined;
+  proof?: File | null;
+};
+
+export type Diary = {
+  id: string;
+  diaryName: string;
+  diaryShorthand: string;
+  bossName: string;
+  scale: string;
+  diaryDescription: string;
+  diaryTime: string;
+  diaryPoints: number;
+};
+
+export type ShortDiary = {
+  name: string;
+  scales: { scale: string; shorthand: string }[];
+};
+
+export type SplitForm = {
+  item: string;
+  price: number;
+  teamSize: number;
+  proof?: File | null;
+}

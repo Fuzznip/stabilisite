@@ -7,6 +7,11 @@ import { Popover } from "@/components/ui/popover";
 import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
 import { getAuthUser } from "../_actions/getAuthUser";
+import { Card } from "@/components/ui/card";
+import { ChevronDown } from "lucide-react";
+import { DiaryDialog } from "./DiaryDialog";
+import { getDiaries } from "../_actions/getDiaries";
+import { SplitDialog } from "./SplitDialog";
 
 export default async function NavBar(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -33,6 +38,7 @@ export default async function NavBar(): Promise<React.ReactElement> {
             <Link href="/apply">Apply</Link>
           </Button>
         )}
+        {user && user.isStabilityMember && <SubmitPopover />}
         {user ? (
           <Popover>
             <PopoverTrigger asChild>
@@ -64,5 +70,25 @@ export default async function NavBar(): Promise<React.ReactElement> {
         )}
       </div>
     </div>
+  );
+}
+
+async function SubmitPopover(): Promise<React.ReactElement> {
+  const diaries = await getDiaries();
+  return (
+    <Popover>
+      <PopoverTrigger asChild className="mr-4">
+        <Button className="flex items-center gap-1 bg-stability hover:bg-stability/90 text-white">
+          Submit
+          <ChevronDown className="w-4 h-4" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-fit p-2">
+        <Card className="flex flex-col p-2">
+          <DiaryDialog diaries={diaries} />
+          <SplitDialog />
+        </Card>
+      </PopoverContent>
+    </Popover>
   );
 }

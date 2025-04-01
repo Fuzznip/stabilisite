@@ -3,12 +3,15 @@ import SplitChart from "./_components/SplitChart";
 import { Card } from "@/components/ui/card";
 import { getAuthUser } from "@/app/_actions/getAuthUser";
 import getPlayerDetails from "./_actions/getPlayerDetails";
-import { Progress } from "@/components/ui/progress";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ranks } from "@/lib/utils";
 import { User } from "@/lib/types";
+import Diaries from "../../../components/Diaries";
+import { getDiaries } from "@/app/_actions/getDiaries";
+import { Suspense } from "react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -61,12 +64,16 @@ async function ProfileHeader(): Promise<React.ReactElement> {
 
 async function ProfileStats(): Promise<React.ReactElement> {
   const user = await getAuthUser();
+  const diaries = await getDiaries();
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between gap-8">
         <UserRank />
-        <UserStats />
+        <Suspense fallback={<UserStatsLoading />}>
+          <UserStats />
+        </Suspense>
       </div>
+      <Diaries user={user} diaries={diaries} />
       <SplitChart user={user} />
     </div>
   );
@@ -75,46 +82,35 @@ async function ProfileStats(): Promise<React.ReactElement> {
 async function UserRank(): Promise<React.ReactElement> {
   const user = await getAuthUser();
   const rankPoints = user?.rankPoints || 0;
-  const nextRank = { name: "Iron", points: 2000 };
-  const rank = ranks.find((rank) => rank.name === (user?.rank || "unranked"));
+  // const nextRank = { name: "Iron", points: 2000 };
+  const rank = ranks.find((rank) => rank.name === (user?.rank || "Guest"));
 
   return (
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Rank</h2>
       <Card className="p-4 bg-card w-full min-h-20 flex items-center">
-        <div className="mx-auto flex flex-col w-full items-center gap-4">
-          <div className="flex gap-4 items-center">
-            <div className="relative size-12">
+        <div className="mx-auto flex w-full items-center">
+          <div className="flex gap-2 items-center pr-4 border-r-2 border-r-border">
+            <div className="relative size-10">
               <Image
-                src={`/${rank?.name}.png`}
-                alt={`${rank?.name} rank`}
+                src={`/${rank?.name.toLowerCase()}.png`}
+                alt={`${rank?.name.toLowerCase()} rank`}
                 className="absolute object-contain"
                 fill
               />
             </div>
             <div
-              className={`capitalize text-4xl font-extrabold ${rank?.textColor} dark:brightness-150 brightness-90`}
+              className={`capitalize text-4xl ${rank?.textColor} dark:brightness-150 brightness-90`}
             >
               {rank?.name}
             </div>
           </div>
-
-          {rank?.name &&
-            rank?.name !== "unranked" &&
-            rank?.name !== "guest" &&
-            rank?.name !== "trialist" && (
-              <div className="flex gap-4 w-full items-center">
-                <Progress
-                  value={(rankPoints / nextRank.points) * 100}
-                  className={`h-4 ${rank?.bgColor} ${rank?.progressColor} ${rank?.textColor}`}
-                />
-
-                <div className="text-muted-foreground w-fit text-nowrap font-bold">
-                  {rankPoints.toLocaleString()} /{" "}
-                  {nextRank.points.toLocaleString()} pts
-                </div>
-              </div>
-            )}
+          <div className="flex ml-4">
+            <span className="text-foreground text-3xl mr-2">
+              {rankPoints.toLocaleString()}
+            </span>
+            <span className="mt-auto text-lg">Clan Points</span>
+          </div>
         </div>
       </Card>
     </section>
@@ -129,7 +125,7 @@ async function UserStats(): Promise<React.ReactElement> {
   return (
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Stats</h2>
-      <Card className="flex items-center p-4 text-4xl h-full font-extrabold">
+      <Card className="flex items-center p-4 text-4xl h-full gap-4">
         <div className="flex items-center w-1/2 justify-center">
           <div className="relative size-8 mr-2">
             <Image
@@ -157,10 +153,19 @@ async function UserStats(): Promise<React.ReactElement> {
   );
 }
 
+function UserStatsLoading(): React.ReactElement {
+  return (
+    <section className="flex flex-col w-full">
+      <h2 className="text-2xl font-bold mb-2">Stats</h2>
+      <Card className="flex items-center p-4 text-4xl h-full font-extrabold gap-4 justify-center">
+        <LoadingSpinner />
+      </Card>
+    </section>
+  );
+}
+
 // async function UserAchievements(): Promise<React.ReactElement> {
 //   const details = await getPlayerDetails();
-
-//   console.log(details?.latestSnapshot?.data.skills.overall);
 
 //   const infernoComplete =
 //     (details?.latestSnapshot?.data.bosses.tzkal_zuk.kills || 0) > 0;
@@ -201,8 +206,16 @@ function NoProfileMessage({ user }: { user: User | null }): React.ReactElement {
         asChild
         className="bg-stability text-white hover:bg-stability/90 w-fit ml-auto mt-8 text-lg px-8"
       >
-        <Link href={!user?.isStabilityMember ? "/apply" : "/sync"}>
-          {!user?.isStabilityMember ? "Apply" : "Sync"}
+        <Link
+          href={
+            !user?.image
+              ? "/login"
+              : !user?.isStabilityMember
+              ? "/apply"
+              : "/sync"
+          }
+        >
+          {!user?.image ? "Login" : !user?.isStabilityMember ? "Apply" : "Sync"}
         </Link>
       </Button>
     </Card>
