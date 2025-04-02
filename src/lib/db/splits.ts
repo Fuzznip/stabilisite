@@ -8,7 +8,7 @@ export async function submitSplitEntry(
   const splitRequest = {
     user_id: user?.discordId,
     item_name: splitForm.item,
-    item_price: splitForm.price * 1_000_000,
+    item_price: splitForm.price,
     group_size: splitForm.teamSize,
     screenshot_link: fileUrl,
   };

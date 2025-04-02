@@ -22,7 +22,6 @@ import { cn, formatDate, getScaleDisplay } from "@/lib/utils";
 import { User } from "next-auth";
 import { useState } from "react";
 import Link from "next/link";
-import useDiaryAttempts from "../lib/hooks/useDiaryAttempts";
 import { Button } from "./ui/button";
 import { Camera } from "lucide-react";
 import { ShortDiary } from "../lib/types";
@@ -34,7 +33,8 @@ export default function Diaries({
   user?: User | null;
   diaries: ShortDiary[];
 }): React.ReactElement {
-  const attempts = useDiaryAttempts(user);
+  // const attempts = useDiaryAttempts(user);
+  const attempts = [];
   const [currentDiary, setCurrentDiary] = useState(diaries[0].name);
   const [currentScale, setCurrentScale] = useState(diaries[0].scales[0].scale);
 

@@ -87,6 +87,18 @@ export type DiaryForm = {
   proof?: File | null;
 };
 
+export type DiaryApplicationResponse = {
+  user_id: string;
+  party: string[];
+  diary_shorthand: string;
+  time_split: string;
+  proof: string;
+};
+
+export type DiaryApplication = {
+  userId: string;
+} & DiaryForm;
+
 export type Diary = {
   id: string;
   diaryName: string;
@@ -108,4 +120,4 @@ export type SplitForm = {
   price: number;
   teamSize: number;
   proof?: File | null;
-}
+};

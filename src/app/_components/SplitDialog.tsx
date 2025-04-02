@@ -29,6 +29,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { submitSplit } from "../_actions/submitSplit";
+import { cn } from "@/lib/utils";
 
 const splitSchema = z.object({
   item: z.string({ required_error: "Item name is required" }),
@@ -118,14 +119,33 @@ export function SplitDialog(): React.ReactElement {
                   </FormLabel>
                   <FormDescription></FormDescription>
                   <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Enter item price..."
-                      {...form.register("price", {
-                        valueAsNumber: true,
-                      })}
-                      className="w-64 dark:bg-input/30"
-                    />
+                    <div className="flex items-center gap-4">
+                      <Input
+                        type="number"
+                        placeholder="Enter item price..."
+                        {...form.register("price", {
+                          valueAsNumber: true,
+                        })}
+                        className="w-64 dark:bg-input/30"
+                      />
+                      <div
+                        className={cn(
+                          "text-muted-foreground flex items-center",
+                          (form.getValues().price || 0) / 1000000 >= 10 &&
+                            "text-[#23FE9A]"
+                        )}
+                      >
+                        <div className="relative size-4 mr-1">
+                          <Image
+                            src="/coins.png"
+                            alt="coins"
+                            className="absolute object-contain"
+                            fill
+                          />
+                        </div>
+                        {Math.floor((form.getValues().price || 0) / 1000000)}m
+                      </div>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -43,10 +43,7 @@ const diarySchema = z.object({
   scale: z.string(),
   time: z
     .string()
-    .regex(
-      /^\d{1,2}:\d{2}:\d{2}.\d{2}$/,
-      "Invalid duration format (HH:MM:SS.MS)"
-    ),
+    .regex(/^\d{1,2}:\d{1,2}.\d{1,3}$/, "Invalid duration format (MM:SS.MS)"),
   teamMembers: z.array(z.string()).optional(),
   proof: z.any().refine((file) => file instanceof File && file.size > 0, {
     message: "Please upload an image file",
@@ -216,21 +213,97 @@ export function DiaryDialog({
               <FormField
                 control={form.control}
                 name="time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
-                      Duration (HH:MM:SS:MS)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g. 01:21:38:49"
-                        {...field}
-                        className="w-64 dark:bg-input/30"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const parseTime = (value: string) => {
+                    const [minSec = "", ms = "0"] = value?.split(".") ?? [];
+                    const [m = "0", s = "0"] = minSec.split(":");
+                    return {
+                      minutes: parseInt(m) || undefined,
+                      seconds: parseInt(s) || undefined,
+                      milliseconds: parseInt(ms) || undefined,
+                    };
+                  };
+
+                  const formatTime = (m: number, s: number, ms: number) => {
+                    const pad = (n: number, l = 2) =>
+                      String(n).padStart(l, "0");
+                    return `${pad(m || 0)}:${pad(s || 0)}.${String(
+                      ms || 0
+                    ).padStart(3, "0")}`;
+                  };
+
+                  const { minutes, seconds, milliseconds } = parseTime(
+                    field.value ?? "00:00.000"
+                  );
+
+                  return (
+                    <FormItem>
+                      <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                        Duration
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2 items-center">
+                          <Input
+                            type="number"
+                            min={0}
+                            value={minutes}
+                            onChange={(e) =>
+                              field.onChange(
+                                formatTime(
+                                  +e.target.value,
+                                  seconds || 0,
+                                  milliseconds || 0
+                                )
+                              )
+                            }
+                            className="w-20 dark:bg-input/30"
+                            placeholder="MM"
+                          />
+                          <Input
+                            type="number"
+                            min={0}
+                            max={59}
+                            value={seconds}
+                            onChange={(e) =>
+                              field.onChange(
+                                formatTime(
+                                  minutes || 0,
+                                  +e.target.value,
+                                  milliseconds || 0
+                                )
+                              )
+                            }
+                            className="w-20 dark:bg-input/30"
+                            placeholder="SS"
+                          />
+                          <Input
+                            type="number"
+                            min={0}
+                            max={999}
+                            value={milliseconds}
+                            onChange={(e) =>
+                              field.onChange(
+                                formatTime(
+                                  minutes || 0,
+                                  seconds || 0,
+                                  +e.target.value
+                                )
+                              )
+                            }
+                            className="w-24 dark:bg-input/30"
+                            placeholder="MS"
+                          />
+                          <span className="text-muted-foreground">
+                            {field.value &&
+                              field.value !== "00:00.000" &&
+                              `(${field.value})`}
+                          </span>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
             <FormField
@@ -257,7 +330,7 @@ export function DiaryDialog({
                     <div className="flex items-center gap-4">
                       <Input
                         id="team"
-                        disabled={selectedScale === "solo"}
+                        disabled={selectedScale === "1"}
                         value={teamInput}
                         onChange={(e) => setTeamInput(e.target.value)}
                         onKeyDown={(e) =>
@@ -269,7 +342,7 @@ export function DiaryDialog({
                       />
                       <Button
                         type="button"
-                        disabled={selectedScale === "solo"}
+                        disabled={selectedScale === "1"}
                         onClick={handleTeamAdd}
                         className={
                           "w-fit bg-stability hover:bg-stability/90 text-white"
