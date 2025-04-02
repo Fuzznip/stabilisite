@@ -14,11 +14,11 @@ import { Input } from "@/components/ui/input";
 
 type Props = {
   value: string;
-  onChange: (val: string) => void;
+  onItemSelect: (item: OsrsItem) => void;
 };
 
 // This needs serious refactoring --- I apologize...
-export function OsrsItemSelect({ value, onChange }: Props) {
+export function OsrsItemSelect({ value, onItemSelect }: Props) {
   const [open, setOpen] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const { results, searchItems, loading } = useOsrsItems();
@@ -40,7 +40,7 @@ export function OsrsItemSelect({ value, onChange }: Props) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    onChange(newValue);
+    onItemSelect({ name: newValue, id: undefined, image: undefined });
     searchItems(newValue);
     setIsDirty(true);
   };
@@ -89,7 +89,7 @@ export function OsrsItemSelect({ value, onChange }: Props) {
                 key={item.id}
                 className="flex items-center gap-2 px-2 py-4 cursor-pointer w-full rounded-lg hover:text-accent-foreground hover:bg-accent hover:border hover:border-foreground hover:px-[7px] hover:py-[15px]"
                 onClick={() => {
-                  onChange(item.name);
+                  onItemSelect(item);
                   setOpen(false);
                   setIsDirty(false);
                 }}
@@ -97,7 +97,7 @@ export function OsrsItemSelect({ value, onChange }: Props) {
                 <div className="w-fit h-fit p-1 rounded-lg bg-accent">
                   <div className="relative size-6">
                     <Image
-                      src={item.image}
+                      src={item.image || ""}
                       alt={item.name}
                       fill
                       className="rounded-sm absolute object-contain"

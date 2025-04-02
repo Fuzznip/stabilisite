@@ -133,7 +133,7 @@ export type SplitForm = {
 };
 
 export type OsrsItem = {
-  id: string;
+  id?: string;
   name: string;
-  image: string;
+  image?: string;
 };

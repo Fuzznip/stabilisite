@@ -31,6 +31,8 @@ import {
 import { submitSplit } from "../_actions/submitSplit";
 import { cn } from "@/lib/utils";
 import { OsrsItemSelect } from "./OsrsItemSelect";
+import { OsrsItem } from "@/lib/types";
+import { getGEPrices } from "../_actions/getGEPrices";
 
 const splitSchema = z.object({
   item: z.string({ required_error: "Item name is required" }),
@@ -63,6 +65,23 @@ export function SplitDialog(): React.ReactElement {
       proof: undefined,
     },
   });
+
+  const updatePrice = async (id: string) => {
+    try {
+      if (!id) return;
+      const prices = await getGEPrices();
+      const itemData = prices[id];
+
+      if (!itemData) return;
+
+      const price = itemData.high ?? itemData.low ?? 0;
+      const roundedPrice = Math.round(price / 1_000_000) * 1_000_000;
+
+      form.setValue("price", roundedPrice);
+    } catch (error) {
+      console.error("Failed to fetch GE price:", error);
+    }
+  };
 
   const onSubmit = (data: SplitSchema) => {
     submitSplit(data);
@@ -100,7 +119,13 @@ export function SplitDialog(): React.ReactElement {
                     What was the drop?
                   </FormLabel>
                   <FormControl>
-                    <OsrsItemSelect {...field} />
+                    <OsrsItemSelect
+                      onItemSelect={(item: OsrsItem) => {
+                        form.setValue("item", item.name);
+                        if (item.id) updatePrice(item.id);
+                      }}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
