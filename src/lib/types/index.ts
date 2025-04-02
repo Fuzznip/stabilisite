@@ -131,3 +131,9 @@ export type SplitForm = {
   teamSize: number;
   proof?: File | null;
 };
+
+export type OsrsItem = {
+  id: string;
+  name: string;
+  image: string;
+};
