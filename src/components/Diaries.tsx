@@ -126,8 +126,12 @@ export default function Diaries({
           {!currentAttempts.length && (
             <TableCaption className="w-full w-max-24 text-lg mt-6 mb-4">
               {user
-                ? `You have no submitted ${currentDiary} (${currentScale?.scale}) times.`
-                : `There are no entries submitted for ${currentDiary} (${currentScale?.scale})`}
+                ? `You have no submitted ${currentDiary} (${getScaleDisplay(
+                    currentScale?.scale || ""
+                  )}) times.`
+                : `There are no entries submitted for ${currentDiary} (${getScaleDisplay(
+                    currentScale?.scale || ""
+                  )})`}
             </TableCaption>
           )}
           <TableHeader>
