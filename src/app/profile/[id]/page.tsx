@@ -12,6 +12,7 @@ import Diaries from "../../../components/Diaries";
 import { getDiaries } from "@/app/_actions/getDiaries";
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { getUserDiaries } from "@/app/_actions/getUserDiaries";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -65,6 +66,7 @@ async function ProfileHeader(): Promise<React.ReactElement> {
 async function ProfileStats(): Promise<React.ReactElement> {
   const user = await getAuthUser();
   const diaries = await getDiaries();
+  const userDiaries = await getUserDiaries(user);
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between gap-8 flex-col lg:flex-row">
@@ -73,7 +75,7 @@ async function ProfileStats(): Promise<React.ReactElement> {
           <UserStats />
         </Suspense>
       </div>
-      <Diaries user={user} diaries={diaries} />
+      <Diaries user={user} diaries={diaries} entries={userDiaries} />
       <SplitChart user={user} />
     </div>
   );

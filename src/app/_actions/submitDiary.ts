@@ -18,7 +18,7 @@ export async function submitDiary(diaryForm: DiaryForm): Promise<void> {
     await submitDiaryEntry(user, diaryForm, fileUrl);
     return;
   } catch (err) {
-    console.debug("Unauthenticated user", err);
+    console.debug(err);
     return;
   }
 }

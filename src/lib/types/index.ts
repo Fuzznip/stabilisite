@@ -93,11 +93,21 @@ export type DiaryApplicationResponse = {
   diary_shorthand: string;
   time_split: string;
   proof: string;
+  target_diary_id: string;
+  status: string;
+  timestamp: string;
 };
 
 export type DiaryApplication = {
   userId: string;
-} & DiaryForm;
+  status: string;
+  date: Date;
+  targetDiaryId: string;
+  time: string;
+  shorthand: string;
+  teamMembers?: string[] | undefined;
+  proof?: string;
+};
 
 export type Diary = {
   id: string;

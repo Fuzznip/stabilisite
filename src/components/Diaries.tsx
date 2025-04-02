@@ -24,25 +24,25 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Camera } from "lucide-react";
-import { ShortDiary } from "../lib/types";
+import { DiaryApplication, ShortDiary } from "../lib/types";
 
 export default function Diaries({
   user,
   diaries,
+  entries,
 }: {
   user?: User | null;
   diaries: ShortDiary[];
+  entries: DiaryApplication[];
 }): React.ReactElement {
-  // const attempts = useDiaryAttempts(user);
-  const attempts = [];
   const [currentDiary, setCurrentDiary] = useState(diaries[0].name);
-  const [currentScale, setCurrentScale] = useState(diaries[0].scales[0].scale);
+  const [currentScale, setCurrentScale] = useState<{
+    scale: string;
+    shorthand: string;
+  } | null>(diaries[0].scales[0]);
 
-  const currentAttempts = attempts
-    .filter(
-      (attempt) =>
-        attempt.diary === currentDiary && attempt.scale === currentScale
-    )
+  const currentAttempts = entries
+    .filter((entry) => entry.shorthand === currentScale?.shorthand)
     .sort((attemptA, attemptB) => attemptA.time.localeCompare(attemptB.time));
 
   const selectedDiary = diaries.find((diary) => diary.name === currentDiary);
@@ -51,7 +51,7 @@ export default function Diaries({
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Diaries</h2>
       <Card className="flex flex-col gap-4 p-4 min-h-72">
-        <div className="flex gap-2 sm:gap-12 w-full flex-col sm:flex-row">
+        <div className="flex gap-4 sm:gap-12 w-full flex-col sm:flex-row">
           <div className="flex gap-2 flex-col">
             <Label className="text-muted-foreground">Diary</Label>
             <Select
@@ -63,9 +63,9 @@ export default function Diaries({
                   newDiary &&
                   !newDiary.scales
                     .map((scale) => scale.scale)
-                    .includes(currentScale)
+                    .includes(currentScale?.scale || "")
                 ) {
-                  setCurrentScale(newDiary.scales[0].scale);
+                  setCurrentScale(newDiary.scales[0]);
                 }
               }}
             >
@@ -85,13 +85,19 @@ export default function Diaries({
           <div className="flex gap-2 flex-col">
             <Label className="text-muted-foreground">Scale</Label>
             <Select
-              value={currentScale}
-              onValueChange={(value) => setCurrentScale(value)}
+              value={currentScale?.scale}
+              onValueChange={(value) =>
+                setCurrentScale(
+                  selectedDiary?.scales.find(
+                    (scale) => scale.scale === value
+                  ) || null
+                )
+              }
             >
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Select scale">
                   <span className="capitalize">
-                    {getScaleDisplay(currentScale)}
+                    {getScaleDisplay(currentScale?.scale || "")}
                   </span>
                 </SelectValue>
               </SelectTrigger>
@@ -129,7 +135,7 @@ export default function Diaries({
           </TableHeader>
           <TableBody className="text-xl">
             {currentAttempts.map((attempt, index) => (
-              <TableRow key={attempt.id}>
+              <TableRow key={attempt.date.getTime()}>
                 <TableCell
                   className={cn(
                     "font-extrabold",
@@ -145,16 +151,21 @@ export default function Diaries({
                 <TableCell>{formatDate(attempt.date)}</TableCell>
                 <TableCell
                   className={cn(
-                    attempt.team.length > 1 && "flex flex-col items-start"
+                    attempt.teamMembers?.length && "flex flex-col items-start"
                   )}
                 >
-                  {attempt.team.map((teammate) => (
-                    <span key={`${attempt.id}-${teammate}`}>{teammate}</span>
+                  {attempt.teamMembers?.map((teammate) => (
+                    <span
+                      key={`${teammate}-${attempt.date.getTime()}`}
+                      className="mt-1"
+                    >
+                      {teammate}
+                    </span>
                   ))}
                 </TableCell>
                 <TableCell>
                   <Button variant="ghost" asChild className="text-3xl">
-                    <Link href={attempt.proof} className="w-auto h-auto">
+                    <Link href={attempt.proof || ""} className="w-auto h-auto">
                       <Camera className="!size-6" />
                     </Link>
                   </Button>

@@ -12,7 +12,7 @@ export async function submitSplit(splitForm: SplitForm): Promise<void> {
     await submitSplitEntry(user, splitForm, fileUrl);
     return;
   } catch (err) {
-    console.debug("Unauthenticated user", err);
+    console.debug(err);
     return;
   }
 }

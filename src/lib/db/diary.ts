@@ -1,7 +1,7 @@
 import {
+  DiaryApplication,
   DiaryApplicationResponse,
   DiaryForm,
-  ShortDiary,
   User,
 } from "../types";
 
@@ -17,8 +17,6 @@ export async function submitDiaryEntry(
     time_split: diaryForm.time,
     proof: fileUrl,
   };
-  console.log(`${process.env.API_URL}/applications/diary`);
-  console.log(diaryRequest);
   const response = await fetch(`${process.env.API_URL}/applications/diary`, {
     method: "POST",
     headers: {
@@ -31,14 +29,12 @@ export async function submitDiaryEntry(
 
 export async function getDiaryApplications(
   user?: User | null
-): Promise<ShortDiary[]> {
+): Promise<DiaryApplication[]> {
   const userParam = `?discord_id=${user?.discordId}`;
 
   const userDiaries = await fetch(
     `${process.env.API_URL}/applications/diary${user ? userParam : ""}`
   ).then((res) => res.json());
-
-  console.log(userDiaries);
 
   return userDiaries.map((diary: DiaryApplicationResponse) => ({
     userId: diary.user_id,
@@ -46,5 +42,8 @@ export async function getDiaryApplications(
     shorthand: diary.diary_shorthand,
     time: diary.time_split,
     proof: diary.proof,
+    targetDiaryId: diary.target_diary_id,
+    date: new Date(diary.timestamp),
+    status: diary.status,
   }));
 }

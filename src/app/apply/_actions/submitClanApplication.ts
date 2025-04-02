@@ -17,7 +17,7 @@ export async function submitClanApplication(
     return;
   } catch (err) {
     if (isRedirectError(err)) throw err;
-    console.debug("Unauthenticated user", err);
+    console.debug(err);
     return;
   }
 }

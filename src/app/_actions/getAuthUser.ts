@@ -28,7 +28,7 @@ export async function getAuthUser(): Promise<User | null> {
 
     return user;
   } catch (err) {
-    console.debug("Unauthenticated user", err);
+    console.debug(err);
     return null;
   }
 }
