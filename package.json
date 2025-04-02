@@ -24,6 +24,7 @@
     "@wise-old-man/utils": "^3.3.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
     "firebase": "^11.3.1",
     "firebase-functions": "^6.3.2",

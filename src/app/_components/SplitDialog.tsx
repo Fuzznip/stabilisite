@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/form";
 import { submitSplit } from "../_actions/submitSplit";
 import { cn } from "@/lib/utils";
+import { OsrsItemSelect } from "./OsrsItemSelect";
 
 const splitSchema = z.object({
   item: z.string({ required_error: "Item name is required" }),
@@ -99,11 +100,7 @@ export function SplitDialog(): React.ReactElement {
                     What was the drop?
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Torva Platebody"
-                      {...field}
-                      className="w-64 dark:bg-input/30"
-                    />
+                    <OsrsItemSelect {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

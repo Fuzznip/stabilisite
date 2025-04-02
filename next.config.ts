@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/avatars/**",
       },
+      {
+        protocol: "https",
+        hostname: "oldschool.runescape.wiki",
+        port: "",
+        pathname: "/images/**",
+      },
     ],
   },
   experimental: {

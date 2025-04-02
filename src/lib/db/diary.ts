@@ -17,6 +17,7 @@ export async function submitDiaryEntry(
     time_split: diaryForm.time,
     proof: fileUrl,
   };
+  console.log(diaryRequest);
   const response = await fetch(`${process.env.API_URL}/applications/diary`, {
     method: "POST",
     headers: {
