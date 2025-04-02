@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { cn, formatDate, getScaleDisplay } from "@/lib/utils";
 import { User } from "next-auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Camera } from "lucide-react";
@@ -41,9 +41,19 @@ export default function Diaries({
     shorthand: string;
   } | null>(diaries[0].scales[0]);
 
-  const currentAttempts = entries
-    .filter((entry) => entry.shorthand === currentScale?.shorthand)
-    .sort((attemptA, attemptB) => attemptA.time.localeCompare(attemptB.time));
+  const [currentAttempts, setCurrentAttempts] = useState<DiaryApplication[]>(
+    []
+  );
+
+  useEffect(() => {
+    setCurrentAttempts(
+      entries
+        .filter((entry) => entry.shorthand === currentScale?.shorthand)
+        .sort((attemptA, attemptB) =>
+          attemptA.time.localeCompare(attemptB.time)
+        ) || []
+    );
+  }, [currentDiary, currentScale, entries]);
 
   const selectedDiary = diaries.find((diary) => diary.name === currentDiary);
 
@@ -51,7 +61,7 @@ export default function Diaries({
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Diaries</h2>
       <Card className="flex flex-col gap-4 p-4 min-h-72">
-        <div className="flex gap-4 sm:gap-12 w-full flex-col sm:flex-row">
+        <div className="flex gap-4 md:gap-12 w-full flex-col md:flex-row">
           <div className="flex gap-2 flex-col">
             <Label className="text-muted-foreground">Diary</Label>
             <Select
@@ -59,14 +69,10 @@ export default function Diaries({
               onValueChange={(value) => {
                 setCurrentDiary(value);
                 const newDiary = diaries.find((d) => d.name === value);
-                if (
-                  newDiary &&
-                  !newDiary.scales
-                    .map((scale) => scale.scale)
-                    .includes(currentScale?.scale || "")
-                ) {
-                  setCurrentScale(newDiary.scales[0]);
-                }
+                const matchingScale = newDiary?.scales.find(
+                  (scale) => scale.scale === currentScale?.scale
+                );
+                setCurrentScale(matchingScale || newDiary?.scales[0] || null);
               }}
             >
               <SelectTrigger className="w-72">
@@ -120,8 +126,8 @@ export default function Diaries({
           {!currentAttempts.length && (
             <TableCaption className="w-full w-max-24 text-lg mt-6 mb-4">
               {user
-                ? `You have no submitted ${currentDiary} (${currentScale}) times.`
-                : `There are no entries submitted for ${currentDiary} (${currentScale})`}
+                ? `You have no submitted ${currentDiary} (${currentScale?.scale}) times.`
+                : `There are no entries submitted for ${currentDiary} (${currentScale?.scale})`}
             </TableCaption>
           )}
           <TableHeader>
@@ -135,7 +141,7 @@ export default function Diaries({
           </TableHeader>
           <TableBody className="text-xl">
             {currentAttempts.map((attempt, index) => (
-              <TableRow key={attempt.date.getTime()}>
+              <TableRow key={`${attempt.shorthand}-${index}`}>
                 <TableCell
                   className={cn(
                     "font-extrabold",
