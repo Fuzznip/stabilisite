@@ -20,10 +20,12 @@ export async function getDiaries(): Promise<ShortDiary[]> {
   const diaries = Array.from(grouped.entries())
     .map(([diaryName, scaleMap]) => ({
       name: diaryName,
-      scales: Array.from(scaleMap.entries()).map(([scale, shorthand]) => ({
-        scale,
-        shorthand,
-      })),
+      scales: Array.from(scaleMap.entries())
+        .map(([scale, shorthand]) => ({
+          scale,
+          shorthand,
+        }))
+        .sort((scale1, scale2) => scale1.scale.localeCompare(scale2.scale)),
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
