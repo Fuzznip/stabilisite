@@ -17,7 +17,6 @@ type Props = {
   onChange: (val: string) => void;
 };
 
-
 // This needs serious refactoring --- I apologize...
 export function OsrsItemSelect({ value, onChange }: Props) {
   const [open, setOpen] = useState(false);
@@ -65,6 +64,11 @@ export function OsrsItemSelect({ value, onChange }: Props) {
           ref={triggerRef}
           value={value}
           onChange={handleInputChange}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              e.currentTarget.blur();
+            }
+          }}
           placeholder="Torva Platebody"
           className="w-64 dark:bg-input/30"
         />
