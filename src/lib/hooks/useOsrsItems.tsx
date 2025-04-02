@@ -6,7 +6,6 @@ export function useOsrsItems() {
   const [loading, setLoading] = useState(true);
   const [allItems, setAllItems] = useState<OsrsItem[] | null>(null);
 
-  // Fetch GE mapping once
   useEffect(() => {
     async function fetchItems() {
       try {
