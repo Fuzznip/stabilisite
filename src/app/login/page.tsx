@@ -1,6 +1,6 @@
 import Image from "next/image";
 import SignInButton from "./_components/SignInButton";
-import { getAuthUser } from "../_actions/getAuthUser";
+import { getAuthUser } from "../../lib/fetch/getAuthUser";
 import { redirect } from "next/navigation";
 
 export default async function LoginPage(): Promise<React.ReactElement> {

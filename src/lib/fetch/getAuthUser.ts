@@ -1,5 +1,3 @@
-"use server";
-
 import { auth } from "@/auth";
 import { getStoredUser } from "@/lib/db/user";
 import { User } from "@/lib/types";
@@ -11,7 +9,7 @@ export async function getAuthUser(): Promise<User | null> {
   }
   try {
     const storedUser = await getStoredUser(session.user);
-    if (!storedUser) return session.user;
+    if (!storedUser) return { ...session.user };
 
     const user: User = {
       id: storedUser.id,

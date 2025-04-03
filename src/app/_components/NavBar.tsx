@@ -6,11 +6,11 @@ import { SignOut } from "./SignOut";
 import { Popover } from "@/components/ui/popover";
 import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
-import { getAuthUser } from "../_actions/getAuthUser";
+import { getAuthUser } from "../../lib/fetch/getAuthUser";
 import { Card } from "@/components/ui/card";
 import { ChevronDown } from "lucide-react";
 import { DiaryDialog } from "./DiaryDialog";
-import { getDiaries } from "../_actions/getDiaries";
+import { getDiaries } from "../../lib/fetch/getDiaries";
 import { SplitDialog } from "./SplitDialog";
 
 export default async function NavBar(): Promise<React.ReactElement> {

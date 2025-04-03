@@ -1,37 +1,36 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { DiaryApplication, ShortDiary, User } from "@/lib/types";
+import { getScaleDisplay, cn, formatDate } from "@/lib/utils";
+import { Camera } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Card } from "../ui/card";
+import {
+  TableCaption,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+  Table,
+} from "../ui/table";
+import Link from "next/link";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { cn, formatDate, getScaleDisplay } from "@/lib/utils";
-import { User } from "next-auth";
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Button } from "./ui/button";
-import { Camera } from "lucide-react";
-import { DiaryApplication, ShortDiary } from "../lib/types";
+} from "../ui/select";
 
-export default function Diaries({
+export function DiaryTable({
   user,
   diaries,
   entries,
 }: {
-  user?: User | null;
+  user: User | null;
   diaries: ShortDiary[];
   entries: DiaryApplication[];
 }): React.ReactElement {

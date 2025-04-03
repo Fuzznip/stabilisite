@@ -1,5 +1,3 @@
-"use server";
-
 import { getDiaryApplications } from "@/lib/db/diary";
 import { DiaryApplication, User } from "@/lib/types";
 

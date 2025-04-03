@@ -1,23 +1,22 @@
 import Image from "next/image";
 import SplitChart from "./_components/SplitChart";
 import { Card } from "@/components/ui/card";
-import { getAuthUser } from "@/app/_actions/getAuthUser";
+import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import getPlayerDetails from "./_actions/getPlayerDetails";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ranks } from "@/lib/utils";
 import { User } from "@/lib/types";
-import Diaries from "../../../components/Diaries";
-import { getDiaries } from "@/app/_actions/getDiaries";
+import Diaries from "../../../components/diary/Diaries";
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { getUserDiaries } from "@/app/_actions/getUserDiaries";
+import { getUserSplits } from "@/lib/fetch/getUserSplits";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
   return user?.runescapeName && user.isStabilityMember ? (
-    <div className="flex flex-col w-2/3 min-w-96 mx-auto mt-12 gap-12">
+    <div className="flex flex-col w-2/3 min-w-96 mx-auto mt-12 gap-12 mb-8">
       <ProfileHeader />
       <ProfileStats />
     </div>
@@ -65,8 +64,7 @@ async function ProfileHeader(): Promise<React.ReactElement> {
 
 async function ProfileStats(): Promise<React.ReactElement> {
   const user = await getAuthUser();
-  const diaries = await getDiaries();
-  const userDiaries = await getUserDiaries(user);
+  const splits = await getUserSplits(user);
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between gap-8 flex-col lg:flex-row">
@@ -75,8 +73,8 @@ async function ProfileStats(): Promise<React.ReactElement> {
           <UserStats />
         </Suspense>
       </div>
-      <Diaries user={user} diaries={diaries} entries={userDiaries} />
-      <SplitChart user={user} />
+      <Diaries />
+      <SplitChart user={user} splits={splits} />
     </div>
   );
 }

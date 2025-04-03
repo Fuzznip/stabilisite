@@ -1,5 +1,3 @@
-"use server";
-
 import { ShortDiary } from "@/lib/types";
 
 export async function getDiaries(): Promise<ShortDiary[]> {
