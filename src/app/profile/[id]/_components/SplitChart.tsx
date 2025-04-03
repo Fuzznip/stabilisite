@@ -80,7 +80,7 @@ export default function SplitChart({
                     fill
                   />
                 </div>
-                {chartData.slice(-2)[0].cumulativeValue / 1000000}m
+                {Math.floor(chartData.slice(-2)[0].cumulativeValue / 1000000)}m
               </span>
             </div>
             <div className="flex flex-col mb-6 ml-4">
@@ -104,7 +104,7 @@ export default function SplitChart({
                     fill
                   />
                 </div>
-                {chartData.slice(-2)[0].itemPrice / 1000000}m
+                {Math.floor(chartData.slice(-2)[0].itemPrice / 1000000)}m
               </div>
               <span className="text-muted-foreground text-sm">
                 {tooltipFormatter.format(chartData.slice(-2)[0].date)}
