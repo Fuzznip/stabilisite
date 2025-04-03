@@ -32,7 +32,7 @@ import { submitSplit } from "../_actions/submitSplit";
 import { cn } from "@/lib/utils";
 import { OsrsItemSelect } from "./OsrsItemSelect";
 import { OsrsItem } from "@/lib/types";
-import { getGEPrices } from "../_actions/getGEPrices";
+import { getGEPrices } from "../../lib/fetch/getGEPrices";
 
 const splitSchema = z.object({
   item: z.string({ required_error: "Item name is required" }),

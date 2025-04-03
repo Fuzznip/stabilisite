@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TextAnimate } from "@/components/magicui/text-animate";
-import { getAuthUser } from "../_actions/getAuthUser";
+import { getAuthUser } from "../../lib/fetch/getAuthUser";
 import { redirect } from "next/navigation";
 import StabilityClanForm from "./_components/StabilityClanForm";
 

@@ -1,4 +1,4 @@
-import { getAuthUser } from "@/app/_actions/getAuthUser";
+import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import { PlayerDetails, WOMClient } from "@wise-old-man/utils";
 
 const client = new WOMClient();

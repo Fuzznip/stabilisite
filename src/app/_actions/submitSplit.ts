@@ -1,7 +1,7 @@
 "use server";
 
 import { SplitForm } from "@/lib/types";
-import { getAuthUser } from "./getAuthUser";
+import { getAuthUser } from "../../lib/fetch/getAuthUser";
 import { uploadToS3 } from "./uploadToS3";
 import { submitSplitEntry } from "@/lib/db/splits";
 

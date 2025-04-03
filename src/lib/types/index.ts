@@ -64,6 +64,17 @@ export type Split = {
   splitContribution: number;
   groupSize: number;
   screenshotLink?: string;
+  date: Date;
+};
+
+export type SplitResponse = {
+  id: string;
+  user_id: string;
+  item_name: string;
+  item_price: string;
+  split_contribution: string;
+  group_size: number;
+  screenshot_link: string;
   timestamp: string;
 };
 

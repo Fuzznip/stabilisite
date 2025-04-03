@@ -1,7 +1,7 @@
 "use server";
 
 import { DiaryForm } from "@/lib/types";
-import { getAuthUser } from "./getAuthUser";
+import { getAuthUser } from "../../lib/fetch/getAuthUser";
 import { submitDiaryEntry } from "@/lib/db/diary";
 import { uploadToS3 } from "./uploadToS3";
 
