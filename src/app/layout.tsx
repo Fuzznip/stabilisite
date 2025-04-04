@@ -4,6 +4,7 @@ import "./globals.css";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import NavBar from "./_components/NavBar";
 import { ThemeProvider } from "./_components/ThemeProvider";
+import { Toaster } from "sonner";
 
 const lato = Lato({
   subsets: ["latin"],
@@ -42,6 +43,7 @@ export default function RootLayout({
         >
           <NavBar />
           {children}
+          <Toaster richColors />
         </ThemeProvider>
       </body>
     </html>

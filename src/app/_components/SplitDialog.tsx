@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { OsrsItemSelect } from "./OsrsItemSelect";
 import { OsrsItem } from "@/lib/types";
 import { getGEPrices } from "../../lib/fetch/getGEPrices";
+import { toast } from "sonner";
 
 const splitSchema = z.object({
   item: z.string({ required_error: "Item name is required" }),
@@ -84,9 +85,20 @@ export function SplitDialog(): React.ReactElement {
   };
 
   const onSubmit = (data: SplitSchema) => {
-    submitSplit(data);
+    submitSplit(data)
+      .then(() => {
+        toast.success(`Your ${form.getValues("item")} split was submitted!`);
+        form.reset();
+      })
+      .catch(() => {
+        toast.error(
+          `There was an error submitting your ${form.getValues(
+            "item"
+          )} split. Ask Funzip y it no work.`
+        );
+        form.reset();
+      });
     setDialogOpen(false);
-    setTimeout(() => form.reset(), 1000);
   };
 
   return (

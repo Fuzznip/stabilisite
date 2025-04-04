@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { OsrsItem } from "../types";
+import { getGEPrices } from "../fetch/getGEPrices";
 
 export function useOsrsItems() {
   const [results, setResults] = useState<OsrsItem[]>([]);
@@ -14,13 +15,21 @@ export function useOsrsItems() {
         );
         const data = await res.json();
 
-        const mappedItems = data.map((item: OsrsItem) => ({
-          id: item.id,
-          name: item.name,
-          image: `https://oldschool.runescape.wiki/images/${encodeURIComponent(
-            item.name.replace(/ /g, "_")
-          )}.png`,
-        }));
+        const gePrices = await getGEPrices();
+
+        const mappedItems = data
+          .map((item: OsrsItem) => {
+            const price = gePrices[item.id || ""];
+            return {
+              id: item.id,
+              name: item.name,
+              image: `https://oldschool.runescape.wiki/images/${encodeURIComponent(
+                item.name.replace(/ /g, "_")
+              )}.png`,
+              price: price?.high || price?.low || 0,
+            };
+          })
+          .filter((item: { price: number }) => item.price > 2000000);
 
         setAllItems(mappedItems);
         setLoading(false);

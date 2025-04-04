@@ -34,8 +34,8 @@ async function ProfileHeader(): Promise<React.ReactElement> {
         <Image
           src={user?.image || ""}
           alt="Profile pic"
-          className="absolute"
-          objectFit="cover"
+          className="absolute object-contain"
+          sizes="100%"
           fill
         />
       </div>
@@ -96,6 +96,7 @@ async function UserRank(): Promise<React.ReactElement> {
                 src={`/${rank?.name.toLowerCase()}.png`}
                 alt={`${rank?.name.toLowerCase()} rank`}
                 className="absolute object-contain"
+                sizes="100%"
                 fill
               />
             </div>
@@ -125,13 +126,14 @@ async function UserStats(): Promise<React.ReactElement> {
   return (
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Stats</h2>
-      <Card className="flex items-center p-4 text-4xl h-full gap-4">
-        <div className="flex items-center w-1/2 justify-center">
+      <Card className="flex items-center p-4 text-4xl h-full">
+        <div className="flex items-center w-1/2 justify-center border-r-2 border-r-border">
           <div className="relative size-8 mr-2">
             <Image
               src="/combat.png"
               alt="Combat level"
               className="absolute object-contain"
+              sizes="100%"
               fill
             />
           </div>
@@ -143,6 +145,7 @@ async function UserStats(): Promise<React.ReactElement> {
               src="/level.png"
               alt="Total level"
               className="absolute object-contain"
+              sizes="100%"
               fill
             />
           </div>
