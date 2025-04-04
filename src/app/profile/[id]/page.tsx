@@ -29,9 +29,6 @@ export default async function ProfilePage(): Promise<React.ReactElement> {
 
 async function ProfileHeader(): Promise<React.ReactElement> {
   const user = await getAuthUser();
-  // const badges = ["Member", "US East", "league inhouses", "rivals inhouses"];
-  user!.altNames = ["ABoolde", "Bboodle", "CBoodle"];
-  user!.previousNames = ["ABoolde", "Bboodle", "CBoodle"];
   return (
     <div className="flex gap-8 items-center">
       <div className="size-20 aspect-square rounded-full relative overflow-hidden active:outline-2 active:outline-blue-500">
