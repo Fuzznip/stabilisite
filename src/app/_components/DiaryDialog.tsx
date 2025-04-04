@@ -37,6 +37,8 @@ import {
 } from "@/components/ui/form";
 import { submitDiary } from "../_actions/submitDiary";
 import { ShortDiary } from "@/lib/types";
+import { getScaleDisplay } from "@/lib/utils";
+import { toast } from "sonner";
 
 const diarySchema = z.object({
   diary: z.string(),
@@ -82,9 +84,24 @@ export function DiaryDialog({
       shorthand:
         selectedDiary.scales.find((scale) => scale.scale === selectedScale)
           ?.shorthand || "",
-    });
+    })
+      .then(() => {
+        toast.success(
+          `Your ${selectedDiary.name} (${getScaleDisplay(
+            selectedScale
+          )}) diary was submitted`
+        );
+        form.reset();
+      })
+      .catch(() => {
+        toast.error(
+          `There was an error submitting your $${
+            selectedDiary.name
+          } (${getScaleDisplay(selectedScale)}) diary. Ask Funzip y it no work.`
+        );
+        form.reset();
+      });
     setDialogOpen(false);
-    setTimeout(() => form.reset(), 1000);
     setTeamMembers([]);
   };
 
@@ -428,6 +445,7 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
                 alt="Preview"
                 fill
                 className="object-contain"
+                sizes="100%"
               />
             </CardContent>
           ) : (

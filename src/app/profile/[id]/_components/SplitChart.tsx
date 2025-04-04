@@ -77,6 +77,7 @@ export default function SplitChart({
                     src="/coins.png"
                     alt="coins"
                     className="absolute object-contain"
+                    sizes="100%"
                     fill
                   />
                 </div>
@@ -101,6 +102,7 @@ export default function SplitChart({
                     src="/coins.png"
                     alt="coins"
                     className="absolute object-contain"
+                    sizes="100%"
                     fill
                   />
                 </div>
@@ -174,6 +176,7 @@ export default function SplitChart({
                                   src="/coins.png"
                                   alt="coins"
                                   className="absolute object-contain"
+                                  sizes="100%"
                                   fill
                                 />
                               </div>

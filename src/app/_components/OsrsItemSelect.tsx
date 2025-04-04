@@ -1,4 +1,3 @@
-// components/OsrsItemPopover.tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -57,7 +56,6 @@ export function OsrsItemSelect({ value, onItemSelect }: Props) {
         <Input
           type="text"
           onFocus={(event) => {
-            console.log("test");
             event.preventDefault();
           }}
           onBlur={handleBlur}
@@ -99,6 +97,7 @@ export function OsrsItemSelect({ value, onItemSelect }: Props) {
                     <Image
                       src={item.image || ""}
                       alt={item.name}
+                      sizes="100%"
                       fill
                       className="rounded-sm absolute object-contain"
                     />

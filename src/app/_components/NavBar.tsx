@@ -49,8 +49,8 @@ export default async function NavBar(): Promise<React.ReactElement> {
                 <Image
                   src={user?.image || ""}
                   alt="Profile pic"
-                  className="absolute"
-                  objectFit="cover"
+                  className="absolute object-cover"
+                  sizes="100%"
                   fill
                 />
               </Button>
