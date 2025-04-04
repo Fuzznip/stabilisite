@@ -9,6 +9,8 @@ export type User = {
   rankPoints?: number;
   joinDate?: Date;
   progressionData?: ProgressionData;
+  previousNames?: string[];
+  altNames?: string[] | null;
 } & NextAuthUser;
 
 export type UserResponse = {
@@ -19,6 +21,8 @@ export type UserResponse = {
   rank_points?: number;
   join_date?: string;
   progression_data?: string;
+  previous_names: string[];
+  alt_names: string[] | null;
 };
 
 export type Rank = (typeof ranks)[number]["name"];

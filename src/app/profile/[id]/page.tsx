@@ -3,15 +3,17 @@ import SplitChart from "./_components/SplitChart";
 import { Card } from "@/components/ui/card";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import getPlayerDetails from "./_actions/getPlayerDetails";
-import { TriangleAlert } from "lucide-react";
+import { IdCard, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ranks } from "@/lib/utils";
+import { formatDate, ranks } from "@/lib/utils";
 import { User } from "@/lib/types";
 import Diaries from "../../../components/diary/Diaries";
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { getUserSplits } from "@/lib/fetch/getUserSplits";
+import { Tooltip } from "@/components/ui/tooltip";
+import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -28,6 +30,8 @@ export default async function ProfilePage(): Promise<React.ReactElement> {
 async function ProfileHeader(): Promise<React.ReactElement> {
   const user = await getAuthUser();
   // const badges = ["Member", "US East", "league inhouses", "rivals inhouses"];
+  user!.altNames = ["ABoolde", "Bboodle", "CBoodle"];
+  user!.previousNames = ["ABoolde", "Bboodle", "CBoodle"];
   return (
     <div className="flex gap-8 items-center">
       <div className="size-20 aspect-square rounded-full relative overflow-hidden active:outline-2 active:outline-blue-500">
@@ -39,24 +43,40 @@ async function ProfileHeader(): Promise<React.ReactElement> {
           fill
         />
       </div>
-      <div className="flex flex-col">
-        <div className="flex gap-4 items-end">
-          <h1 className="text-5xl font-extrabold">{user?.runescapeName}</h1>
-          {/* <span className="text-foreground/60 text-2xl">
-            Previously: ABoodle, BBoodle
-          </span> */}
+      <div className="flex flex-col max-w-full">
+        <div className="flex flex-col items-start w-full">
+          <h1 className="text-4xl font-extrabold flex items-center">
+            {user?.runescapeName}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <IdCard className="size-6 ml-4" />
+              </TooltipTrigger>
+              <TooltipContent
+                className="bg-background p-4 border text-sm rounded-xl flex gap-2 flex-col"
+                side="right"
+                align="start"
+                sideOffset={8}
+              >
+                <span>
+                  Member since {formatDate(new Date(user?.joinDate || ""))}
+                </span>
+                {user?.previousNames && (
+                  <div className="flex gap-1 text-muted-foreground">
+                    <span>Previously known as:</span>
+                    <div className="flex">
+                      {user?.previousNames?.join(", ")}
+                    </div>
+                  </div>
+                )}
+              </TooltipContent>
+            </Tooltip>
+          </h1>
+          {user?.altNames && (
+            <div className="text-foreground/60 text-lg flex">
+              {user.altNames.join(", ")}
+            </div>
+          )}
         </div>
-        {/* <div className="flex gap-2 text-xl">
-          <span>Join Date:</span>
-          <span>March 23, 2024</span>
-        </div> */}
-        {/* <div className="flex mt-6 gap-2 w-full">
-          {badges.map((badge) => (
-            <Badge key={badge} className="bg-stability text-foreground">
-              {badge}
-            </Badge>
-          ))}
-        </div> */}
       </div>
     </div>
   );

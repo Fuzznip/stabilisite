@@ -22,6 +22,8 @@ export async function getAuthUser(): Promise<User | null> {
       image: session.user.image,
       isStabilityMember: session.user.isStabilityMember,
       name: session.user.name,
+      previousNames: storedUser.previous_names,
+      altNames: storedUser.alt_names,
     };
 
     return user;
