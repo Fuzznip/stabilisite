@@ -182,8 +182,9 @@ export default function SplitChart({
                                   fill
                                 />
                               </div>
-                              {Math.floor(split.splitContribution / 10000) /
-                                100}
+                              {Math.floor(
+                                split.splitContribution / 10000 / 100
+                              )}
                               m
                             </div>
                           </div>
@@ -230,8 +231,10 @@ function getChartData(
 
   sortedSplits.unshift({
     id: "join",
+    itemId: "",
     userId: user?.discordId || "",
     itemName: "",
+    itemImg: "",
     splitContribution: 0,
     groupSize: 0,
     date: user?.joinDate || new Date(""),
@@ -243,8 +246,10 @@ function getChartData(
   lastDate.setMonth(lastDate.getMonth() + 1);
   sortedSplits.push({
     id: "today",
+    itemId: "",
     userId: user?.discordId || "",
     itemName: "",
+    itemImg: "",
     splitContribution: 0,
     groupSize: 0,
     date: now,
