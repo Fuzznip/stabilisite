@@ -24,6 +24,7 @@ export async function getAuthUser(): Promise<User | null> {
       name: session.user.name,
       previousNames: storedUser.previous_names.filter((name) => name),
       altNames: storedUser.alt_names,
+      isAdmin: storedUser.is_admin,
     };
 
     return user;

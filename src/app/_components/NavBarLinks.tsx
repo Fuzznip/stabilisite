@@ -1,9 +1,9 @@
 "use client";
 
+import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User } from "next-auth";
 
 export default function NavBarLinks({
   user,
@@ -15,8 +15,9 @@ export default function NavBarLinks({
     // { href: "/", title: "Home" },
     { href: `/profile/${user?.discordId}`, title: "Profile" },
     { href: "/leaderboards", title: "Leaderboards" },
-    { href: "/applications", title: "Applications" },
   ];
+
+  if (user.isAdmin) tabs.push({ href: "/applications", title: "Applications" });
 
   return (
     <div className="flex items-center ml-8 gap-4">

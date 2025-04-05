@@ -8,12 +8,25 @@ import { Application, DiaryApplication } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import acceptApplication from "./_actions/acceptApplication";
 import rejectApplication from "./_actions/rejectApplication";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, TriangleAlert, XCircle } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
+import { getAuthUser } from "@/lib/fetch/getAuthUser";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function ApplicationPage(): Promise<React.ReactElement> {
   const applications = await getApplications();
   const diaryApplications = await getDiaryApplications();
+  const user = await getAuthUser();
+
+  if (!user?.isAdmin) {
+    return (
+      <Alert className="w-1/2 mx-auto bg-muted">
+        <TriangleAlert className="size-4" />
+        <AlertTitle>Page not found</AlertTitle>
+        <AlertDescription>What are you trying to do?</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8 mx-auto sm:mx-0">

@@ -11,6 +11,7 @@ export type User = {
   progressionData?: ProgressionData;
   previousNames?: string[];
   altNames?: string[] | null;
+  isAdmin?: boolean | null;
 } & NextAuthUser;
 
 export type UserResponse = {
@@ -23,6 +24,7 @@ export type UserResponse = {
   progression_data?: string;
   previous_names: string[];
   alt_names: string[] | null;
+  is_admin: boolean | null;
 };
 
 export type Rank = (typeof ranks)[number]["name"];
