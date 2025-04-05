@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 
 export default async function rejectApplication(id: string): Promise<void> {
-  console.log("reject", id);
   await fetch(`${process.env.API_URL}/applications/${id}/reject`, {
     method: "PUT",
     headers: {

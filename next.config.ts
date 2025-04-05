@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/images/**",
       },
+      {
+        protocol: "https",
+        hostname: "stability-diaries.s3.amazonaws.com",
+        port: "",
+        pathname: "/uploads/**",
+      },
     ],
   },
   experimental: {

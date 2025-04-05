@@ -48,8 +48,9 @@ export function DiaryTable({
     setCurrentAttempts(
       entries
         .filter((entry) => entry.shorthand === currentScale?.shorthand)
-        .sort((attemptA, attemptB) =>
-          attemptA.time.localeCompare(attemptB.time)
+        .sort(
+          (attemptA, attemptB) =>
+            attemptA.time?.localeCompare(attemptB.time || "") || 1
         ) || []
     );
   }, [currentDiary, currentScale, entries]);
@@ -157,7 +158,7 @@ export function DiaryTable({
                   {index + 1}
                 </TableCell>
                 <TableCell>{attempt.time}</TableCell>
-                <TableCell>{formatDate(attempt.date)}</TableCell>
+                <TableCell>{formatDate(attempt.date || new Date())}</TableCell>
                 <TableCell
                   className={cn(
                     attempt.party?.length && "flex flex-col items-start"
@@ -165,7 +166,7 @@ export function DiaryTable({
                 >
                   {attempt.party?.map((teammate) => (
                     <span
-                      key={`${teammate}-${attempt.date.getTime()}`}
+                      key={`${teammate}-${attempt.date?.getTime()}`}
                       className="mt-1"
                     >
                       {teammate}

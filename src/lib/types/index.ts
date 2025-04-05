@@ -108,7 +108,7 @@ export type DiaryApplicationResponse = {
   verdict_timestamp: string | null;
 };
 
-export type DiaryApplication = {
+export type DiaryApplication = Partial<{
   id: string;
   userId: string;
   date: Date;
@@ -123,7 +123,7 @@ export type DiaryApplication = {
   time: string;
   verdictReason: string | null;
   verdictTimestamp: string | null;
-};
+}>;
 
 export type Diary = {
   id: string;
