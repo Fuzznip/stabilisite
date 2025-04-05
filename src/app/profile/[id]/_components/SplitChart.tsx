@@ -106,7 +106,8 @@ export default function SplitChart({
                     fill
                   />
                 </div>
-                {Math.floor(chartData.slice(-2)[0].itemPrice / 1000000)}m
+                {Math.floor(chartData.slice(-2)[0].splitContribution / 1000000)}
+                m
               </div>
               <span className="text-muted-foreground text-sm">
                 {tooltipFormatter.format(chartData.slice(-2)[0].date)}
@@ -168,7 +169,8 @@ export default function SplitChart({
                             <div
                               className={cn(
                                 "flex items-center ml-auto",
-                                split.itemPrice >= 10000000 && "text-[#23FE9A]"
+                                split.splitContribution >= 10000000 &&
+                                  "text-[#23FE9A]"
                               )}
                             >
                               <div className="relative size-4 mr-1">
@@ -180,7 +182,9 @@ export default function SplitChart({
                                   fill
                                 />
                               </div>
-                              {Math.floor(split.itemPrice / 10000) / 100}m
+                              {Math.floor(split.splitContribution / 10000) /
+                                100}
+                              m
                             </div>
                           </div>
                           <div className="flex text-muted-foreground justify-between w-full gap-4">
@@ -249,7 +253,7 @@ function getChartData(
 
   let cumulative = 0;
   const cumulativeSplits = sortedSplits.map((split) => {
-    cumulative += split.itemPrice;
+    cumulative += split.splitContribution;
     return {
       ...split,
       timestamp: split.date.getTime(),
