@@ -174,7 +174,7 @@ export function DiaryTable({
                 </TableCell>
                 <TableCell>
                   <Button variant="ghost" asChild className="text-3xl">
-                    <Link href={attempt.proof || ""} className="w-auto h-auto">
+                    <Link href={attempt.proof || ""} className="w-auto h-auto" target="_blank">
                       <Camera className="!size-6" />
                     </Link>
                   </Button>
