@@ -15,6 +15,7 @@ export default function NavBarLinks({
     // { href: "/", title: "Home" },
     { href: `/profile/${user?.discordId}`, title: "Profile" },
     { href: "/leaderboards", title: "Leaderboards" },
+    { href: "/applications", title: "Applications" },
   ];
 
   return (

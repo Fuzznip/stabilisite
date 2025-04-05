@@ -37,13 +37,19 @@ export async function getDiaryApplications(
   ).then((res) => res.json());
 
   return userDiaries.map((diary: DiaryApplicationResponse) => ({
+    id: diary.id,
     userId: diary.user_id,
-    teamMembers: diary.party,
-    shorthand: diary.diary_shorthand,
-    time: diary.time_split,
-    proof: diary.proof,
-    targetDiaryId: diary.target_diary_id,
     date: new Date(diary.timestamp),
+    name: diary.diary_name,
+    shorthand: diary.diary_shorthand,
+    party: diary.party,
+    partyIds: diary.party_ids,
+    proof: diary.proof,
+    runescapeName: diary.runescape_name,
     status: diary.status,
+    targetDiaryId: diary.target_diary_id,
+    time: diary.time_split,
+    verdictReason: diary.verdict_reason,
+    verdictTimestamp: diary.verdict_timestamp,
   }));
 }

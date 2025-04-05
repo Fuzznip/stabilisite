@@ -50,7 +50,7 @@ function ClanForm({
       className="flex flex-col gap-8 mt-8"
     >
       <div className="flex flex-col gap-2">
-        <Label htmlFor="username">What Is Your OSRS Username?</Label>
+        <Label htmlFor="username">What is your OSRS username?</Label>
         <Input
           id="username"
           {...register("runescapeName")}
@@ -63,7 +63,7 @@ function ClanForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="referral">How Did You Hear About Us?</Label>
+        <Label htmlFor="referral">How did you hear about us?</Label>
         <Textarea
           id="referral"
           className="bg-background"
@@ -77,7 +77,7 @@ function ClanForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="whyJoin">Why Do You Want To Join?</Label>
+        <Label htmlFor="whyJoin">Why do you want to join?</Label>
         <Textarea
           id="whyJoin"
           className="bg-background"
@@ -91,7 +91,7 @@ function ClanForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="goals">What Are Your In-Game Goals?</Label>
+        <Label htmlFor="goals">What are your in-game goals?</Label>
         <Textarea
           id="goals"
           className="bg-background"

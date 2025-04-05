@@ -22,7 +22,7 @@ export async function getAuthUser(): Promise<User | null> {
       image: session.user.image,
       isStabilityMember: session.user.isStabilityMember,
       name: session.user.name,
-      previousNames: storedUser.previous_names,
+      previousNames: storedUser.previous_names.filter((name) => name),
       altNames: storedUser.alt_names,
     };
 

@@ -18,10 +18,10 @@ import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
   return user?.runescapeName && user.isStabilityMember ? (
-    <div className="flex flex-col w-2/3 min-w-96 mx-auto mt-12 gap-12 mb-8">
+    <>
       <ProfileHeader />
       <ProfileStats />
-    </div>
+    </>
   ) : (
     <NoProfileMessage user={user} />
   );
@@ -57,14 +57,15 @@ async function ProfileHeader(): Promise<React.ReactElement> {
                 <span>
                   Member since {formatDate(new Date(user?.joinDate || ""))}
                 </span>
-                {user?.previousNames && (
+                {user?.previousNames}
+                {user?.previousNames?.length ? (
                   <div className="flex gap-1 text-muted-foreground">
                     <span>Previously known as:</span>
                     <div className="flex">
                       {user?.previousNames?.join(", ")}
                     </div>
                   </div>
-                )}
+                ) : undefined}
               </TooltipContent>
             </Tooltip>
           </h1>

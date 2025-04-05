@@ -160,10 +160,10 @@ export function DiaryTable({
                 <TableCell>{formatDate(attempt.date)}</TableCell>
                 <TableCell
                   className={cn(
-                    attempt.teamMembers?.length && "flex flex-col items-start"
+                    attempt.party?.length && "flex flex-col items-start"
                   )}
                 >
-                  {attempt.teamMembers?.map((teammate) => (
+                  {attempt.party?.map((teammate) => (
                     <span
                       key={`${teammate}-${attempt.date.getTime()}`}
                       className="mt-1"

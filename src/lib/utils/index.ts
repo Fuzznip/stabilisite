@@ -12,6 +12,12 @@ export function formatDate(date: Date) {
     year: "numeric",
   }).format(date);
 }
+export function formatDateTime(date: Date) {
+  return Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
 
 export const ranks = [
   {

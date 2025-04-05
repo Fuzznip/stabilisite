@@ -82,19 +82,6 @@ export type SplitResponse = {
   timestamp: string;
 };
 
-export type Application = Partial<{
-  id: string;
-  userId: string;
-  runescapeName: string;
-  referral: string;
-  reason: string;
-  goals: string;
-  status: string;
-  verdictReason: string;
-  verdictTimestamp: string;
-  timestamp: string;
-}>;
-
 export type DiaryForm = {
   time: string;
   shorthand: string;
@@ -103,25 +90,37 @@ export type DiaryForm = {
 };
 
 export type DiaryApplicationResponse = {
-  user_id: string;
-  party: string[];
+  diary_name: string;
   diary_shorthand: string;
-  time_split: string;
+  id: string;
+  party: string[];
+  party_ids: string[];
   proof: string;
-  target_diary_id: string;
+  runescape_name: string;
   status: string;
+  target_diary_id: string;
+  time_split: string;
   timestamp: string;
+  user_id: string;
+  verdict_reason: string | null;
+  verdict_timestamp: string | null;
 };
 
 export type DiaryApplication = {
+  id: string;
   userId: string;
-  status: string;
   date: Date;
+  name: string;
+  shorthand: string;
+  party: string[];
+  partyIds: string[];
+  proof: string;
+  runescapeName: string;
+  status: string;
   targetDiaryId: string;
   time: string;
-  shorthand: string;
-  teamMembers?: string[] | undefined;
-  proof?: string;
+  verdictReason: string | null;
+  verdictTimestamp: string | null;
 };
 
 export type Diary = {
@@ -152,3 +151,29 @@ export type OsrsItem = {
   name: string;
   image?: string;
 };
+
+export type ApplicationResponse = {
+  goals: string;
+  id: string;
+  reason: string;
+  referral: string;
+  runescape_name: string;
+  status: string;
+  timestamp: string;
+  user_id: string;
+  verdict_reason: string | null;
+  verdict_timestamp: string;
+};
+
+export type Application = Partial<{
+  id: string;
+  userId: string;
+  runescapeName: string;
+  referral: string;
+  reason: string;
+  goals: string;
+  status: string;
+  verdictReason: string;
+  verdictDate: Date;
+  date: Date;
+}>;
