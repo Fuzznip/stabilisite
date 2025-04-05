@@ -66,7 +66,9 @@ export type Split = {
   id: string;
   userId: string;
   itemName: string;
+  itemId: string;
   itemPrice: number;
+  itemImg: string;
   splitContribution: number;
   groupSize: number;
   screenshotLink?: string;
@@ -75,6 +77,7 @@ export type Split = {
 
 export type SplitResponse = {
   id: string;
+  item_id: string;
   user_id: string;
   item_name: string;
   item_price: string;

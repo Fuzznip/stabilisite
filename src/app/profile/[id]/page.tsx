@@ -11,9 +11,9 @@ import { User } from "@/lib/types";
 import Diaries from "../../../components/diary/Diaries";
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { getUserSplits } from "@/lib/fetch/getUserSplits";
 import { Tooltip } from "@/components/ui/tooltip";
 import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
+import { getSplits } from "@/lib/fetch/getSplits";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -82,7 +82,7 @@ async function ProfileHeader(): Promise<React.ReactElement> {
 
 async function ProfileStats(): Promise<React.ReactElement> {
   const user = await getAuthUser();
-  const splits = await getUserSplits(user);
+  const splits = await getSplits(user);
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between gap-8 flex-col lg:flex-row">
