@@ -17,7 +17,8 @@ export default function NavBarLinks({
     { href: "/leaderboards", title: "Leaderboards" },
   ];
 
-  if (user.isAdmin) tabs.push({ href: "/applications", title: "Applications" });
+  if (user?.isAdmin)
+    tabs.push({ href: "/applications", title: "Applications" });
 
   return (
     <div className="flex items-center ml-8 gap-4">
