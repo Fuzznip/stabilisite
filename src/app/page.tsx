@@ -18,7 +18,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
           return (
             <div key={split.id} className="flex flex-col items-center">
               <span className="text-muted-foreground ml-auto mb-1">
-                {formatDistanceToNow(split.date)}
+                {formatDistanceToNow(split.date)} ago
               </span>
               <Card className="w-full">
                 <CardContent className="p-4 flex items-center">
@@ -71,7 +71,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
           return (
             <div key={diary.id} className="flex flex-col items-center">
               <span className="text-muted-foreground ml-auto mb-1">
-                {formatDistanceToNow(diary.date || "")}
+                {formatDistanceToNow(diary.date || "")} ago
               </span>
               <Card className="w-full">
                 <CardContent className="p-4 flex items-baseline">
