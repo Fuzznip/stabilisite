@@ -125,13 +125,9 @@ export function DiaryTable({
         <Table>
           {!currentAttempts.length && (
             <TableCaption className="w-full w-max-24 text-lg mt-6 mb-4">
-              {user
-                ? `You have no submitted ${currentDiary} (${getScaleDisplay(
-                    currentScale?.scale || ""
-                  )}) times.`
-                : `There are no entries submitted for ${currentDiary} (${getScaleDisplay(
-                    currentScale?.scale || ""
-                  )})`}
+              {`There are no entries submitted for ${currentDiary} (${getScaleDisplay(
+                currentScale?.scale || ""
+              )})`}
             </TableCaption>
           )}
           <TableHeader>
