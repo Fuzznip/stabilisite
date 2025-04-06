@@ -36,27 +36,41 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { submitDiary } from "../_actions/submitDiary";
-import { ShortDiary } from "@/lib/types";
-import { getScaleDisplay } from "@/lib/utils";
+import { ShortDiary, User } from "@/lib/types";
+import { cn, getScaleDisplay } from "@/lib/utils";
 import { toast } from "sonner";
 
-const diarySchema = z.object({
-  diary: z.string(),
-  scale: z.string(),
-  time: z
-    .string()
-    .regex(/^\d{1,2}:\d{1,2}.\d{3}$/, "Invalid duration format (MM:SS.MS)"),
-  teamMembers: z.array(z.string()).optional(),
-  proof: z.any().refine((file) => file instanceof File && file.size > 0, {
-    message: "Please upload an image file",
-  }),
-});
+const diarySchema = z
+  .object({
+    diary: z.string(),
+    scale: z.string(),
+    time: z
+      .string()
+      .regex(/^\d{1,2}:\d{1,2}.\d{1,3}$/, "Invalid duration format (MM:SS.MS)"),
+    teamMembers: z.array(z.string()).optional(),
+    proof: z.any().refine((file) => file instanceof File && file.size > 0, {
+      message: "Please upload an image file",
+    }),
+  })
+  .refine(
+    (data) => {
+      const scaleValue = Number(data.scale);
+      // allow if teamMembers is undefined or if it matches the scale
+      return !data.teamMembers || data.teamMembers.length === scaleValue;
+    },
+    {
+      message: "Number of team members must match the selected scale",
+      path: ["teamMembers"], // show the error under teamMembers
+    }
+  );
 
 type DiaryZodForm = z.infer<typeof diarySchema>;
 
 export function DiaryDialog({
+  user,
   diaries,
 }: {
+  user?: User | null;
   diaries: ShortDiary[];
 }): React.ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -65,17 +79,21 @@ export function DiaryDialog({
     diaries[0].scales[0].scale
   );
   const [teamInput, setTeamInput] = useState("");
-  const [teamMembers, setTeamMembers] = useState<string[]>([]);
+  const [teamMembers, setTeamMembers] = useState<string[]>([
+    user?.runescapeName || "",
+  ]);
+
+  const defaultForm = {
+    diary: diaries[0].name,
+    scale: diaries[0].scales[0].scale,
+    time: "",
+    teamMembers: [user?.runescapeName || ""],
+    proof: undefined,
+  };
 
   const form = useForm<DiaryZodForm>({
     resolver: zodResolver(diarySchema),
-    defaultValues: {
-      diary: diaries[0].name,
-      scale: diaries[0].scales[0].scale,
-      time: "",
-      teamMembers: [],
-      proof: undefined,
-    },
+    defaultValues: defaultForm,
   });
 
   const onSubmit = (data: DiaryZodForm) => {
@@ -91,18 +109,19 @@ export function DiaryDialog({
             selectedScale
           )}) diary was submitted`
         );
-        form.reset();
+        form.reset(defaultForm);
+        setTeamMembers([user?.runescapeName || ""]);
       })
       .catch(() => {
         toast.error(
-          `There was an error submitting your $${
+          `There was an error submitting your ${
             selectedDiary.name
           } (${getScaleDisplay(selectedScale)}) diary. Ask Funzip y it no work.`
         );
-        form.reset();
+        form.reset(defaultForm);
       });
     setDialogOpen(false);
-    setTeamMembers([]);
+    setTeamMembers([user?.runescapeName || ""]);
   };
 
   const handleTeamAdd = () => {
@@ -204,7 +223,9 @@ export function DiaryDialog({
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a scale">
-                            <span className="capitalize">{field.value}</span>
+                            <span className="capitalize">
+                              {getScaleDisplay(field.value)}
+                            </span>
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
@@ -214,7 +235,7 @@ export function DiaryDialog({
                               value={scale.scale}
                               className="capitalize"
                             >
-                              {scale.scale}
+                              {getScaleDisplay(scale.scale)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -370,18 +391,28 @@ export function DiaryDialog({
                     </div>
                   </FormControl>
                   <FormMessage />
-                  <div className="flex flex-wrap mt-2 gap-2 max-w-full absolute top-14">
+                  <div
+                    className={cn(
+                      "flex flex-wrap gap-2 max-w-full absolute top-14",
+                      form.formState.errors.teamMembers ? "mt-8" : "mt-2"
+                    )}
+                  >
                     {teamMembers.map((name) => (
                       <Badge
                         key={name}
                         variant="outline"
-                        className="flex items-center px-2 py-1 rounded-lg text-sm"
+                        className="flex items-center px-2 py-1 rounded-lg text-sm capitalize"
                       >
                         {name}
-                        <X
-                          className="ml-1 h-4 w-4 cursor-pointer"
-                          onClick={() => handleTeamRemove(name)}
-                        />
+                        {name.toLowerCase() !==
+                        user?.runescapeName?.toLowerCase() ? (
+                          <X
+                            className="ml-1 h-4 w-4 cursor-pointer"
+                            onClick={() => handleTeamRemove(name)}
+                          />
+                        ) : (
+                          <></>
+                        )}
                       </Badge>
                     ))}
                   </div>

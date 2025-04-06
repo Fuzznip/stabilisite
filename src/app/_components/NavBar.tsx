@@ -75,6 +75,7 @@ export default async function NavBar(): Promise<React.ReactElement> {
 
 async function SubmitPopover(): Promise<React.ReactElement> {
   const diaries = await getDiaries();
+  const user = await getAuthUser();
   return (
     <Popover>
       <PopoverTrigger asChild className="mr-4">
@@ -85,7 +86,7 @@ async function SubmitPopover(): Promise<React.ReactElement> {
       </PopoverTrigger>
       <PopoverContent className="w-fit p-2">
         <Card className="flex flex-col p-2">
-          <DiaryDialog diaries={diaries} />
+          <DiaryDialog user={user} diaries={diaries} />
           <SplitDialog />
         </Card>
       </PopoverContent>

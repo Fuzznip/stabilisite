@@ -9,18 +9,11 @@ import { revalidatePath } from "next/cache";
 export async function submitDiary(diaryForm: DiaryForm): Promise<void> {
   try {
     const user = await getAuthUser();
-    if (
-      user?.runescapeName &&
-      !diaryForm.teamMembers?.includes(user?.runescapeName)
-    )
-      diaryForm.teamMembers?.unshift(user?.runescapeName);
-
     const fileUrl = await uploadToS3(diaryForm.proof);
     await submitDiaryEntry(user, diaryForm, fileUrl);
     revalidatePath("/applications/diary");
     return;
   } catch (err) {
-    console.debug(err);
-    return;
+    throw err;
   }
 }

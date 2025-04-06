@@ -14,7 +14,6 @@ export async function submitSplit(splitForm: SplitForm): Promise<void> {
     revalidatePath("/splits");
     return;
   } catch (err) {
-    console.debug(err);
-    return;
+    throw err;
   }
 }
