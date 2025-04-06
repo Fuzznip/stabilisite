@@ -45,7 +45,7 @@ const diarySchema = z.object({
   scale: z.string(),
   time: z
     .string()
-    .regex(/^\d{1,2}:\d{1,2}.\d{1,3}$/, "Invalid duration format (MM:SS.MS)"),
+    .regex(/^\d{1,2}:\d{1,2}.\d{1,2}$/, "Invalid duration format (MM:SS.MS)"),
   teamMembers: z.array(z.string()).optional(),
   proof: z.any().refine((file) => file instanceof File && file.size > 0, {
     message: "Please upload an image file",
@@ -296,7 +296,7 @@ export function DiaryDialog({
                           <Input
                             type="number"
                             min={0}
-                            max={999}
+                            max={99}
                             value={milliseconds}
                             onChange={(e) =>
                               field.onChange(

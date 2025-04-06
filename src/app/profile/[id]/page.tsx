@@ -126,7 +126,7 @@ async function UserRank(): Promise<React.ReactElement> {
           </div>
           <div className="flex items-center w-1/2 justify-center lg:ml-4">
             <span className="text-foreground text-4xl mr-4">
-              {rankPoints.toLocaleString()}
+              {Math.floor(rankPoints).toLocaleString()}
             </span>
             <span className="mt-auto text-lg lg:text-xl">Clan Points</span>
           </div>
