@@ -28,15 +28,15 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
   const diaryApplications = await getDiaryApplications();
   const user = await getAuthUser();
 
-  // if (!user?.isAdmin) {
-  //   return (
-  //     <Alert className="w-1/2 mx-auto bg-muted">
-  //       <TriangleAlert className="size-4" />
-  //       <AlertTitle>Page not found</AlertTitle>
-  //       <AlertDescription>What are you trying to do?</AlertDescription>
-  //     </Alert>
-  //   );
-  // }
+  if (!user?.isAdmin) {
+    return (
+      <Alert className="w-1/2 mx-auto bg-muted">
+        <TriangleAlert className="size-4" />
+        <AlertTitle>Page not found</AlertTitle>
+        <AlertDescription>What are you trying to do?</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8 mx-auto sm:mx-0">
