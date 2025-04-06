@@ -19,6 +19,6 @@ export async function submitSplitEntry(
     },
     body: JSON.stringify(splitRequest),
   });
-  if (!response.ok) throw response.text();
-  return response.json();
+  if (!response.ok) throw await response.text();
+  return;
 }

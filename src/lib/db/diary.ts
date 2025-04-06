@@ -25,7 +25,7 @@ export async function submitDiaryEntry(
     body: JSON.stringify(diaryRequest),
   });
   if (!response.ok) throw response.text();
-  return response.json();
+  return;
 }
 
 export async function getDiaryApplications(

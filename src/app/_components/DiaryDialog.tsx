@@ -107,16 +107,17 @@ export function DiaryDialog({
         toast.success(
           `Your ${selectedDiary.name} (${getScaleDisplay(
             selectedScale
-          )}) diary was submitted`
+          )}) diary was submitted and is under review.`
         );
         form.reset(defaultForm);
         setTeamMembers([user?.runescapeName || ""]);
       })
-      .catch(() => {
+      .catch((err) => {
         toast.error(
           `There was an error submitting your ${
             selectedDiary.name
-          } (${getScaleDisplay(selectedScale)}) diary. Ask Funzip y it no work.`
+          } (${getScaleDisplay(selectedScale)}) diary: ${err}`,
+          { duration: 10000 }
         );
         form.reset(defaultForm);
       });

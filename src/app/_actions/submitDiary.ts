@@ -14,6 +14,6 @@ export async function submitDiary(diaryForm: DiaryForm): Promise<void> {
     revalidatePath("/applications/diary");
     return;
   } catch (err) {
-    throw err;
+    throw await err;
   }
 }
