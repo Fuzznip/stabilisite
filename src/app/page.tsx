@@ -84,7 +84,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
                         </span>
                       </div>
                     </div>
-                    <span className="text-lg text-muted-foreground">
+                    <span className="text-lg text-muted-foreground capitalize">
                       {diary.party
                         ?.sort((playerA, playerB) =>
                           playerA.localeCompare(playerB)

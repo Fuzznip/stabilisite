@@ -254,7 +254,12 @@ function DiaryApplications({
                   <span className="text-muted-foreground mb-1">Party</span>
                   <span className="text-foreground flex flex-col">
                     {application.party?.map((member, index) => (
-                      <span key={`${application.id}-${index}`}>{member}</span>
+                      <span
+                        key={`${application.id}-${index}`}
+                        className="capitalize"
+                      >
+                        {member}
+                      </span>
                     ))}
                   </span>
                 </div>

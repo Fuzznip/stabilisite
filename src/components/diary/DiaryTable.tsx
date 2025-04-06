@@ -161,7 +161,7 @@ export function DiaryTable({
                   {attempt.party?.map((teammate) => (
                     <span
                       key={`${teammate}-${attempt.date?.getTime()}`}
-                      className="mt-1"
+                      className="mt-1 capitalize"
                     >
                       {teammate}
                     </span>
