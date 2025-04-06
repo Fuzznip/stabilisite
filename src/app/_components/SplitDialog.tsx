@@ -110,7 +110,7 @@ export function SplitDialog(): React.ReactElement {
         </Button>
       </DialogTrigger>
       <DialogContent className="mb-24 w-[40rem] sm:max-h-4/5 overflow-auto">
-        <DialogHeader className="mb-2 flex flex-col gap-1">
+        <DialogHeader className="mb-2 flex flex-col gap-1 text-left">
           <DialogTitle className="text-xl mb-0">Submit Split</DialogTitle>
           <DialogDescription className="text-base">
             Just got a drop? Make sure to fill this out to make sure it counts

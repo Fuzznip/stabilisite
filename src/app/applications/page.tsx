@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getDiaryApplications } from "@/lib/db/diary";
 import { getApplications } from "@/lib/fetch/getApplications";
@@ -28,15 +28,15 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
   const diaryApplications = await getDiaryApplications();
   const user = await getAuthUser();
 
-  if (!user?.isAdmin) {
-    return (
-      <Alert className="w-1/2 mx-auto bg-muted">
-        <TriangleAlert className="size-4" />
-        <AlertTitle>Page not found</AlertTitle>
-        <AlertDescription>What are you trying to do?</AlertDescription>
-      </Alert>
-    );
-  }
+  // if (!user?.isAdmin) {
+  //   return (
+  //     <Alert className="w-1/2 mx-auto bg-muted">
+  //       <TriangleAlert className="size-4" />
+  //       <AlertTitle>Page not found</AlertTitle>
+  //       <AlertDescription>What are you trying to do?</AlertDescription>
+  //     </Alert>
+  //   );
+  // }
 
   return (
     <div className="flex flex-col gap-8 mx-auto sm:mx-0">
@@ -65,12 +65,24 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="clan">
-          <ClanApplications applications={sortApplications(applications)} />
+          {applications.length > 0 ? (
+            <ClanApplications applications={sortApplications(applications)} />
+          ) : (
+            <Card className="w-fit text-2xl px-8 pt-6">
+              <CardContent>No current applications</CardContent>
+            </Card>
+          )}
         </TabsContent>
         <TabsContent value="diary">
-          <DiaryApplications
-            diaryApplications={sortApplications(diaryApplications)}
-          />
+          {diaryApplications.length > 0 ? (
+            <DiaryApplications
+              diaryApplications={sortApplications(diaryApplications)}
+            />
+          ) : (
+            <Card className="w-fit text-2xl px-8 pt-6">
+              <CardContent>No current applications</CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>

@@ -1,9 +1,16 @@
 "use client";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function NavBarLinks({
   user,
@@ -11,6 +18,7 @@ export default function NavBarLinks({
   user: User | null;
 }): React.ReactElement {
   const pathname = usePathname();
+  const router = useRouter();
   const tabs = [
     { href: "/", title: "Home" },
     { href: `/profile/${user?.discordId}`, title: "Profile" },
@@ -21,19 +29,35 @@ export default function NavBarLinks({
     tabs.push({ href: "/applications", title: "Applications" });
 
   return (
-    <div className="flex items-center ml-8 gap-4">
-      {tabs.map((tab) => (
-        <Link
-          key={tab.href}
-          href={`${tab.href}`}
-          className={cn(
-            "p-2 text-muted-foreground hover:text-foreground font-bold",
-            tab.href === pathname && "text-primary hover:text-primary"
-          )}
-        >
-          {tab.title}
-        </Link>
-      ))}
-    </div>
+    <>
+      <div className="items-center ml-8 gap-4 hidden sm:flex">
+        {tabs.map((tab) => (
+          <Link
+            key={tab.href}
+            href={`${tab.href}`}
+            className={cn(
+              "p-2 text-muted-foreground hover:text-foreground font-bold",
+              tab.href === pathname && "text-primary hover:text-primary"
+            )}
+          >
+            {tab.title}
+          </Link>
+        ))}
+      </div>
+      <div className="block sm:hidden w-44">
+        <Select onValueChange={(value) => router.push(value)} defaultValue="/">
+          <SelectTrigger className="text-lg flex sm:hidden bg-background! ml-2">
+            <SelectValue defaultValue="/" className="bg-background" />
+          </SelectTrigger>
+          <SelectContent className="bg-background">
+            {tabs.map((tab) => (
+              <SelectItem key={tab.href} value={tab.href} className="text-lg">
+                {tab.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </>
   );
 }

@@ -57,7 +57,7 @@ export default async function NavBar(): Promise<React.ReactElement> {
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="flex flex-col gap-2 bg-background border p-4 items-center mt-2 rounded-sm"
+              className="flex flex-col gap-2 bg-background border p-4 items-center mt-2 rounded-md"
             >
               <ThemeToggle />
               <SignOut />
@@ -80,7 +80,7 @@ async function SubmitPopover(): Promise<React.ReactElement> {
       <PopoverTrigger asChild className="mr-4">
         <Button className="flex items-center gap-1 bg-stability hover:bg-stability/90 text-white">
           Submit
-          <ChevronDown className="w-4 h-4" />
+          <ChevronDown className="w-4 h-4 hidden sm:flex" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-fit p-2">

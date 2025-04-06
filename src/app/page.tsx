@@ -10,7 +10,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
   const splits = (await getSplits()).slice(0, 10);
   const diaries = (await getDiaryEntries()).slice(0, 10);
   return (
-    <div className="flex flex-col lg:flex-row gap-12 mb-12">
+    <div className="flex flex-col lg:flex-row gap-18 sm:gap-12 mb-12">
       <div className="flex flex-col gap-4 w-full lg:w-1/2">
         <h2 className="text-3xl text-foreground">Recent Splits</h2>
         {splits.map(async (split) => {
@@ -77,12 +77,12 @@ export default async function HomePage(): Promise<React.ReactElement> {
                 <CardContent className="p-4 flex items-baseline">
                   <div className="flex items-sart flex-col">
                     <div className="flex w-fit">
-                      <span className="text-foreground text-2xl w-fit hidden sm:flex">
-                        {diary.name}
-                      </span>
-                      <span className="text-muted-foreground text-2xl mt-auto ml-2 w-fit">
-                        ({getScaleDisplay(scale || "1")})
-                      </span>
+                      <div className="text-foreground text-2xl w-fit inline">
+                        {diary.name}{" "}
+                        <span className="text-muted-foreground inline">
+                          ({getScaleDisplay(scale || "1")})
+                        </span>
+                      </div>
                     </div>
                     <span className="text-lg text-muted-foreground">
                       {diary.party
