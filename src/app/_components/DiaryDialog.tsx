@@ -46,7 +46,10 @@ const diarySchema = z
     scale: z.string(),
     time: z
       .string()
-      .regex(/^\d{1,2}:\d{1,2}.\d{1,3}$/, "Invalid duration format (MM:SS.MS)"),
+      .regex(
+        /^\d{1,2}:\d{1,2}.\d{1}$/,
+        "Invalid duration format (MM:SS.TICKS)"
+      ),
     teamMembers: z.array(z.string()).optional(),
     proof: z.any().refine((file) => file instanceof File && file.size > 0, {
       message: "Please upload an image file",
@@ -266,13 +269,11 @@ export function DiaryDialog({
                   const formatTime = (m: number, s: number, ms: number) => {
                     const pad = (n: number, l = 2) =>
                       String(n).padStart(l, "0");
-                    return `${pad(m || 0)}:${pad(s || 0)}.${String(
-                      ms || 0
-                    ).padStart(3, "0")}`;
+                    return `${pad(m || 0)}:${pad(s || 0)}.${String(ms || 0)}`;
                   };
 
                   const { minutes, seconds, milliseconds } = parseTime(
-                    field.value ?? "00:00.000"
+                    field.value ?? "00:00.00"
                   );
 
                   return (
@@ -318,7 +319,7 @@ export function DiaryDialog({
                           <Input
                             type="number"
                             min={0}
-                            max={999}
+                            max={9}
                             value={milliseconds}
                             onChange={(e) =>
                               field.onChange(
@@ -330,12 +331,12 @@ export function DiaryDialog({
                               )
                             }
                             className="w-24 dark:bg-input/30"
-                            placeholder="MS"
+                            placeholder="TICKS"
                           />
                           <span className="text-muted-foreground">
                             {field.value &&
-                              field.value !== "00:00.000" &&
-                              `(${field.value})`}
+                              field.value !== "00:00.00" &&
+                              `(${field.value}0)`}
                           </span>
                         </div>
                       </FormControl>

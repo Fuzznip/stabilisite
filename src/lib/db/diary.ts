@@ -14,7 +14,7 @@ export async function submitDiaryEntry(
     user_id: user?.discordId,
     party: diaryForm.teamMembers,
     diary_shorthand: diaryForm.shorthand,
-    time_split: diaryForm.time,
+    time_split: `${diaryForm.time}0`,
     proof: fileUrl,
   };
   const response = await fetch(`${process.env.API_URL}/applications/diary`, {
