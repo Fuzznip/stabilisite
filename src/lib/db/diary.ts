@@ -24,7 +24,7 @@ export async function submitDiaryEntry(
     },
     body: JSON.stringify(diaryRequest),
   });
-  if (response.status !== 201) throw response.text();
+  if (!response.ok) throw response.text();
   return response.json();
 }
 
