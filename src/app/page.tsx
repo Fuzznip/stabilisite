@@ -15,7 +15,6 @@ export default async function HomePage(): Promise<React.ReactElement> {
         <h2 className="text-3xl text-foreground">Recent Splits</h2>
         {splits.map(async (split) => {
           const user = await getUser(split.userId);
-          console.log(user);
           return (
             <div key={split.id} className="flex flex-col items-center">
               <span className="text-muted-foreground ml-auto mb-1">
