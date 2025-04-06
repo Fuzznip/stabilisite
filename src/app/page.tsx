@@ -4,6 +4,7 @@ import { getDiaryEntries } from "@/lib/fetch/getDiaryEntries";
 import { getSplits } from "@/lib/fetch/getSplits";
 import { cn } from "@/lib/utils";
 import getUser from "@/lib/fetch/getUser";
+import { formatDistanceToNow } from "date-fns";
 
 export default async function HomePage(): Promise<React.ReactElement> {
   const splits = await getSplits();
@@ -16,56 +17,51 @@ export default async function HomePage(): Promise<React.ReactElement> {
           const user = await getUser(split.userId);
           console.log(user);
           return (
-            <Card key={split.id}>
-              <CardContent className="p-4 flex items-center">
-                <div className="w-fit h-fit p-1 rounded-lg bg-accent mr-4">
-                  <div className="relative size-12">
-                    <Image
-                      src={split.itemImg || ""}
-                      alt={split.itemName}
-                      sizes="100%"
-                      fill
-                      className="rounded-sm absolute object-contain"
-                    />
+            <div key={split.id} className="flex flex-col items-center">
+              <span className="text-muted-foreground ml-auto mb-1">
+                {formatDistanceToNow(split.date)}
+              </span>
+              <Card className="w-full">
+                <CardContent className="p-4 flex items-center">
+                  <div className="w-fit p-1 rounded-lg bg-accent mr-4">
+                    <div className="relative size-12">
+                      <Image
+                        src={split.itemImg || ""}
+                        alt={split.itemName}
+                        sizes="100%"
+                        fill
+                        className="rounded-sm absolute object-contain"
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-foreground text-2xl">
-                    {split.itemName}
-                  </span>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-8 text-lg">
-                    <span className="text-muted-foreground">
-                      {user?.runescapeName || "test"}
+                  <div className="flex flex-col w-fit max-w-64 xl:max-w-full">
+                    <span className="text-foreground text-2xl w-fit hidden sm:flex">
+                      {split.itemName}
                     </span>
-                    <span className="text-muted-foreground">
-                      {new Intl.DateTimeFormat("en-US", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      }).format(new Date(split.date || ""))}
+                    <span className="sm:text-muted-foreground text-2xl sm:text-lg w-fit">
+                      {user?.runescapeName}
                     </span>
                   </div>
-                </div>
-
-                <div
-                  className={cn(
-                    "flex items-center ml-auto text-2xl gap-2 justify-start sm:w-40",
-                    split.itemPrice >= 10000000 && "text-[#23FE9A]"
-                  )}
-                >
-                  <div className="relative size-8 mr-1">
-                    <Image
-                      src="/coins.png"
-                      alt="coins"
-                      className="absolute object-contain"
-                      sizes="100%"
-                      fill
-                    />
+                  <div
+                    className={cn(
+                      "flex items-center text-2xl gap-2 justify-start w-32 ml-auto pl-4 sm:pl-0",
+                      split.itemPrice >= 10000000 && "text-[#23FE9A]"
+                    )}
+                  >
+                    <div className="relative size-8 mr-1">
+                      <Image
+                        src="/coins.png"
+                        alt="coins"
+                        className="absolute object-contain"
+                        sizes="100%"
+                        fill
+                      />
+                    </div>
+                    {Math.floor(split.itemPrice / 10000 / 100)}m
                   </div>
-                  {Math.floor(split.itemPrice / 10000 / 100)}m
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           );
         })}
       </div>
