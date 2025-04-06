@@ -45,7 +45,7 @@ const diarySchema = z.object({
   scale: z.string(),
   time: z
     .string()
-    .regex(/^\d{1,2}:\d{1,2}.\d{1,2,3}$/, "Invalid duration format (MM:SS.MS)"),
+    .regex(/^\d{1,2}:\d{1,2}.\d{3}$/, "Invalid duration format (MM:SS.MS)"),
   teamMembers: z.array(z.string()).optional(),
   proof: z.any().refine((file) => file instanceof File && file.size > 0, {
     message: "Please upload an image file",
