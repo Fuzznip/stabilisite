@@ -10,7 +10,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
   const splits = (await getSplits()).slice(0, 10);
   const diaries = (await getDiaryEntries()).slice(0, 10);
   return (
-    <div className="flex flex-col lg:flex-row gap-12">
+    <div className="flex flex-col lg:flex-row gap-12 mb-12">
       <div className="flex flex-col gap-4 w-full lg:w-1/2">
         <h2 className="text-3xl text-foreground">Recent Splits</h2>
         {splits.map(async (split) => {
