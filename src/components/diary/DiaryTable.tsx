@@ -1,6 +1,6 @@
 "use client";
 
-import { DiaryApplication, ShortDiary, User } from "@/lib/types";
+import { DiaryApplication, ShortDiary } from "@/lib/types";
 import { getScaleDisplay, cn, formatDate } from "@/lib/utils";
 import { Camera } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -26,11 +26,9 @@ import {
 } from "../ui/select";
 
 export function DiaryTable({
-  user,
   diaries,
   entries,
 }: {
-  user: User | null;
   diaries: ShortDiary[];
   entries: DiaryApplication[];
 }): React.ReactElement {

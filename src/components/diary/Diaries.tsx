@@ -8,5 +8,5 @@ export default async function Diaries(): Promise<React.ReactElement> {
   const diaries = await getDiaries();
   const entries = await getDiaryEntries();
 
-  return <DiaryTable user={user} diaries={diaries} entries={entries} />;
+  return <DiaryTable diaries={diaries} entries={entries} />;
 }
