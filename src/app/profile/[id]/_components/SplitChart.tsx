@@ -84,35 +84,39 @@ export default function SplitChart({
                 {Math.floor(chartData.slice(-2)[0].cumulativeValue / 1000000)}m
               </span>
             </div>
-            <div className="flex flex-col mb-6 ml-4">
-              <span className="text-base text-muted-foreground mb-1">
-                Most recent split
-              </span>
-              <div
-                className={cn(
-                  "flex items-center gap-2 text-xl",
-                  true && "text-[#23FE9A]"
-                )}
-              >
-                <span className="text-foreground mr-2">
-                  {chartData.slice(-2)[0].itemName}
+            {chartData[chartData.length - 1]?.cumulativeValue > 0 && (
+              <div className="flex flex-col mb-6 ml-4">
+                <span className="text-base text-muted-foreground mb-1">
+                  Most recent split
                 </span>
-                <div className="relative size-6">
-                  <Image
-                    src="/coins.png"
-                    alt="coins"
-                    className="absolute object-contain"
-                    sizes="100%"
-                    fill
-                  />
+                <div
+                  className={cn(
+                    "flex items-center gap-2 text-xl",
+                    true && "text-[#23FE9A]"
+                  )}
+                >
+                  <span className="text-foreground mr-2">
+                    {chartData.slice(-2)[0].itemName}
+                  </span>
+                  <div className="relative size-6">
+                    <Image
+                      src="/coins.png"
+                      alt="coins"
+                      className="absolute object-contain"
+                      sizes="100%"
+                      fill
+                    />
+                  </div>
+                  {Math.floor(
+                    chartData.slice(-2)[0].splitContribution / 1000000
+                  )}
+                  m
                 </div>
-                {Math.floor(chartData.slice(-2)[0].splitContribution / 1000000)}
-                m
+                <span className="text-muted-foreground text-sm">
+                  {tooltipFormatter.format(chartData.slice(-2)[0].date)}
+                </span>
               </div>
-              <span className="text-muted-foreground text-sm">
-                {tooltipFormatter.format(chartData.slice(-2)[0].date)}
-              </span>
-            </div>
+            )}
           </div>
           <ChartContainer config={chartConfig} className="max-h-80 w-full">
             <LineChart accessibilityLayer data={chartData}>
