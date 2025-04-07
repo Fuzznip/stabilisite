@@ -8,6 +8,7 @@ export async function createApplication(
   const clanApplication = {
     user_id: application.userId,
     runescape_name: application.runescapeName,
+    discord_id: authUser.discordId,
     referral: application.referral,
     reason: application.reason,
     goals: application.goals,
