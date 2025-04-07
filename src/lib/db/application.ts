@@ -1,12 +1,11 @@
-import { User as NextAuthUser } from "next-auth";
-import { Application, UserResponse } from "../types";
+import { Application, User, UserResponse } from "../types";
 
 export async function createApplication(
-  authUser: NextAuthUser,
+  user: User,
   application: Application
 ): Promise<UserResponse> {
   const clanApplication = {
-    user_id: authUser.discordId,
+    user_id: user.discordId,
     runescape_name: application.runescapeName,
     referral: application.referral,
     reason: application.reason,
