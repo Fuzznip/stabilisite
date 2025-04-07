@@ -7,6 +7,7 @@ import StabilityClanForm from "./_components/StabilityClanForm";
 export default async function ApplyPage() {
   const user = await getAuthUser();
   if (!user?.image) redirect("/login");
+  if (user.isStabilityMember) redirect("/profile");
 
   return (
     <div className="w-full h-full flex">
