@@ -10,7 +10,7 @@ export default async function rejectDiaryApplication(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ reason: "lol I dont support this yet" }),
+    body: JSON.stringify({ verdict_reason: "lol I dont support this yet" }),
   });
   revalidatePath("/applications/diary");
 }

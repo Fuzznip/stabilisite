@@ -8,7 +8,7 @@ export default async function rejectApplication(id: string): Promise<void> {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ reason: "lol im not supporting this yet" }),
+    body: JSON.stringify({ verdict_reason: "lol im not supporting this yet" }),
   });
 
   revalidatePath("/applications");
