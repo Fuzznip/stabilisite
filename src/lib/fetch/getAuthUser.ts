@@ -20,7 +20,7 @@ export async function getAuthUser(): Promise<User | null> {
       joinDate: new Date(storedUser.join_date || ""),
       progressionData: JSON.parse(JSON.stringify(storedUser.progression_data)),
       image: session.user.image,
-      isMember: !!session.user.inStabilityDiscord && !!storedUser.is_member,
+      isMember: storedUser.is_member,
       name: session.user.name,
       previousNames: storedUser.previous_names.filter((name) => name),
       altNames: storedUser.alt_names,
