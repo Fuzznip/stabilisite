@@ -12,6 +12,7 @@ export type User = {
   previousNames?: string[];
   altNames?: string[] | null;
   isAdmin?: boolean | null;
+  isMember?: boolean;
 } & NextAuthUser;
 
 export type UserResponse = {

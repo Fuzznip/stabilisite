@@ -33,12 +33,12 @@ export default async function NavBar(): Promise<React.ReactElement> {
         <NavBarLinks user={user} />
       </div>
       <div className="flex items-center gap-2">
-        {user && !user.isStabilityMember && (
+        {user && !user.isMember && (
           <Button className="px-4 bg-stability text-white mr-4" asChild>
             <Link href="/apply">Apply</Link>
           </Button>
         )}
-        {user && user.isStabilityMember && <SubmitPopover />}
+        {user && user.isMember && <SubmitPopover />}
         {user ? (
           <Popover>
             <PopoverTrigger asChild>

@@ -17,7 +17,7 @@ import { getSplits } from "@/lib/fetch/getSplits";
 
 export default async function ProfilePage(): Promise<React.ReactElement> {
   const user = await getAuthUser();
-  return user?.runescapeName && user.isStabilityMember ? (
+  return user?.runescapeName && user.isMember ? (
     <>
       <ProfileHeader />
       <ProfileStats />
