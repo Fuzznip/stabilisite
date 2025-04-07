@@ -1,10 +1,10 @@
 import requests
 
 splits = [
-    {"id": "8240e085-95bd-4e49-b44e-aa4684de5a48"},
+    {"id": "156543787882119168"},
 ]
 
-base_url = "https://stabilibackend-staging.up.railway.app/splits"
+base_url = "https://stabilibackend-staging.up.railway.app/users"
 
 for split in splits:
     split_id = split["id"]
