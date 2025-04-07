@@ -6,9 +6,8 @@ export async function createApplication(
   application: Application
 ): Promise<UserResponse> {
   const clanApplication = {
-    user_id: application.userId,
+    user_id: application.discordId,
     runescape_name: application.runescapeName,
-    discord_id: authUser.discordId,
     referral: application.referral,
     reason: application.reason,
     goals: application.goals,
