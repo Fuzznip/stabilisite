@@ -25,6 +25,7 @@ export type UserResponse = {
   previous_names: string[];
   alt_names: string[] | null;
   is_admin: boolean | null;
+  is_member?: boolean;
 };
 
 export type Rank = (typeof ranks)[number]["name"];

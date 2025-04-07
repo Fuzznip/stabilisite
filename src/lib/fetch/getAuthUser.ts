@@ -20,7 +20,7 @@ export async function getAuthUser(): Promise<User | null> {
       joinDate: new Date(storedUser.join_date || ""),
       progressionData: JSON.parse(JSON.stringify(storedUser.progression_data)),
       image: session.user.image,
-      isStabilityMember: session.user.isStabilityMember,
+      isStabilityMember: session.user.isStabilityMember && storedUser.is_member,
       name: session.user.name,
       previousNames: storedUser.previous_names.filter((name) => name),
       altNames: storedUser.alt_names,
