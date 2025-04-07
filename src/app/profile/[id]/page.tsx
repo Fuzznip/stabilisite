@@ -91,7 +91,7 @@ async function ProfileStats(): Promise<React.ReactElement> {
           <UserStats />
         </Suspense>
       </div>
-      <Diaries />
+      <Diaries user={user} />
       <SplitChart user={user} splits={splits} />
     </div>
   );
