@@ -10,13 +10,22 @@ export async function submitDiaryEntry(
   diaryForm: DiaryForm,
   fileUrl: string
 ): Promise<void> {
+  const scale = Number(diaryForm.shorthand?.replace(/\D/g, ""));
+  const party =
+    diaryForm.teamMembers?.length === scale
+      ? diaryForm.teamMembers
+      : [
+          ...(diaryForm.teamMembers || []),
+          ...Array(scale - (diaryForm.teamMembers?.length || 0)).fill(""),
+        ];
   const diaryRequest = {
     user_id: user?.discordId,
-    party: diaryForm.teamMembers,
+    party: party,
     diary_shorthand: diaryForm.shorthand,
     time_split: `${diaryForm.time}0`,
     proof: fileUrl,
   };
+  console.log(diaryRequest);
   const response = await fetch(`${process.env.API_URL}/applications/diary`, {
     method: "POST",
     headers: {
@@ -43,7 +52,7 @@ export async function getDiaryApplications(
     date: new Date(diary.timestamp),
     name: diary.diary_name,
     shorthand: diary.diary_shorthand,
-    party: diary.party,
+    party: diary.party.filter((teamMember) => teamMember.length),
     partyIds: diary.party_ids,
     proof: diary.proof,
     runescapeName: diary.runescape_name,

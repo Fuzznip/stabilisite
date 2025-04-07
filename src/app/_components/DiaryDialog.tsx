@@ -59,10 +59,10 @@ const diarySchema = z
     (data) => {
       const scaleValue = Number(data.scale);
       // allow if teamMembers is undefined or if it matches the scale
-      return !data.teamMembers || data.teamMembers.length === scaleValue;
+      return !data.teamMembers || data.teamMembers.length <= scaleValue;
     },
     {
-      message: "Number of team members must match the selected scale",
+      message: "Number of team members must not exceed the scale",
       path: ["teamMembers"], // show the error under teamMembers
     }
   );
