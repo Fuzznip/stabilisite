@@ -17,7 +17,7 @@ export async function getSplits(user?: User | null): Promise<Split[]> {
           )}.png`,
           splitContribution: Number(split.split_contribution),
           groupSize: Number(split.group_size),
-          screenshotLink: split.screenshot_link,
+          proof: split.proof,
           date: new Date(split.timestamp),
         }))
         .sort((a: Split, b: Split) => b.date.getTime() - a.date.getTime())
