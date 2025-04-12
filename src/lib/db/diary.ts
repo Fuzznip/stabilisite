@@ -10,7 +10,7 @@ export async function submitDiaryEntry(
   diaryForm: DiaryForm,
   fileUrl: string
 ): Promise<void> {
-  const scale = Number(diaryForm.shorthand?.replace(/\D/g, ""));
+  const scale = Number(diaryForm.shorthand?.replace(/\D/g, "") || 1);
   const party =
     diaryForm.teamMembers?.length === scale
       ? diaryForm.teamMembers
@@ -25,7 +25,6 @@ export async function submitDiaryEntry(
     time_split: `${diaryForm.time}0`,
     proof: fileUrl,
   };
-  console.log(diaryRequest);
   const response = await fetch(`${process.env.API_URL}/applications/diary`, {
     method: "POST",
     headers: {
