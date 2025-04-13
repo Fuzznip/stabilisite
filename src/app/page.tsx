@@ -67,7 +67,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
       <div className="flex flex-col gap-4 w-full lg:w-1/2">
         <h2 className="text-3xl text-foreground">Recent Diaries</h2>
         {diaries.map(async (diary) => {
-          const scale = diary.shorthand?.replace(/\D/g, "");
+          const scale = getScaleDisplay(
+            diary.shorthand?.replace(/\D/g, "") || "1"
+          );
           return (
             <div key={diary.id} className="flex flex-col items-center">
               <span className="text-muted-foreground ml-auto mb-1">
@@ -79,9 +81,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     <div className="flex w-fit">
                       <div className="text-foreground text-2xl w-fit inline">
                         {diary.name}{" "}
-                        {diary.partyIds && (
+                        {scale && (
                           <span className="text-muted-foreground inline">
-                            ({getScaleDisplay(scale || "1")})
+                            ({scale})
                           </span>
                         )}
                       </div>

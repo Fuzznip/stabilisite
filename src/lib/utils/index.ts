@@ -82,7 +82,7 @@ export const ranks = [
   },
 ] as const;
 
-export function getScaleDisplay(scale: string): string {
+export function getScaleDisplay(scale: string): string | undefined {
   switch (scale) {
     case "1":
       return "Solo";
@@ -97,6 +97,6 @@ export function getScaleDisplay(scale: string): string {
     case "8":
       return "8 Man";
     default:
-      return ":(";
+      return undefined;
   }
 }
