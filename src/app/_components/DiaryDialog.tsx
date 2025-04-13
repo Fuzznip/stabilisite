@@ -122,7 +122,7 @@ export function DiaryDialog({
               user={user}
               diaries={diaries.filter(
                 (diary) =>
-                  diary.scales.filter((scale) => scale.scale).length > 0
+                  diary.scales.filter((scale) => scale.diaryTime).length > 0
               )}
               setDialogOpen={setDialogOpen}
             />

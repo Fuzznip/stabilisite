@@ -9,7 +9,7 @@ export default async function Diaries({
   user?: User | null;
 }): Promise<React.ReactElement> {
   const diaries = (await getDiaries()).filter(
-    (diary) => diary.scales.filter((scale) => scale.scale).length > 0
+    (diary) => diary.scales.filter((scale) => scale.diaryTime).length > 0
   );
   const entries = await getDiaryEntries(user);
 

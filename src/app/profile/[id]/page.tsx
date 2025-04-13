@@ -1,7 +1,6 @@
 import Image from "next/image";
 import SplitChart from "./_components/SplitChart";
 import { Card } from "@/components/ui/card";
-import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import getPlayerDetails from "./_actions/getPlayerDetails";
 import { IdCard, TriangleAlert } from "lucide-react";
 import Link from "next/link";
@@ -14,22 +13,31 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Tooltip } from "@/components/ui/tooltip";
 import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { getSplits } from "@/lib/fetch/getSplits";
+import getUser from "@/lib/fetch/getUser";
 
-export default async function ProfilePage(): Promise<React.ReactElement> {
-  const user = await getAuthUser();
+export default async function ProfilePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<React.ReactElement> {
+  const { id } = await params;
+  const user = await getUser(id);
   console.log(user);
-  return user?.runescapeName && user.isMember ? (
+  return user?.runescapeName ? (
     <>
-      <ProfileHeader />
-      <ProfileStats />
+      <ProfileHeader user={user} />
+      <ProfileStats user={user} />
     </>
   ) : (
     <NoProfileMessage user={user} />
   );
 }
 
-async function ProfileHeader(): Promise<React.ReactElement> {
-  const user = await getAuthUser();
+async function ProfileHeader({
+  user,
+}: {
+  user?: User;
+}): Promise<React.ReactElement> {
   return (
     <div className="flex gap-8 items-center">
       <div className="size-20 aspect-square rounded-full relative overflow-hidden active:outline-2 active:outline-blue-500">
@@ -81,15 +89,18 @@ async function ProfileHeader(): Promise<React.ReactElement> {
   );
 }
 
-async function ProfileStats(): Promise<React.ReactElement> {
-  const user = await getAuthUser();
+async function ProfileStats({
+  user,
+}: {
+  user?: User;
+}): Promise<React.ReactElement> {
   const splits = await getSplits(user);
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between gap-8 flex-col lg:flex-row">
-        <UserRank />
+        <UserRank user={user} />
         <Suspense fallback={<UserStatsLoading />}>
-          <UserStats />
+          <UserStats user={user} />
         </Suspense>
       </div>
       <Diaries user={user} />
@@ -98,10 +109,12 @@ async function ProfileStats(): Promise<React.ReactElement> {
   );
 }
 
-async function UserRank(): Promise<React.ReactElement> {
-  const user = await getAuthUser();
+async function UserRank({
+  user,
+}: {
+  user?: User;
+}): Promise<React.ReactElement> {
   const rankPoints = user?.rankPoints || 0;
-  // const nextRank = { name: "Iron", points: 2000 };
   const rank = ranks.find((rank) => rank.name === (user?.rank || "Guest"));
 
   return (
@@ -137,8 +150,12 @@ async function UserRank(): Promise<React.ReactElement> {
   );
 }
 
-async function UserStats(): Promise<React.ReactElement> {
-  const details = await getPlayerDetails();
+async function UserStats({
+  user,
+}: {
+  user?: User;
+}): Promise<React.ReactElement> {
+  const details = await getPlayerDetails(user?.runescapeName || "");
 
   const combatLevel = details?.combatLevel;
   const totalLevel = details?.latestSnapshot?.data.skills.overall.level;
@@ -212,7 +229,11 @@ function UserStatsLoading(): React.ReactElement {
 //   );
 // }
 
-function NoProfileMessage({ user }: { user: User | null }): React.ReactElement {
+function NoProfileMessage({
+  user,
+}: {
+  user: User | undefined;
+}): React.ReactElement {
   return (
     <Card className="w-fit mx-auto px-8 py-6 mt-42 flex flex-col">
       <div className="flex items-center">

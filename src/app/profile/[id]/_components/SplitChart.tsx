@@ -24,7 +24,7 @@ export default function SplitChart({
   user,
   splits,
 }: {
-  user: User | null;
+  user?: User;
   splits: Split[];
 }): React.ReactElement {
   const chartData = useMemo(() => getChartData(user, splits), [user, splits]);
@@ -226,7 +226,7 @@ export default function SplitChart({
 }
 
 function getChartData(
-  user: User | null,
+  user: User | undefined,
   splits: Split[]
 ): (Split & { timestamp: number; cumulativeValue: number })[] {
   const sortedSplits = [...splits].sort(

@@ -13,6 +13,7 @@ export type User = {
   altNames?: string[] | null;
   isAdmin?: boolean | null;
   isMember?: boolean;
+  img?: string;
 } & NextAuthUser;
 
 export type UserResponse = {

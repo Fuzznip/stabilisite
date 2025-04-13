@@ -16,5 +16,6 @@ export default async function getUser(id: string): Promise<User | undefined> {
     previousNames: user.previous_names.filter((name: string) => name),
     altNames: user.alt_names,
     isAdmin: user.is_admin,
+    img: user.discord_avatar_url,
   };
 }
