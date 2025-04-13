@@ -79,9 +79,11 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     <div className="flex w-fit">
                       <div className="text-foreground text-2xl w-fit inline">
                         {diary.name}{" "}
-                        <span className="text-muted-foreground inline">
-                          ({getScaleDisplay(scale || "1")})
-                        </span>
+                        {diary.partyIds && (
+                          <span className="text-muted-foreground inline">
+                            ({getScaleDisplay(scale || "1")})
+                          </span>
+                        )}
                       </div>
                     </div>
                     <span className="text-lg text-muted-foreground capitalize">
