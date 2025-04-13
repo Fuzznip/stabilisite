@@ -7,8 +7,6 @@ export async function getDiaries(): Promise<ShortDiary[]> {
   const grouped = new Map<string, Map<string, string>>();
 
   for (const { diary_name, shorthand, scale } of diaryResponse) {
-    if (!scale) continue;
-
     if (!grouped.has(diary_name)) {
       grouped.set(diary_name, new Map());
     }

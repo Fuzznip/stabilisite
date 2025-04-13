@@ -15,17 +15,29 @@ export async function submitDiaryEntry(
       ? diaryForm.teamMembers
       : [
           ...(diaryForm.teamMembers || []),
-          ...Array(diaryForm.scale - (diaryForm.teamMembers?.length || 0)).fill(
-            ""
-          ),
+          ...Array(
+            (diaryForm.scale || 1) - (diaryForm.teamMembers?.length || 0)
+          ).fill(""),
         ];
-  const diaryRequest = {
+  const diaryRequest: {
+    user_id?: string;
+    party?: string[];
+    diary_shorthand: string;
+    proof: string;
+    time_split?: string;
+  } = {
     user_id: user?.discordId,
     party: party,
     diary_shorthand: diaryForm.shorthand,
-    time_split: `${diaryForm.time}0`,
     proof: fileUrl,
   };
+
+  if (diaryForm.time !== "00:00.0") {
+    diaryRequest.time_split = `${diaryForm.time}0`;
+  }
+
+  console.log(diaryRequest);
+
   const response = await fetch(`${process.env.API_URL}/applications/diary`, {
     method: "POST",
     headers: {

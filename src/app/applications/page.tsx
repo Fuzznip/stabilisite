@@ -236,7 +236,7 @@ function DiaryApplications({
                   <span className="text-muted-foreground mb-1">Diary</span>
                   <span className="text-foreground">{application.name}</span>
                 </div>
-                {scale && (
+                {scale && application.time && (
                   <div className="flex flex-col">
                     <span className="text-muted-foreground mb-1">Scale</span>
                     <span className="text-foreground">
@@ -245,10 +245,12 @@ function DiaryApplications({
                   </div>
                 )}
               </div>
-              <div className="flex flex-col">
-                <span className="text-muted-foreground mb-1">Duration</span>
-                <span className="text-foreground">{application.time}</span>
-              </div>
+              {application.time && (
+                <div className="flex flex-col">
+                  <span className="text-muted-foreground mb-1">Duration</span>
+                  <span className="text-foreground">{application.time}</span>
+                </div>
+              )}
               {application.party?.length && application.party?.length > 1 && (
                 <div className="flex flex-col">
                   <span className="text-muted-foreground mb-1">Party</span>

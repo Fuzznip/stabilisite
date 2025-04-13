@@ -94,7 +94,7 @@ export type DiaryForm = {
   shorthand: string;
   teamMembers?: string[] | undefined;
   proof?: File | null;
-  scale: number;
+  scale?: number;
 };
 
 export type DiaryApplicationResponse = {
