@@ -10,13 +10,14 @@ export async function submitDiaryEntry(
   diaryForm: DiaryForm,
   fileUrl: string
 ): Promise<void> {
-  const scale = Number(diaryForm.shorthand?.replace(/\D/g, "") || 1);
   const party =
-    diaryForm.teamMembers?.length === scale
+    diaryForm.teamMembers?.length === diaryForm.scale
       ? diaryForm.teamMembers
       : [
           ...(diaryForm.teamMembers || []),
-          ...Array(scale - (diaryForm.teamMembers?.length || 0)).fill(""),
+          ...Array(diaryForm.scale - (diaryForm.teamMembers?.length || 0)).fill(
+            ""
+          ),
         ];
   const diaryRequest = {
     user_id: user?.discordId,

@@ -105,6 +105,7 @@ export function DiaryDialog({
       shorthand:
         selectedDiary.scales.find((scale) => scale.scale === selectedScale)
           ?.shorthand || "",
+      scale: selectedScale,
     })
       .then(() => {
         toast.success(
