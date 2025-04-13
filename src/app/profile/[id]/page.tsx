@@ -42,7 +42,7 @@ async function ProfileHeader({
     <div className="flex gap-8 items-center">
       <div className="size-20 aspect-square rounded-full relative overflow-hidden active:outline-2 active:outline-blue-500">
         <Image
-          src={user?.image || ""}
+          src={user?.discordImg || ""}
           alt="Profile pic"
           className="absolute object-contain"
           sizes="100%"
