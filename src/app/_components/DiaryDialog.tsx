@@ -36,7 +36,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { submitDiary } from "../_actions/submitDiary";
-import { ShortDiary, User } from "@/lib/types";
+import { DiaryApplication, ShortDiary, User } from "@/lib/types";
 import { cn, getScaleDisplay } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -77,11 +77,16 @@ type SpeedRunZodForm = z.infer<typeof speedRunSchema>;
 export function DiaryDialog({
   user,
   diaries,
+  entires,
 }: {
   user?: User | null;
   diaries: ShortDiary[];
+  entires: DiaryApplication[];
 }): React.ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const completedDiaries = entires
+    .filter((entry) => entry.status === "Accepted")
+    .map((entry) => entry.name);
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
@@ -125,10 +130,12 @@ export function DiaryDialog({
           <TabsContent value="achievement" className="h-full flex flex-col">
             <AchievementForm
               user={user}
-              diaries={diaries.filter(
-                (diary) =>
-                  diary.scales.filter((scale) => scale.scale).length === 0
-              )}
+              diaries={diaries
+                .filter(
+                  (diary) =>
+                    diary.scales.filter((scale) => scale.scale).length === 0
+                )
+                .filter((diary) => !completedDiaries.includes(diary.name))}
               setDialogOpen={setDialogOpen}
             />
           </TabsContent>

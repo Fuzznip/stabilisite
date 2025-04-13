@@ -12,6 +12,7 @@ import { ChevronDown } from "lucide-react";
 import { DiaryDialog } from "./DiaryDialog";
 import { getDiaries } from "../../lib/fetch/getDiaries";
 import { SplitDialog } from "./SplitDialog";
+import { getDiaryEntries } from "@/lib/fetch/getDiaryEntries";
 
 export default async function NavBar(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -76,6 +77,7 @@ export default async function NavBar(): Promise<React.ReactElement> {
 async function SubmitPopover(): Promise<React.ReactElement> {
   const diaries = await getDiaries();
   const user = await getAuthUser();
+  const entires = await getDiaryEntries(user);
   return (
     <Popover>
       <PopoverTrigger asChild className="mr-4">
@@ -86,7 +88,7 @@ async function SubmitPopover(): Promise<React.ReactElement> {
       </PopoverTrigger>
       <PopoverContent className="w-fit p-2">
         <Card className="flex flex-col p-2">
-          <DiaryDialog user={user} diaries={diaries} />
+          <DiaryDialog user={user} diaries={diaries} entires={entires} />
           <SplitDialog />
         </Card>
       </PopoverContent>
