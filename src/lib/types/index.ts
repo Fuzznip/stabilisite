@@ -144,7 +144,7 @@ export type Diary = {
 
 export type ShortDiary = {
   name: string;
-  scales: { scale: string; shorthand: string }[];
+  scales: { scale: string; shorthand: string; diaryTime?: string | null }[];
 };
 
 export type SplitForm = {

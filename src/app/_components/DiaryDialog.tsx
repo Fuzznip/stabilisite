@@ -84,7 +84,7 @@ export function DiaryDialog({
   entires: DiaryApplication[];
 }): React.ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const completedDiaries = entires
+  const submittedDiaries = entires
     .filter((entry) => entry.status === "Accepted")
     .map((entry) => entry.name);
   return (
@@ -133,9 +133,10 @@ export function DiaryDialog({
               diaries={diaries
                 .filter(
                   (diary) =>
-                    diary.scales.filter((scale) => scale.scale).length === 0
+                    diary.scales.filter((scale) => !scale.diaryTime).length ===
+                    1
                 )
-                .filter((diary) => !completedDiaries.includes(diary.name))}
+                .filter((diary) => !submittedDiaries.includes(diary.name))}
               setDialogOpen={setDialogOpen}
             />
           </TabsContent>
@@ -508,7 +509,7 @@ function AchievementForm({
   setDialogOpen: (value: boolean) => void;
 }): React.ReactElement {
   const [selectedDiary, setSelectedDiary] = useState(diaries[0]);
-
+  console.log(diaries);
   const defaultForm = {
     diary: diaries[0].name,
     scale: diaries[0].scales[0].scale,

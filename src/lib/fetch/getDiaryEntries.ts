@@ -9,3 +9,4 @@ export async function getDiaryEntries(
     .filter((diary) => diary.status === "Accepted")
     .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0));
 }
+  

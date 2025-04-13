@@ -81,7 +81,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     <div className="flex w-fit">
                       <div className="text-foreground text-2xl w-fit inline">
                         {diary.name}{" "}
-                        {scale && (
+                        {scale && diary.time && (
                           <span className="text-muted-foreground inline">
                             ({scale})
                           </span>
