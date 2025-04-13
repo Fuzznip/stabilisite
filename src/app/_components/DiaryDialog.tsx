@@ -509,7 +509,6 @@ function AchievementForm({
   setDialogOpen: (value: boolean) => void;
 }): React.ReactElement {
   const [selectedDiary, setSelectedDiary] = useState(diaries[0]);
-  console.log(diaries);
   const defaultForm = {
     diary: diaries[0].name,
     scale: diaries[0].scales[0].scale,
