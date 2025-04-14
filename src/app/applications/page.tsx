@@ -4,12 +4,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getDiaryApplications } from "@/lib/db/diary";
 import { getApplications } from "@/lib/fetch/getApplications";
-import { Application, DiaryApplication } from "@/lib/types";
+import { Application, DiaryApplication, ShortDiary } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import acceptApplication from "./_actions/acceptApplication";
 import rejectApplication from "./_actions/rejectApplication";
 import { CheckCircle, TriangleAlert, XCircle } from "lucide-react";
-import { formatDateTime, getScaleDisplay } from "@/lib/utils";
+import {
+  formatDateTime,
+  getCAForShorthand,
+  getScaleDisplay,
+} from "@/lib/utils";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from "next/image";
@@ -234,7 +238,10 @@ function DiaryApplications({
               <div className="flex flex-row items-center gap-4">
                 <div className="flex flex-col">
                   <span className="text-muted-foreground mb-1">Diary</span>
-                  <span className="text-foreground">{application.name}</span>
+                  <span className="text-foreground">
+                    {application.name}{" "}
+                    {getDiaryNameApplicationDetail(application)}
+                  </span>
                 </div>
                 {scale && application.time && (
                   <div className="flex flex-col">
@@ -369,4 +376,12 @@ function sortApplications(
   });
 
   return apps;
+}
+
+function getDiaryNameApplicationDetail(application: DiaryApplication): string {
+  if (application.name === "Combat Achievements") {
+    return `(${getCAForShorthand(application.shorthand || "")})`;
+  }
+
+  return "";
 }

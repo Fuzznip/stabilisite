@@ -100,3 +100,16 @@ export function getScaleDisplay(scale: string): string | undefined {
       return undefined;
   }
 }
+
+export function getCAForShorthand(shorthand: string): string {
+  switch (shorthand) {
+    case "master":
+      return "Master";
+    case "gm":
+      return "Grandmaster";
+    case "elite":
+      return "Elite";
+    default:
+      return "";
+  }
+}

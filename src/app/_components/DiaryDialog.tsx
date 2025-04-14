@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/form";
 import { submitDiary } from "../_actions/submitDiary";
 import { DiaryApplication, ShortDiary, User } from "@/lib/types";
-import { cn, getScaleDisplay } from "@/lib/utils";
+import { cn, getCAForShorthand, getScaleDisplay } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -77,16 +77,13 @@ type SpeedRunZodForm = z.infer<typeof speedRunSchema>;
 export function DiaryDialog({
   user,
   diaries,
-  entires,
+  entries,
 }: {
   user?: User | null;
   diaries: ShortDiary[];
-  entires: DiaryApplication[];
+  entries: DiaryApplication[];
 }): React.ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const submittedDiaries = entires
-    .filter((entry) => entry.status === "Accepted")
-    .map((entry) => entry.name);
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
@@ -133,10 +130,21 @@ export function DiaryDialog({
               diaries={diaries
                 .filter(
                   (diary) =>
-                    diary.scales.filter((scale) => !scale.diaryTime).length ===
-                    1
+                    diary.scales.filter((scale) => !scale.diaryTime).length
                 )
-                .filter((diary) => !submittedDiaries.includes(diary.name))}
+                .filter(
+                  (diary) =>
+                    !entries
+                      .filter((entry) => entry.status === "Accepted")
+                      .map((entry) => entry.name)
+                      .includes(diary.name) || diary.scales.length > 1
+                )
+                .map((diary) =>
+                  diary.name === "Combat Achievements"
+                    ? mapDiariesForComabtAchievements(diary, entries)
+                    : diary
+                )
+                .filter((diary) => !!diary)}
               setDialogOpen={setDialogOpen}
             />
           </TabsContent>
@@ -509,6 +517,9 @@ function AchievementForm({
   setDialogOpen: (value: boolean) => void;
 }): React.ReactElement {
   const [selectedDiary, setSelectedDiary] = useState(diaries[0]);
+  const [selectedShorthand, setSelectedShorthand] = useState(
+    diaries[0].scales[0]?.shorthand
+  );
   const defaultForm = {
     diary: diaries[0].name,
     scale: diaries[0].scales[0].scale,
@@ -525,7 +536,7 @@ function AchievementForm({
   const onSubmit = (data: SpeedRunZodForm) => {
     submitDiary({
       ...data,
-      shorthand: selectedDiary.scales[0].shorthand,
+      shorthand: selectedShorthand,
       scale: 1,
     })
       .then(() => {
@@ -567,6 +578,14 @@ function AchievementForm({
                         const newDiary = diaries.find((d) => d.name === val);
                         if (newDiary) {
                           setSelectedDiary(newDiary);
+
+                          if (
+                            !newDiary.scales
+                              .map((scale) => scale.shorthand)
+                              .includes(selectedShorthand)
+                          ) {
+                            setSelectedShorthand(newDiary.scales[0].shorthand);
+                          }
                         }
                         field.onChange(val);
                       }}
@@ -587,6 +606,41 @@ function AchievementForm({
                 </FormItem>
               )}
             />
+            {selectedDiary.scales.length > 1 && (
+              <FormField
+                control={form.control}
+                name="scale"
+                render={() => (
+                  <FormItem>
+                    <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                      Tier
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        value={selectedShorthand}
+                        onValueChange={(val) => {
+                          setSelectedShorthand(val);
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a diary" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedDiary.scales.map((scale) => (
+                            <SelectItem
+                              key={scale.shorthand}
+                              value={scale.shorthand}
+                            >
+                              {getCAForShorthand(scale.shorthand)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
           <FormField
             control={form.control}
@@ -668,4 +722,36 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
       <FormMessage />
     </FormItem>
   );
+}
+
+function mapDiariesForComabtAchievements(
+  diary: ShortDiary,
+  entries: DiaryApplication[]
+): ShortDiary | null {
+  const gmCompleted = entries.map((entry) => entry.shorthand === "gm");
+  const masterCompleted = entries.map((entry) => entry.shorthand === "master");
+  const eliteCompleted = entries.map((entry) => entry.shorthand === "elite");
+  let scales: {
+    scale: string;
+    shorthand: string;
+    diaryTime?: string | null;
+  }[];
+  if (gmCompleted) {
+    scales = [];
+  } else if (masterCompleted) {
+    scales = diary.scales.filter((scale) => scale.shorthand === "gm");
+  } else if (eliteCompleted) {
+    scales = diary.scales.filter(
+      (scale) => scale.shorthand === "gm" || scale.shorthand === "master"
+    );
+  } else {
+    scales = diary.scales;
+  }
+  if (scales.length)
+    return {
+      ...diary,
+      scales,
+    };
+
+  return null;
 }
