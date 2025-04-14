@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getDiaryApplications } from "@/lib/db/diary";
 import { getApplications } from "@/lib/fetch/getApplications";
-import { Application, DiaryApplication, ShortDiary } from "@/lib/types";
+import { Application, DiaryApplication } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import acceptApplication from "./_actions/acceptApplication";
 import rejectApplication from "./_actions/rejectApplication";
