@@ -84,6 +84,21 @@ export function DiaryDialog({
   entries: DiaryApplication[];
 }): React.ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const achievementDiaries = diaries
+    .filter((diary) => diary.scales.filter((scale) => !scale.diaryTime).length)
+    .filter(
+      (diary) =>
+        !entries
+          .filter((entry) => entry.status === "Accepted")
+          .map((entry) => entry.name)
+          .includes(diary.name) || diary.scales.length > 1
+    )
+    .map((diary) =>
+      diary.name === "Combat Achievements"
+        ? mapDiariesForComabtAchievements(diary, entries)
+        : diary
+    )
+    .filter((diary) => !!diary);
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
@@ -125,28 +140,18 @@ export function DiaryDialog({
             />
           </TabsContent>
           <TabsContent value="achievement" className="h-full flex flex-col">
-            <AchievementForm
-              user={user}
-              diaries={diaries
-                .filter(
-                  (diary) =>
-                    diary.scales.filter((scale) => !scale.diaryTime).length
-                )
-                .filter(
-                  (diary) =>
-                    !entries
-                      .filter((entry) => entry.status === "Accepted")
-                      .map((entry) => entry.name)
-                      .includes(diary.name) || diary.scales.length > 1
-                )
-                .map((diary) =>
-                  diary.name === "Combat Achievements"
-                    ? mapDiariesForComabtAchievements(diary, entries)
-                    : diary
-                )
-                .filter((diary) => !!diary)}
-              setDialogOpen={setDialogOpen}
-            />
+            {achievementDiaries ? (
+              <AchievementForm
+                user={user}
+                diaries={achievementDiaries}
+                setDialogOpen={setDialogOpen}
+              />
+            ) : (
+              <div className="text-muted-foreground text-lg w-fit mx-auto mt-36 text-center">
+                You&apos;re a certified gamer! Go touch grass or wait for more
+                achievements to be added.
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </DialogContent>
@@ -554,15 +559,6 @@ function AchievementForm({
       });
     setDialogOpen(false);
   };
-
-  if (true) {
-    return (
-      <div className="text-muted-foreground text-lg w-fit mx-auto mt-36 text-center">
-        You&apos;re a certified gamer! Go touch grass or wait for more
-        achievements to be added.
-      </div>
-    );
-  }
 
   return (
     <div className="h-full flex flex-col">
