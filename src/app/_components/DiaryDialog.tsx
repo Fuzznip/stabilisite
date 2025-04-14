@@ -140,7 +140,7 @@ export function DiaryDialog({
             />
           </TabsContent>
           <TabsContent value="achievement" className="h-full flex flex-col">
-            {achievementDiaries ? (
+            {achievementDiaries.length ? (
               <AchievementForm
                 user={user}
                 diaries={achievementDiaries}
