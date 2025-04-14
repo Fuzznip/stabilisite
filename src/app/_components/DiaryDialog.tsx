@@ -99,6 +99,7 @@ export function DiaryDialog({
         : diary
     )
     .filter((diary) => !!diary);
+  console.log(achievementDiaries);
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>

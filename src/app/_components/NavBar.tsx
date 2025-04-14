@@ -76,6 +76,7 @@ export default async function NavBar(): Promise<React.ReactElement> {
 
 async function SubmitPopover(): Promise<React.ReactElement> {
   const diaries = await getDiaries();
+  console.log(diaries);
   const user = await getAuthUser();
   const entries = await getDiaryEntries(user);
   return (
