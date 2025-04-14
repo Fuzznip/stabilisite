@@ -555,6 +555,15 @@ function AchievementForm({
     setDialogOpen(false);
   };
 
+  if (true) {
+    return (
+      <div className="text-muted-foreground text-lg w-fit mx-auto mt-36 text-center">
+        You&apos;re a certified gamer! Go touch grass or wait for more
+        achievements to be added.
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col">
       <Form {...form}>
