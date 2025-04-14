@@ -740,7 +740,7 @@ function mapDiariesForComabtAchievements(
     scale: string;
     shorthand: string;
     diaryTime?: string | null;
-  }[];
+  }[] = [];
   if (gmCompleted) {
     scales = [];
   } else if (masterCompleted) {
@@ -752,7 +752,7 @@ function mapDiariesForComabtAchievements(
   } else {
     scales = diary.scales;
   }
-  if (scales.length)
+  if (scales.length > 0)
     return {
       ...diary,
       scales,
