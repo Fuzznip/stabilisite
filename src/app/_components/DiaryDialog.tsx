@@ -99,7 +99,6 @@ export function DiaryDialog({
         : diary
     )
     .filter((diary) => !!diary);
-  console.log(achievementDiaries);
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
@@ -734,15 +733,16 @@ function mapDiariesForComabtAchievements(
   diary: ShortDiary,
   entries: DiaryApplication[]
 ): ShortDiary | null {
-  const gmCompleted = entries.map(
+  const gmCompleted = entries.filter(
     (entry) => entry.shorthand === "gm" && entry.status === "Accepted"
-  );
-  const masterCompleted = entries.map(
+  ).length;
+  const masterCompleted = entries.filter(
     (entry) => entry.shorthand === "master" && entry.status === "Accepted"
-  );
-  const eliteCompleted = entries.map(
+  ).length;
+  const eliteCompleted = entries.filter(
     (entry) => entry.shorthand === "elite" && entry.status === "Accepted"
-  );
+  ).length;
+
   let scales: {
     scale: string;
     shorthand: string;
