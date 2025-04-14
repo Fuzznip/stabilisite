@@ -84,14 +84,14 @@ export function DiaryDialog({
   entries: DiaryApplication[];
 }): React.ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const acceptedDiaryNames = entries
+    .filter((entry) => entry.status === "Accepted")
+    .map((entry) => entry.name);
   const achievementDiaries = diaries
     .filter((diary) => diary.scales.filter((scale) => !scale.diaryTime).length)
     .filter(
       (diary) =>
-        !entries
-          .filter((entry) => entry.status === "Accepted")
-          .map((entry) => entry.name)
-          .includes(diary.name) || diary.scales.length > 1
+        !acceptedDiaryNames.includes(diary.name) || diary.scales.length > 1
     )
     .map((diary) =>
       diary.name === "Combat Achievements"
@@ -734,9 +734,15 @@ function mapDiariesForComabtAchievements(
   diary: ShortDiary,
   entries: DiaryApplication[]
 ): ShortDiary | null {
-  const gmCompleted = entries.map((entry) => entry.shorthand === "gm");
-  const masterCompleted = entries.map((entry) => entry.shorthand === "master");
-  const eliteCompleted = entries.map((entry) => entry.shorthand === "elite");
+  const gmCompleted = entries.map(
+    (entry) => entry.shorthand === "gm" && entry.status === "Accepted"
+  );
+  const masterCompleted = entries.map(
+    (entry) => entry.shorthand === "master" && entry.status === "Accepted"
+  );
+  const eliteCompleted = entries.map(
+    (entry) => entry.shorthand === "elite" && entry.status === "Accepted"
+  );
   let scales: {
     scale: string;
     shorthand: string;
