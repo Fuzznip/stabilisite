@@ -7,7 +7,7 @@ export async function getDiaries(): Promise<ShortDiary[]> {
 
   const grouped = new Map<
     string,
-    Map<string, { shorthand: string; diaryTime?: string }>
+    Map<string, { scale: string; shorthand: string; diaryTime?: string }>
   >();
 
   for (const entry of diaryResponse) {
@@ -19,7 +19,8 @@ export async function getDiaries(): Promise<ShortDiary[]> {
     }
 
     const scaleMap = grouped.get(diary_name)!;
-    scaleMap.set(scale, {
+    scaleMap.set(diary_shorthand, {
+      scale: scale,
       shorthand: diary_shorthand,
       diaryTime: diary_time ?? undefined,
     });
@@ -29,7 +30,7 @@ export async function getDiaries(): Promise<ShortDiary[]> {
     .map(([diaryName, scaleMap]) => ({
       name: diaryName,
       scales: Array.from(scaleMap.entries())
-        .map(([scale, { shorthand, diaryTime }]) => ({
+        .map(([, { scale, shorthand, diaryTime }]) => ({
           scale,
           shorthand,
           diaryTime,
