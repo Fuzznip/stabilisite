@@ -5,10 +5,12 @@ import { getSplits } from "@/lib/fetch/getSplits";
 import { cn, getScaleDisplay } from "@/lib/utils";
 import getUser from "@/lib/fetch/getUser";
 import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
 
 export default async function HomePage(): Promise<React.ReactElement> {
   const splits = (await getSplits()).slice(0, 10);
   const diaries = (await getDiaryEntries()).slice(0, 10);
+
   return (
     <div className="flex flex-col lg:flex-row gap-18 sm:gap-12 mb-12">
       <div className="flex flex-col gap-4 w-full lg:w-1/2">
@@ -38,7 +40,12 @@ export default async function HomePage(): Promise<React.ReactElement> {
                       {split.itemName}
                     </span>
                     <span className="sm:text-muted-foreground text-2xl sm:text-lg w-fit">
-                      {user?.runescapeName}
+                      <Link
+                        href={`/profile/${user?.runescapeName}`}
+                        className="hover:underline"
+                      >
+                        {user?.runescapeName}
+                      </Link>
                     </span>
                   </div>
                   <div
@@ -93,7 +100,27 @@ export default async function HomePage(): Promise<React.ReactElement> {
                         ?.sort((playerA, playerB) =>
                           playerA.localeCompare(playerB)
                         )
-                        .join(", ")}
+                        .map(async (member, index) => {
+                          const user = await getUser(member);
+                          return (
+                            <span
+                              key={member}
+                              className={user ? "" : "text-muted-foreground/70"}
+                            >
+                              {user ? (
+                                <Link
+                                  href={`/profile/${member}`}
+                                  className="hover:underline"
+                                >
+                                  {member}
+                                </Link>
+                              ) : (
+                                member
+                              )}
+                              {index < (diary.party?.length || 0) - 1 && ", "}
+                            </span>
+                          );
+                        })}
                     </span>
                   </div>
                   <span className="my-auto text-2xl ml-auto text-foreground font-bold">
