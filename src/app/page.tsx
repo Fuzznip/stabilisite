@@ -7,15 +7,6 @@ import getUser from "@/lib/fetch/getUser";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 
-const userCache: Record<string, Promise<User | undefined>> = {};
-
-async function getCachedUser(name: string): Promise<User | undefined> {
-  if (!userCache[name]) {
-    userCache[name] = getUser(name);
-  }
-  return userCache[name];
-}
-
 export default async function HomePage(): Promise<React.ReactElement> {
   const splits = (await getSplits()).slice(0, 10);
   const diaries = (await getDiaryEntries()).slice(0, 10);
@@ -25,7 +16,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
       <div className="flex flex-col gap-4 w-full lg:w-1/2">
         <h2 className="text-3xl text-foreground">Recent Splits</h2>
         {splits.map(async (split) => {
-          const user = await getCachedUser(split.userId);
+          const user = await getUser(split.userId);
           return (
             <div key={split.id} className="flex flex-col items-center">
               <span className="text-muted-foreground ml-auto mb-1">
@@ -110,9 +101,12 @@ export default async function HomePage(): Promise<React.ReactElement> {
                           playerA.localeCompare(playerB)
                         )
                         .map(async (member, index) => {
-                          const user = await getCachedUser(member);
+                          const user = await getUser(member);
                           return (
-                            <span key={member}>
+                            <span
+                              key={member}
+                              className={user ? "" : "text-muted-foreground/70"}
+                            >
                               {user ? (
                                 <Link
                                   href={`/profile/${member}`}
