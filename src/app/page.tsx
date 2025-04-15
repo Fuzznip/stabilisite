@@ -5,16 +5,27 @@ import { getSplits } from "@/lib/fetch/getSplits";
 import { cn, getScaleDisplay } from "@/lib/utils";
 import getUser from "@/lib/fetch/getUser";
 import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
+
+const userCache: Record<string, Promise<User | undefined>> = {};
+
+async function getCachedUser(name: string): Promise<User | undefined> {
+  if (!userCache[name]) {
+    userCache[name] = getUser(name);
+  }
+  return userCache[name];
+}
 
 export default async function HomePage(): Promise<React.ReactElement> {
   const splits = (await getSplits()).slice(0, 10);
   const diaries = (await getDiaryEntries()).slice(0, 10);
+
   return (
     <div className="flex flex-col lg:flex-row gap-18 sm:gap-12 mb-12">
       <div className="flex flex-col gap-4 w-full lg:w-1/2">
         <h2 className="text-3xl text-foreground">Recent Splits</h2>
         {splits.map(async (split) => {
-          const user = await getUser(split.userId);
+          const user = await getCachedUser(split.userId);
           return (
             <div key={split.id} className="flex flex-col items-center">
               <span className="text-muted-foreground ml-auto mb-1">
@@ -38,7 +49,12 @@ export default async function HomePage(): Promise<React.ReactElement> {
                       {split.itemName}
                     </span>
                     <span className="sm:text-muted-foreground text-2xl sm:text-lg w-fit">
-                      {user?.runescapeName}
+                      <Link
+                        href={`/profile/${user?.runescapeName}`}
+                        className="hover:underline"
+                      >
+                        {user?.runescapeName}
+                      </Link>
                     </span>
                   </div>
                   <div
@@ -93,7 +109,24 @@ export default async function HomePage(): Promise<React.ReactElement> {
                         ?.sort((playerA, playerB) =>
                           playerA.localeCompare(playerB)
                         )
-                        .join(", ")}
+                        .map(async (member, index) => {
+                          const user = await getCachedUser(member);
+                          return (
+                            <span key={member}>
+                              {user ? (
+                                <Link
+                                  href={`/profile/${member}`}
+                                  className="hover:underline"
+                                >
+                                  {member}
+                                </Link>
+                              ) : (
+                                member
+                              )}
+                              {index < diary.party.length - 1 && ", "}
+                            </span>
+                          );
+                        })}
                     </span>
                   </div>
                   <span className="my-auto text-2xl ml-auto text-foreground font-bold">
