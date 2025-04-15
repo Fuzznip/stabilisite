@@ -98,16 +98,20 @@ async function ProfileStats({
   const splits = await getSplits(user);
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex justify-between gap-8 flex-col lg:flex-row">
-        <UserRank user={user} />
+      <div className="flex justify-between flex-col xl:flex-row gap-12">
+        <UserRankAndStats user={user} />
+        <div className="xl:h-72 w-full xl:w-1/2">
+          <Diaries user={user} />
+        </div>
       </div>
-      <Diaries user={user} />
-      <SplitChart user={user} splits={splits} />
+      <Suspense fallback={<div className="w-72 h-72 bg-blue-400" />}>
+        <SplitChart user={user} splits={splits} />
+      </Suspense>
     </div>
   );
 }
 
-async function UserRank({
+async function UserRankAndStats({
   user,
 }: {
   user?: User;
@@ -115,38 +119,38 @@ async function UserRank({
   const rank = ranks.find((rank) => rank.name === (user?.rank || "Guest"));
 
   return (
-    <section className="flex flex-col w-full">
+    <section className="flex flex-col w-full xl:w-1/2">
       <h2 className="text-2xl font-bold mb-2">Rank & Stats</h2>
-      <Card className="p-4 bg-card w-full min-h-20 flex flex-col lg:flex-row items-center">
-        <div className="flex flex-col w-full lg:w-1/3 items-center">
-          <RankPointPieChart user={user} />
-        </div>
-        <div className="hidden lg:block w-px bg-border mx-4" />
-        <div className="flex flex-col w-full lg:w-1/3 items-center border-t lg:border-none border-border pt-4 lg:pt-0">
-          <h3 className="text-xl font-semibold mb-2">Rank</h3>
-          <div className="flex items-center mb-4 lg:mb-0">
-            <div className="relative size-10 mr-2">
-              <Image
-                src={`/${rank?.name.toLowerCase()}.png`}
-                alt={`${rank?.name.toLowerCase()} rank`}
-                className="absolute object-contain"
-                sizes="100%"
-                fill
-              />
-            </div>
-            <div
-              className={`capitalize text-4xl ${rank?.textColor} dark:brightness-150 brightness-90`}
-            >
-              {rank?.name}
+      <Card className="p-4 sm:pl-8  bg-card w-full min-h-20 flex flex-col sm:flex-row items-center gap-2">
+        <div className="flex flex-col items-start sm:w-1/2 xl:w-full h-full justify-center sm:gap-12">
+          <div className="flex flex-col w-fit">
+            <h3 className="text-xl font-semibold mb-2">Rank</h3>
+            <div className="flex items-center mb-4 lg:mb-0">
+              <div className="relative size-10 mr-2">
+                <Image
+                  src={`/${rank?.name.toLowerCase()}.png`}
+                  alt={`${rank?.name.toLowerCase()} rank`}
+                  className="absolute object-contain"
+                  sizes="100%"
+                  fill
+                />
+              </div>
+              <div
+                className={`capitalize text-4xl ${rank?.textColor} dark:brightness-150 brightness-90`}
+              >
+                {rank?.name}
+              </div>
             </div>
           </div>
+          <div className="flex flex-col w-fit">
+            <h3 className="text-xl font-semibold mb-2">Stats</h3>
+            <Suspense fallback={<UserStatsLoading />}>
+              <UserStats user={user} />
+            </Suspense>
+          </div>
         </div>
-        <div className="hidden lg:block w-px bg-border mx-4" />
-        <div className="flex flex-col w-full lg:w-1/3 items-center border-t lg:border-none border-border pt-4 lg:pt-0">
-          <h3 className="text-xl font-semibold mb-2">Stats</h3>
-          <Suspense fallback={<UserStatsLoading />}>
-            <UserStats user={user} />
-          </Suspense>
+        <div className="flex flex-col sm:w-1/2 xl:w-fit items-start xl:items-center">
+          <RankPointPieChart user={user} />
         </div>
       </Card>
     </section>
@@ -164,7 +168,7 @@ async function UserStats({
   const totalLevel = details?.latestSnapshot?.data.skills.overall.level;
   return (
     <div className="flex items-center w-full text-4xl">
-      <div className="flex items-center w-1/2 justify-center border-r-2 border-border">
+      <div className="flex items-center w-1/2 justify-center border-r-2 border-border pr-4 mr-4">
         <div className="relative size-8 mr-2">
           <Image
             src="/combat.png"
