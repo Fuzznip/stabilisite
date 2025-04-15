@@ -1,16 +1,12 @@
 "use client"
 
+import { User } from "@/lib/types"
 import * as React from "react"
-import { TrendingUp } from "lucide-react"
 import { Label, Pie, PieChart } from "recharts"
 
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import {
   ChartConfig,
@@ -41,10 +37,15 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export default function RankPointPieChart({ data }: { data: { name: string; value: number; fill: string }[] }) {
-  const totalClanPoints = React.useMemo(() => {
-    return data.reduce((acc, curr) => acc + curr.value, 0)
-  }, [data])
+export default function RankPointPieChart({ user }: { user: User | undefined }) {
+  const pieChartData = [
+    { name: "diary", value: Math.trunc(Number(user?.diaryPoints)) || 0, fill: "#003f5c" },
+    { name: "event", value: Math.trunc(Number(user?.eventPoints)) || 0, fill: "#58508d" },
+    { name: "time", value: Math.trunc(Number(user?.timePoints)) || 0, fill: "#bc5090" },
+    { name: "splits", value: Math.trunc(Number(user?.splitPoints)) || 0, fill: "#ff6361" },
+  ];
+  
+  const totalClanPoints = pieChartData.reduce((acc, curr) => acc + curr.value, 0)
 
   return (
     <Card className="flex flex-col border-none">
@@ -59,7 +60,7 @@ export default function RankPointPieChart({ data }: { data: { name: string; valu
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={data}
+              data={pieChartData}
               dataKey="value"
               nameKey="name"
               innerRadius={60}

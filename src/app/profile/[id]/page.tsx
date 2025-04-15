@@ -3,7 +3,7 @@ import SplitChart from "./_components/SplitChart";
 import RankPointPieChart from "./_components/RankPointPieChart";
 import { Card } from "@/components/ui/card";
 import getPlayerDetails from "./_actions/getPlayerDetails";
-import { IdCard, PieChart, TriangleAlert } from "lucide-react";
+import { IdCard, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatDate, ranks } from "@/lib/utils";
@@ -99,9 +99,7 @@ async function ProfileStats({
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between gap-8 flex-col lg:flex-row">
-        <Suspense fallback={<UserStatsLoading />}>
-          <UserRank user={user} />
-        </Suspense>
+        <UserRank user={user} />
       </div>
       <Diaries user={user} />
       <SplitChart user={user} splits={splits} />
@@ -114,21 +112,14 @@ async function UserRank({
 }: {
   user?: User;
 }): Promise<React.ReactElement> {
-  const rankPoints = user?.rankPoints || 0;
   const rank = ranks.find((rank) => rank.name === (user?.rank || "Guest"));
-  const pieChartData = [
-    { name: "diary", value: Math.trunc(Number(user?.diaryPoints)) || 0, fill: "#003f5c" },
-    { name: "event", value: Math.trunc(Number(user?.eventPoints)) || 0, fill: "#58508d" },
-    { name: "time", value: Math.trunc(Number(user?.timePoints)) || 0, fill: "#bc5090" },
-    { name: "splits", value: Math.trunc(Number(user?.splitPoints)) || 0, fill: "#ff6361" },
-  ];
 
   return (
     <section className="flex flex-col w-full">
       <h2 className="text-2xl font-bold mb-2">Rank & Stats</h2>
       <Card className="p-4 bg-card w-full min-h-20 flex flex-col lg:flex-row items-center">
         <div className="flex flex-col w-full lg:w-1/3 items-center">
-          <RankPointPieChart data={pieChartData} />
+          <RankPointPieChart user={user} />
         </div>
         <div className="hidden lg:block w-px bg-border mx-4" />
         <div className="flex flex-col w-full lg:w-1/3 items-center border-t lg:border-none border-border pt-4 lg:pt-0">
@@ -153,7 +144,9 @@ async function UserRank({
         <div className="hidden lg:block w-px bg-border mx-4" />
         <div className="flex flex-col w-full lg:w-1/3 items-center border-t lg:border-none border-border pt-4 lg:pt-0">
           <h3 className="text-xl font-semibold mb-2">Stats</h3>
-          <UserStats user={user} />
+          <Suspense fallback={<UserStatsLoading />}>
+            <UserStats user={user} />
+          </Suspense>
         </div>
       </Card>
     </section>
