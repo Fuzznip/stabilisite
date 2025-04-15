@@ -117,7 +117,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
                               ) : (
                                 member
                               )}
-                              {index < diary.party.length - 1 && ", "}
+                              {index < (diary.party?.length || 0) - 1 && ", "}
                             </span>
                           );
                         })}
