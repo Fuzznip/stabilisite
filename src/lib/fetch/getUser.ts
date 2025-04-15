@@ -18,5 +18,9 @@ export default async function getUser(id: string): Promise<User | undefined> {
     isAdmin: user.is_admin,
     isMember: user.is_member,
     discordImg: user.discord_avatar_url,
+    diaryPoints: user.diary_points,
+    eventPoints: user.event_points,
+    timePoints: user.time_points,
+    splitPoints: user.split_points,
   };
 }
