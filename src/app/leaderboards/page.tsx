@@ -14,7 +14,12 @@ export default async function LeaderboardPage(): Promise<React.ReactElement> {
 async function ClanPointLeaderboard(): Promise<React.ReactElement> {
   const users =
     (await getUsers())
-      ?.filter((user) => user.rank !== "Guest" && user.rank !== "Trialist")
+      ?.filter(
+        (user) =>
+          user.rank !== "Guest" &&
+          user.rank !== "Trialist" &&
+          user.rank !== "Applied"
+      )
       .sort(
         (userA, userB) => (userB.rankPoints || 0) - (userA.rankPoints || 0)
       ) ?? [];

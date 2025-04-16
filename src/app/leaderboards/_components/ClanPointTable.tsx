@@ -21,6 +21,7 @@ import {
   PaginationLink,
   PaginationNext,
 } from "@/components/ui/pagination";
+import Link from "next/link";
 
 const PAGE_SIZE = 10;
 
@@ -58,7 +59,12 @@ export default function ClanPointTable({ users }: { users: User[] }) {
 
   return (
     <section className="flex flex-col w-full h-full">
-      <h2 className="text-2xl font-bold mb-2">Clan Points</h2>
+      <div className="w-full flex flex-col">
+        <h2 className="text-2xl font-bold mb-0">Clan Points</h2>
+        <p className="text-muted-foreground mb-2">
+          Click a name to view their profile
+        </p>
+      </div>
       <Card className="flex flex-col gap-4 p-4 min-h-72 h-full">
         <Table className="w-full sm:table-fixed">
           <TableHeader>
@@ -92,7 +98,12 @@ export default function ClanPointTable({ users }: { users: User[] }) {
                     {Math.trunc(user.rankPoints || 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="w-48 sm:w-auto">
-                    {user.runescapeName}
+                    <Link
+                      href={`/profile/${user.runescapeName}`}
+                      className="hover:underline"
+                    >
+                      {user.runescapeName}
+                    </Link>
                   </TableCell>
                   <TableCell className="flex items-center my-auto h-16">
                     <div className="relative size-6 mr-2">

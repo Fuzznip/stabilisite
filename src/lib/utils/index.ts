@@ -36,6 +36,12 @@ export const ranks = [
     progressColor: "[&>div]:bg-[#028968]",
   },
   {
+    name: "Applied",
+    textColor: "text-[#028968]",
+    bgColor: "bg-[#028968]/50",
+    progressColor: "[&>div]:bg-[#028968]",
+  },
+  {
     name: "Trialist",
     textColor: "text-[#D76222]",
     bgColor: "bg-[#D76222]/50",
