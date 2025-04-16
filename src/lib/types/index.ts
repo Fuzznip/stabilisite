@@ -14,6 +14,10 @@ export type User = {
   isAdmin?: boolean | null;
   isMember?: boolean;
   discordImg?: string;
+  diaryPoints?: number;
+  eventPoints?: number;
+  timePoints?: number;
+  splitPoints?: number;
 } & NextAuthUser;
 
 export type UserResponse = {
@@ -28,6 +32,10 @@ export type UserResponse = {
   alt_names: string[] | null;
   is_admin: boolean | null;
   is_member?: boolean;
+  diary_points: number;
+  event_ponts: number;
+  time_points: number;
+  split_points: number;
 };
 
 export type Rank = (typeof ranks)[number]["name"];

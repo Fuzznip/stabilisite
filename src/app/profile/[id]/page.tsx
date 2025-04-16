@@ -1,5 +1,6 @@
 import Image from "next/image";
 import SplitChart from "./_components/SplitChart";
+import RankPointPieChart from "./_components/RankPointPieChart";
 import { Card } from "@/components/ui/card";
 import getPlayerDetails from "./_actions/getPlayerDetails";
 import { IdCard, TriangleAlert } from "lucide-react";
@@ -97,53 +98,59 @@ async function ProfileStats({
   const splits = await getSplits(user);
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex justify-between gap-8 flex-col lg:flex-row">
-        <UserRank user={user} />
-        <Suspense fallback={<UserStatsLoading />}>
-          <UserStats user={user} />
-        </Suspense>
+      <div className="flex justify-between flex-col xl:flex-row gap-12">
+        <UserRankAndStats user={user} />
+        <div className="xl:h-72 w-full xl:w-1/2">
+          <Diaries user={user} />
+        </div>
       </div>
-      <Diaries user={user} />
-      <SplitChart user={user} splits={splits} />
+      <Suspense fallback={<div className="w-72 h-72 bg-blue-400" />}>
+        <SplitChart user={user} splits={splits} />
+      </Suspense>
     </div>
   );
 }
 
-async function UserRank({
+async function UserRankAndStats({
   user,
 }: {
   user?: User;
 }): Promise<React.ReactElement> {
-  const rankPoints = user?.rankPoints || 0;
   const rank = ranks.find((rank) => rank.name === (user?.rank || "Guest"));
 
   return (
-    <section className="flex flex-col w-full">
-      <h2 className="text-2xl font-bold mb-2">Rank</h2>
-      <Card className="p-4 bg-card w-full min-h-20 flex items-center">
-        <div className="mx-auto flex w-full items-center gap-2 md:gap-0">
-          <div className="flex items-center justify-center pr-4 border-r-2 border-r-border w-1/2">
-            <div className="relative size-10 mr-2">
-              <Image
-                src={`/${rank?.name.toLowerCase()}.png`}
-                alt={`${rank?.name.toLowerCase()} rank`}
-                className="absolute object-contain"
-                sizes="100%"
-                fill
-              />
-            </div>
-            <div
-              className={`capitalize text-4xl ${rank?.textColor} dark:brightness-150 brightness-90`}
-            >
-              {rank?.name}
+    <section className="flex flex-col w-full xl:w-1/2">
+      <h2 className="text-2xl font-bold mb-2">Rank & Stats</h2>
+      <Card className="p-4 sm:pl-8  bg-card w-full min-h-20 flex flex-col sm:flex-row items-center gap-2">
+        <div className="flex flex-col items-start sm:w-1/2 xl:w-full h-full justify-center sm:gap-12">
+          <div className="flex flex-col w-fit">
+            <h3 className="text-xl font-semibold mb-2">Rank</h3>
+            <div className="flex items-center mb-4 lg:mb-0">
+              <div className="relative size-10 mr-2">
+                <Image
+                  src={`/${rank?.name.toLowerCase()}.png`}
+                  alt={`${rank?.name.toLowerCase()} rank`}
+                  className="absolute object-contain"
+                  sizes="100%"
+                  fill
+                />
+              </div>
+              <div
+                className={`capitalize text-4xl ${rank?.textColor} dark:brightness-150 brightness-90`}
+              >
+                {rank?.name}
+              </div>
             </div>
           </div>
-          <div className="flex items-center w-1/2 justify-center lg:ml-4">
-            <span className="text-foreground text-4xl mr-4">
-              {Math.floor(rankPoints).toLocaleString()}
-            </span>
-            <span className="mt-auto text-lg lg:text-xl">Clan Points</span>
+          <div className="flex flex-col w-fit">
+            <h3 className="text-xl font-semibold mb-2">Stats</h3>
+            <Suspense fallback={<UserStatsLoading />}>
+              <UserStats user={user} />
+            </Suspense>
           </div>
+        </div>
+        <div className="flex flex-col sm:w-1/2 xl:w-fit items-start xl:items-center">
+          <RankPointPieChart user={user} />
         </div>
       </Card>
     </section>
@@ -160,35 +167,32 @@ async function UserStats({
   const combatLevel = details?.combatLevel;
   const totalLevel = details?.latestSnapshot?.data.skills.overall.level;
   return (
-    <section className="flex flex-col w-full">
-      <h2 className="text-2xl font-bold mb-2">Stats</h2>
-      <Card className="flex items-center p-4 text-4xl h-full">
-        <div className="flex items-center w-1/2 justify-center border-r-2 border-r-border">
-          <div className="relative size-8 mr-2">
-            <Image
-              src="/combat.png"
-              alt="Combat level"
-              className="absolute object-contain"
-              sizes="100%"
-              fill
-            />
-          </div>
-          {combatLevel}
+    <div className="flex items-center w-full text-4xl">
+      <div className="flex items-center w-1/2 justify-center border-r-2 border-border pr-4 mr-4">
+        <div className="relative size-8 mr-2">
+          <Image
+            src="/combat.png"
+            alt="Combat level"
+            className="absolute object-contain"
+            sizes="100%"
+            fill
+          />
         </div>
-        <div className="flex items-center w-1/2 justify-center">
-          <div className="relative size-8 mr-2">
-            <Image
-              src="/level.png"
-              alt="Total level"
-              className="absolute object-contain"
-              sizes="100%"
-              fill
-            />
-          </div>
-          {totalLevel}
+        {combatLevel}
+      </div>
+      <div className="flex items-center w-1/2 justify-center">
+        <div className="relative size-8 mr-2">
+          <Image
+            src="/level.png"
+            alt="Total level"
+            className="absolute object-contain"
+            sizes="100%"
+            fill
+          />
         </div>
-      </Card>
-    </section>
+        {totalLevel}
+      </div>
+    </div>
   );
 }
 
