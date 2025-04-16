@@ -23,6 +23,7 @@ export type User = {
 export type UserResponse = {
   id?: string;
   discord_id?: string;
+  discord_avatar_url: string;
   runescape_name?: string;
   rank?: Rank;
   rank_points?: number;
@@ -33,7 +34,7 @@ export type UserResponse = {
   is_admin: boolean | null;
   is_member?: boolean;
   diary_points: number;
-  event_ponts: number;
+  event_points: number;
   time_points: number;
   split_points: number;
 };
