@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { User } from "@/lib/types";
 import Link from "next/link";
-import { Label } from "@/components/ui/label";
 import { Search } from "lucide-react";
 
 export function ProfileSearch({ users }: { users: User[] }) {
@@ -55,7 +54,7 @@ export function ProfileSearch({ users }: { users: User[] }) {
   };
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1 w-fit mx-auto">
       <Popover open={open} modal={false}>
         <PopoverTrigger asChild>
           <div className="relative w-fit">
@@ -75,12 +74,12 @@ export function ProfileSearch({ users }: { users: User[] }) {
                 }
               }}
               placeholder="Search to see other profiles"
-              className="w-80 bg-input h-12 placeholder:text-lg px-10 text-lg"
+              className="w-96 bg-input h-12 placeholder:text-lg px-10 text-lg"
             />
           </div>
         </PopoverTrigger>
         <PopoverContent
-          className="w-80 p-2 overflow-y-auto h-80 overflow-x-hidden"
+          className="w-96 p-2 overflow-y-auto h-96 overflow-x-hidden"
           forceMount
           ref={popoverRef}
           onBlur={handleBlur}
