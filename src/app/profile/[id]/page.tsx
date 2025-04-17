@@ -15,6 +15,8 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { getSplits } from "@/lib/fetch/getSplits";
 import getUser from "@/lib/fetch/getUser";
+import { ProfileSearch } from "./_components/ProfileSearch";
+import getUsers from "@/lib/fetch/getUsers";
 
 export default async function ProfilePage({
   params,
@@ -23,9 +25,10 @@ export default async function ProfilePage({
 }): Promise<React.ReactElement> {
   const { id } = await params;
   const user = await getUser(id);
-  console.log(user);
+  const users = await getUsers();
   return user?.runescapeName ? (
     <>
+      <ProfileSearch users={users || []} />
       <ProfileHeader user={user} />
       <ProfileStats user={user} />
     </>
