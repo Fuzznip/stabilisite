@@ -87,9 +87,14 @@ export default async function HomePage(): Promise<React.ReactElement> {
                   <div className="flex items-sart flex-col">
                     <div className="flex w-fit">
                       <div className="text-foreground text-2xl w-fit inline">
-                        {diary.name}{" "}
+                        {scale && diary.name === "Combat Achievements" && (
+                          <span className="inline capitalize mr-2">
+                            {diary.shorthand}
+                          </span>
+                        )}
+                        {diary.name}
                         {scale && diary.time && (
-                          <span className="text-muted-foreground inline">
+                          <span className="ml-2 text-muted-foreground inline">
                             ({scale})
                           </span>
                         )}
