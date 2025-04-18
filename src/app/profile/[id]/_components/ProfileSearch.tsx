@@ -113,7 +113,9 @@ export function ProfileSearch({ users }: { users: User[] }) {
               ))}
             </ul>
           ) : (
-            <div className="p-2 text-sm">No results found.</div>
+            <div className="p-2 text-xl text-muted-foreground mt-12 h-fit w-fit mx-auto">
+              No results found
+            </div>
           )}
         </PopoverContent>
       </Popover>
