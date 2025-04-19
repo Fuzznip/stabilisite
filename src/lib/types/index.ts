@@ -164,6 +164,11 @@ export type SplitForm = {
   proof?: File | null;
 };
 
+export type RaidTierForm = {
+  targetRaidTierId: string;
+  proof?: File[] | null;
+};
+
 export type OsrsItem = {
   id?: string;
   name: string;
@@ -195,3 +200,50 @@ export type Application = Partial<{
   verdictDate: Date;
   date: Date;
 }>;
+
+export type RaidTierApplication = Partial<{
+  id: string;
+  proof: string;
+  runescapeName: string;
+  status: string;
+  targetRaidTierId: string;
+  date: Date;
+  userId: string;
+  verdictReason: string | null;
+  verdictDate: Date;
+}>;
+
+export type RaidTierApplicationResponse = {
+  id: string;
+  proof: string;
+  runescape_name: string;
+  status: string;
+  target_raid_tier_id: string;
+  timestamp: string;
+  user_id: string;
+  verdict_reason: string | null;
+  verdict_timestamp: string | null;
+};
+
+export type RaidTierResponse = {
+  id: string;
+  tier_name: string;
+  tier_order: number;
+  tier_icon: string | null;
+  tier_color: string;
+  tier_description: string;
+  tier_requirements: string;
+  tier_points: number;
+};
+
+export type Raid = {
+  raidName: string;
+  tiers: {
+    id: string;
+    order: number;
+    icon: string | null;
+    color: string;
+    requirements: string;
+    points: number;
+  }[];
+};

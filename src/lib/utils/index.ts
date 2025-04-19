@@ -6,7 +6,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(date: Date) {
-  console.log(date);
   try {
     return Intl.DateTimeFormat("en-US", {
       day: "numeric",

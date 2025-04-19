@@ -4,7 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getDiaryApplications } from "@/lib/db/diary";
 import { getApplications } from "@/lib/fetch/getApplications";
-import { Application, DiaryApplication } from "@/lib/types";
+import {
+  Application,
+  DiaryApplication,
+  RaidTierApplication,
+} from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import acceptApplication from "./_actions/acceptApplication";
 import rejectApplication from "./_actions/rejectApplication";
@@ -26,10 +30,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { getRaidTierApplications } from "@/lib/db/raidTier";
+import { getRaids } from "@/lib/fetch/getRaids";
+import rejectRaidTierApplication from "./_actions/rejectRaidTierApplication";
+import acceptRaidTierApplication from "./_actions/aceptRaidTierApplication";
 
 export default async function ApplicationPage(): Promise<React.ReactElement> {
   const applications = await getApplications();
   const diaryApplications = await getDiaryApplications();
+  const raidTierApplications = await getRaidTierApplications();
   const user = await getAuthUser();
 
   if (!user?.isAdmin) {
@@ -46,9 +55,9 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
     <div className="flex flex-col gap-8 mx-auto sm:mx-0">
       <h1 className="text-3xl font-bold">Applications</h1>
       <Tabs defaultValue="clan">
-        <TabsList className="py-1 h-auto mb-4">
+        <TabsList className="py-1 h-auto mb-4 flex items-center gap-4 w-fit">
           <TabsTrigger value="clan" className="flex items-center text-lg">
-            <span>Clan Applications</span>
+            <span>Clan</span>
             <Badge className="ml-2 bg-foreground text-background">
               {
                 applications.filter(
@@ -58,10 +67,20 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="diary" className="flex items-center text-lg">
-            <span>Diary Applications</span>
+            <span>Diary</span>
             <Badge className="ml-2 bg-foreground text-background">
               {
                 diaryApplications.filter(
+                  (application) => application.status === "Pending"
+                ).length
+              }
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="raids" className="flex items-center text-lg">
+            <span>Raid Tier</span>
+            <Badge className="ml-2 bg-foreground text-background">
+              {
+                raidTierApplications.filter(
                   (application) => application.status === "Pending"
                 ).length
               }
@@ -81,6 +100,17 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
           {diaryApplications.length > 0 ? (
             <DiaryApplications
               diaryApplications={sortApplications(diaryApplications)}
+            />
+          ) : (
+            <Card className="w-fit text-2xl px-8 pt-6">
+              <CardContent>No current applications</CardContent>
+            </Card>
+          )}
+        </TabsContent>
+        <TabsContent value="raids">
+          {diaryApplications.length > 0 ? (
+            <RaidTierApplications
+              applications={sortApplications(raidTierApplications)}
             />
           ) : (
             <Card className="w-fit text-2xl px-8 pt-6">
@@ -337,6 +367,139 @@ function DiaryApplications({
               <div className="w-fit ml-auto text-red-500/80 flex items-center gap-1 mt-2 text-sm h-10">
                 <XCircle className="size-4" />{" "}
                 {application.verdictTimestamp && (
+                  <span>Rejected on {formatDateTime(new Date())}</span>
+                )}
+              </div>
+            )}
+          </Card>
+        );
+      })}
+    </ul>
+  );
+}
+
+async function RaidTierApplications({
+  applications,
+}: {
+  applications: RaidTierApplication[];
+}): Promise<React.ReactElement> {
+  const raids = await getRaids();
+  return (
+    <ul className="flex items-center flex-wrap gap-8">
+      {applications.map((application) => {
+        const timeAgo = formatDistanceToNow(application.date || new Date(), {
+          addSuffix: true,
+        });
+
+        const raid = raids.find((raid) =>
+          raid.tiers
+            .map((tier) => tier.id)
+            .includes(application.targetRaidTierId || "")
+        );
+
+        const tier = raid?.tiers.find(
+          (tier) => tier.id === application.targetRaidTierId
+        );
+        const img = (
+          <Image
+            src={
+              application.proof && application.proof !== "string"
+                ? application.proof
+                : ""
+            }
+            alt={`${raid?.raidName} Tier ${tier?.order} proof for ${application.runescapeName}`}
+            fill
+            className="object-contain"
+          />
+        );
+        return (
+          <Card
+            key={application.id}
+            className="border px-4 pt-2 pb-4 rounded-lg flex flex-col w-96 h-fit"
+          >
+            <div className="flex items-center justify-between mb-8">
+              <span className="font-bold text-lg">
+                {application.runescapeName}
+              </span>
+              <span className="text-lg text-muted-foreground w-fit">
+                {timeAgo}
+              </span>
+            </div>
+            <div className="overflow-auto flex flex-col gap-4 h-[24rem]">
+              <div className="flex flex-row items-center gap-8">
+                <div className="flex flex-col">
+                  <span className="text-muted-foreground mb-1">Raid</span>
+                  <span className="text-foreground">{raid?.raidName}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-muted-foreground mb-1">Tier</span>
+                  <span className="text-foreground">{tier?.order}</span>
+                </div>
+              </div>
+              {application.proof && application.proof !== "string" && (
+                <div className="flex flex-col">
+                  <span className="text-muted-foreground mb-1">Proof</span>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <div className="border rounded-lg relative w-full h-48 hover:cursor-pointer">
+                        {img}
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent className="w-fit h-fit max-w-[90vw] sm:max-w-[90vw]">
+                      <DialogHeader>
+                        <DialogTitle>Diary Proof</DialogTitle>
+                      </DialogHeader>
+                      <div className="relative h-[600px] max-h-[90vh] w-[900px] max-w-[80vw]">
+                        {img}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              )}
+            </div>
+            {application.status === "Pending" && (
+              <div className="w-fit flex items-center gap-2 ml-auto mt-2 h-10">
+                <form
+                  action={rejectRaidTierApplication.bind(
+                    null,
+                    application.id || ""
+                  )}
+                >
+                  <Button
+                    className="text-red-500 border-red-500 hover:cursor-pointer"
+                    variant="outline"
+                  >
+                    Reject
+                  </Button>
+                </form>
+                <form
+                  action={acceptRaidTierApplication.bind(
+                    null,
+                    application.id || ""
+                  )}
+                >
+                  <Button
+                    className="text-green-500 border-green-500 hover:cursor-pointer"
+                    variant="outline"
+                  >
+                    Accept
+                  </Button>
+                </form>
+              </div>
+            )}
+
+            {application.status === "Accepted" && (
+              <div className="w-fit ml-auto text-green-500/80 flex items-center gap-1 mt-2 text-sm h-10">
+                <CheckCircle className="size-4" />
+                {application.verdictDate && (
+                  <span>Accepted on {formatDateTime(new Date())}</span>
+                )}
+              </div>
+            )}
+            {application.status === "Rejected" && (
+              <div className="w-fit ml-auto text-red-500/80 flex items-center gap-1 mt-2 text-sm h-10">
+                <XCircle className="size-4" />
+                {application.verdictDate && (
                   <span>Rejected on {formatDateTime(new Date())}</span>
                 )}
               </div>
