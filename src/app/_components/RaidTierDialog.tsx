@@ -67,7 +67,7 @@ export function RaidTierDialog({
 }): React.ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedRaid, setSelectedRaid] = useState(raids[0]);
-  const [selectedTier, setSelectedTier] = useState(raids[0].tiers[0]);
+  const [selectedTier, setSelectedTier] = useState(raids[0]?.tiers[0]);
 
   const defaultForm = {
     raid: selectedRaid.raidName,
@@ -138,9 +138,9 @@ export function RaidTierDialog({
                             raids[0];
                           setSelectedRaid(newRaid);
                           const newTier =
-                            newRaid.tiers.find(
+                            newRaid?.tiers.find(
                               (tier) => tier.order === selectedTier.order
-                            ) || newRaid.tiers[0];
+                            ) || newRaid?.tiers[0];
                           setSelectedTier(newTier);
                           form.setValue("tier", newTier.id);
 
@@ -177,9 +177,9 @@ export function RaidTierDialog({
                       <Select
                         onValueChange={(val) => {
                           setSelectedTier(
-                            selectedRaid.tiers.find(
+                            selectedRaid?.tiers.find(
                               (tier) => tier.id === val
-                            ) || selectedRaid.tiers[0]
+                            ) || selectedRaid?.tiers[0]
                           );
                           field.onChange(val);
                         }}
@@ -189,7 +189,7 @@ export function RaidTierDialog({
                           <SelectValue>Tier {selectedTier.order}</SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          {selectedRaid.tiers.map((tier) => (
+                          {selectedRaid?.tiers.map((tier) => (
                             <SelectItem key={tier.id} value={tier.id}>
                               Tier {tier.order}
                             </SelectItem>

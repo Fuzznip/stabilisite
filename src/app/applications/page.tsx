@@ -392,7 +392,7 @@ async function RaidTierApplications({
         });
 
         const raid = raids.find((raid) =>
-          raid.tiers
+          raid?.tiers
             .map((tier) => tier.id)
             .includes(application.targetRaidTierId || "")
         );

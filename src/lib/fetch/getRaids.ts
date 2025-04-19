@@ -23,7 +23,7 @@ function groupRaidTiers(data: RaidTierResponse[]): Raid[] {
     };
 
     if (existing) {
-      existing.tiers.push(tier);
+      existing?.tiers.push(tier);
     } else {
       grouped.set(item.tier_name, {
         raidName: item.tier_name,
@@ -35,6 +35,6 @@ function groupRaidTiers(data: RaidTierResponse[]): Raid[] {
   // Sort tiers within each raid by order before returning
   return Array.from(grouped.values()).map((raid) => ({
     ...raid,
-    tiers: raid.tiers.sort((a, b) => a.order - b.order),
+    tiers: raid?.tiers.sort((a, b) => a.order - b.order),
   }));
 }
