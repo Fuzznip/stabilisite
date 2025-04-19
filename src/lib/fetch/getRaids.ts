@@ -5,12 +5,7 @@ export async function getRaids(): Promise<Raid[]> {
     (res) => res.json()
   );
 
-  console.log(`${process.env.API_URL}/raidTier`);
-  console.log(raidResposne);
-
-  const raids = groupRaidTiers(raidResposne);
-  console.log(raids);
-  return raids;
+  return groupRaidTiers(raidResposne);
 }
 function groupRaidTiers(data: RaidTierResponse[]): Raid[] {
   const grouped = new Map<string, Raid>();
