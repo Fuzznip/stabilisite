@@ -37,7 +37,6 @@ import { Swords } from "lucide-react";
 
 const RAID_RANKS = ["1", "2", "3", "4", "5", "6", "7"];
 const RAIDS = ["Chambers of Xeric", "Theater of Blood", "Tombs of Amascut"];
-// Schema
 const raidTierSchema = z.object({
   raid: z.enum(["Chambers of Xeric", "Theater of Blood", "Tombs of Amascut"], {
     required_error: "Please select a tier",
@@ -73,7 +72,6 @@ export function RaidTierDialog(): React.ReactElement {
   });
 
   const onSubmit = (data: RaidTierSchema) => {
-    // Replace this with your actual API call
     console.log("submitted raid tier", data);
 
     toast.success(
