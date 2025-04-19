@@ -18,6 +18,7 @@ export type User = {
   eventPoints?: number;
   timePoints?: number;
   splitPoints?: number;
+  raidTierPoints?: number;
 } & NextAuthUser;
 
 export type UserResponse = {
@@ -37,6 +38,7 @@ export type UserResponse = {
   event_points: number;
   time_points: number;
   split_points: number;
+  raid_tier_points: number;
 };
 
 export type Rank = (typeof ranks)[number]["name"];
