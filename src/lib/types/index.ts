@@ -201,6 +201,30 @@ export type Application = Partial<{
   date: Date;
 }>;
 
+export type RaidTierApplication = Partial<{
+  id: string;
+  proof: string;
+  runescapeName: string;
+  status: string;
+  targetRaidTierId: string;
+  date: Date;
+  userId: string;
+  verdictReason: string | null;
+  verdictDate: Date;
+}>;
+
+export type RaidTierApplicationResponse = {
+  id: string;
+  proof: string;
+  runescape_name: string;
+  status: string;
+  target_raid_tier_id: string;
+  timestamp: string;
+  user_id: string;
+  verdict_reason: string | null;
+  verdict_timestamp: string | null;
+};
+
 export type RaidTierResponse = {
   id: string;
   tier_name: string;
