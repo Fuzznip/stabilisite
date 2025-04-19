@@ -57,7 +57,7 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
       <Tabs defaultValue="clan">
         <TabsList className="py-1 h-auto mb-4 flex items-center gap-4 w-fit">
           <TabsTrigger value="clan" className="flex items-center text-lg">
-            <span>Clan Applications</span>
+            <span>Clan</span>
             <Badge className="ml-2 bg-foreground text-background">
               {
                 applications.filter(
@@ -67,7 +67,7 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="diary" className="flex items-center text-lg">
-            <span>Diary Applications</span>
+            <span>Diary</span>
             <Badge className="ml-2 bg-foreground text-background">
               {
                 diaryApplications.filter(
@@ -77,7 +77,7 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="raids" className="flex items-center text-lg">
-            <span>Raid Tier Applications</span>
+            <span>Raid Tier</span>
             <Badge className="ml-2 bg-foreground text-background">
               {
                 raidTierApplications.filter(
@@ -390,11 +390,12 @@ async function RaidTierApplications({
         const timeAgo = formatDistanceToNow(application.date || new Date(), {
           addSuffix: true,
         });
-        const raid = raids.find((raid) => {
+
+        const raid = raids.find((raid) =>
           raid.tiers
             .map((tier) => tier.id)
-            .includes(application.targetRaidTierId || "");
-        });
+            .includes(application.targetRaidTierId || "")
+        );
 
         const tier = raid?.tiers.find(
           (tier) => tier.id === application.targetRaidTierId
@@ -425,7 +426,7 @@ async function RaidTierApplications({
               </span>
             </div>
             <div className="overflow-auto flex flex-col gap-4 h-[24rem]">
-              <div className="flex flex-row items-center gap-4">
+              <div className="flex flex-row items-center gap-8">
                 <div className="flex flex-col">
                   <span className="text-muted-foreground mb-1">Raid</span>
                   <span className="text-foreground">{raid?.raidName}</span>
