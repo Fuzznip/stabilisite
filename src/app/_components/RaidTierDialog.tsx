@@ -33,15 +33,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Swords } from "lucide-react";
+import { Info, Swords } from "lucide-react";
+import { Raid } from "@/lib/types";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { submitRaidTier } from "../_actions/submitRaidTier";
 
-const RAID_RANKS = ["1", "2", "3", "4", "5", "6", "7"];
-const RAIDS = ["Chambers of Xeric", "Theater of Blood", "Tombs of Amascut"];
 const raidTierSchema = z.object({
-  raid: z.enum(["Chambers of Xeric", "Theater of Blood", "Tombs of Amascut"], {
+  raid: z.string({
     required_error: "Please select a tier",
   }),
-  tier: z.enum(["1", "2", "3", "4", "5", "6", "7"], {
+  tier: z.string({
     required_error: "Please select a tier",
   }),
   proof: z
@@ -59,24 +60,42 @@ const raidTierSchema = z.object({
 
 type RaidTierSchema = z.infer<typeof raidTierSchema>;
 
-export function RaidTierDialog(): React.ReactElement {
+export function RaidTierDialog({
+  raids,
+}: {
+  raids: Raid[];
+}): React.ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedRaid, setSelectedRaid] = useState(raids[0]);
+  const [selectedTier, setSelectedTier] = useState(raids[0].tiers[0]);
+
+  const defaultForm = {
+    raid: selectedRaid.raidName,
+    tier: selectedTier.id,
+    proof: [],
+  };
 
   const form = useForm<RaidTierSchema>({
     resolver: zodResolver(raidTierSchema),
-    defaultValues: {
-      raid: undefined,
-      tier: undefined,
-      proof: [],
-    },
+    defaultValues: defaultForm,
   });
 
   const onSubmit = (data: RaidTierSchema) => {
-    console.log("submitted raid tier", data);
+    submitRaidTier({ targetRaidTierId: data.tier, proof: data.proof })
+      .then(() => {
+        toast.success(
+          `Your ${selectedRaid.raidName} Tier ${selectedTier.order} application was submitted!`
+        );
+        form.reset(defaultForm);
+      })
+      .catch((err) => {
+        toast.error(
+          `There was an error submitting your ${selectedRaid.raidName} Tier ${selectedTier.order} application: ${err}`,
+          { duration: 10000 }
+        );
+        form.reset(defaultForm);
+      });
 
-    toast.success(
-      `Your ${data.raid} Tier ${data.tier} application was submitted!`
-    );
     setDialogOpen(false);
     form.reset();
   };
@@ -113,16 +132,32 @@ export function RaidTierDialog(): React.ReactElement {
                     <FormLabel>Raid</FormLabel>
                     <FormControl>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(val) => {
+                          const newRaid =
+                            raids.find((raid) => raid.raidName === val) ||
+                            raids[0];
+                          setSelectedRaid(newRaid);
+                          const newTier =
+                            newRaid.tiers.find(
+                              (tier) => tier.order === selectedTier.order
+                            ) || newRaid.tiers[0];
+                          setSelectedTier(newTier);
+                          form.setValue("tier", newTier.id);
+
+                          field.onChange(val);
+                        }}
                         defaultValue={field.value}
                       >
                         <SelectTrigger className="w-48">
                           <SelectValue placeholder="Select Raid" />
                         </SelectTrigger>
                         <SelectContent>
-                          {RAIDS.map((raid) => (
-                            <SelectItem key={raid} value={raid}>
-                              {raid}
+                          {raids.map((raid) => (
+                            <SelectItem
+                              key={raid.raidName}
+                              value={raid.raidName}
+                            >
+                              {raid.raidName}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -140,16 +175,23 @@ export function RaidTierDialog(): React.ReactElement {
                     <FormLabel>Raid Tier</FormLabel>
                     <FormControl>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(val) => {
+                          setSelectedTier(
+                            selectedRaid.tiers.find(
+                              (tier) => tier.id === val
+                            ) || selectedRaid.tiers[0]
+                          );
+                          field.onChange(val);
+                        }}
                         defaultValue={field.value}
                       >
                         <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Select Tier" />
+                          <SelectValue>Tier {selectedTier.order}</SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          {RAID_RANKS.map((tier) => (
-                            <SelectItem key={tier} value={tier}>
-                              Tier {tier}
+                          {selectedRaid.tiers.map((tier) => (
+                            <SelectItem key={tier.id} value={tier.id}>
+                              Tier {tier.order}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -160,6 +202,13 @@ export function RaidTierDialog(): React.ReactElement {
                 )}
               />
             </div>
+            <Alert className="mt-4">
+              <Info />
+              <AlertTitle>Requirement</AlertTitle>
+              <AlertDescription className="text-foreground font-semibold text-base">
+                {selectedTier.requirements}
+              </AlertDescription>
+            </Alert>
             <FormField
               control={form.control}
               name="proof"

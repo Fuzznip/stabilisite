@@ -7,10 +7,10 @@ export async function submitRaidTierForm(
 ): Promise<void> {
   const raidTierRequest = {
     user_id: user?.discordId,
-    raid: raidTierForm.raid,
-    tier: raidTierForm.tier,
+    target_raid_tier_id: raidTierForm.targetRaidTierId,
     proof: fileUrls[0],
   };
+  console.log(raidTierRequest);
   const response = await fetch(`${process.env.API_URL}/applications/raidTier`, {
     method: "POST",
     headers: {

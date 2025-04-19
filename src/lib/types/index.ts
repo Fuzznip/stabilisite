@@ -165,8 +165,7 @@ export type SplitForm = {
 };
 
 export type RaidTierForm = {
-  raid: string;
-  tier: number;
+  targetRaidTierId: string;
   proof?: File[] | null;
 };
 
@@ -201,3 +200,26 @@ export type Application = Partial<{
   verdictDate: Date;
   date: Date;
 }>;
+
+export type RaidTierResponse = {
+  id: string;
+  tier_name: string;
+  tier_order: number;
+  tier_icon: string | null;
+  tier_color: string;
+  tier_description: string;
+  tier_requirements: string;
+  tier_points: number;
+};
+
+export type Raid = {
+  raidName: string;
+  tiers: {
+    id: string;
+    order: number;
+    icon: string | null;
+    color: string;
+    requirements: string;
+    points: number;
+  }[];
+};

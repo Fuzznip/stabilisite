@@ -14,6 +14,7 @@ import { getDiaries } from "../../lib/fetch/getDiaries";
 import { SplitDialog } from "./SplitDialog";
 import { getDiaryEntries } from "@/lib/fetch/getDiaryEntries";
 import { RaidTierDialog } from "./RaidTierDialog";
+import { getRaids } from "@/lib/fetch/getRaids";
 
 export default async function NavBar(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -79,6 +80,7 @@ async function SubmitPopover(): Promise<React.ReactElement> {
   const diaries = await getDiaries();
   const user = await getAuthUser();
   const entries = await getDiaryEntries(user);
+  const raids = await getRaids();
   return (
     <Popover>
       <PopoverTrigger asChild className="mr-4">
@@ -91,7 +93,7 @@ async function SubmitPopover(): Promise<React.ReactElement> {
         <Card className="flex flex-col p-2">
           <DiaryDialog user={user} diaries={diaries} entries={entries} />
           <SplitDialog />
-          <RaidTierDialog />
+          <RaidTierDialog raids={raids} />
         </Card>
       </PopoverContent>
     </Popover>
