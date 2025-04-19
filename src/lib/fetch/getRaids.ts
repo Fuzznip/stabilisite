@@ -1,9 +1,12 @@
 import { Raid, RaidTierResponse } from "../types";
 
 export async function getRaids(): Promise<Raid[]> {
-  const raidResposne = await fetch(`${process.env.API_URL}/raidTier`, {
-    cache: "force-cache",
-  }).then((res) => res.json());
+  const raidResposne = await fetch(`${process.env.API_URL}/raidTier`).then(
+    (res) => res.json()
+  );
+
+  console.log(`${process.env.API_URL}/raidTier`);
+  console.log(raidResposne);
 
   const raids = groupRaidTiers(raidResposne);
   console.log(raids);
