@@ -13,6 +13,7 @@ import { DiaryDialog } from "./DiaryDialog";
 import { getDiaries } from "../../lib/fetch/getDiaries";
 import { SplitDialog } from "./SplitDialog";
 import { getDiaryEntries } from "@/lib/fetch/getDiaryEntries";
+import { RaidTierDialog } from "./RaidTierDialog";
 
 export default async function NavBar(): Promise<React.ReactElement> {
   const user = await getAuthUser();
@@ -90,6 +91,7 @@ async function SubmitPopover(): Promise<React.ReactElement> {
         <Card className="flex flex-col p-2">
           <DiaryDialog user={user} diaries={diaries} entries={entries} />
           <SplitDialog />
+          <RaidTierDialog />
         </Card>
       </PopoverContent>
     </Popover>

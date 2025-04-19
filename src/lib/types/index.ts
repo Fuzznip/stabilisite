@@ -164,6 +164,12 @@ export type SplitForm = {
   proof?: File | null;
 };
 
+export type RaidTierForm = {
+  raid: string;
+  tier: number;
+  proof?: File[] | null;
+};
+
 export type OsrsItem = {
   id?: string;
   name: string;
