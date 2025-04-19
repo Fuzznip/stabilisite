@@ -22,5 +22,6 @@ export default async function getUser(id: string): Promise<User | undefined> {
     eventPoints: user.event_points,
     timePoints: user.time_points,
     splitPoints: user.split_points,
+    raidTierPoints: user.raid_tier_points,
   };
 }

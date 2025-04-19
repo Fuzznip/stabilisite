@@ -30,6 +30,10 @@ const chartConfig = {
     label: "Splits",
     color: "hsl(var(--chart-4))",
   },
+  raidTier: {
+    label: "Raid Tiers",
+    color: "hsl(var(--chart-5))",
+  },
 } satisfies ChartConfig;
 
 export default function RankPointPieChart({
@@ -57,6 +61,11 @@ export default function RankPointPieChart({
       name: "splits",
       value: Math.trunc(Number(user?.splitPoints)) || 0,
       fill: "#ff6361",
+    },
+    {
+      name: "raidTier",
+      value: Math.trunc(Number(user?.raidTierPoints)) || 0,
+      fill: "#66b2b2",
     },
   ];
 
