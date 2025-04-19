@@ -66,6 +66,7 @@ export function RaidTierDialog({
   raids: Raid[];
 }): React.ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
+  console.log(raids);
   const [selectedRaid, setSelectedRaid] = useState(raids[0]);
   const [selectedTier, setSelectedTier] = useState(raids[0]?.tiers[0]);
 

@@ -1,11 +1,13 @@
 import { Raid, RaidTierResponse } from "../types";
 
 export async function getRaids(): Promise<Raid[]> {
-  const diaryResponse = await fetch(`${process.env.API_URL}/raidTier`, {
+  const raidResposne = await fetch(`${process.env.API_URL}/raidTier`, {
     cache: "force-cache",
   }).then((res) => res.json());
 
-  return groupRaidTiers(diaryResponse);
+  const raids = groupRaidTiers(raidResposne);
+  console.log(raids);
+  return raids;
 }
 function groupRaidTiers(data: RaidTierResponse[]): Raid[] {
   const grouped = new Map<string, Raid>();
