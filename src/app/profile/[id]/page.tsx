@@ -1,13 +1,19 @@
 import Image from "next/image";
 import SplitChart from "./_components/SplitChart";
 import RankPointPieChart from "./_components/RankPointPieChart";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import getPlayerDetails from "./_actions/getPlayerDetails";
 import { IdCard, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { formatDate, ranks } from "@/lib/utils";
-import { User } from "@/lib/types";
+import {
+  cn,
+  formatDate,
+  getCAForShorthand,
+  mapDiariesForComabtAchievements,
+  ranks,
+} from "@/lib/utils";
+import { DiaryApplication, ShortDiary, User } from "@/lib/types";
 import Diaries from "../../../components/diary/Diaries";
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -17,6 +23,8 @@ import { getSplits } from "@/lib/fetch/getSplits";
 import getUser from "@/lib/fetch/getUser";
 import { ProfileSearch } from "./_components/ProfileSearch";
 import getUsers from "@/lib/fetch/getUsers";
+import { getDiaries } from "@/lib/fetch/getDiaries";
+import { getDiaryEntries } from "@/lib/fetch/getDiaryEntries";
 
 export default async function ProfilePage({
   params,
@@ -107,6 +115,7 @@ async function ProfileStats({
           <Diaries user={user} />
         </div>
       </div>
+      <UserAchievements user={user} />
       <Suspense fallback={<div className="w-72 h-72 bg-blue-400" />}>
         <SplitChart user={user} splits={splits} />
       </Suspense>
@@ -152,10 +161,93 @@ async function UserRankAndStats({
             </Suspense>
           </div>
         </div>
-        <div className="flex flex-col sm:w-1/2 xl:w-fit items-start xl:items-center">
+        <div className="flex flex-col sm:w-1/2 xl:w-[250px] items-start xl:items-center">
           <RankPointPieChart user={user} />
         </div>
       </Card>
+    </section>
+  );
+}
+
+async function UserAchievements({
+  user,
+}: {
+  user?: User;
+}): Promise<React.ReactElement> {
+  const diaries = await getDiaries();
+  const entries = await getDiaryEntries(user);
+  const acceptedDiaries = entries.filter(
+    (entry) => entry.status === "Accepted"
+  );
+  const combatAchievement = getMaxCombatAcheivement(acceptedDiaries);
+  const achievementDiaries = diaries
+    .filter((diary) => diary.scales.filter((scale) => !scale.diaryTime).length)
+    .filter((diary) =>
+      acceptedDiaries
+        .map((acceptedDiary) => acceptedDiary.name)
+        .includes(diary.name)
+    )
+    .filter((diary) => !!diary)
+    .sort((diaryA, diaryB) => diaryA.name.localeCompare(diaryB.name));
+  return (
+    <section className="flex flex-col w-full">
+      <h2 className="text-2xl font-bold mb-2">Achievements</h2>
+      <div className="flex flex-row items-center flex-wrap w-full gap-4">
+        {achievementDiaries.map((diary) => {
+          const caType = getCAForShorthand(combatAchievement?.shorthand || "");
+          return (
+            (diary.name !== "Combat Achievements" || combatAchievement) && (
+              <Card
+                key={diary.name}
+                className={cn(
+                  "w-72 h-16 flex relative rounded-lg overflow-hidden",
+                  diary.name === "Combat Achievements" &&
+                    combatAchievement &&
+                    "pr-4"
+                )}
+              >
+                <>
+                  <div
+                    className={cn(
+                      "absolute inset-0",
+                      diary.name === "Combat Achievements" && "right-4"
+                    )}
+                  >
+                    <Image
+                      src={`/${
+                        diary.name === "Combat Achievements" &&
+                        combatAchievement
+                          ? getCAForShorthand(combatAchievement.shorthand || "")
+                          : diary.name
+                      }.png`}
+                      alt="Achievement background"
+                      className={cn(
+                        diary.name === "Combat Achievements"
+                          ? "object-contain object-right"
+                          : "object-cover"
+                      )}
+                      fill
+                      sizes="100%"
+                    />
+                  </div>
+                  <div className="bg-gradient-to-r from-black to-transparent from-20% z-20 w-full h-full flex">
+                    <span className="my-auto ml-4 text-2xl font-bold">
+                      {diary.name === "Combat Achievements" && combatAchievement
+                        ? `${caType} CA's`
+                        : diary.name}
+                    </span>
+                  </div>
+                </>
+              </Card>
+            )
+          );
+        })}
+        {achievementDiaries.length === 0 && (
+          <span className="text-2xl text-muted-foreground">
+            No achievements yet...
+          </span>
+        )}
+      </div>
     </section>
   );
 }
@@ -201,12 +293,9 @@ async function UserStats({
 
 function UserStatsLoading(): React.ReactElement {
   return (
-    <section className="flex flex-col w-full">
-      <h2 className="text-2xl font-bold mb-2">Stats</h2>
-      <Card className="flex items-center p-4 text-4xl h-full font-extrabold gap-4 justify-center">
-        <LoadingSpinner />
-      </Card>
-    </section>
+    <div className="flex w-[260px] h-10 items-center justify-between">
+      <LoadingSpinner />
+    </div>
   );
 }
 
@@ -262,4 +351,28 @@ function NoProfileMessage({
       </Button>
     </Card>
   );
+}
+
+function getMaxCombatAcheivement(
+  entries: DiaryApplication[]
+): DiaryApplication | null {
+  const gmDiary = entries.filter(
+    (entry) => entry.shorthand === "gm" && entry.status === "Accepted"
+  )[0];
+  const masterDiary = entries.filter(
+    (entry) => entry.shorthand === "master" && entry.status === "Accepted"
+  )[0];
+  const eliteDiary = entries.filter(
+    (entry) => entry.shorthand === "elite" && entry.status === "Accepted"
+  )[0];
+
+  if (gmDiary) {
+    return gmDiary;
+  } else if (masterDiary) {
+    return masterDiary;
+  } else if (eliteDiary) {
+    return eliteDiary;
+  } else {
+    return null;
+  }
 }

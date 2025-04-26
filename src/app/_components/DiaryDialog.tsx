@@ -37,7 +37,12 @@ import {
 } from "@/components/ui/form";
 import { submitDiary } from "../_actions/submitDiary";
 import { DiaryApplication, ShortDiary, User } from "@/lib/types";
-import { cn, getCAForShorthand, getScaleDisplay } from "@/lib/utils";
+import {
+  cn,
+  getCAForShorthand,
+  getScaleDisplay,
+  mapDiariesForComabtAchievements,
+} from "@/lib/utils";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -727,43 +732,4 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
       <FormMessage />
     </FormItem>
   );
-}
-
-function mapDiariesForComabtAchievements(
-  diary: ShortDiary,
-  entries: DiaryApplication[]
-): ShortDiary | null {
-  const gmCompleted = entries.filter(
-    (entry) => entry.shorthand === "gm" && entry.status === "Accepted"
-  ).length;
-  const masterCompleted = entries.filter(
-    (entry) => entry.shorthand === "master" && entry.status === "Accepted"
-  ).length;
-  const eliteCompleted = entries.filter(
-    (entry) => entry.shorthand === "elite" && entry.status === "Accepted"
-  ).length;
-
-  let scales: {
-    scale: string;
-    shorthand: string;
-    diaryTime?: string | null;
-  }[] = [];
-  if (gmCompleted) {
-    scales = [];
-  } else if (masterCompleted) {
-    scales = diary.scales.filter((scale) => scale.shorthand === "gm");
-  } else if (eliteCompleted) {
-    scales = diary.scales.filter(
-      (scale) => scale.shorthand === "gm" || scale.shorthand === "master"
-    );
-  } else {
-    scales = diary.scales;
-  }
-  if (scales.length > 0)
-    return {
-      ...diary,
-      scales,
-    };
-
-  return null;
 }

@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { ShortDiary, DiaryApplication } from "../types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -126,4 +127,43 @@ export function getCAForShorthand(shorthand: string): string {
     default:
       return "";
   }
+}
+
+export function mapDiariesForComabtAchievements(
+  diary: ShortDiary,
+  entries: DiaryApplication[]
+): ShortDiary | null {
+  const gmCompleted = entries.filter(
+    (entry) => entry.shorthand === "gm" && entry.status === "Accepted"
+  ).length;
+  const masterCompleted = entries.filter(
+    (entry) => entry.shorthand === "master" && entry.status === "Accepted"
+  ).length;
+  const eliteCompleted = entries.filter(
+    (entry) => entry.shorthand === "elite" && entry.status === "Accepted"
+  ).length;
+
+  let scales: {
+    scale: string;
+    shorthand: string;
+    diaryTime?: string | null;
+  }[] = [];
+  if (gmCompleted) {
+    scales = [];
+  } else if (masterCompleted) {
+    scales = diary.scales.filter((scale) => scale.shorthand === "gm");
+  } else if (eliteCompleted) {
+    scales = diary.scales.filter(
+      (scale) => scale.shorthand === "gm" || scale.shorthand === "master"
+    );
+  } else {
+    scales = diary.scales;
+  }
+  if (scales.length > 0)
+    return {
+      ...diary,
+      scales,
+    };
+
+  return null;
 }
