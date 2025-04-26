@@ -1,19 +1,13 @@
 import Image from "next/image";
 import SplitChart from "./_components/SplitChart";
 import RankPointPieChart from "./_components/RankPointPieChart";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import getPlayerDetails from "./_actions/getPlayerDetails";
 import { IdCard, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  cn,
-  formatDate,
-  getCAForShorthand,
-  mapDiariesForComabtAchievements,
-  ranks,
-} from "@/lib/utils";
-import { DiaryApplication, ShortDiary, User } from "@/lib/types";
+import { cn, formatDate, getCAForShorthand, ranks } from "@/lib/utils";
+import { DiaryApplication, User } from "@/lib/types";
 import Diaries from "../../../components/diary/Diaries";
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
