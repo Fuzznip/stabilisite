@@ -1,6 +1,12 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { ShortDiary, DiaryApplication } from "../types";
+import {
+  ShortDiary,
+  DiaryApplication,
+  RaidTierApplication,
+  Raid,
+  RaidName,
+} from "../types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -166,4 +172,39 @@ export function mapDiariesForComabtAchievements(
     };
 
   return null;
+}
+
+export function getMaxRaidTiers(
+  applications: RaidTierApplication[],
+  raids: Raid[]
+): {
+  "Tombs of Amascut": number;
+  "Theatre of Blood": number;
+  "Chambers of Xeric": number;
+} {
+  const raidMaxes = {
+    "Tombs of Amascut": 0,
+    "Theatre of Blood": 0,
+    "Chambers of Xeric": 0,
+  };
+
+  const raidTiers = new Map(
+    raids.flatMap((raid) =>
+      raid.tiers.map(
+        (tier) => [tier.id, { name: raid.raidName, tier: tier.order }] as const
+      )
+    )
+  );
+
+  for (const { targetRaidTierId } of applications) {
+    const raid = raidTiers.get(targetRaidTierId || "");
+
+    if (!raid) continue;
+
+    if (raid.name && raid.tier > raidMaxes[raid.name as RaidName]) {
+      raidMaxes[raid.name as RaidName] = raid.tier;
+    }
+  }
+
+  return raidMaxes;
 }

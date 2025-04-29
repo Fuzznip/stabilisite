@@ -249,3 +249,8 @@ export type Raid = {
     points: number;
   }[];
 };
+
+export type RaidName =
+  | "Tombs of Amascut"
+  | "Theatre of Blood"
+  | "Chambers of Xeric";

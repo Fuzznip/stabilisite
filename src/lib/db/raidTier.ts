@@ -27,14 +27,14 @@ export async function submitRaidTierForm(
   return;
 }
 
-export async function getRaidTierApplications(): Promise<
-  RaidTierApplication[]
-> {
-  const raidTierApplications = await fetch(
+export async function getRaidTierApplications(
+  user?: User | undefined
+): Promise<RaidTierApplication[]> {
+  const raidTierApplicationResponse = await fetch(
     `${process.env.API_URL}/applications/raidTier`
   ).then((res) => res.json());
 
-  return raidTierApplications.map(
+  const applications: RaidTierApplication[] = raidTierApplicationResponse.map(
     (application: RaidTierApplicationResponse) => ({
       id: application.id,
       proof: application.proof,
@@ -47,4 +47,13 @@ export async function getRaidTierApplications(): Promise<
       verdictDate: new Date(application.verdict_timestamp || ""),
     })
   );
+
+  if (user) {
+    return applications.filter(
+      (application) =>
+        application.status === "Accepted" &&
+        application.runescapeName === user.runescapeName
+    );
+  }
+  return applications;
 }

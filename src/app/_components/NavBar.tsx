@@ -80,7 +80,7 @@ async function SubmitPopover(): Promise<React.ReactElement> {
   const diaries = await getDiaries();
   const user = await getAuthUser();
   const entries = await getDiaryEntries(user);
-  const raids = await getRaids();
+  const raids = await getRaids(); 
   return (
     <Popover>
       <PopoverTrigger asChild className="mr-4">

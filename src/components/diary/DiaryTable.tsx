@@ -57,7 +57,7 @@ export function DiaryTable({
 
   return (
     <section className="flex flex-col w-full h-full">
-      <h2 className="text-2xl font-bold mb-2">Diaries</h2>
+      <h2 className="text-2xl mb-2">Diaries</h2>
       <Card className="flex flex-col gap-4 p-4 min-h-72 h-full">
         <div className="flex gap-4 md:gap-12 w-full flex-col md:flex-row">
           <div className="flex gap-2 flex-col">

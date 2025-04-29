@@ -58,7 +58,7 @@ export default function SplitChart({
 
   return (
     <section className="flex flex-col w-full">
-      <h2 className="text-2xl font-bold mb-2">Splits</h2>
+      <h2 className="text-2xl mb-2">Splits</h2>
       <Card className="bg-card pl-0 p-4 text-5xl text-muted-foreground flex items-center justify-center h-fit">
         <CardContent className="p-0 w-full">
           <div className="flex flex-col md:flex-row items-start justify-between">

@@ -6,8 +6,14 @@ import getPlayerDetails from "./_actions/getPlayerDetails";
 import { IdCard, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { cn, formatDate, getCAForShorthand, ranks } from "@/lib/utils";
-import { DiaryApplication, User } from "@/lib/types";
+import {
+  cn,
+  formatDate,
+  getCAForShorthand,
+  getMaxRaidTiers,
+  ranks,
+} from "@/lib/utils";
+import { DiaryApplication, RaidName, User } from "@/lib/types";
 import Diaries from "../../../components/diary/Diaries";
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -19,6 +25,8 @@ import { ProfileSearch } from "./_components/ProfileSearch";
 import getUsers from "@/lib/fetch/getUsers";
 import { getDiaries } from "@/lib/fetch/getDiaries";
 import { getDiaryEntries } from "@/lib/fetch/getDiaryEntries";
+import { getRaidTierApplications } from "@/lib/db/raidTier";
+import { getRaids } from "@/lib/fetch/getRaids";
 
 export default async function ProfilePage({
   params,
@@ -102,14 +110,18 @@ async function ProfileStats({
 }): Promise<React.ReactElement> {
   const splits = await getSplits(user);
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex justify-between flex-col xl:flex-row gap-12">
+    <div className="flex flex-col gap-12">
+      <div className="flex justify-between flex-col xl:flex-row gap-8">
         <UserRankAndStats user={user} />
-        <div className="xl:h-72 w-full xl:w-1/2">
+        <UserRaidTiers user={user} />
+      </div>
+      <div className="flex justify-between flex-col xl:flex-row gap-8">
+        <UserAchievements user={user} />
+        <div className="xl:h-80 w-full xl:w-1/2">
           <Diaries user={user} />
         </div>
       </div>
-      <UserAchievements user={user} />
+
       <Suspense fallback={<div className="w-72 h-72 bg-blue-400" />}>
         <SplitChart user={user} splits={splits} />
       </Suspense>
@@ -126,8 +138,8 @@ async function UserRankAndStats({
 
   return (
     <section className="flex flex-col w-full xl:w-1/2">
-      <h2 className="text-2xl font-bold mb-2">Rank & Stats</h2>
-      <Card className="p-4 sm:pl-8  bg-card w-full min-h-20 flex flex-col sm:flex-row items-center gap-2">
+      <h2 className="text-2xl mb-2">Rank & Stats</h2>
+      <Card className="p-4 sm:pl-8  bg-card w-full h-72 flex flex-col sm:flex-row items-center gap-2">
         <div className="flex flex-col items-start sm:w-1/2 xl:w-full h-full justify-center sm:gap-12">
           <div className="flex flex-col w-fit">
             <h3 className="text-xl font-semibold mb-2">Rank</h3>
@@ -163,6 +175,54 @@ async function UserRankAndStats({
   );
 }
 
+async function UserRaidTiers({
+  user,
+}: {
+  user?: User;
+}): Promise<React.ReactElement> {
+  const raidTierApplications = await getRaidTierApplications(user);
+  const raids = await getRaids();
+
+  const maxRaidTiers = getMaxRaidTiers(raidTierApplications, raids);
+
+  return (
+    <section className="flex flex-col w-full xl:w-1/2">
+      <h2 className="text-2xl mb-2">Raid Tiers</h2>
+      <div className="flex w-full items-start justify-between h-72 flex-col">
+        {" "}
+        {Object.keys(maxRaidTiers).map((raidKey) => (
+          <Card
+            key={raidKey}
+            className="w-full h-21 flex relative rounded-lg overflow-hidden"
+          >
+            <>
+              <div className="absolute inset-0">
+                <Image
+                  src={`/${raidKey}.png`}
+                  alt="Achievement background"
+                  className="object-cover"
+                  fill
+                  sizes="100%"
+                />
+              </div>
+              <div className="bg-gradient-to-r from-black to-transparent to-80% z-20 w-full h-full flex gap-1 flex-col text-2xl py-2 px-4 my-auto">
+                <div className="flex flex-col my-auto">
+                  <span className="text-muted-foreground text-xl">
+                    {raidKey}
+                  </span>
+                  <span className="font-bold">
+                    Tier {maxRaidTiers[raidKey as RaidName]}
+                  </span>
+                </div>
+              </div>
+            </>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 async function UserAchievements({
   user,
 }: {
@@ -184,9 +244,9 @@ async function UserAchievements({
     .filter((diary) => !!diary)
     .sort((diaryA, diaryB) => diaryA.name.localeCompare(diaryB.name));
   return (
-    <section className="flex flex-col w-full">
-      <h2 className="text-2xl font-bold mb-2">Achievements</h2>
-      <div className="flex flex-row items-center flex-wrap w-full gap-4">
+    <section className="flex flex-col w-full xl:w-1/2 xl:h-80">
+      <h2 className="text-2xl mb-2">Achievements</h2>
+      <div className="flex flex-row items-center flex-wrap w-full gap-3">
         {achievementDiaries.map((diary) => {
           const caType = getCAForShorthand(combatAchievement?.shorthand || "");
           return (
@@ -194,7 +254,7 @@ async function UserAchievements({
               <Card
                 key={diary.name}
                 className={cn(
-                  "w-72 h-16 flex relative rounded-lg overflow-hidden",
+                  "w-48 h-16 flex relative rounded-lg overflow-hidden",
                   diary.name === "Combat Achievements" &&
                     combatAchievement &&
                     "pr-4"
@@ -224,8 +284,8 @@ async function UserAchievements({
                       sizes="100%"
                     />
                   </div>
-                  <div className="bg-gradient-to-r from-black to-transparent from-20% z-20 w-full h-full flex">
-                    <span className="my-auto ml-4 text-2xl font-bold">
+                  <div className="bg-background/40 z-20 w-full h-full flex">
+                    <span className="my-auto ml-4 text-xl font-bold">
                       {diary.name === "Combat Achievements" && combatAchievement
                         ? `${caType} CA's`
                         : diary.name}
