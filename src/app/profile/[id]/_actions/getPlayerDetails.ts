@@ -5,5 +5,9 @@ const client = new WOMClient();
 export default async function getPlayerDetails(
   runescapeName: string
 ): Promise<PlayerDetails | undefined> {
-  return await client.players.getPlayerDetails(runescapeName);
+  try {
+    return await client.players.getPlayerDetails(runescapeName);
+  } catch {
+    throw Error("No Player found");
+  }
 }

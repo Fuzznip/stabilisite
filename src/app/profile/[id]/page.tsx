@@ -3,7 +3,7 @@ import SplitChart from "./_components/SplitChart";
 import RankPointPieChart from "./_components/RankPointPieChart";
 import { Card } from "@/components/ui/card";
 import getPlayerDetails from "./_actions/getPlayerDetails";
-import { IdCard, TriangleAlert } from "lucide-react";
+import { AlertCircleIcon, IdCard, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +27,7 @@ import { getDiaries } from "@/lib/fetch/getDiaries";
 import { getDiaryEntries } from "@/lib/fetch/getDiaryEntries";
 import { getRaidTierApplications } from "@/lib/db/raidTier";
 import { getRaids } from "@/lib/fetch/getRaids";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function ProfilePage({
   params,
@@ -311,38 +312,50 @@ async function UserStats({
 }: {
   user?: User;
 }): Promise<React.ReactElement> {
-  const details = await getPlayerDetails(user?.runescapeName || "");
+  try {
+    const details = await getPlayerDetails(user?.runescapeName || "");
 
-  const combatLevel = details?.combatLevel;
-  const totalLevel = details?.latestSnapshot?.data.skills.overall.level;
-  return (
-    <div className="flex items-center w-full text-4xl">
-      <div className="flex items-center w-1/2 justify-center border-r-2 border-border pr-4 mr-4">
-        <div className="relative size-8 mr-2">
-          <Image
-            src="/combat.png"
-            alt="Combat level"
-            className="absolute object-contain"
-            sizes="100%"
-            fill
-          />
+    const combatLevel = details?.combatLevel;
+    const totalLevel = details?.latestSnapshot?.data.skills.overall.level;
+    return (
+      <div className="flex items-center w-full text-4xl">
+        <div className="flex items-center w-1/2 justify-center border-r-2 border-border pr-4 mr-4">
+          <div className="relative size-8 mr-2">
+            <Image
+              src="/combat.png"
+              alt="Combat level"
+              className="absolute object-contain"
+              sizes="100%"
+              fill
+            />
+          </div>
+          {combatLevel}
         </div>
-        {combatLevel}
-      </div>
-      <div className="flex items-center w-1/2 justify-center">
-        <div className="relative size-8 mr-2">
-          <Image
-            src="/level.png"
-            alt="Total level"
-            className="absolute object-contain"
-            sizes="100%"
-            fill
-          />
+        <div className="flex items-center w-1/2 justify-center">
+          <div className="relative size-8 mr-2">
+            <Image
+              src="/level.png"
+              alt="Total level"
+              className="absolute object-contain"
+              sizes="100%"
+              fill
+            />
+          </div>
+          {totalLevel}
         </div>
-        {totalLevel}
       </div>
-    </div>
-  );
+    );
+  } catch {
+    return (
+      <Alert
+        variant="destructive"
+        className="bg-destructive text-destructive-foreground"
+      >
+        <AlertCircleIcon />
+        <AlertTitle>Error fetching user stats</AlertTitle>
+      </Alert>
+    );
+  }
 }
 
 function UserStatsLoading(): React.ReactElement {
