@@ -27,7 +27,7 @@ import { getDiaries } from "@/lib/fetch/getDiaries";
 import { getDiaryEntries } from "@/lib/fetch/getDiaryEntries";
 import { getRaidTierApplications } from "@/lib/db/raidTier";
 import { getRaids } from "@/lib/fetch/getRaids";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 
 export default async function ProfilePage({
   params,
