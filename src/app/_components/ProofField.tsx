@@ -49,7 +49,7 @@ export default function ProofField({
 
   const { getInputProps, getRootProps, isDragActive, open } = useDropzone({
     onDrop,
-    multiple: true,
+    multiple: false,
     accept: { "image/*": [] },
     noClick: true,
   });
