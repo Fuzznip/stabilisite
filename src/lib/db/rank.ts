@@ -26,7 +26,7 @@ export async function submitRankForm(
   return;
 }
 
-export async function getRaidTierApplications(
+export async function getRankApplications(
   user?: User | undefined
 ): Promise<RankApplication[]> {
   const rankApplicationResponse = await fetch(

@@ -8,11 +8,19 @@ import {
   Application,
   DiaryApplication,
   RaidTierApplication,
+  RankApplication,
 } from "@/lib/types";
-import { formatDistanceToNow } from "date-fns";
+import { differenceInCalendarDays, formatDistanceToNow } from "date-fns";
 import acceptApplication from "./_actions/acceptApplication";
 import rejectApplication from "./_actions/rejectApplication";
-import { CheckCircle, TriangleAlert, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  CircleCheck,
+  CircleX,
+  Info,
+  TriangleAlert,
+  XCircle,
+} from "lucide-react";
 import {
   formatDateTime,
   getCAForShorthand,
@@ -34,11 +42,25 @@ import { getRaidTierApplications } from "@/lib/db/raidTier";
 import { getRaids } from "@/lib/fetch/getRaids";
 import rejectRaidTierApplication from "./_actions/rejectRaidTierApplication";
 import acceptRaidTierApplication from "./_actions/aceptRaidTierApplication";
+import RankDisplay from "@/components/RankDisplay";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
+import rejectRankApplication from "./_actions/rejectRankApplication";
+import acceptRankApplication from "./_actions/aceptRankApplication";
+import { getRankApplications } from "@/lib/db/rank";
+import { getRanks } from "@/lib/fetch/getRanks";
+import getUser from "@/lib/fetch/getUser";
 
 export default async function ApplicationPage(): Promise<React.ReactElement> {
   const applications = await getApplications();
   const diaryApplications = await getDiaryApplications();
   const raidTierApplications = await getRaidTierApplications();
+  const rankApplications = await getRankApplications();
   const user = await getAuthUser();
 
   if (!user?.isAdmin) {
@@ -86,6 +108,16 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
               }
             </Badge>
           </TabsTrigger>
+          <TabsTrigger value="rank" className="flex items-center text-lg">
+            <span>Rank</span>
+            <Badge className="ml-2 bg-foreground text-background">
+              {
+                rankApplications.filter(
+                  (application) => application.status === "Pending"
+                ).length
+              }
+            </Badge>
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="clan">
           {applications.length > 0 ? (
@@ -111,6 +143,17 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
           {diaryApplications.length > 0 ? (
             <RaidTierApplications
               applications={sortApplications(raidTierApplications)}
+            />
+          ) : (
+            <Card className="w-fit text-2xl px-8 pt-6">
+              <CardContent>No current applications</CardContent>
+            </Card>
+          )}
+        </TabsContent>
+        <TabsContent value="ranks">
+          {diaryApplications.length > 0 ? (
+            <RankApplications
+              applications={sortApplications(rankApplications)}
             />
           ) : (
             <Card className="w-fit text-2xl px-8 pt-6">
@@ -474,6 +517,184 @@ async function RaidTierApplications({
                 </form>
                 <form
                   action={acceptRaidTierApplication.bind(
+                    null,
+                    application.id || ""
+                  )}
+                >
+                  <Button
+                    className="text-green-500 border-green-500 hover:cursor-pointer"
+                    variant="outline"
+                  >
+                    Accept
+                  </Button>
+                </form>
+              </div>
+            )}
+
+            {application.status === "Accepted" && (
+              <div className="w-fit ml-auto text-green-500/80 flex items-center gap-1 mt-2 text-sm h-10">
+                <CheckCircle className="size-4" />
+                {application.verdictDate && (
+                  <span>Accepted on {formatDateTime(new Date())}</span>
+                )}
+              </div>
+            )}
+            {application.status === "Rejected" && (
+              <div className="w-fit ml-auto text-red-500/80 flex items-center gap-1 mt-2 text-sm h-10">
+                <XCircle className="size-4" />
+                {application.verdictDate && (
+                  <span>Rejected on {formatDateTime(new Date())}</span>
+                )}
+              </div>
+            )}
+          </Card>
+        );
+      })}
+    </ul>
+  );
+}
+async function RankApplications({
+  applications,
+}: {
+  applications: RankApplication[];
+}): Promise<React.ReactElement> {
+  const ranks = await getRanks();
+  return (
+    <ul className="flex items-center flex-wrap gap-8">
+      {applications.map(async (application) => {
+        const timeAgo = formatDistanceToNow(application.date || new Date(), {
+          addSuffix: true,
+        });
+        const newRank = ranks.find(
+          (rank) => rank.rankName === application.rank
+        )!;
+        const user = await getUser(application.userId!);
+        const daysInClan = differenceInCalendarDays(
+          new Date(),
+          user?.joinDate || new Date()
+        );
+        const clanPoints = user?.rankPoints || 0;
+        return (
+          <Card
+            key={application.id}
+            className="border px-4 pt-2 pb-4 rounded-lg flex flex-col w-96 h-fit"
+          >
+            <div className="flex items-center justify-between mb-8">
+              <span className="font-bold text-lg">
+                {application.runescapeName}
+              </span>
+              <span className="text-lg text-muted-foreground w-fit">
+                {timeAgo}
+              </span>
+            </div>
+            <div className="overflow-auto flex flex-col gap-4 h-[24rem]">
+              <div className="flex flex-row items-center gap-8">
+                <div className="flex flex-col">
+                  <span className="text-muted-foreground mb-1">Rank</span>
+                  <RankDisplay rank={application.rank} />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm">Requirements</span>
+                <span className="text-sm text-muted-foreground">
+                  All requirements for previous ranks must be met as well
+                </span>
+                {newRank?.rankMinimumDays > 0 && (
+                  <Alert className="mt-2">
+                    <Info />
+                    <AlertTitle>Time in Clan</AlertTitle>
+                    <AlertDescription className="text-foreground font-semibold text-base flex justify-between">
+                      {newRank.rankMinimumDays} days
+                    </AlertDescription>
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 h-full w-fit flex items-center text-base font-semibold">
+                      {daysInClan} days
+                      {daysInClan >= newRank.rankMinimumDays ? (
+                        <CircleCheck className="ml-2 text-green-500 font-extrabold size-8" />
+                      ) : (
+                        <CircleX className="ml-2 text-red-500 font-extrabold size-8" />
+                      )}
+                    </div>
+                  </Alert>
+                )}
+                {newRank.rankMinimumPoints > 0 && (
+                  <Alert className="mt-2">
+                    <Info />
+                    <AlertTitle>Clan Points</AlertTitle>
+                    <AlertDescription className="text-foreground font-semibold text-base">
+                      {newRank.rankMinimumPoints.toLocaleString()} points
+                    </AlertDescription>
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 h-full w-fit flex items-center text-base font-semibold">
+                      {Math.floor(clanPoints).toLocaleString()} points
+                      {Math.floor(clanPoints) >= newRank.rankMinimumPoints ? (
+                        <CircleCheck className="ml-2 text-green-500 font-extrabold size-8" />
+                      ) : (
+                        <CircleX className="ml-2 text-red-500 font-extrabold size-8" />
+                      )}
+                    </div>
+                  </Alert>
+                )}
+                {newRank.rankRequirements.length > 0 && (
+                  <Alert className="mt-2">
+                    <Info />
+                    <AlertTitle>Account</AlertTitle>
+                    <AlertDescription className="text-foreground font-semibold text-base">
+                      <ul className="list-inside list-['-_']">
+                        {newRank.rankRequirements.map((requirement) => (
+                          <li key={requirement}>{requirement}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+              {application.proof && (
+                <div className="flex flex-col">
+                  <span className="text-muted-foreground mb-1">Proof</span>
+                  <Carousel className="relative w-72 h-48 mx-auto px-1 mb-4">
+                    <CarouselContent>
+                      {application.proof.map((img, index) => (
+                        <CarouselItem key={index}>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <div className="border rounded-lg relative w-full h-48 hover:cursor-pointer">
+                                {img}
+                              </div>
+                            </DialogTrigger>
+                            <DialogContent className="w-fit h-fit max-w-[90vw] sm:max-w-[90vw]">
+                              <DialogHeader>
+                                <DialogTitle>Diary Proof</DialogTitle>
+                              </DialogHeader>
+                              <div className="relative h-[600px] max-h-[90vh] w-[900px] max-w-[80vw]">
+                                {img}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious type="button" />
+                    <CarouselNext type="button" />
+                  </Carousel>
+                </div>
+              )}
+            </div>
+            {application.status === "Pending" && (
+              <div className="w-fit flex items-center gap-2 ml-auto mt-2 h-10">
+                <form
+                  action={rejectRankApplication.bind(
+                    null,
+                    application.id || ""
+                  )}
+                >
+                  <Button
+                    className="text-red-500 border-red-500 hover:cursor-pointer"
+                    variant="outline"
+                  >
+                    Reject
+                  </Button>
+                </form>
+                <form
+                  action={acceptRankApplication.bind(
                     null,
                     application.id || ""
                   )}

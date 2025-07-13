@@ -232,7 +232,7 @@ export type RaidTierApplicationResponse = {
 };
 export type RankApplication = Partial<{
   id: string;
-  proof: string;
+  proof: string[];
   runescapeName: string;
   status: string;
   rank: string;
