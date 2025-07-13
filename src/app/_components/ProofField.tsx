@@ -23,7 +23,7 @@ export default function ProofField({
 }: {
   onFileSelect: (files: File[]) => void;
 }) {
-  const [files, setFiles] = useState<File[]>([]);
+  //   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
   const onDrop = useCallback(
@@ -32,13 +32,15 @@ export default function ProofField({
         const newPreviews = acceptedFiles.map((file) =>
           URL.createObjectURL(file)
         );
-        const newFiles = [...files, ...acceptedFiles];
-        setFiles(newFiles);
-        setPreviews((prev) => [...prev, ...newPreviews]);
+        // const newFiles = [...files, ...acceptedFiles];
+        const newFiles = acceptedFiles;
+        // setFiles(newFiles);
+        setPreviews(newPreviews);
+        // setPreviews((prev) => [...prev, ...newPreviews]);
         onFileSelect(newFiles);
       }
     },
-    [files, onFileSelect]
+    [onFileSelect]
   );
 
   useEffect(() => {
