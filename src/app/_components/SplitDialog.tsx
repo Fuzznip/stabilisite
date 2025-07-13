@@ -127,7 +127,7 @@ export function SplitDialog(): React.ReactElement {
               name="item"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                  <FormLabel className="data-[error=true]:text-destructive">
                     What was the drop?
                   </FormLabel>
                   <FormControl>
@@ -148,7 +148,7 @@ export function SplitDialog(): React.ReactElement {
               name="price"
               render={() => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                  <FormLabel className="data-[error=true]:text-destructive">
                     How much did it sell for? (Rounded to nearest million)
                   </FormLabel>
                   <FormDescription></FormDescription>
@@ -164,7 +164,7 @@ export function SplitDialog(): React.ReactElement {
                       />
                       <div
                         className={cn(
-                          "text-muted-foreground flex items-center",
+                          "flex items-center",
                           (form.getValues().price || 0) / 1000000 >= 10 &&
                             "text-[#23FE9A]"
                         )}
@@ -190,7 +190,7 @@ export function SplitDialog(): React.ReactElement {
               name="teamSize"
               render={() => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                  <FormLabel className="data-[error=true]:text-destructive">
                     How large was the group? (Including yourself)
                   </FormLabel>
                   <FormControl>
@@ -257,7 +257,7 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
 
   return (
     <FormItem className="flex flex-col w-full max-w-4/5 relative">
-      <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+      <FormLabel className="data-[error=true]:text-destructive">
         Proof
       </FormLabel>
       <FormControl>

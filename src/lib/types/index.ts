@@ -1,11 +1,11 @@
 import { User as NextAuthUser } from "next-auth";
-import { ranks } from "../utils";
+import { rank_colors } from "../utils";
 
 export type User = {
   id?: string;
   discordId?: string;
   runescapeName?: string;
-  rank?: Rank;
+  rank?: RankName;
   rankPoints?: number;
   joinDate?: Date;
   progressionData?: ProgressionData;
@@ -26,7 +26,7 @@ export type UserResponse = {
   discord_id?: string;
   discord_avatar_url: string;
   runescape_name?: string;
-  rank?: Rank;
+  rank?: RankName;
   rank_points?: number;
   join_date?: string;
   progression_data?: string;
@@ -41,7 +41,7 @@ export type UserResponse = {
   raid_tier_points: number;
 };
 
-export type Rank = (typeof ranks)[number]["name"];
+export type RankName = (typeof rank_colors)[number]["name"];
 
 type ProgressionData = { [key: string]: unknown };
 
@@ -170,6 +170,10 @@ export type RaidTierForm = {
   targetRaidTierId: string;
   proof?: File[] | null;
 };
+export type RankForm = {
+  rank: string;
+  proof?: File[] | null;
+};
 
 export type OsrsItem = {
   id?: string;
@@ -225,6 +229,51 @@ export type RaidTierApplicationResponse = {
   user_id: string;
   verdict_reason: string | null;
   verdict_timestamp: string | null;
+};
+export type RankApplication = Partial<{
+  id: string;
+  proof: string;
+  runescapeName: string;
+  status: string;
+  rank: string;
+  date: Date;
+  userId: string;
+  verdictReason: string | null;
+  verdictDate: Date;
+}>;
+
+export type RankApplicationResponse = {
+  id: string;
+  proof: string;
+  runescape_name: string;
+  status: string;
+  rank: string;
+  timestamp: string;
+  user_id: string;
+  verdict_reason: string | null;
+  verdict_timestamp: string | null;
+};
+export type RankResponse = {
+  id: string;
+  rank_name: string;
+  rank_minimum_points: number;
+  rank_minimum_days: number;
+  rank_order: number;
+  rank_icon: string;
+  rank_color: string;
+  rank_description: string;
+  rank_requirements: string[];
+};
+export type Rank = {
+  id: string;
+  rankName: string;
+  rankMinimumPoints: number;
+  rankMinimumDays: number;
+  rankOrder: number;
+  rankIcon: string;
+  rankColor: string;
+  rankDescription: string;
+  rankRequirements: string[];
 };
 
 export type RaidTierResponse = {

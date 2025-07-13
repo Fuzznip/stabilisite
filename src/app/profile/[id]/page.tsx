@@ -11,7 +11,7 @@ import {
   formatDate,
   getCAForShorthand,
   getMaxRaidTiers,
-  ranks,
+  rank_colors,
 } from "@/lib/utils";
 import { DiaryApplication, RaidName, User } from "@/lib/types";
 import Diaries from "../../../components/diary/Diaries";
@@ -135,7 +135,9 @@ async function UserRankAndStats({
 }: {
   user?: User;
 }): Promise<React.ReactElement> {
-  const rank = ranks.find((rank) => rank.name === (user?.rank || "Guest"));
+  const rank = rank_colors.find(
+    (rank) => rank.name === (user?.rank || "Guest")
+  );
 
   return (
     <section className="flex flex-col w-full xl:w-1/2">
