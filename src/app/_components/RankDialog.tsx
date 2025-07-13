@@ -107,7 +107,7 @@ export function RankDialog({
           <span>Rank</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="mb-24 w-[30rem] max-w-full sm:max-h-4/5 overflow-auto">
+      <DialogContent className="mb-24 w-[30rem] sm:w-1/2 max-w-full lg:max-w-2xl sm:max-h-4/5 overflow-auto">
         <DialogHeader className="mb-2 text-left">
           <DialogTitle className="text-xl">Submit Rank Application</DialogTitle>
           <DialogDescription className="text-base">
