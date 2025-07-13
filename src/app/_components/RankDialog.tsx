@@ -116,130 +116,137 @@ export function RankDialog({
             updated!
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4 text-base"
-          >
-            <div className="flex items-center gap-8 justify-between">
-              <div className="flex flex-col items-start gap-2 h-full">
-                <span className="text-sm leading-none mb-[5px]">
-                  Current Rank
+        {ranks.length > 0 ? (
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col gap-4 text-base"
+            >
+              <div className="flex items-center gap-8 justify-between">
+                <div className="flex flex-col items-start gap-2 h-full">
+                  <span className="text-sm leading-none mb-[5px]">
+                    Current Rank
+                  </span>
+                  <RankDisplay rank={user?.rank} />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="rank"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>New Rank</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={selectedRank.id}
+                          defaultValue={field.value}
+                          onValueChange={(rankId) =>
+                            setSelectedRank(
+                              ranks.find((rank) => rank.id === rankId) ||
+                                ranks[0]
+                            )
+                          }
+                        >
+                          <SelectTrigger className="w-48">
+                            <SelectValue placeholder="Select Raid" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ranks.map((rank) => (
+                              <SelectItem key={rank.id} value={rank.id}>
+                                <RankDisplay rank={rank.rankName} />
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm">Requirements</span>
+                <span className="text-sm text-muted-foreground">
+                  All requirements for previous ranks must be met as well
                 </span>
-                <RankDisplay rank={user?.rank} />
+                {selectedRank.rankMinimumDays > 0 && (
+                  <Alert className="mt-2">
+                    <Info />
+                    <AlertTitle>Time in Clan</AlertTitle>
+                    <AlertDescription className="text-foreground font-semibold text-base flex justify-between">
+                      {selectedRank.rankMinimumDays} days
+                    </AlertDescription>
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 h-full w-fit flex items-center text-base font-semibold">
+                      {daysInClan} days
+                      {daysInClan >= selectedRank.rankMinimumDays ? (
+                        <CircleCheck className="ml-2 text-green-500 font-extrabold size-8" />
+                      ) : (
+                        <CircleX className="ml-2 text-red-500 font-extrabold size-8" />
+                      )}
+                    </div>
+                  </Alert>
+                )}
+                {selectedRank.rankMinimumPoints > 0 && (
+                  <Alert className="mt-2">
+                    <Info />
+                    <AlertTitle>Clan Points</AlertTitle>
+                    <AlertDescription className="text-foreground font-semibold text-base">
+                      {selectedRank.rankMinimumPoints.toLocaleString()} points
+                    </AlertDescription>
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 h-full w-fit flex items-center text-base font-semibold">
+                      {Math.floor(clanPoints).toLocaleString()} points
+                      {Math.floor(clanPoints) >=
+                      selectedRank.rankMinimumPoints ? (
+                        <CircleCheck className="ml-2 text-green-500 font-extrabold size-8" />
+                      ) : (
+                        <CircleX className="ml-2 text-red-500 font-extrabold size-8" />
+                      )}
+                    </div>
+                  </Alert>
+                )}
+                {selectedRank.rankRequirements.length > 0 && (
+                  <Alert className="mt-2">
+                    <Info />
+                    <AlertTitle>Account</AlertTitle>
+                    <AlertDescription className="text-foreground font-semibold text-base">
+                      <ul className="list-inside list-['-_']">
+                        {selectedRank.rankRequirements.map((requirement) => (
+                          <li key={requirement}>{requirement}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
               <FormField
                 control={form.control}
-                name="rank"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>New Rank</FormLabel>
-                    <FormControl>
-                      <Select
-                        value={selectedRank.id}
-                        defaultValue={field.value}
-                        onValueChange={(rankId) =>
-                          setSelectedRank(
-                            ranks.find((rank) => rank.id === rankId) || ranks[0]
-                          )
-                        }
-                      >
-                        <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Select Raid" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ranks.map((rank) => (
-                            <SelectItem key={rank.id} value={rank.id}>
-                              <RankDisplay rank={rank.rankName} />
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                name="proof"
+                render={() => (
+                  <ProofField
+                    onFileSelect={(files) => {
+                      form.setValue("proof", files);
+                    }}
+                  />
                 )}
               />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm">Requirements</span>
-              <span className="text-sm text-muted-foreground">
-                All requirements for previous ranks must be met as well
-              </span>
-              {selectedRank.rankMinimumDays > 0 && (
-                <Alert className="mt-2">
-                  <Info />
-                  <AlertTitle>Time in Clan</AlertTitle>
-                  <AlertDescription className="text-foreground font-semibold text-base flex justify-between">
-                    {selectedRank.rankMinimumDays} days
-                  </AlertDescription>
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 h-full w-fit flex items-center text-base font-semibold">
-                    {daysInClan} days
-                    {daysInClan >= selectedRank.rankMinimumDays ? (
-                      <CircleCheck className="ml-2 text-green-500 font-extrabold size-8" />
-                    ) : (
-                      <CircleX className="ml-2 text-red-500 font-extrabold size-8" />
-                    )}
-                  </div>
-                </Alert>
-              )}
-              {selectedRank.rankMinimumPoints > 0 && (
-                <Alert className="mt-2">
-                  <Info />
-                  <AlertTitle>Clan Points</AlertTitle>
-                  <AlertDescription className="text-foreground font-semibold text-base">
-                    {selectedRank.rankMinimumPoints.toLocaleString()} points
-                  </AlertDescription>
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 h-full w-fit flex items-center text-base font-semibold">
-                    {Math.floor(clanPoints).toLocaleString()} points
-                    {Math.floor(clanPoints) >=
-                    selectedRank.rankMinimumPoints ? (
-                      <CircleCheck className="ml-2 text-green-500 font-extrabold size-8" />
-                    ) : (
-                      <CircleX className="ml-2 text-red-500 font-extrabold size-8" />
-                    )}
-                  </div>
-                </Alert>
-              )}
-              {selectedRank.rankRequirements.length > 0 && (
-                <Alert className="mt-2">
-                  <Info />
-                  <AlertTitle>Account</AlertTitle>
-                  <AlertDescription className="text-foreground font-semibold text-base">
-                    <ul className="list-inside list-['-_']">
-                      {selectedRank.rankRequirements.map((requirement) => (
-                        <li key={requirement}>{requirement}</li>
-                      ))}
-                    </ul>
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-            <FormField
-              control={form.control}
-              name="proof"
-              render={() => (
-                <ProofField
-                  onFileSelect={(files) => {
-                    form.setValue("proof", files);
-                  }}
-                />
-              )}
-            />
-            <DialogFooter>
-              <Button
-                type="submit"
-                className="w-fit ml-auto bg-stability hover:bg-stability/90 text-white"
-                disabled={
-                  clanPoints < selectedRank.rankMinimumPoints ||
-                  daysInClan < selectedRank.rankMinimumDays
-                }
-              >
-                Submit
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  className="w-fit ml-auto bg-stability hover:bg-stability/90 text-white"
+                  disabled={
+                    clanPoints < selectedRank.rankMinimumPoints ||
+                    daysInClan < selectedRank.rankMinimumDays
+                  }
+                >
+                  Submit
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        ) : (
+          <div className="flex w-fit mx-auto my-4">
+            You have already obtained the highest rank in the clan.
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

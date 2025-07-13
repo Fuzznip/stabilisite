@@ -95,7 +95,7 @@ async function SubmitPopover(): Promise<React.ReactElement> {
           <ChevronDown className="w-4 h-4 hidden sm:flex" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-fit p-2">
+      <PopoverContent className="w-fit p-2 !z-50">
         <Card className="flex flex-col p-2">
           <RankDialog ranks={filteredRanks} user={user} />
           <RaidTierDialog raids={raids} />

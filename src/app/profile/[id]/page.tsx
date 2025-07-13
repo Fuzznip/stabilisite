@@ -142,7 +142,7 @@ async function UserRankAndStats({
   return (
     <section className="flex flex-col w-full xl:w-1/2">
       <h2 className="text-2xl mb-2">Rank & Stats</h2>
-      <Card className="p-4 sm:pl-8  bg-card w-full h-72 flex flex-col sm:flex-row items-center gap-2">
+      <Card className="p-4 sm:pl-8  bg-card w-full sm:h-72 h-auto flex flex-col sm:flex-row items-center gap-2">
         <div className="flex flex-col items-start sm:w-1/2 xl:w-full h-full justify-center sm:gap-12">
           <div className="flex flex-col w-fit">
             <h3 className="text-xl font-semibold mb-2">Rank</h3>
@@ -257,7 +257,7 @@ async function UserAchievements({
               <Card
                 key={diary.name}
                 className={cn(
-                  "w-48 h-16 flex relative rounded-lg overflow-hidden",
+                  "w-full sm:w-48 h-16 flex relative rounded-lg overflow-hidden",
                   diary.name === "Combat Achievements" &&
                     combatAchievement &&
                     "pr-4"

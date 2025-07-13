@@ -15,7 +15,6 @@ export async function submitRaidTierForm(
     target_raid_tier_id: raidTierForm.targetRaidTierId,
     proof: fileUrls[0],
   };
-  console.log(raidTierRequest);
   const response = await fetch(`${process.env.API_URL}/applications/raidTier`, {
     method: "POST",
     headers: {

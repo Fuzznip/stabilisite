@@ -6,67 +6,104 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
 
 export default function ProofField({
   onFileSelect,
 }: {
   onFileSelect: (files: File[]) => void;
 }) {
+  const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length) {
-        const urls = acceptedFiles.map((file) => URL.createObjectURL(file));
-        setPreviews(urls);
-        onFileSelect(acceptedFiles);
+        const newPreviews = acceptedFiles.map((file) =>
+          URL.createObjectURL(file)
+        );
+        const newFiles = [...files, ...acceptedFiles];
+        setFiles(newFiles);
+        setPreviews((prev) => [...prev, ...newPreviews]);
+        onFileSelect(newFiles);
       }
     },
-    [onFileSelect]
+    [files, onFileSelect]
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  useEffect(() => {
+    return () => {
+      previews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [previews]);
+
+  const { getInputProps, getRootProps, isDragActive, open } = useDropzone({
     onDrop,
-    multiple: false,
+    multiple: true,
     accept: { "image/*": [] },
+    noClick: true,
   });
 
   return (
-    <FormItem className="flex flex-col w-full relative gap-2">
+    <FormItem className="flex flex-col w-full relative gap-1">
       <FormLabel>Proof</FormLabel>
-      <FormDescription>
+      <FormDescription className="mb-1">
         Make sure to show all requirements in the provided screenshots!
       </FormDescription>
       <FormControl>
-        <Card
-          {...getRootProps()}
-          className={`border-dashed border-2 cursor-pointer transition-all h-48 overflow-y-auto w-full flex items-center justify-center text-sm text-muted-foreground dark:bg-input/30 ${
-            isDragActive ? "border-primary bg-muted" : "border-muted"
-          }`}
-        >
-          <input {...getInputProps()} />
-          {previews.length ? (
-            <div className="flex gap-2 flex-col items-center px-2">
-              {previews.map((src, i) => (
-                <div key={i} className="relative w-32 h-32 shrink-0">
-                  <Image
-                    src={src}
-                    alt={`Proof ${i + 1}`}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mx-auto w-fit text-center">
-              Drag & drop or click to upload your screenshots
-            </p>
-          )}
-        </Card>
+        <div>
+          <Button type="button" className="mb-2" onClick={open} size="sm">
+            Upload File
+          </Button>
+          <div {...getRootProps()}>
+            <input {...getInputProps()} />
+            {previews.length > 0 && (
+              <p className="mx-auto text-muted-foreground w-fit text-sm">
+                {previews.length} files uploaded
+              </p>
+            )}
+            {previews.length > 0 ? (
+              <Carousel className="relative w-72 h-48 mx-auto px-1 mb-4">
+                <CarouselContent>
+                  {previews.map((preview, index) => (
+                    <CarouselItem key={preview}>
+                      <div className="relative w-64 h-48 mx-auto">
+                        <Image
+                          src={preview}
+                          alt={`Proof ${index + 1}`}
+                          fill
+                          className="object-contain rounded"
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious type="button" />
+                <CarouselNext type="button" />
+              </Carousel>
+            ) : (
+              <Card
+                className={`border-dashed border-2 transition-all h-48 overflow-y-auto w-full flex items-center justify-center text-sm text-muted-foreground dark:bg-input/30 ${
+                  isDragActive ? "border-primary bg-muted" : "border-muted"
+                }`}
+              >
+                <p className="mx-auto w-fit text-center px-4">
+                  Drag & drop your screenshots here
+                </p>
+              </Card>
+            )}
+          </div>
+        </div>
       </FormControl>
       <FormMessage />
     </FormItem>
