@@ -172,6 +172,7 @@ export type RaidTierForm = {
 };
 export type RankForm = {
   rank: string;
+  rankOrder?: number;
   proof?: File[] | null;
 };
 
@@ -247,7 +248,7 @@ export type RankApplicationResponse = {
   proof: string;
   runescape_name: string;
   status: string;
-  rank: string;
+  desired_rank: string;
   timestamp: string;
   user_id: string;
   verdict_reason: string | null;

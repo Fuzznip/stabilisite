@@ -14,6 +14,7 @@ import { differenceInCalendarDays, formatDistanceToNow } from "date-fns";
 import acceptApplication from "./_actions/acceptApplication";
 import rejectApplication from "./_actions/rejectApplication";
 import {
+  ArrowRight,
   CheckCircle,
   CircleCheck,
   CircleX,
@@ -41,7 +42,7 @@ import {
 import { getRaidTierApplications } from "@/lib/db/raidTier";
 import { getRaids } from "@/lib/fetch/getRaids";
 import rejectRaidTierApplication from "./_actions/rejectRaidTierApplication";
-import acceptRaidTierApplication from "./_actions/aceptRaidTierApplication";
+import acceptRaidTierApplication from "./_actions/acceptRaidTierApplication";
 import RankDisplay from "@/components/RankDisplay";
 import {
   Carousel,
@@ -51,7 +52,7 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import rejectRankApplication from "./_actions/rejectRankApplication";
-import acceptRankApplication from "./_actions/aceptRankApplication";
+import acceptRankApplication from "./_actions/acceptRankApplication";
 import { getRankApplications } from "@/lib/db/rank";
 import { getRanks } from "@/lib/fetch/getRanks";
 import getUser from "@/lib/fetch/getUser";
@@ -108,7 +109,7 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
               }
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="rank" className="flex items-center text-lg">
+          <TabsTrigger value="ranks" className="flex items-center text-lg">
             <span>Rank</span>
             <Badge className="ml-2 bg-foreground text-background">
               {
@@ -574,10 +575,20 @@ async function RankApplications({
           user?.joinDate || new Date()
         );
         const clanPoints = user?.rankPoints || 0;
+        const proofImages =
+          application.proof?.map((proof, index) => (
+            <Image
+              key={`${application.userId}-${application.rank}-${index}`}
+              src={proof && proof !== "string" ? proof : ""}
+              alt={`Proof image ${index} for ${application.runescapeName}'s ${application.rank} application`}
+              fill
+              className="object-contain"
+            />
+          )) || [];
         return (
           <Card
             key={application.id}
-            className="border px-4 pt-2 pb-4 rounded-lg flex flex-col w-96 h-fit"
+            className="border px-4 pt-2 pb-4 rounded-lg flex flex-col w-[30rem] h-fit"
           >
             <div className="flex items-center justify-between mb-8">
               <span className="font-bold text-lg">
@@ -588,13 +599,13 @@ async function RankApplications({
               </span>
             </div>
             <div className="overflow-auto flex flex-col gap-4 h-[24rem]">
-              <div className="flex flex-row items-center gap-8">
+              <div className="flex flex-row items-center gap-8 w-fit mb-4">
                 <div className="flex flex-col">
-                  <span className="text-muted-foreground mb-1">Rank</span>
+                  <span className="text-muted-foreground mb-1">New Rank</span>
                   <RankDisplay rank={application.rank} />
                 </div>
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col mr-4">
                 <span className="text-sm">Requirements</span>
                 <span className="text-sm text-muted-foreground">
                   All requirements for previous ranks must be met as well
@@ -652,7 +663,7 @@ async function RankApplications({
                   <span className="text-muted-foreground mb-1">Proof</span>
                   <Carousel className="relative w-72 h-48 mx-auto px-1 mb-4">
                     <CarouselContent>
-                      {application.proof.map((img, index) => (
+                      {proofImages.map((img, index) => (
                         <CarouselItem key={index}>
                           <Dialog>
                             <DialogTrigger asChild>

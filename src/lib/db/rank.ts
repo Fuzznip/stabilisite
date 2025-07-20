@@ -13,7 +13,8 @@ export async function submitRankForm(
   const rankRequest = {
     user_id: user?.discordId,
     rank: rankForm.rank,
-    proof: fileUrls[0],
+    rank_order: rankForm.rankOrder,
+    proof: fileUrls,
   };
   const response = await fetch(`${process.env.API_URL}/applications/rank`, {
     method: "POST",
@@ -39,7 +40,7 @@ export async function getRankApplications(
       proof: application.proof,
       runescapeName: application.runescape_name,
       status: application.status,
-      rank: application.rank,
+      rank: application.desired_rank,
       date: new Date(application.timestamp),
       userId: application.user_id,
       verdictReason: application.verdict_reason,

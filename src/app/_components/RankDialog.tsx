@@ -82,14 +82,20 @@ export function RankDialog({
   });
 
   const onSubmit = (data: RaidTierSchema) => {
-    submitRank({ rank: data.rank, proof: data.proof })
+    submitRank({
+      rank: data.rank,
+      rankOrder: selectedRank.rankOrder,
+      proof: data.proof,
+    })
       .then(() => {
-        toast.success(`Your ${selectedRank} rank application was submitted!`);
+        toast.success(
+          `Your ${selectedRank.rankName} rank application was submitted!`
+        );
         form.reset(defaultForm);
       })
       .catch((err) => {
         toast.error(
-          `There was an error submitting your ${selectedRank} rank application: ${err}`,
+          `There was an error submitting your ${selectedRank.rankName} rank application: ${err}`,
           { duration: 10000 }
         );
         form.reset(defaultForm);
@@ -224,6 +230,7 @@ export function RankDialog({
                     onFileSelect={(files) => {
                       form.setValue("proof", files);
                     }}
+                    allowMultiple={true}
                   />
                 )}
               />

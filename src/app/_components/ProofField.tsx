@@ -20,10 +20,12 @@ import { Button } from "@/components/ui/button";
 
 export default function ProofField({
   onFileSelect,
+  allowMultiple = false,
 }: {
   onFileSelect: (files: File[]) => void;
+  allowMultiple?: boolean;
 }) {
-  //   const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
   const onDrop = useCallback(
@@ -32,15 +34,17 @@ export default function ProofField({
         const newPreviews = acceptedFiles.map((file) =>
           URL.createObjectURL(file)
         );
-        // const newFiles = [...files, ...acceptedFiles];
-        const newFiles = acceptedFiles;
-        // setFiles(newFiles);
-        setPreviews(newPreviews);
-        // setPreviews((prev) => [...prev, ...newPreviews]);
+        const newFiles = allowMultiple
+          ? [...acceptedFiles, ...files]
+          : acceptedFiles;
+        setFiles(newFiles);
+        setPreviews(
+          allowMultiple ? (prev) => [...newPreviews, ...prev] : newPreviews
+        );
         onFileSelect(newFiles);
       }
     },
-    [onFileSelect]
+    [onFileSelect, allowMultiple, files]
   );
 
   useEffect(() => {
@@ -51,7 +55,7 @@ export default function ProofField({
 
   const { getInputProps, getRootProps, isDragActive, open } = useDropzone({
     onDrop,
-    multiple: false,
+    multiple: allowMultiple,
     accept: { "image/*": [] },
     noClick: true,
   });

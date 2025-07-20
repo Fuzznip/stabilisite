@@ -10,7 +10,7 @@ export default function RankDisplay({
 
   return (
     <div className="flex items-center">
-      <div className="relative size-4 mr-2">
+      <div className="relative size-6 mr-2">
         <Image
           src={`/${rankColor?.name.toLowerCase()}.png`}
           alt={`${rankColor?.name.toLowerCase()} rank`}
@@ -20,7 +20,7 @@ export default function RankDisplay({
         />
       </div>
       <div
-        className={`capitalize text-base ${rankColor?.textColor} dark:brightness-150 brightness-90`}
+        className={`capitalize text-lg ${rankColor?.textColor} dark:brightness-150 brightness-90 font-bold`}
       >
         {rankColor?.name}
       </div>
