@@ -36,8 +36,6 @@ export async function submitDiaryEntry(
     diaryRequest.time_split = `${diaryForm.time}0`;
   }
 
-  console.log(diaryRequest);
-
   const response = await fetch(`${process.env.API_URL}/applications/diary`, {
     method: "POST",
     headers: {

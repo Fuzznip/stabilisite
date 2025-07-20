@@ -34,7 +34,7 @@ export function formatDateTime(date: Date) {
   }).format(date);
 }
 
-export const ranks = [
+export const rank_colors = [
   {
     name: "Guest",
     textColor: "text-[#028968]",
@@ -84,7 +84,7 @@ export const ranks = [
     progressColor: "[&>div]:bg-[#4C4C6F]",
   },
   {
-    name: "Adamantite",
+    name: "Adamant",
     textColor: "text-[#506350]",
     bgColor: "bg-[#506350]/50",
     progressColor: "[&>div]:bg-[#506350]",

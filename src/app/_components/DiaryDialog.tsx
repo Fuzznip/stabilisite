@@ -152,7 +152,7 @@ export function DiaryDialog({
                 setDialogOpen={setDialogOpen}
               />
             ) : (
-              <div className="text-muted-foreground text-lg w-fit mx-auto mt-36 text-center">
+              <div className=" text-lg w-fit mx-auto mt-36 text-center">
                 You&apos;re a certified gamer! Go touch grass or wait for more
                 achievements to be added.
               </div>
@@ -253,7 +253,7 @@ function SpeedRunForm({
               name="diary"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                  <FormLabel className="data-[error=true]:text-destructive">
                     Diary
                   </FormLabel>
                   <FormControl>
@@ -296,7 +296,7 @@ function SpeedRunForm({
               name="scale"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                  <FormLabel className="data-[error=true]:text-destructive">
                     Scale
                   </FormLabel>
                   <FormControl>
@@ -360,7 +360,7 @@ function SpeedRunForm({
 
                 return (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                    <FormLabel className="data-[error=true]:text-destructive">
                       Duration
                     </FormLabel>
                     <FormControl>
@@ -445,7 +445,7 @@ function SpeedRunForm({
             name="teamMembers"
             render={() => (
               <FormItem className="flex flex-col w-full max-w-4/5 relative">
-                <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                <FormLabel className="data-[error=true]:text-destructive">
                   Party Members
                 </FormLabel>
                 <FormControl>
@@ -578,7 +578,7 @@ function AchievementForm({
               name="diary"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                  <FormLabel className="data-[error=true]:text-destructive">
                     Diary
                   </FormLabel>
                   <FormControl>
@@ -622,7 +622,7 @@ function AchievementForm({
                 name="scale"
                 render={() => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+                    <FormLabel className="data-[error=true]:text-destructive">
                       Tier
                     </FormLabel>
                     <FormControl>
@@ -701,7 +701,7 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
 
   return (
     <FormItem className="flex flex-col w-full max-w-4/5 relative">
-      <FormLabel className="text-muted-foreground data-[error=true]:text-destructive">
+      <FormLabel className="data-[error=true]:text-destructive">
         Proof
       </FormLabel>
       <FormControl>

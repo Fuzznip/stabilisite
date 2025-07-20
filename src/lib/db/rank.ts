@@ -1,45 +1,46 @@
 import {
-  RaidTierApplication,
-  RaidTierApplicationResponse,
-  RaidTierForm,
+  RankApplication,
+  RankApplicationResponse,
+  RankForm,
   User,
 } from "../types";
 
-export async function submitRaidTierForm(
+export async function submitRankForm(
   user: User | null,
-  raidTierForm: RaidTierForm,
+  rankForm: RankForm,
   fileUrls: string[]
 ): Promise<void> {
-  const raidTierRequest = {
+  const rankRequest = {
     user_id: user?.discordId,
-    target_raid_tier_id: raidTierForm.targetRaidTierId,
-    proof: fileUrls[0],
+    rank: rankForm.rank,
+    rank_order: rankForm.rankOrder,
+    proof: fileUrls,
   };
-  const response = await fetch(`${process.env.API_URL}/applications/raidTier`, {
+  const response = await fetch(`${process.env.API_URL}/applications/rank`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(raidTierRequest),
+    body: JSON.stringify(rankRequest),
   });
   if (!response.ok) throw await response.text();
   return;
 }
 
-export async function getRaidTierApplications(
+export async function getRankApplications(
   user?: User | undefined
-): Promise<RaidTierApplication[]> {
-  const raidTierApplicationResponse = await fetch(
-    `${process.env.API_URL}/applications/raidTier`
+): Promise<RankApplication[]> {
+  const rankApplicationResponse = await fetch(
+    `${process.env.API_URL}/applications/rank`
   ).then((res) => res.json());
 
-  const applications: RaidTierApplication[] = raidTierApplicationResponse.map(
-    (application: RaidTierApplicationResponse) => ({
+  const applications: RankApplication[] = rankApplicationResponse.map(
+    (application: RankApplicationResponse) => ({
       id: application.id,
       proof: application.proof,
       runescapeName: application.runescape_name,
       status: application.status,
-      targetRaidTierId: application.target_raid_tier_id,
+      rank: application.desired_rank,
       date: new Date(application.timestamp),
       userId: application.user_id,
       verdictReason: application.verdict_reason,
