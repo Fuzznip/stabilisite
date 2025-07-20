@@ -14,7 +14,6 @@ import { differenceInCalendarDays, formatDistanceToNow } from "date-fns";
 import acceptApplication from "./_actions/acceptApplication";
 import rejectApplication from "./_actions/rejectApplication";
 import {
-  ArrowRight,
   CheckCircle,
   CircleCheck,
   CircleX,

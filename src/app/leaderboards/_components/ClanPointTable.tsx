@@ -10,7 +10,7 @@ import {
   TableCell,
   Table,
 } from "@/components/ui/table";
-import { ranks, cn } from "@/lib/utils";
+import { cn, rank_colors } from "@/lib/utils";
 import { useState } from "react";
 import { User } from "@/lib/types";
 import {
@@ -78,7 +78,7 @@ export default function ClanPointTable({ users }: { users: User[] }) {
           <TableBody className="text-xl">
             {currentUsers.map((user, index) => {
               const globalIndex = start + index;
-              const rank = ranks.find(
+              const rank = rank_colors.find(
                 (rank) => rank.name === (user?.rank || "Guest")
               );
               return (
