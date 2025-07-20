@@ -83,7 +83,7 @@ export function RankDialog({
 
   const onSubmit = (data: RaidTierSchema) => {
     submitRank({
-      rank: data.rank,
+      rank: selectedRank.rankName,
       rankOrder: selectedRank.rankOrder,
       proof: data.proof,
     })
