@@ -10,7 +10,7 @@ export async function submitSplitEntry(
     item_name: splitForm.item,
     item_price: splitForm.price,
     group_size: splitForm.teamSize,
-    screenshot_link: fileUrl,
+    proof: fileUrl,
   };
   const response = await fetch(`${process.env.API_URL}/splits`, {
     method: "POST",
