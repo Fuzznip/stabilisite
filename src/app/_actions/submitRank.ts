@@ -2,7 +2,6 @@
 
 import { RankForm } from "@/lib/types";
 import { getAuthUser } from "../../lib/fetch/getAuthUser";
-import { uploadToS3 } from "./uploadToS3";
 import { revalidatePath } from "next/cache";
 import { submitRankForm } from "@/lib/db/rank";
 

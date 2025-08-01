@@ -37,9 +37,6 @@ import ProofField from "./ProofField";
 import { submitRank } from "../_actions/submitRank";
 import { differenceInCalendarDays } from "date-fns";
 import RankDisplay from "@/components/RankDisplay";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { getS3SignedUrl } from "../_actions/getS3SignedUrl";
 import { getFileUrlsForProof } from "@/lib/utils";
 
 const rankSchema = z.object({
