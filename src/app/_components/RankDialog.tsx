@@ -37,6 +37,10 @@ import ProofField from "./ProofField";
 import { submitRank } from "../_actions/submitRank";
 import { differenceInCalendarDays } from "date-fns";
 import RankDisplay from "@/components/RankDisplay";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getS3SignedUrl } from "../_actions/getS3SignedUrl";
+import { getFileUrlsForProof } from "@/lib/utils";
 
 const rankSchema = z.object({
   rank: z.string({
@@ -81,28 +85,29 @@ export function RankDialog({
     defaultValues: defaultForm,
   });
 
-  const onSubmit = (data: RaidTierSchema) => {
-    submitRank({
-      rank: selectedRank.rankName,
-      rankOrder: selectedRank.rankOrder,
-      proof: data.proof,
-    })
-      .then(() => {
-        toast.success(
-          `Your ${selectedRank.rankName} rank application was submitted!`
-        );
-        form.reset(defaultForm);
-      })
-      .catch((err) => {
-        toast.error(
-          `There was an error submitting your ${selectedRank.rankName} rank application: ${err}`,
-          { duration: 10000 }
-        );
-        form.reset(defaultForm);
+  const onSubmit = async (data: RaidTierSchema) => {
+    try {
+      const fileUrls = await getFileUrlsForProof(data.proof);
+
+      await submitRank({
+        rank: selectedRank.rankName,
+        rankOrder: selectedRank.rankOrder,
+        proof: fileUrls, // now a list of string URLs
       });
 
-    setDialogOpen(false);
-    form.reset();
+      toast.success(
+        `Your ${selectedRank.rankName} rank application was submitted!`
+      );
+      form.reset(defaultForm);
+      setDialogOpen(false);
+    } catch (err) {
+      console.log(err);
+      toast.error(
+        `There was an error submitting your ${selectedRank.rankName} rank application: ${err}`,
+        { duration: 10000 }
+      );
+      form.reset(defaultForm);
+    }
   };
 
   return (

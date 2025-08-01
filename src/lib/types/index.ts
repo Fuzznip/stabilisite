@@ -173,7 +173,7 @@ export type RaidTierForm = {
 export type RankForm = {
   rank: string;
   rankOrder?: number;
-  proof?: File[] | null;
+  proof?: string[] | null;
 };
 
 export type OsrsItem = {

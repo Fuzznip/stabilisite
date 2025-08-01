@@ -7,6 +7,7 @@ import {
   Raid,
   RaidName,
 } from "../types";
+import { getS3SignedUrl } from "@/app/_actions/getS3SignedUrl";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -207,4 +208,22 @@ export function getMaxRaidTiers(
   }
 
   return raidMaxes;
+}
+
+export function getFileUrlsForProof(files: File[]): Promise<string[]> {
+  return Promise.all(
+    files.map(async (file: File) => {
+      const [fileUrl, signedUrl] = await getS3SignedUrl(file.name, file.type);
+
+      await fetch(signedUrl, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
+
+      return fileUrl;
+    })
+  );
 }

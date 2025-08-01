@@ -7,14 +7,13 @@ import {
 
 export async function submitRankForm(
   user: User | null,
-  rankForm: RankForm,
-  fileUrls: string[]
+  rankForm: RankForm
 ): Promise<void> {
   const rankRequest = {
     user_id: user?.discordId,
     rank: rankForm.rank,
     rank_order: rankForm.rankOrder,
-    proof: fileUrls,
+    proof: rankForm.proof,
   };
   const response = await fetch(`${process.env.API_URL}/applications/rank`, {
     method: "POST",

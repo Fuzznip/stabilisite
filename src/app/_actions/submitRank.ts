@@ -9,10 +9,7 @@ import { submitRankForm } from "@/lib/db/rank";
 export async function submitRank(rankForm: RankForm): Promise<void> {
   try {
     const user = await getAuthUser();
-    const fileUrls = rankForm.proof
-      ? rankForm.proof.map((proof) => uploadToS3(proof))
-      : [];
-    await submitRankForm(user, rankForm, await Promise.all(fileUrls));
+    await submitRankForm(user, rankForm);
     revalidatePath("/applications/rank");
     return;
   } catch (err) {
