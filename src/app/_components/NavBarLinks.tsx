@@ -25,8 +25,10 @@ export default function NavBarLinks({
     { href: "/leaderboards", title: "Leaderboards" },
   ];
 
-  if (user?.isAdmin)
+  if (user?.isAdmin) {
     tabs.push({ href: "/applications", title: "Applications" });
+    tabs.push({ href: "/bingo", title: "Bingo" });
+  }
 
   return (
     <>
