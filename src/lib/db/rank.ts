@@ -22,7 +22,10 @@ export async function submitRankForm(
     },
     body: JSON.stringify(rankRequest),
   });
-  if (!response.ok) throw await response.text();
+  if (!response.ok) {
+    console.error("API Error: ", response.status, response.statusText);
+    throw await response.text();
+  }
   return;
 }
 
