@@ -98,7 +98,7 @@ export function RankDialog({
       form.reset(defaultForm);
       setDialogOpen(false);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       toast.error(
         `There was an error submitting your ${selectedRank.rankName} rank application: ${err}`,
         { duration: 10000 }

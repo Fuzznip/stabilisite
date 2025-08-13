@@ -12,6 +12,7 @@ export async function submitRank(rankForm: RankForm): Promise<void> {
     revalidatePath("/applications/rank");
     return;
   } catch (err) {
+    console.error(err);
     throw err;
   }
 }
