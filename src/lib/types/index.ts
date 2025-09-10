@@ -85,7 +85,7 @@ export type Split = {
   itemImg: string;
   splitContribution: number;
   groupSize: number;
-  screenshotLink?: string;
+  proof?: string;
   date: Date;
 };
 
@@ -97,7 +97,7 @@ export type SplitResponse = {
   item_price: string;
   split_contribution: string;
   group_size: number;
-  screenshot_link: string;
+  proof: string;
   timestamp: string;
 };
 
