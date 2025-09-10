@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import { Tile } from "@/lib/types/tile";
 import { useTeams } from "../../_hooks/useTeams";
 import { useTile } from "../../_hooks/useTile";
-import { getFileNameForTile } from "@/lib/utils/tileUtils";
 import { Team } from "@/lib/types/team";
 
 function getTaskTabContent(
@@ -95,7 +94,7 @@ export function TilePage({ id }: { id: string }): React.ReactElement {
           <div className="flex gap-8 mb-24 flex-col sm:flex-row">
             <div className="relative w-72 h-72 border-[6px] border-purple-800 rounded-md mx-auto">
               <Image
-                src={getFileNameForTile(tile.tile)}
+                src={`1.jpg`}
                 fill
                 priority
                 sizes="100%"

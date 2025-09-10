@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { useSelectedTeam } from "../_hooks/useSelectedTeam";
 import { cn } from "@/lib/utils";

@@ -1,5 +1,3 @@
-"use client";
-
 import BingoBoard from "./_components/BingoBoard";
 import Leaderboard from "./_components/Leaderboard";
 import TeamMembers from "./_components/TeamMembers";
