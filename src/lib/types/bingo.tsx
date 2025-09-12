@@ -19,11 +19,9 @@ export type TaskProgress = {
   log?: ProgressLogEntry[];
 };
 
-export type ProgressRow = TaskProgress[];
-
-export type BoardProgressTile = {
+export type TileProgress = {
   name: string;
-  progress?: ProgressRow[];
+  progress: TaskProgress[];
 };
 
 export type Team = {
@@ -33,7 +31,7 @@ export type Team = {
   image_url: string;
   points: number;
   board_state: MedalTier[];
-  board_progress?: BoardProgressTile[];
+  board_progress: TileProgress[];
 };
 
 export type TeamsPayload = {

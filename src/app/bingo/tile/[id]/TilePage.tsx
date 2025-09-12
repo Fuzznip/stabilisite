@@ -19,11 +19,11 @@ function getTaskTabContent(
 ): React.ReactElement {
   const teamsWithProgress = teams
     .map((team) => {
-      const tileProgress = team.board_state[tileIndex];
+      const tileProgress = team.board_progress[tileIndex].progress[taskIndex];
       return {
         team: team,
-        complete: tile.complete,
-        target: tileProgress.target,
+        complete: tileProgress.completed,
+        target: tileProgress.required,
       };
     })
     .sort((teamA, teamB) => teamA.team.name.localeCompare(teamB.team.name));
@@ -31,7 +31,7 @@ function getTaskTabContent(
     <Card>
       <CardTitle className="text-3xl p-8 font-normal mb-4 flex flex-col gap-2 sm:flex-row sm:gap-0">
         <span className="mr-4">Task:</span>
-        <span className="">{tile[task].description}</span>
+        <span className="">{tile.tasks[taskIndex].task}</span>
       </CardTitle>
       <CardContent className="flex flex-col">
         {teamsWithProgress.map((team) => (
@@ -40,7 +40,7 @@ function getTaskTabContent(
               {true && (
                 <div className="relative h-20 w-20">
                   <Image
-                    src={`/${team.team.captain.toLowerCase()}.png`}
+                    src={`/${team.team.image_url}`}
                     alt={team.team.name + " team image"}
                     fill
                     sizes="100%"
@@ -138,13 +138,13 @@ export function TilePage({ id }: { id: string }): React.ReactElement {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="task1" className="w-full">
-                {getTaskTabContent(0, tile, teams)}
+                {getTaskTabContent(0, tile, board.indexOf(tile), teams)}
               </TabsContent>
               <TabsContent value="task2" className="w-full">
-                {getTaskTabContent(1, tile, teams)}
+                {getTaskTabContent(1, tile, board.indexOf(tile), teams)}
               </TabsContent>
               <TabsContent value="task3" className="w-full">
-                {getTaskTabContent(2, tile, teams)}
+                {getTaskTabContent(2, tile, board.indexOf(tile), teams)}
               </TabsContent>
             </Tabs>
           </div>
