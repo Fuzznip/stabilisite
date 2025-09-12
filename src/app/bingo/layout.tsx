@@ -9,12 +9,12 @@ export default async function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const board = await fetch("/api/bingo/board")
-    .then((res) => res.json())
-    .then((data: BoardPayload) => data.board);
-  const teams = await fetch("/api/bingo/teams")
-    .then((res) => res.json())
-    .then((data: TeamsPayload) => data.teams);
+  // const board = await fetch("/api/bingo/board")
+  //   .then((res) => res.json())
+  //   .then((data: BoardPayload) => data.board);
+  // const teams = await fetch("/api/bingo/teams")
+  //   .then((res) => res.json())
+  //   .then((data: TeamsPayload) => data.teams);
   return (
     <>
       <FlickeringGrid
@@ -25,7 +25,7 @@ export default async function Layout({
         maxOpacity={0.3}
         flickerChance={0.2}
       />
-      <BingoProvider board={board} teams={teams}>
+      <BingoProvider board={[]} teams={[]}>
         <SelectedTeamProvider>
           <main>{children}</main>
           <DropToaster />
