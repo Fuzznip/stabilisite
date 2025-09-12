@@ -1,9 +1,11 @@
+"use client";
+
 import React, { createContext, useContext } from "react";
 import { Team, Tile } from "@/lib/types/bingo";
 
 type BingoContextType = {
   board: Tile[];
-  teams: Team[]
+  teams: Team[];
 };
 
 const BingoContext = createContext<BingoContextType | undefined>(undefined);
@@ -14,7 +16,7 @@ export const BingoProvider = ({
   children,
 }: {
   board: Tile[];
-  teams: Team[]; 
+  teams: Team[];
   children: React.ReactNode;
 }) => (
   <BingoContext.Provider value={{ board, teams }}>

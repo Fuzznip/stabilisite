@@ -5,14 +5,14 @@ import { Toaster } from "@/components/ui/toaster";
 import React, { useEffect } from "react";
 import { useNewDrop } from "../_hooks/useNewDrop";
 import { toast } from "sonner";
-import { useTeams } from "../_hooks/useTeams";
 import { useRelativeTime } from "../_hooks/useRelativeTime";
 import { X } from "lucide-react";
 import { Drop } from "@/lib/types/drop";
+import { useBingo } from "./BingoProvider";
 
 export default function DropToaster(): React.ReactElement {
   const { newDrop } = useNewDrop();
-  const { teams } = useTeams();
+  const { teams } = useBingo();
 
   useEffect(() => {
     if (newDrop) {
@@ -39,7 +39,7 @@ export default function DropToaster(): React.ReactElement {
                 {/* Team Captain Image */}
                 <div className="relative h-16 w-16">
                   <Image
-                    src={`/${team?.captain.toLowerCase()}.png`}
+                    src={`/${team?.name.toLowerCase()}.png`}
                     alt={team?.name + " team image"}
                     fill
                     sizes="100%"
