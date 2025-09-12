@@ -28,7 +28,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
-    "firebase": "^11.3.1",
+    "firebase": "^11.10.0",
     "firebase-functions": "^6.3.2",
     "framer-motion": "^12.4.5",
     "googleapis": "^144.0.0",
@@ -44,6 +44,7 @@
     "react-hook-form": "^7.55.0",
     "recharts": "^2.15.1",
     "sonner": "^2.0.3",
+    "swr": "^2.3.6",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"

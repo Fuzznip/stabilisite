@@ -53,6 +53,7 @@
 
   --color-discord: hsl(var(--discord));
   --color-stability: hsl(var(--stability));
+  --color-bingo-grid: hsl(var(--bingo-grid));
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -120,6 +121,7 @@
     --chart-5: 27 87% 67%;
     --discord: 235 86% 65%;
     --stability: 0 73% 44%;
+    --bingo-grid: 15, 49%, 40%;
   }
 
   .dark {
@@ -149,6 +151,7 @@
     --chart-5: 340 75% 55%;
     --discord: 235 86% 65%;
     --stability: 0 73% 44%;
+    --bingo-grid: 15, 49%, 40%;
   }
 }
 
