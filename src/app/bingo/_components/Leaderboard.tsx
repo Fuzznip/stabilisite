@@ -16,9 +16,9 @@ export default function Leaderboard() {
       <span className="text-xl text-muted-foreground mb-2">
         Click a team to see their progress
       </span>
-      <Card className="flex w-full h-full flex-col gap-4 rounded">
+      <Card className="flex w-full h-full flex-col gap-4 rounded-lg">
         <CardContent className="py-4 [&>*:not(:last-child)]:mb-4">
-          {teams ? (
+          {teams.length ? (
             teams.map((team, index) => (
               <Button
                 variant="ghost"
@@ -58,7 +58,9 @@ export default function Leaderboard() {
               </Button>
             ))
           ) : (
-            <></>
+            <div className="text-muted-foreground text-2xl w-fit mx-auto my-24">
+              No Team Data
+            </div>
           )}
         </CardContent>
       </Card>

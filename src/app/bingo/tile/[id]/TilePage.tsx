@@ -150,7 +150,9 @@ export function TilePage({ id }: { id: string }): React.ReactElement {
           </div>
         </div>
       ) : (
-        <></>
+        <div className="text-muted-foreground text-3xl w-fit mx-auto my-24">
+          No Tile Data
+        </div>
       )}
     </div>
   );

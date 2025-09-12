@@ -8,7 +8,10 @@ type BingoContextType = {
   teams: Team[];
 };
 
-const BingoContext = createContext<BingoContextType | undefined>(undefined);
+const BingoContext = createContext<BingoContextType | undefined>({
+  board: [],
+  teams: [],
+});
 
 export const BingoProvider = ({
   board,

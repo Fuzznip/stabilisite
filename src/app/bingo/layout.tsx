@@ -1,7 +1,7 @@
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { SelectedTeamProvider } from "./_hooks/useSelectedTeam";
 import DropToaster from "./_components/DropToaster";
-// import { BoardPayload, TeamsPayload } from "@/lib/types/bingo";
+import { BoardPayload, TeamsPayload } from "@/lib/types/bingo";
 import { BingoProvider } from "./_components/BingoProvider";
 
 export default async function Layout({
@@ -9,12 +9,12 @@ export default async function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const board = await fetch("/api/bingo/board")
-  //   .then((res) => res.json())
-  //   .then((data: BoardPayload) => data.board);
-  // const teams = await fetch("/api/bingo/teams")
-  //   .then((res) => res.json())
-  //   .then((data: TeamsPayload) => data.teams);
+  const board = await fetch(`${process.env.API_URL}events/board`)
+    .then((res) => res.json())
+    .then((data: BoardPayload) => data.board || []);
+  const teams = await fetch(`${process.env.API_URL}events/teams`)
+    .then((res) => res.json())
+    .then((data: TeamsPayload) => data.teams || []);
   return (
     <>
       <FlickeringGrid
@@ -25,7 +25,7 @@ export default async function Layout({
         maxOpacity={0.3}
         flickerChance={0.2}
       />
-      <BingoProvider board={[]} teams={[]}>
+      <BingoProvider board={board} teams={teams}>
         <SelectedTeamProvider>
           <main>{children}</main>
           <DropToaster />
