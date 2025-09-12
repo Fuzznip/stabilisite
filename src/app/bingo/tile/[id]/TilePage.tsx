@@ -8,25 +8,21 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { Tile } from "@/lib/types/tile";
-import { useTeams } from "../../_hooks/useTeams";
-import { useTile } from "../../_hooks/useTile";
-import { Team } from "@/lib/types/team";
+import { Team, Tile } from "@/lib/types/bingo";
+import { useBingo } from "../../_components/BingoProvider";
 
 function getTaskTabContent(
-  task: "task1" | "task2" | "task3",
+  taskIndex: number,
   tile: Tile,
+  tileIndex: number,
   teams: Team[]
 ): React.ReactElement {
   const teamsWithProgress = teams
     .map((team) => {
-      const tileProgress = team.tileProgress.find(
-        (teamTile) => teamTile.tile === tile.tile
-      )![task];
-
+      const tileProgress = team.board_state[tileIndex];
       return {
         team: team,
-        complete: tileProgress.complete,
+        complete: tile.complete,
         target: tileProgress.target,
       };
     })
@@ -79,8 +75,8 @@ function getTaskTabContent(
 }
 
 export function TilePage({ id }: { id: string }): React.ReactElement {
-  const { tile } = useTile(id);
-  const { teams } = useTeams();
+  const { teams, board } = useBingo();
+  const tile = board.find((tile) => tile.id === id);
 
   return (
     <div className="flex flex-col h-full w-full px-4 sm:px-0 my-4 sm:my-0">
@@ -99,7 +95,7 @@ export function TilePage({ id }: { id: string }): React.ReactElement {
                 priority
                 sizes="100%"
                 className="object-cover"
-                alt={`Tile ${tile.tile} image`}
+                alt={`${tile.name} image`}
               />
             </div>
             <div className="flex flex-col items-start w-full">
@@ -110,19 +106,19 @@ export function TilePage({ id }: { id: string }): React.ReactElement {
                     <div className="text-muted-foreground min-w-fit">
                       Task 1:
                     </div>{" "}
-                    <div>{tile.task1.description}</div>
+                    <div>{tile.tasks[0].task}</div>
                   </div>
                   <div className="text-xl mb-8 flex gap-4">
                     <div className="text-muted-foreground min-w-fit">
                       Task 2:
                     </div>{" "}
-                    <div>{tile.task2.description}</div>
+                    <div>{tile.tasks[1].task}</div>
                   </div>
                   <div className="text-xl flex gap-4">
                     <div className="text-muted-foreground min-w-fit">
                       Task 3:
                     </div>{" "}
-                    <div>{tile.task3.description}</div>
+                    <div>{tile.tasks[2].task}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -142,13 +138,13 @@ export function TilePage({ id }: { id: string }): React.ReactElement {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="task1" className="w-full">
-                {getTaskTabContent("task1", tile, teams)}
+                {getTaskTabContent(0, tile, teams)}
               </TabsContent>
               <TabsContent value="task2" className="w-full">
-                {getTaskTabContent("task2", tile, teams)}
+                {getTaskTabContent(1, tile, teams)}
               </TabsContent>
               <TabsContent value="task3" className="w-full">
-                {getTaskTabContent("task3", tile, teams)}
+                {getTaskTabContent(2, tile, teams)}
               </TabsContent>
             </Tabs>
           </div>

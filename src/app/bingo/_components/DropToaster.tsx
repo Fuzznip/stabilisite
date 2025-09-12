@@ -25,7 +25,6 @@ export default function DropToaster(): React.ReactElement {
       toast.custom(
         (id) => (
           <div className="relative flex w-full items-center gap-4 rounded-md border bg-background p-4 shadow-lg">
-            {/* Close button in top-right corner */}
             <button
               onClick={() => toast.dismiss(id)}
               className="absolute top-4 right-2 text-muted-foreground hover:text-foreground"
@@ -33,10 +32,8 @@ export default function DropToaster(): React.ReactElement {
               <X className="h-6 w-6" />
             </button>
 
-            {/* Toast Content */}
             <div className="flex flex-col w-full gap-6">
               <div className="flex gap-4">
-                {/* Team Captain Image */}
                 <div className="relative h-16 w-16">
                   <Image
                     src={`/${team?.name.toLowerCase()}.png`}
@@ -48,7 +45,6 @@ export default function DropToaster(): React.ReactElement {
                   />
                 </div>
 
-                {/* Player & Team Info */}
                 <div className="flex flex-col">
                   <span className="text-xl text-foreground capitalize">
                     {newDrop?.player}
@@ -59,7 +55,6 @@ export default function DropToaster(): React.ReactElement {
                 </div>
               </div>
 
-              {/* Item Name */}
               <div className="flex flex-col text-2xl text-foreground">
                 <div>
                   {newDrop.itemName
