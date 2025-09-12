@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 function getRelativeTimeString(date: Date): string {
   const now = new Date();
@@ -28,7 +28,7 @@ function getRelativeTimeString(date: Date): string {
 }
 
 export function useRelativeTime(date: Date | string | number) {
-  const pastDate = new Date(date);
+  const pastDate = useMemo(() => new Date(date), [date]);
   const [relativeTime, setRelativeTime] = useState(() =>
     getRelativeTimeString(pastDate)
   );
@@ -44,7 +44,7 @@ export function useRelativeTime(date: Date | string | number) {
     );
 
     return () => clearInterval(updateInterval);
-  }, [date]);
+  }, [pastDate, relativeTime]);
 
   return relativeTime;
 }

@@ -1,7 +1,7 @@
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { SelectedTeamProvider } from "./_hooks/useSelectedTeam";
 import DropToaster from "./_components/DropToaster";
-import { BoardPayload, TeamsPayload } from "@/lib/types/bingo";
+// import { BoardPayload, TeamsPayload } from "@/lib/types/bingo";
 import { BingoProvider } from "./_components/BingoProvider";
 
 export default async function Layout({
