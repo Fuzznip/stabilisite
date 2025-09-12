@@ -2,68 +2,28 @@
 
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { useBingoBoard } from "../_hooks/useBingoBoard";
 import { cn } from "@/lib/utils";
 import { useSelectedTeam } from "../_hooks/useSelectedTeam";
 import Link from "next/link";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Team } from "@/lib/types/team";
-import { Tile } from "@/lib/types/tile";
-
-function getMedalSrcForSelectedTeam(
-  team: Team,
-  tile: Tile
-): string | undefined {
-  const tileProgress = team.tileProgress.find(
-    (progress) => progress.tile === tile.tile
-  );
-
-  const medalScore =
-    (tileProgress?.task1.complete ? 1 : 0) +
-    (tileProgress?.task2.complete ? 1 : 0) +
-    (tileProgress?.task3.complete ? 1 : 0);
-
-  if (!medalScore) return undefined;
-
-  if (medalScore === 1) {
-    return "/bronze_medal.png";
-  }
-
-  if (medalScore === 2) {
-    return "/silver_medal.png";
-  }
-
-  return "/gold_medal.png";
-}
+import { MedalTier } from "@/lib/types/bingo";
 
 export default function BingoBoard() {
-  // const { tiles, loading } = useBingoBoard();
-
   return (
     <div className="w-full md:w-[90%] lg:w-3/4 flex justify-center max-w-[900px]">
-      {true ? (
-        <div className="grid grid-cols-5 grid-auto-rows-[1fr] gap-1 p-1 bg-bingo-grid rounded-md w-full">
-          {Array.from({ length: 25 }).map((tile, index) => {
-            return <BingoCard key={index} index={index} />;
-          })}
-        </div>
-      ) : (
-        <div className="grid grid-cols-5 grid-auto-rows-[1fr] gap-1 p-1 bg-bingo-grid rounded-md w-full">
-          {Array.from({ length: 25 }).map((_, index) => (
-            <Skeleton key={index} className="aspect-square bg-background" />
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-5 grid-auto-rows-[1fr] gap-1 p-1 bg-bingo-grid rounded-md w-full">
+        {Array.from({ length: 25 }).map((_, index) => {
+          return <BingoCard key={index} index={index} />;
+        })}
+      </div>
     </div>
   );
 }
 
 function BingoCard({ index }: { index: number }): React.ReactElement {
   const { selectedTeam } = useSelectedTeam();
-  const medalSrc = undefined;
-  // const medalSrc = selectedTeam
-  //   ? getMedalSrcForSelectedTeam(selectedTeam, tile)
-  //   : undefined;
+  const medalSrc = selectedTeam
+    ? getMedalSrcForTier(selectedTeam.board_state[index])
+    : undefined;
   return (
     <Card
       key={index}
@@ -102,4 +62,15 @@ function BingoCard({ index }: { index: number }): React.ReactElement {
       </CardContent>
     </Card>
   );
+}
+
+function getMedalSrcForTier(tier: MedalTier): string {
+  if (tier === MedalTier.Bronze) {
+    return "bronze_medal.png";
+  } else if (tier === MedalTier.Silver) {
+    return "silver_medal.png";
+  } else if (tier === MedalTier.Gold) {
+    return "gold_medal.png";
+  }
+  return "";
 }

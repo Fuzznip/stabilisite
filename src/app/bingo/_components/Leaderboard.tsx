@@ -1,14 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useTeams } from "../_hooks/useTeams";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useSelectedTeam } from "../_hooks/useSelectedTeam";
+import { useBingo } from "./BingoProvider";
 
 export default function Leaderboard() {
-  const { teams } = useTeams();
+  const { teams } = useBingo();
   const { selectedTeam, setSelectedTeam } = useSelectedTeam();
   return (
     <div className="flex h-full w-full flex-col sm:min-w-[30rem]">
@@ -24,7 +24,7 @@ export default function Leaderboard() {
                 variant="ghost"
                 className={cn(
                   "flex justify-between text-3xl gap-12 text-left items-center w-full h-fit p-4 box-border",
-                  selectedTeam?.id === team.id &&
+                  selectedTeam?.name === team.name &&
                     "bg-accent outline outline-foreground"
                 )}
                 key={team.name}
@@ -40,7 +40,7 @@ export default function Leaderboard() {
                     {true && (
                       <div className="relative h-20 w-20">
                         <Image
-                          src={`/${team.captain.toLowerCase()}.png`}
+                          src={`/${team.name.toLowerCase()}.png`}
                           alt={team.name + " team image"}
                           fill
                           sizes="100%"

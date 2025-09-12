@@ -1,6 +1,6 @@
 "use client";
 
-import { Team } from "@/lib/types/team";
+import { Team } from "@/lib/types/bingo";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface SelectedTeamContext {
