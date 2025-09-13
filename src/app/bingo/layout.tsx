@@ -15,7 +15,8 @@ export default async function Layout({
   const teams = await fetch(`${process.env.API_URL}teams`)
     .then((res) => res.json())
     .then((data) => (data as Team[]) || [])
-    .then((teams) => teams.sort((a, b) => (b.points ?? 0) - (a.points ?? 0)));
+    .then((teams) => teams.sort((a, b) => (b.points ?? 0) - (a.points ?? 0)))
+    .then((teams) => teams.sort((a, b) => b.name.localeCompare(a.name)));
 
   console.log(`${process.env.API_URL}/teams`, teams);
   return (
