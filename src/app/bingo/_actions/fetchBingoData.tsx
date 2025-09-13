@@ -1,3 +1,5 @@
+"use server";
+
 import { Team, Tile } from "@/lib/types/bingo";
 
 export default async function fetchBingoData(): Promise<{
