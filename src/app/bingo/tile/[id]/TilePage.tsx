@@ -35,7 +35,7 @@ function getTaskTabContent(
       </CardTitle>
       <CardContent className="flex flex-col">
         {teamsWithProgress.map((team) => (
-          <div key={team.team.id} className="mb-8 flex items-center">
+          <div key={team.team.team_id} className="mb-8 flex items-center">
             <div className="flex gap-4 w-fit mr-8 sm:mr-0 sm:w-[30rem]">
               {true && (
                 <div className="relative h-20 w-20">

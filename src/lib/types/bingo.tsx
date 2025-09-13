@@ -25,7 +25,7 @@ export type TileProgress = {
 };
 
 export type Team = {
-  id: string;
+  team_id: string;
   name: string;
   members: string[];
   image_url: string;
