@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Toaster } from "@/components/ui/toaster";
 import React, { useEffect } from "react";
-import { useNewDrop } from "../_hooks/useNewDrop";
+// import { useNewDrop } from "../_hooks/useNewDrop";
 import { toast } from "sonner";
 import { useRelativeTime } from "../_hooks/useRelativeTime";
 import { X } from "lucide-react";
@@ -11,7 +11,8 @@ import { Drop } from "@/lib/types/drop";
 import { useBingo } from "./BingoProvider";
 
 export default function DropToaster(): React.ReactElement {
-  const { newDrop } = useNewDrop();
+  // const { newDrop } = useNewDrop();
+  const newDrop = undefined as Drop | undefined;
   const { teams } = useBingo();
 
   useEffect(() => {
