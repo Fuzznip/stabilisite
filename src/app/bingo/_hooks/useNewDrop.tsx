@@ -21,31 +21,33 @@ export const useNewDrop = () => {
       limit(1)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      console.log("snap", snapshot);
-      // Ignore the first snapshot to prevent setting an initial value
-      if (!firstSnapshotIgnored.current) {
-        firstSnapshotIgnored.current = true;
-        console.log("snapshot: ", snapshot);
-        return;
-      }
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        if (!firstSnapshotIgnored.current) {
+          firstSnapshotIgnored.current = true;
+          return;
+        }
 
-      if (!snapshot.empty) {
-        revalidateBingo();
-        setNewDrop(
-          snapshot.docs.map(
-            (doc) =>
-              ({
-                id: doc.id,
-                ...doc.data(),
-                date: new Date(doc.data().timestamp + "Z"),
-              } as Drop)
-          )?.[0]
-        );
-      } else {
-        setNewDrop(undefined);
-      }
-    });
+        if (!snapshot.empty) {
+          revalidateBingo();
+          setNewDrop(
+            snapshot.docs.map(
+              (doc) =>
+                ({
+                  id: doc.id,
+                  ...doc.data(),
+                  date: new Date(doc.data().timestamp + "Z"),
+                } as Drop)
+            )?.[0]
+          );
+        } else {
+          setNewDrop(undefined);
+        }
+      },
+      (error) =>
+        console.error("Error fetching drops: ", error.code, error.message)
+    );
 
     return () => unsubscribe();
   }, []);
