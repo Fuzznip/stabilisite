@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="w-full h-full">
+    <html lang="en" className="w-full h-full" suppressHydrationWarning>
       <body
         className={`${lato.className} antialiased relative bg-background w-full h-full`}
       >

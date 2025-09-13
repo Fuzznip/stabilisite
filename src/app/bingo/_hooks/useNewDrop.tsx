@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { Drop } from "@/lib/types/drop";
 import { firestore } from "@/lib/config/firebase";
+import { revalidateBingo } from "../_actions/revalidateBingo";
 
 export const useNewDrop = () => {
   const [newDrop, setNewDrop] = useState<Drop | undefined>(undefined);
@@ -24,10 +25,12 @@ export const useNewDrop = () => {
       // Ignore the first snapshot to prevent setting an initial value
       if (!firstSnapshotIgnored.current) {
         firstSnapshotIgnored.current = true;
+        console.log("snapshot: ", snapshot);
         return;
       }
 
       if (!snapshot.empty) {
+        revalidateBingo();
         setNewDrop(
           snapshot.docs.map(
             (doc) =>
