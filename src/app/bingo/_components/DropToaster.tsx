@@ -36,7 +36,7 @@ export default function DropToaster(): React.ReactElement {
               <div className="flex gap-4">
                 <div className="relative h-16 w-16">
                   <Image
-                    src={`/${team?.name.toLowerCase()}.png`}
+                    src={`/${team?.image_url}`}
                     alt={team?.name + " team image"}
                     fill
                     sizes="100%"
