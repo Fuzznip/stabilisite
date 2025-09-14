@@ -32,14 +32,29 @@ export const useNewDrop = () => {
         if (!snapshot.empty) {
           revalidateBingo();
           setNewDrop(
-            snapshot.docs.map(
-              (doc) =>
-                ({
-                  id: doc.id,
-                  ...doc.data(),
-                  date: new Date(doc.data().timestamp + "Z"),
-                } as Drop)
-            )?.[0]
+            snapshot.docs.map((doc) => {
+              const data: {
+                event_id: string;
+                rsn: string;
+                discord_id: string;
+                trigger: string;
+                source: string;
+                quantity: string;
+                type: string;
+                value: string;
+                timestamp: string;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              } = doc.data() as any;
+              return {
+                id: doc.id,
+                player: data.rsn,
+                itemName: data.trigger,
+                itemSource: data.source,
+                submitType: data.type,
+                // Firestore timestamps are in UTC by default; appending "Z" to ensure correct parsing
+                date: new Date(data.timestamp + "Z"),
+              } as Drop;
+            })?.[0]
           );
         } else {
           setNewDrop(undefined);
