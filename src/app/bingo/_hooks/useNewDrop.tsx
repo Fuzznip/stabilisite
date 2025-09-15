@@ -24,10 +24,10 @@ export const useNewDrop = () => {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        // if (!firstSnapshotIgnored.current) {
-        //   firstSnapshotIgnored.current = true;
-        //   return;
-        // }
+        if (!firstSnapshotIgnored.current) {
+          firstSnapshotIgnored.current = true;
+          return;
+        }
 
         if (!snapshot.empty) {
           revalidateBingo();
