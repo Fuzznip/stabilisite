@@ -41,7 +41,7 @@ export type TeamsPayload = {
 export type Trigger = string[][];
 
 export type Task = {
-  task: string;
+  name: string;
   required: number;
   triggers: Trigger;
 };

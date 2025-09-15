@@ -31,7 +31,7 @@ function getTaskTabContent(
     <Card>
       <CardTitle className="text-3xl p-8 font-normal mb-4 flex flex-col gap-2 sm:flex-row sm:gap-0">
         <span className="mr-4">Task:</span>
-        <span className="">{tile.tasks[taskIndex].task}</span>
+        <span className="">{tile.tasks[taskIndex].name}</span>
       </CardTitle>
       <CardContent className="flex flex-col">
         {teamsWithProgress.map((team) => (
@@ -108,19 +108,19 @@ export function TilePage({ id }: { id: number }): React.ReactElement {
                     <div className="text-muted-foreground min-w-fit">
                       Task 1:
                     </div>{" "}
-                    <div>{tile.tasks[0].task}</div>
+                    <div>{tile.tasks[0].name}</div>
                   </div>
                   <div className="text-xl mb-8 flex gap-4">
                     <div className="text-muted-foreground min-w-fit">
                       Task 2:
                     </div>{" "}
-                    <div>{tile.tasks[1].task}</div>
+                    <div>{tile.tasks[1].name}</div>
                   </div>
                   <div className="text-xl flex gap-4">
                     <div className="text-muted-foreground min-w-fit">
                       Task 3:
                     </div>{" "}
-                    <div>{tile.tasks[2].task}</div>
+                    <div>{tile.tasks[2].name}</div>
                   </div>
                 </CardContent>
               </Card>
