@@ -15,11 +15,6 @@ export async function getS3SignedUrl(
   fileName: string,
   fileType: string
 ): Promise<[string, string]> {
-  console.log(
-    process.env.AWS_REGION,
-    process.env.AWS_ACCESS_KEY_ID,
-    process.env.AWS_SECRET_ACCESS_KEY
-  );
   const key = `uploads/${Date.now()}-${fileName}`;
   const command = new PutObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET_NAME,

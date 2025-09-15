@@ -22,8 +22,8 @@ function getTaskTabContent(
       const tileProgress = team.board_progress[tileIndex].progress[taskIndex];
       return {
         team: team,
-        complete: tileProgress.completed,
-        target: tileProgress.required,
+        complete: tileProgress?.completed || false,
+        target: tileProgress?.required || 0,
       };
     })
     .sort((teamA, teamB) => teamA.team.name.localeCompare(teamB.team.name));
@@ -37,10 +37,10 @@ function getTaskTabContent(
         {teamsWithProgress.map((team) => (
           <div key={team.team.team_id} className="mb-8 flex items-center">
             <div className="flex gap-4 w-fit mr-8 sm:mr-0 sm:w-[30rem]">
-              {true && (
+              {team && (
                 <div className="relative h-20 w-20">
                   <Image
-                    src={`/${team.team.image_url}`}
+                    src={`${team.team.image_url}`}
                     alt={team.team.name + " team image"}
                     fill
                     sizes="100%"
@@ -74,9 +74,11 @@ function getTaskTabContent(
   );
 }
 
-export function TilePage({ id }: { id: string }): React.ReactElement {
+export function TilePage({ id }: { id: number }): React.ReactElement {
   const { teams, board } = useBingo();
-  const tile = board.find((tile) => tile.id === id);
+  const tile = board[id];
+
+  console.log(tile);
 
   return (
     <div className="flex flex-col h-full w-full px-4 sm:px-0 my-4 sm:my-0">
@@ -88,9 +90,9 @@ export function TilePage({ id }: { id: string }): React.ReactElement {
       {tile ? (
         <div className="flex flex-col h-full w-full">
           <div className="flex gap-8 mb-24 flex-col sm:flex-row">
-            <div className="relative w-72 h-72 border-[6px] border-purple-800 rounded-md mx-auto">
+            <div className="relative w-72 h-72 border-[6px] border-bingo-grid rounded-md mx-auto">
               <Image
-                src={`1.jpg`}
+                src={`/${id}.jpg`}
                 fill
                 priority
                 sizes="100%"

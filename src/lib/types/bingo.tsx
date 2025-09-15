@@ -38,7 +38,7 @@ export type TeamsPayload = {
   teams: Team[];
 };
 
-export type Trigger = string[] | string[][];
+export type Trigger = string[][];
 
 export type Task = {
   task: string;
