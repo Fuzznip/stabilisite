@@ -15,7 +15,8 @@ export default function DropToaster(): React.ReactElement {
   const { teams } = useBingo();
 
   useEffect(() => {
-    if (newDrop) {
+    if (newDrop && teams.length > 0) {
+      console.log(newDrop, teams);
       const team = teams.find((team) =>
         team.members
           .map((member) => member.toLowerCase())
@@ -36,7 +37,7 @@ export default function DropToaster(): React.ReactElement {
               <div className="flex gap-4">
                 <div className="relative h-16 w-16">
                   <Image
-                    src={`/${team?.image_url}`}
+                    src={`${team?.image_url}`}
                     alt={team?.name + " team image"}
                     fill
                     sizes="100%"
@@ -62,6 +63,8 @@ export default function DropToaster(): React.ReactElement {
                     .split(" ")
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(" ")}
+
+                  {newDrop.submitType === "KC" && " KC"}
                 </div>
                 <DropToasterDate drop={newDrop} />
               </div>

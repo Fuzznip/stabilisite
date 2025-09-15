@@ -12,7 +12,14 @@ export default async function fetchBingoData(): Promise<{
   const teams = await fetch(`${process.env.API_URL}/teams`)
     .then((res) => res.json())
     .then((data) => (data as Team[]) || [])
-    .then((teams) => teams.sort((a, b) => (b.points ?? 0) - (a.points ?? 0)))
-    .then((teams) => teams.sort((a, b) => b.name.localeCompare(a.name)));
+    .then((teams) =>
+      teams.sort((a, b) => {
+        const diff = Number(b.points ?? 0) - Number(a.points ?? 0);
+        if (diff === 0) {
+          return a.name.localeCompare(b.name);
+        }
+        return diff;
+      })
+    );
   return { board, teams };
 }
