@@ -8,14 +8,14 @@ export enum MedalTier {
 export type ProgressLogEntry = {
   name: string;
   value: number;
+  required: string;
 };
 
 export type TaskProgress = {
-  task: string;
+  task_id: string;
+  task_index: string;
   completed: boolean;
-  value: number;
-  required: number;
-  proofUrl?: string;
+  proof?: string;
   log?: ProgressLogEntry[];
 };
 
