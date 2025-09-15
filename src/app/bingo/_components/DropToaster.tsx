@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Toaster } from "@/components/ui/toaster";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNewDrop } from "../_hooks/useNewDrop";
 import { toast } from "sonner";
 import { useRelativeTime } from "../_hooks/useRelativeTime";
@@ -13,10 +13,11 @@ import { useBingo } from "./BingoProvider";
 export default function DropToaster(): React.ReactElement {
   const { newDrop } = useNewDrop();
   const { teams } = useBingo();
+  const [lastDropId, setLastDropId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    if (newDrop && teams.length > 0) {
-      console.log(newDrop, teams);
+    if (newDrop && teams.length > 0 && newDrop.id !== lastDropId) {
+      setLastDropId(newDrop.id);
       const team = teams.find((team) =>
         team.members
           .map((member) => member.toLowerCase())
