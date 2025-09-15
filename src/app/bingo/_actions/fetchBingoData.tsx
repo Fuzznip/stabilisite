@@ -6,10 +6,9 @@ export default async function fetchBingoData(): Promise<{
   board: Tile[];
   teams: Team[];
 }> {
-  // const board = await fetch(`${process.env.API_URL}/board`)
-  //   .then((res) => res.json())
-  //   .then((data) => (data.board as Tile[]) || []);
-  const board = [];
+  const board = await fetch(`${process.env.API_URL}/board`)
+    .then((res) => res.json())
+    .then((data) => (data as Tile[]) || []);
   const teams = await fetch(`${process.env.API_URL}/teams`)
     .then((res) => res.json())
     .then((data) => (data as Team[]) || [])

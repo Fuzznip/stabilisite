@@ -66,11 +66,11 @@ function BingoCard({ index }: { index: number }): React.ReactElement {
 
 function getMedalSrcForTier(tier: MedalTier): string {
   if (tier === MedalTier.Bronze) {
-    return "bronze_medal.png";
+    return "/bronze_medal.png";
   } else if (tier === MedalTier.Silver) {
-    return "silver_medal.png";
+    return "/silver_medal.png";
   } else if (tier === MedalTier.Gold) {
-    return "gold_medal.png";
+    return "/gold_medal.png";
   }
   return "";
 }
