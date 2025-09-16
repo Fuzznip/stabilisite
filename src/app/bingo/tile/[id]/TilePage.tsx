@@ -79,8 +79,7 @@ function getTaskTabContent(
 export function TilePage({ id }: { id: number }): React.ReactElement {
   const { teams, board } = useBingo();
   const tile = board[id];
-
-  console.log(tile);
+  tile.tasks.sort((a, b) => a.index - b.index);
 
   return (
     <div className="flex flex-col h-full w-full px-4 sm:px-0 my-4 sm:my-0">

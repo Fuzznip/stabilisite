@@ -44,6 +44,7 @@ export type Task = {
   name: string;
   required: number;
   triggers: Trigger;
+  index: number;
 };
 
 export type Tile = {
