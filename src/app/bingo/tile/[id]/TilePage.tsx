@@ -19,16 +19,19 @@ function getTaskTabContent(
 ): React.ReactElement {
   const teamsWithProgress = teams
     .map((team) => {
-      const tileProgress = team.board_progress[tileIndex].progress.find(
-        (task) => Number(task.task_index) === taskIndex
-      );
+      const tileProgress = team.board_progress
+        .find((progressTile) => Number(progressTile.tile_id) === tileIndex)
+        ?.progress.find((task) => Number(task.task_index) === taskIndex);
+      console.log(team.name, taskIndex, tileProgress);
       return {
         team: team,
         complete: tileProgress?.completed || false,
-        target: tileProgress?.log?.[0].required || 0,
+        required: tileProgress?.log?.[0].required || 0,
+        value: tileProgress?.log?.[0].value || 0,
       };
     })
     .sort((teamA, teamB) => teamA.team.name.localeCompare(teamB.team.name));
+
   return (
     <Card>
       <CardTitle className="text-3xl p-8 font-normal mb-4 flex flex-col gap-2 sm:flex-row sm:gap-0">
@@ -36,41 +39,43 @@ function getTaskTabContent(
         <span className="">{tile.tasks[taskIndex].name}</span>
       </CardTitle>
       <CardContent className="flex flex-col">
-        {teamsWithProgress.map((team) => (
-          <div key={team.team.team_id} className="mb-8 flex items-center">
-            <div className="flex gap-4 w-fit mr-8 sm:mr-0 sm:w-[30rem]">
-              {team && (
-                <div className="relative h-20 w-20">
-                  <Image
-                    src={`${team.team.image_url}`}
-                    alt={team.team.name + " team image"}
-                    fill
-                    sizes="100%"
-                    unoptimized
-                    className="rounded-sm object-cover"
-                  />
+        {teamsWithProgress.map((team) => {
+          return (
+            <div key={team.team.team_id} className="mb-8 flex items-center">
+              <div className="flex gap-4 w-fit mr-8 sm:mr-0 sm:w-[30rem]">
+                {team && (
+                  <div className="relative h-20 w-20">
+                    <Image
+                      src={`${team.team.image_url}`}
+                      alt={team.team.name + " team image"}
+                      fill
+                      sizes="100%"
+                      unoptimized
+                      className="rounded-sm object-cover"
+                    />
+                  </div>
+                )}
+                <div className="hidden sm:flex items-center text-2xl">
+                  {team.team.name}
                 </div>
-              )}
-              <div className="hidden sm:flex items-center text-2xl">
-                {team.team.name}
+              </div>
+              <Progress
+                value={Math.floor((team.value * 100) / team.required)}
+                className={cn(
+                  "w-full mr-8",
+                  team.complete && "[&>div]:bg-blue-500"
+                )}
+              />
+              <div className="text-muted-foreground text-2xl text-nowrap w-[10rem] text-end">
+                {team.complete ? (
+                  <Check className="w-16 h-16 text-blue-800 ml-auto" />
+                ) : (
+                  <X className="w-16 h-16 text-red-800 ml-auto" />
+                )}
               </div>
             </div>
-            <Progress
-              value={team.complete ? 100 : 0}
-              className={cn(
-                "w-full mr-8",
-                team.complete && "[&>div]:bg-blue-500"
-              )}
-            />
-            <div className="text-muted-foreground text-2xl text-nowrap w-[10rem] text-end">
-              {team.complete ? (
-                <Check className="w-16 h-16 text-blue-800 ml-auto" />
-              ) : (
-                <X className="w-16 h-16 text-red-800 ml-auto" />
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </CardContent>
     </Card>
   );

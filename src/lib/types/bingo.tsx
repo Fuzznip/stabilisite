@@ -8,7 +8,7 @@ export enum MedalTier {
 export type ProgressLogEntry = {
   name: string;
   value: number;
-  required: string;
+  required: number;
 };
 
 export type TaskProgress = {
@@ -22,6 +22,7 @@ export type TaskProgress = {
 export type TileProgress = {
   name: string;
   progress: TaskProgress[];
+  tile_id: string;
 };
 
 export type Team = {
