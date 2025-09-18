@@ -22,6 +22,7 @@ export type TaskProgress = {
 export type TileProgress = {
   name: string;
   progress: TaskProgress[];
+  tile_id: string;
 };
 
 export type Team = {

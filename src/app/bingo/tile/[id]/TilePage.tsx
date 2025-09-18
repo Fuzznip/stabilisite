@@ -19,13 +19,15 @@ function getTaskTabContent(
 ): React.ReactElement {
   const teamsWithProgress = teams
     .map((team) => {
-      const tileProgress = team.board_progress[tileIndex].progress.find(
-        (task) => Number(task.task_index) === taskIndex
-      );
+      const completeTask = team.board_progress
+        .find((progressTile) => Number(progressTile.tile_id) === tileIndex)
+        ?.progress.find(
+          (task) => Number(task.task_index) === taskIndex && task.completed
+        );
+      console.log(team.name, team.board_progress);
       return {
         team: team,
-        complete: tileProgress?.completed || false,
-        target: tileProgress?.log?.[0].required || 0,
+        complete: !!completeTask,
       };
     })
     .sort((teamA, teamB) => teamA.team.name.localeCompare(teamB.team.name));
