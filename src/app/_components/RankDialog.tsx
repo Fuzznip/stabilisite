@@ -73,7 +73,7 @@ export function RankDialog({
   );
   const clanPoints = user?.rankPoints || 0;
   const defaultForm = {
-    rank: selectedRank.rankName,
+    rank: selectedRank?.rankName,
     proof: [],
   };
 
