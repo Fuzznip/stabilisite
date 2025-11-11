@@ -29,6 +29,7 @@ export default function NavBarLinks({
     tabs.push({ href: "/applications", title: "Applications" });
   }
 
+  tabs.push({ href: "/collection-log", title: "Collection Log" });
   // tabs.push({ href: "/bingo", title: "Bingo" });
 
   return (
