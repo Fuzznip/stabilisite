@@ -4,22 +4,46 @@ import { useState } from "react";
 import BingoBoard from "./BingoBoard";
 import Leaderboard from "./Leaderboard";
 import TeamMembers from "./TeamMembers";
-import { TeamWithMembers, TeamProgressResponse } from "@/lib/types/v2";
+import { ProgressProvider, useProgress } from "./ProgressStore";
+import { TeamWithMembers, TeamProgressResponse, Tile } from "@/lib/types/v2";
 
 type BingoClientWrapperProps = {
   teams: TeamWithMembers[];
+  tiles: Tile[];
   progressMap: Record<string, TeamProgressResponse>;
   initialTeamId?: string;
 };
 
 export function BingoClientWrapper({
   teams,
-  progressMap,
+  tiles,
+  progressMap: initialProgressMap,
   initialTeamId,
 }: BingoClientWrapperProps) {
+  return (
+    <ProgressProvider initialProgressMap={initialProgressMap}>
+      <BingoContent
+        teams={teams}
+        tiles={tiles}
+        initialTeamId={initialTeamId}
+      />
+    </ProgressProvider>
+  );
+}
+
+function BingoContent({
+  teams,
+  tiles,
+  initialTeamId,
+}: {
+  teams: TeamWithMembers[];
+  tiles: Tile[];
+  initialTeamId?: string;
+}) {
   const [selectedTeamId, setSelectedTeamId] = useState<string | undefined>(
     initialTeamId
   );
+  const { progressMap } = useProgress();
 
   const selectedTeam = selectedTeamId
     ? teams.find((t) => t.id === selectedTeamId)
@@ -30,7 +54,7 @@ export function BingoClientWrapper({
   return (
     <>
       <div className="hidden lg:flex w-full h-full flex-row items-start justify-center gap-8 z-10">
-        <BingoBoard progress={progress} />
+        <BingoBoard tiles={tiles} progress={progress} />
         <div className="flex flex-col gap-8">
           <Leaderboard
             teams={teams}
@@ -41,7 +65,7 @@ export function BingoClientWrapper({
         </div>
       </div>
       <div className="flex lg:hidden w-full h-full flex-col justify-center items-center gap-8 pb-12 px-2">
-        <BingoBoard progress={progress} />
+        <BingoBoard tiles={tiles} progress={progress} />
         <Leaderboard
           teams={teams}
           selectedTeamId={selectedTeamId}

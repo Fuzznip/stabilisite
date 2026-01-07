@@ -9,7 +9,6 @@ export default function TeamMembers({
 }: {
   selectedTeam?: Team;
 }): React.ReactElement {
-  console.log(selectedTeam);
   return (
     <div
       className={cn(

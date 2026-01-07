@@ -27,6 +27,7 @@ export default async function HomePage({
   return (
     <BingoClientWrapper
       teams={event.teams}
+      tiles={event.tiles}
       progressMap={progressMap}
       initialTeamId={searchParams.teamId}
     />
