@@ -8,6 +8,7 @@ import {
   RaidName,
 } from "../types";
 import { getS3SignedUrl } from "@/app/_actions/getS3SignedUrl";
+import { MedalLevel } from "../types/v2";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -226,4 +227,17 @@ export function getFileUrlsForProof(files: File[]): Promise<string[]> {
       return fileUrl;
     })
   );
+}
+
+/**
+ * Helper to get medal level from tasks_completed count
+ */
+export function getMedalLevel(tasksCompleted: number): MedalLevel {
+  const medalMap: Record<number, MedalLevel> = {
+    0: "none",
+    1: "bronze",
+    2: "silver",
+    3: "gold",
+  };
+  return medalMap[tasksCompleted] ?? "none";
 }

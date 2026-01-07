@@ -3,26 +3,39 @@
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useSelectedTeam } from "../_hooks/useSelectedTeam";
 import Link from "next/link";
-import { MedalTier } from "@/lib/types/bingo";
+import { TeamProgressResponse, TileProgress } from "@/lib/types/v2";
 
-export default function BingoBoard() {
+export default function BingoBoard({
+  progress,
+}: {
+  progress?: TeamProgressResponse;
+}) {
   return (
     <div className="w-full md:w-[90%] lg:w-3/4 flex justify-center max-w-[900px]">
       <div className="grid grid-cols-5 grid-auto-rows-[1fr] gap-1 p-1 bg-bingo-grid rounded-md w-full">
         {Array.from({ length: 25 }).map((_, index) => {
-          return <BingoCard key={index} index={index} />;
+          const tileProgress = progress?.find(
+            (p) => Number(p.status.tile_id) === index
+          );
+          return (
+            <BingoCard key={index} index={index} progress={tileProgress} />
+          );
         })}
       </div>
     </div>
   );
 }
 
-function BingoCard({ index }: { index: number }): React.ReactElement {
-  const { selectedTeam } = useSelectedTeam();
-  const medalSrc = selectedTeam
-    ? getMedalSrcForTier(selectedTeam.board_state[index])
+function BingoCard({
+  index,
+  progress,
+}: {
+  index: number;
+  progress?: TileProgress;
+}): React.ReactElement {
+  const medalSrc = progress
+    ? getMedalSrcForMedalLevel(progress.status.medal_level)
     : undefined;
   return (
     <Card
@@ -64,12 +77,14 @@ function BingoCard({ index }: { index: number }): React.ReactElement {
   );
 }
 
-function getMedalSrcForTier(tier: MedalTier): string {
-  if (tier === MedalTier.Bronze) {
+function getMedalSrcForMedalLevel(
+  medalLevel: "none" | "bronze" | "silver" | "gold"
+): string {
+  if (medalLevel === "bronze") {
     return "/bronze_medal.png";
-  } else if (tier === MedalTier.Silver) {
+  } else if (medalLevel === "silver") {
     return "/silver_medal.png";
-  } else if (tier === MedalTier.Gold) {
+  } else if (medalLevel === "gold") {
     return "/gold_medal.png";
   }
   return "";

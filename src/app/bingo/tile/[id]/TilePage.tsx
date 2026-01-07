@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { Team, Tile } from "@/lib/types/bingo";
-import { useBingo } from "../../_components/BingoProvider";
+import { useBingo } from "../../_components/EventProvider";
 
 function getTaskTabContent(
   taskIndex: number,

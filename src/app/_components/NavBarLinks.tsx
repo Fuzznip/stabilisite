@@ -29,7 +29,7 @@ export default function NavBarLinks({
     tabs.push({ href: "/applications", title: "Applications" });
   }
 
-  // tabs.push({ href: "/bingo", title: "Bingo" });
+  tabs.push({ href: "/bingo", title: "Bingo" });
 
   return (
     <>

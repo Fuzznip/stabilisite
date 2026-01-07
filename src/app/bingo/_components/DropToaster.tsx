@@ -8,11 +8,14 @@ import { toast } from "sonner";
 import { useRelativeTime } from "../_hooks/useRelativeTime";
 import { X } from "lucide-react";
 import { Drop } from "@/lib/types/drop";
-import { useBingo } from "./BingoProvider";
+import { Team } from "@/lib/types/v2";
 
-export default function DropToaster(): React.ReactElement {
+export default function DropToaster({
+  teams,
+}: {
+  teams: Team[];
+}): React.ReactElement {
   const { newDrop } = useNewDrop();
-  const { teams } = useBingo();
   const [lastDropId, setLastDropId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
