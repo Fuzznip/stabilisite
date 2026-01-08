@@ -1,16 +1,10 @@
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
-import DropToaster from "./_components/DropToaster";
-import { EventWithDetails } from "@/lib/types/v2";
 
 export default async function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const event: EventWithDetails = await fetch(
-    `${process.env.API_URL}/v2/events/active`
-  ).then((res) => res.json());
-
   // return <div className="w-fit mx-auto text-3xl my-24">Come back soon!</div>;
   return (
     <>
@@ -23,7 +17,6 @@ export default async function Layout({
         flickerChance={0.2}
       />
       <main>{children}</main>
-      <DropToaster teams={event.teams} />
     </>
   );
 }

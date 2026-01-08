@@ -4,6 +4,7 @@ import { useState } from "react";
 import BingoBoard from "./BingoBoard";
 import Leaderboard from "./Leaderboard";
 import TeamMembers from "./TeamMembers";
+import DropToaster from "./DropToaster";
 import { ProgressProvider, useProgress } from "./ProgressStore";
 import { TeamWithMembers, TeamProgressResponse, Tile } from "@/lib/types/v2";
 
@@ -73,6 +74,7 @@ function BingoContent({
         />
         <TeamMembers selectedTeam={selectedTeam} />
       </div>
+      <DropToaster teams={teams} />
     </>
   );
 }
