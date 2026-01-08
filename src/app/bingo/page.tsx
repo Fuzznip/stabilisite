@@ -9,6 +9,7 @@ export default async function HomePage({
   const event: EventWithDetails = await fetch(
     `${process.env.API_URL}/v2/events/active`
   ).then((res) => res.json());
+  console.log(event);
 
   // Fetch progress for ALL teams upfront
   const allTeamProgress = await Promise.all(

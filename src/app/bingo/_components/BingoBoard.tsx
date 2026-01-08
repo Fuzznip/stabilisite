@@ -40,7 +40,7 @@ function BingoCard({
     ? getMedalSrcForMedalLevel(progress.status.medal_level)
     : undefined;
   return (
-    <Card className="rounded-sm border border-bingo-grid bg-bingo-grid shadow-none relative w-full h-full aspect-square">
+    <Card className="rounded-sm border border-bingo-grid bg-transparent shadow-none relative w-full h-full aspect-square">
       <CardContent
         className={cn(
           "relative w-full h-full p-0",
