@@ -14,8 +14,14 @@ export default function BingoBoard({
   progress?: TeamProgressResponse;
 }) {
   return (
-    <div className="w-full md:w-[90%] lg:w-3/4 flex justify-center max-w-[900px]">
-      <div className="grid grid-cols-5 grid-auto-rows-[1fr] gap-1 p-1 bg-bingo-grid rounded-md w-full">
+    <div className="w-full flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
+      {/* <Image
+        src="/bingo_bg.png"
+        className="absolute object-cover"
+        fill
+        alt=""
+      /> */}
+      <div className="grid grid-cols-5 grid-auto-rows-[1fr] gap-0 w-full z-10">
         {tiles
           .sort((tileA, tileB) => tileA.index - tileB.index)
           .map((tile) => {
@@ -40,7 +46,7 @@ function BingoCard({
     ? getMedalSrcForMedalLevel(progress.status.medal_level)
     : undefined;
   return (
-    <Card className="rounded-sm border border-bingo-grid bg-transparent shadow-none relative w-full h-full aspect-square">
+    <Card className="rounded-none border-2 border-bingo-grid bg-transparent shadow-none relative w-full h-full aspect-square">
       <CardContent
         className={cn(
           "relative w-full h-full p-0",
@@ -56,7 +62,7 @@ function BingoCard({
             fill
             priority
             sizes="100%"
-            className="object-cover"
+            className="object-contain"
             alt={`${tile?.name} tile image`}
           />
           {medalSrc && (

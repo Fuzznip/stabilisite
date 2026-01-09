@@ -119,13 +119,13 @@ export function TilePage({
       {tile ? (
         <div className="flex flex-col h-full w-full">
           <div className="flex gap-8 mb-24 flex-col sm:flex-row">
-            <div className="relative w-72 h-72 border-[6px] border-bingo-grid rounded-md mx-auto">
+            <div className="relative w-72 h-72 border-[0px] border-bingo-grid rounded-md mx-auto">
               <Image
                 src={tile.img_src || ""}
                 fill
                 priority
                 sizes="100%"
-                className="object-cover"
+                className="object-contain"
                 alt={`${tile.name} image`}
               />
             </div>

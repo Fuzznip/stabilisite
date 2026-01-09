@@ -23,11 +23,7 @@ export function BingoClientWrapper({
 }: BingoClientWrapperProps) {
   return (
     <ProgressProvider initialProgressMap={initialProgressMap}>
-      <BingoContent
-        teams={teams}
-        tiles={tiles}
-        initialTeamId={initialTeamId}
-      />
+      <BingoContent teams={teams} tiles={tiles} initialTeamId={initialTeamId} />
     </ProgressProvider>
   );
 }
@@ -65,7 +61,7 @@ function BingoContent({
           <TeamMembers selectedTeam={selectedTeam} />
         </div>
       </div>
-      <div className="flex lg:hidden w-full h-full flex-col justify-center items-center gap-8 pb-12 px-2">
+      <div className="flex lg:hidden w-full h-full flex-col justify-center items-center gap-8 pb-12 z-10">
         <BingoBoard tiles={tiles} progress={progress} />
         <Leaderboard
           teams={teams}
