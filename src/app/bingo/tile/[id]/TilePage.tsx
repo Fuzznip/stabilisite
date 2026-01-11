@@ -23,6 +23,7 @@ type TilePageProps = {
 type ChallengeDisplayItem = {
   id: string;
   name: string | null;
+  source: string | null;
   imgPath: string | null;
   quantity: number;
   required: number;
@@ -254,6 +255,7 @@ function getTaskTabContent(
               id: challenge.challenge_id,
               name: challenge.trigger?.name || null,
               imgPath: challenge.trigger?.img_path || null,
+              source: challenge.trigger.source || null,
               quantity: challenge.quantity,
               required: challenge.required,
               completed: challenge.completed,
@@ -263,7 +265,16 @@ function getTaskTabContent(
             };
           })
           .sort((a, b) => {
-            // Sort alphabetically by name
+            // Sort by source first, then by name as tiebreaker
+            const sourceA = a.source || "";
+            const sourceB = b.source || "";
+            const sourceCompare = sourceA.localeCompare(sourceB);
+
+            if (sourceCompare !== 0) {
+              return sourceCompare;
+            }
+
+            // If sources are the same, sort by name
             const nameA = a.name || "";
             const nameB = b.name || "";
             return nameA.localeCompare(nameB);
