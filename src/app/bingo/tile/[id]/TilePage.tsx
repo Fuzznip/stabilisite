@@ -32,13 +32,23 @@ type ChallengeDisplayItem = {
   children?: ChallengeDisplayItem[];
 };
 
-function ChallengeDisplay({ challenge }: { challenge: ChallengeDisplayItem }): React.ReactElement {
+const PROGRESS_CUTOFF = 4;
+
+function ChallengeDisplay({
+  challenge,
+}: {
+  challenge: ChallengeDisplayItem;
+}): React.ReactElement {
   // Parent challenge with children (grouping)
   if (challenge.isParent && challenge.children) {
     // Check if children also have children (nested grouping)
-    const hasNestedGroups = challenge.children.some(child => child.isParent);
+    const hasNestedGroups = challenge.children.some((child) => child.isParent);
+    // Check if any children have quantity > PROGRESS_CUTOFF
+    const hasLargeQuantityChildren = challenge.children.some(
+      (child) => child.required > PROGRESS_CUTOFF
+    );
 
-    if (hasNestedGroups) {
+    if (hasNestedGroups || hasLargeQuantityChildren) {
       // Grandparent level - render nested groups
       return (
         <div className="flex flex-col gap-4">
@@ -63,12 +73,10 @@ function ChallengeDisplay({ challenge }: { challenge: ChallengeDisplayItem }): R
 
     // Parent level with item children - render items grid
     return (
-      <>
-        <div className="text-sm text-muted-foreground flex items-center gap-2">
+      <div className="bg-muted/30 border-2 border-muted rounded-lg p-4">
+        <div className="text-sm text-muted-foreground flex items-center gap-2 mb-3">
           <span>
-            {challenge.requireAll
-              ? "Collect all"
-              : `Any ${challenge.required}`}
+            {challenge.requireAll ? "Collect all" : `Any ${challenge.required}`}
           </span>
           <span className="ml-auto text-lg">
             {challenge.quantity}/{challenge.required}
@@ -111,15 +119,15 @@ function ChallengeDisplay({ challenge }: { challenge: ChallengeDisplayItem }): R
             </Tooltip>
           ))}
         </div>
-      </>
+      </div>
     );
   }
 
   // Leaf challenge (single item)
-  if (challenge.required > 3) {
+  if (challenge.required > PROGRESS_CUTOFF) {
     // Progress bar for large numbers
     return (
-      <div className="flex items-center gap-4 w-full">
+      <div className="flex items-center gap-4 w-full bg-muted/30 border-2 border-muted rounded-lg p-4">
         <Tooltip>
           <TooltipTrigger asChild>
             <div
@@ -143,13 +151,9 @@ function ChallengeDisplay({ challenge }: { challenge: ChallengeDisplayItem }): R
           <TooltipContent>{challenge.name}</TooltipContent>
         </Tooltip>
         <div className="flex flex-col gap-2 flex-1">
-          <div className="text-sm text-muted-foreground">
-            {challenge.name}
-          </div>
+          <div className="text-sm text-muted-foreground">{challenge.name}</div>
           <Progress
-            value={
-              (challenge.quantity / challenge.required) * 100
-            }
+            value={(challenge.quantity / challenge.required) * 100}
             className={cn(
               "w-full",
               challenge.completed && "[&>div]:bg-green-500"
@@ -166,15 +170,13 @@ function ChallengeDisplay({ challenge }: { challenge: ChallengeDisplayItem }): R
 
   // Single item with quantity
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 bg-muted/30 border-2 border-muted p-4 rounded-lg">
       <Tooltip>
         <TooltipTrigger asChild>
           <div
             className={cn(
               "relative size-20 border-2 rounded transition-all",
-              challenge.completed
-                ? "border-green-500"
-                : "border-foreground/50"
+              challenge.completed ? "border-green-500" : "border-foreground/50"
             )}
           >
             <Image
@@ -241,6 +243,12 @@ function getTaskTabContent(
               isParent: children.length > 0,
               children: children.length > 0 ? children : undefined,
             };
+          })
+          .sort((a, b) => {
+            // Sort alphabetically by name
+            const nameA = a.name || "";
+            const nameB = b.name || "";
+            return nameA.localeCompare(nameB);
           });
       };
 
