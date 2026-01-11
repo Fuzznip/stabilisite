@@ -73,13 +73,17 @@ function ChallengeDisplay({
 
     // Parent level with item children - render items grid
     return (
-      <div className="bg-muted/30 border-2 border-muted rounded-lg p-4">
+      <div
+        className={cn(
+          "rounded-lg p-4 border-2",
+          challenge.completed
+            ? "bg-green-500/10 border-green-500/50"
+            : "bg-muted/30 border-muted"
+        )}
+      >
         <div className="text-sm text-muted-foreground flex items-center gap-2 mb-3">
           <span>
             {challenge.requireAll ? "Collect all" : `Any ${challenge.required}`}
-          </span>
-          <span className="ml-auto text-lg">
-            {challenge.quantity}/{challenge.required}
           </span>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -127,7 +131,14 @@ function ChallengeDisplay({
   if (challenge.required > PROGRESS_CUTOFF) {
     // Progress bar for large numbers
     return (
-      <div className="flex items-center gap-4 w-full bg-muted/30 border-2 border-muted rounded-lg p-4">
+      <div
+        className={cn(
+          "flex items-center gap-4 w-full rounded-lg p-4 border-2",
+          challenge.completed
+            ? "bg-green-500/10 border-green-500/50"
+            : "bg-muted/30 border-muted"
+        )}
+      >
         <Tooltip>
           <TooltipTrigger asChild>
             <div
@@ -170,7 +181,14 @@ function ChallengeDisplay({
 
   // Single item with quantity
   return (
-    <div className="flex items-center gap-4 bg-muted/30 border-2 border-muted p-4 rounded-lg">
+    <div
+      className={cn(
+        "flex items-center gap-4 p-4 rounded-lg border-2",
+        challenge.completed
+          ? "bg-green-500/10 border-green-500/50"
+          : "bg-muted/30 border-muted"
+      )}
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <div
