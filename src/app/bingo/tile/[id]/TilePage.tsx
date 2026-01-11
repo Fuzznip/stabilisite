@@ -288,8 +288,8 @@ function getTaskTabContent(
       </CardTitle>
       <CardContent className="flex flex-col">
         {teamsWithProgress?.map((teamData) => (
-          <div key={teamData.team.id} className="mb-12 flex flex-col gap-4">
-            <div className="flex gap-4 w-fit mr-8 sm:mr-0 w-full items-center">
+          <div key={teamData.team.id} className="mb-12 flex flex-col gap-2">
+            <div className="flex gap-4 w-full mr-8 sm:mr-0 items-center">
               <div className="relative size-20 rounded">
                 <Image
                   src={teamData.team.image_url || ""}
