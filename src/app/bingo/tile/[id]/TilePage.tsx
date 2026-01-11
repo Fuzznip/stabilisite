@@ -259,7 +259,7 @@ function getTaskTabContent(
               id: challenge.challenge_id,
               name: challenge.trigger?.name || null,
               imgPath: challenge.trigger?.img_path || null,
-              source: challenge.trigger.source || null,
+              source: challenge.trigger?.source || null,
               quantity: challenge.quantity,
               required: challenge.required,
               completed: challenge.completed,
