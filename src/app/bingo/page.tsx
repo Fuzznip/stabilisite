@@ -4,12 +4,12 @@ import { BingoClientWrapper } from "./_components/BingoClientWrapper";
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: { teamId?: string };
+  searchParams: Promise<{ teamId?: string }>;
 }) {
+  const { teamId } = await searchParams;
   const event: EventWithDetails = await fetch(
     `${process.env.API_URL}/v2/events/active`
   ).then((res) => res.json());
-  console.log(event);
 
   // Fetch progress for ALL teams upfront
   const allTeamProgress = await Promise.all(
@@ -30,7 +30,7 @@ export default async function HomePage({
       teams={event.teams}
       tiles={event.tiles}
       progressMap={progressMap}
-      initialTeamId={searchParams.teamId}
+      initialTeamId={teamId}
     />
   );
 }

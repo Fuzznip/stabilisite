@@ -19,10 +19,8 @@ export default function Leaderboard({
 }: LeaderboardProps) {
   const handleTeamClick = (team: TeamWithMembers) => {
     if (selectedTeamId === team.id) {
-      // Deselect
       onTeamSelect(undefined);
     } else {
-      // Select
       onTeamSelect(team.id);
     }
   };
