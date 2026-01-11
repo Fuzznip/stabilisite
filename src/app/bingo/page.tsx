@@ -1,11 +1,21 @@
 import { EventWithDetails, TeamProgressResponse } from "@/lib/types/v2";
 import { BingoClientWrapper } from "./_components/BingoClientWrapper";
+import { getAuthUser } from "@/lib/fetch/getAuthUser";
 
 export default async function HomePage({
   searchParams,
 }: {
   searchParams: Promise<{ teamId?: string }>;
 }) {
+  const user = await getAuthUser();
+
+  if (!user?.isAdmin) {
+    return (
+      <div className="w-fit mx-auto text-3xl text-stability">
+        Come back soon!
+      </div>
+    );
+  }
   const { teamId } = await searchParams;
   const event: EventWithDetails = await fetch(
     `${process.env.API_URL}/v2/events/active`
