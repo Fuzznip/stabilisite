@@ -59,9 +59,11 @@ function ChallengeDisplay({
                 ? "Collect all"
                 : `Any ${challenge.required}`}
             </span>
-            <span className="ml-auto text-lg">
-              {challenge.quantity}/{challenge.required}
-            </span>
+            {challenge.required > 1 && (
+              <span className="ml-auto text-lg">
+                {challenge.quantity}/{challenge.required}
+              </span>
+            )}
           </div>
           <div className="flex flex-col gap-4 pl-4 border-l-2 border-foreground/20">
             {challenge.children.map((child) => (
@@ -115,9 +117,11 @@ function ChallengeDisplay({
                       <Check className="size-4 text-white" />
                     </div>
                   )}
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white text-sm px-2 py-1 rounded-tl rounded-br">
-                    {child.quantity}/{child.required}
-                  </div>
+                  {child.required > 1 && (
+                    <div className="absolute bottom-0 right-0 bg-black/70 text-white text-sm px-2 py-1 rounded-tl rounded-br">
+                      {child.quantity}/{child.required}
+                    </div>
+                  )}
                 </div>
               </TooltipTrigger>
               <TooltipContent>{child.name}</TooltipContent>
