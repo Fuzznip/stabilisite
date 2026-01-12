@@ -3,32 +3,50 @@
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useSelectedTeam } from "../_hooks/useSelectedTeam";
 import Link from "next/link";
-import { MedalTier } from "@/lib/types/bingo";
+import { TeamProgressResponse, TileProgress, Tile } from "@/lib/types/v2";
 
-export default function BingoBoard() {
+export default function BingoBoard({
+  tiles,
+  progress,
+}: {
+  tiles: Tile[];
+  progress?: TeamProgressResponse;
+}) {
   return (
-    <div className="w-full md:w-[90%] lg:w-3/4 flex justify-center max-w-[900px]">
-      <div className="grid grid-cols-5 grid-auto-rows-[1fr] gap-1 p-1 bg-bingo-grid rounded-md w-full">
-        {Array.from({ length: 25 }).map((_, index) => {
-          return <BingoCard key={index} index={index} />;
-        })}
+    <div className="w-full flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
+      {/* <Image
+        src="/bingo_bg.png"
+        className="absolute object-cover"
+        fill
+        alt=""
+      /> */}
+      <div className="grid grid-cols-5 grid-auto-rows-[1fr] gap-0 w-full z-10">
+        {tiles
+          .sort((tileA, tileB) => tileA.index - tileB.index)
+          .map((tile) => {
+            const tileProgress = progress?.find((p) => p.index === tile.index);
+            return (
+              <BingoCard key={tile.index} tile={tile} progress={tileProgress} />
+            );
+          })}
       </div>
     </div>
   );
 }
 
-function BingoCard({ index }: { index: number }): React.ReactElement {
-  const { selectedTeam } = useSelectedTeam();
-  const medalSrc = selectedTeam
-    ? getMedalSrcForTier(selectedTeam.board_state[index])
+function BingoCard({
+  tile,
+  progress,
+}: {
+  tile?: Tile;
+  progress?: TileProgress;
+}): React.ReactElement {
+  const medalSrc = progress
+    ? getMedalSrcForMedalLevel(progress.status.medal_level)
     : undefined;
   return (
-    <Card
-      key={index}
-      className="rounded-sm border border-bingo-grid bg-bingo-grid shadow-none relative w-full h-full aspect-square"
-    >
+    <Card className="rounded-none border-2 border-bingo-grid bg-transparent shadow-none relative w-full h-full aspect-square">
       <CardContent
         className={cn(
           "relative w-full h-full p-0",
@@ -36,16 +54,16 @@ function BingoCard({ index }: { index: number }): React.ReactElement {
         )}
       >
         <Link
-          href={`/bingo/tile/${index}`}
+          href={`/bingo/tile/${tile?.id}`}
           className="relative h-full w-full flex"
         >
           <Image
-            src={`/${index}.jpg`}
+            src={tile?.img_src || ""}
             fill
             priority
             sizes="100%"
-            className="object-cover"
-            alt={`Tile ${index} image`}
+            className="object-contain"
+            alt={`${tile?.name} tile image`}
           />
           {medalSrc && (
             <div className="absolute bottom-0 left-0 aspect-square h-1/2">
@@ -64,12 +82,14 @@ function BingoCard({ index }: { index: number }): React.ReactElement {
   );
 }
 
-function getMedalSrcForTier(tier: MedalTier): string {
-  if (tier === MedalTier.Bronze) {
+function getMedalSrcForMedalLevel(
+  medalLevel: "none" | "bronze" | "silver" | "gold"
+): string {
+  if (medalLevel === "bronze") {
     return "/bronze_medal.png";
-  } else if (tier === MedalTier.Silver) {
+  } else if (medalLevel === "silver") {
     return "/silver_medal.png";
-  } else if (tier === MedalTier.Gold) {
+  } else if (medalLevel === "gold") {
     return "/gold_medal.png";
   }
   return "";

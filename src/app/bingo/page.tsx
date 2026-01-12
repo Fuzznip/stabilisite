@@ -1,22 +1,46 @@
-import BingoBoard from "./_components/BingoBoard";
-import Leaderboard from "./_components/Leaderboard";
-import TeamMembers from "./_components/TeamMembers";
+import { EventWithDetails, TeamProgressResponse } from "@/lib/types/v2";
+import { BingoClientWrapper } from "./_components/BingoClientWrapper";
+import { getAuthUser } from "@/lib/fetch/getAuthUser";
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ teamId?: string }>;
+}) {
+  const user = await getAuthUser();
+
+  if (!user?.isAdmin) {
+    return (
+      <div className="w-fit mx-auto text-3xl text-stability">
+        Come back soon!
+      </div>
+    );
+  }
+  const { teamId } = await searchParams;
+  const event: EventWithDetails = await fetch(
+    `${process.env.API_URL}/v2/events/active`
+  ).then((res) => res.json());
+
+  // Fetch progress for ALL teams upfront
+  const allTeamProgress = await Promise.all(
+    event.teams.map(async (team) => {
+      const progress: TeamProgressResponse = await fetch(
+        `${process.env.API_URL}/v2/teams/${team.id}/progress`
+      ).then((res) => res.json());
+      return { teamId: team.id, progress };
+    })
+  );
+
+  const progressMap = Object.fromEntries(
+    allTeamProgress.map(({ teamId, progress }) => [teamId, progress])
+  );
+
   return (
-    <>
-      <div className="hidden lg:flex w-full h-full flex-row items-start justify-center gap-8 z-10">
-        <BingoBoard />
-        <div className="flex flex-col gap-8">
-          <Leaderboard />
-          <TeamMembers />
-        </div>
-      </div>
-      <div className="flex lg:hidden w-full h-full flex-col justify-center items-center gap-8 pb-12 px-2">
-        <BingoBoard />
-        <Leaderboard />
-        <TeamMembers />
-      </div>
-    </>
+    <BingoClientWrapper
+      teams={event.teams}
+      tiles={event.tiles}
+      progressMap={progressMap}
+      initialTeamId={teamId}
+    />
   );
 }

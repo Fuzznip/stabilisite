@@ -1,12 +1,14 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { useSelectedTeam } from "../_hooks/useSelectedTeam";
 import { cn } from "@/lib/utils";
+import { Team } from "@/lib/types/v2";
 
-export default function TeamMembers(): React.ReactElement {
-  const { selectedTeam } = useSelectedTeam();
-
+export default function TeamMembers({
+  selectedTeam,
+}: {
+  selectedTeam?: Team;
+}): React.ReactElement {
   return (
     <div
       className={cn(

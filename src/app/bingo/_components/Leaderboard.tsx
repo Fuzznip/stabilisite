@@ -4,12 +4,27 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useSelectedTeam } from "../_hooks/useSelectedTeam";
-import { useBingo } from "./BingoProvider";
+import { TeamWithMembers } from "@/lib/types/v2";
 
-export default function Leaderboard() {
-  const { teams } = useBingo();
-  const { selectedTeam, setSelectedTeam } = useSelectedTeam();
+type LeaderboardProps = {
+  teams: TeamWithMembers[];
+  selectedTeamId?: string;
+  onTeamSelect: (teamId: string | undefined) => void;
+};
+
+export default function Leaderboard({
+  teams,
+  selectedTeamId,
+  onTeamSelect,
+}: LeaderboardProps) {
+  const handleTeamClick = (team: TeamWithMembers) => {
+    if (selectedTeamId === team.id) {
+      onTeamSelect(undefined);
+    } else {
+      onTeamSelect(team.id);
+    }
+  };
+
   return (
     <div className="flex h-full w-full flex-col sm:min-w-[30rem]">
       <span className="text-3xl text-foreground">Leaderboard</span>
@@ -24,15 +39,11 @@ export default function Leaderboard() {
                 variant="ghost"
                 className={cn(
                   "flex justify-between text-3xl gap-12 text-left items-center w-full h-fit p-4 box-border",
-                  selectedTeam?.name === team.name &&
+                  selectedTeamId === team.id &&
                     "bg-accent outline outline-foreground"
                 )}
                 key={team.name}
-                onClick={() =>
-                  selectedTeam === team
-                    ? setSelectedTeam(undefined)
-                    : setSelectedTeam(team)
-                }
+                onClick={() => handleTeamClick(team)}
               >
                 <div className="flex gap-4 items-center">
                   <div>{index + 1}</div>
