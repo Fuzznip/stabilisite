@@ -84,10 +84,15 @@ function ChallengeDisplay({
             : "bg-muted/30 border-muted"
         )}
       >
-        <div className="text-sm text-muted-foreground flex items-center gap-2 mb-3">
+        <div className="text-sm text-muted-foreground flex items-center mb-3 justify-between">
           <span>
             {challenge.requireAll ? "Collect all" : `Any ${challenge.required}`}
           </span>
+          {challenge.required > 1 && (
+            <span className="text-lg text-foreground">
+              {challenge.quantity} / {challenge.required}
+            </span>
+          )}
         </div>
         <div className="flex gap-2 flex-wrap">
           {challenge.children.map((child) => (
