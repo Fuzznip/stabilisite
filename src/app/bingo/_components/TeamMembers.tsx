@@ -16,7 +16,7 @@ export default function TeamMembers({
         !selectedTeam && "invisible"
       )}
     >
-      <span className="text-3xl text-foreground lg:mt-7 mb-2">Members</span>
+      <span className="text-3xl text-foreground mb-2">Members</span>
       <Card className="w-full">
         <CardContent className="flex flex-col items-center gap-2 p-4 w-full px-12 lg:px-4">
           <div className="grid md:grid-cols-2 w-full gap-y-2 gap-x-24">

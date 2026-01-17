@@ -27,12 +27,18 @@ export default function Leaderboard({
 
   return (
     <div className="flex h-full w-full flex-col sm:min-w-[30rem]">
-      <span className="text-3xl text-foreground">Leaderboard</span>
-      <span className="text-xl text-muted-foreground mb-2">
+      <h2 className="text-2xl text-foreground">Leaderboard</h2>
+      <p className="text-lg text-muted-foreground mb-2">
         Click a team to see their progress
-      </span>
-      <Card className="flex w-full h-full flex-col gap-4 rounded-lg">
-        <CardContent className="py-4 [&>*:not(:last-child)]:mb-4">
+      </p>
+      <Card className="relative flex w-full h-full flex-col gap-4 rounded-lg">
+        <Image
+          src="/bingo_bg.png"
+          alt=""
+          className="absolute inset-0 object-fill opacity-30 z-10"
+          fill
+        />
+        <CardContent className="py-4 [&>*:not(:last-child)]:mb-4 z-20">
           {teams.length ? (
             teams.map((team, index) => (
               <Button
@@ -46,7 +52,7 @@ export default function Leaderboard({
                 onClick={() => handleTeamClick(team)}
               >
                 <div className="flex gap-4 items-center">
-                  <div>{index + 1}</div>
+                  <div className="font-extrabold">{index + 1}</div>
                   <div className="flex gap-4 items-center">
                     {true && (
                       <div className="relative h-20 w-20">

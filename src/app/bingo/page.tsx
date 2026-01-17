@@ -37,6 +37,7 @@ export default async function HomePage({
 
   return (
     <BingoClientWrapper
+      endDate={event.end_date}
       teams={event.teams}
       tiles={event.tiles}
       progressMap={progressMap}
