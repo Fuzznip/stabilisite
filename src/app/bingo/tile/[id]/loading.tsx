@@ -1,10 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { ProgressSkeleton } from "./ProgressSkeleton";
 
 export default function Loading(): React.ReactElement {
   return (
@@ -77,18 +78,7 @@ export default function Loading(): React.ReactElement {
               </TabsList>
 
               {/* Progress section skeleton */}
-              <Card className="w-full">
-                <CardTitle className="text-3xl p-8 font-normal mb-4 flex flex-col gap-2 sm:flex-row sm:gap-0">
-                  <span className="mr-4">Task:</span>
-                  <div className="w-64 relative">
-                    <span className="invisible">&nbsp;</span>
-                    <Skeleton className="absolute inset-0" />
-                  </div>
-                </CardTitle>
-                <CardContent className="flex flex-col">
-                  <Skeleton className="h-80 w-full" />
-                </CardContent>
-              </Card>
+              <ProgressSkeleton />
             </div>
           </Tabs>
         </div>

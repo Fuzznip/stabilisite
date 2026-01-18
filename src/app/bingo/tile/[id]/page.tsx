@@ -1,6 +1,9 @@
+import { Suspense } from "react";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import { TilePage } from "./TilePage";
-import { TileProgressResponse, TileWithTasks } from "@/lib/types/v2";
+import { TileWithTasks } from "@/lib/types/v2";
+import { TileProgressProvider } from "./TileProgressContext";
+import { TileProgressLoader } from "./TileProgressLoader";
 
 export default async function Page({
   params,
@@ -18,19 +21,21 @@ export default async function Page({
     );
   }
 
-  // Fetch tile details with tasks
+  // Fetch tile details with caching
   const tile: TileWithTasks = await fetch(
-    `${process.env.API_URL}/v2/tiles/${tileId}`
-  ).then((res) => res.json());
-
-  // Fetch progress for all teams on this tile
-  const progressResponse: TileProgressResponse = await fetch(
-    `${process.env.API_URL}/v2/tiles/${tileId}/progress`
+    `${process.env.API_URL}/v2/tiles/${tileId}`,
+    { next: { revalidate: 1 } }
   ).then((res) => res.json());
 
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center">
-      <TilePage tile={tile} teamProgresses={progressResponse.teams} />
+      <TileProgressProvider>
+        <TilePage tile={tile}>
+          <Suspense fallback={null}>
+            <TileProgressLoader tileId={tileId} />
+          </Suspense>
+        </TilePage>
+      </TileProgressProvider>
     </div>
   );
 }

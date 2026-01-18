@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,11 +15,19 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Task, TeamProgress, TileWithTasks } from "@/lib/types/v2";
+import { useTileProgress } from "./TileProgressContext";
+import { ProgressSkeleton } from "./ProgressSkeleton";
 
 type TilePageProps = {
   tile: TileWithTasks;
-  teamProgresses: TeamProgress[];
+  children?: React.ReactNode;
 };
+
+async function fetchTileData(tileId: string): Promise<TileWithTasks> {
+  const response = await fetch(`/api/bingo/tile/${tileId}`);
+  return response.json();
+}
+
 
 type ChallengeDisplayItem = {
   id: string;
@@ -346,14 +355,36 @@ function getTaskTabContent(
 }
 
 export function TilePage({
-  tile,
-  teamProgresses,
+  tile: initialTile,
+  children,
 }: TilePageProps): React.ReactElement {
+  const [tile, setTile] = useState(initialTile);
+  const [activeTab, setActiveTab] = useState("task1");
+  const { teamProgresses, refetchProgress } = useTileProgress();
+
+  // Refresh tile data and progress on mount (handles cached client-side navigation)
+  useEffect(() => {
+    fetchTileData(initialTile.id).then((tileData) => {
+      setTile(tileData);
+    });
+    refetchProgress(initialTile.id);
+  }, [initialTile.id, refetchProgress]);
+
   // Tasks are already in the correct order from the API
   const sortedTasks = tile.tasks;
 
+  // Memoize tab content to avoid recalculating on every render
+  const tabContents = useMemo(() => {
+    if (!teamProgresses) return null;
+    return sortedTasks.map((task) => ({
+      taskId: task.id,
+      content: getTaskTabContent(task, teamProgresses),
+    }));
+  }, [sortedTasks, teamProgresses]);
+
   return (
     <div className="flex flex-col h-full w-full px-4 sm:px-0 my-4 sm:my-0">
+      {children}
       <Button asChild variant="outline" className="text-foreground mb-2 w-fit">
         <Link href={"/bingo"}>
           <ArrowLeft /> Back
@@ -395,7 +426,12 @@ export function TilePage({
             </div>
           </div>
           <div className="flex flex-col items-start gap-2">
-            <Tabs defaultValue="task1" className="w-full">
+            <Tabs
+              defaultValue="task1"
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               <TabsList className="mb-4 py-6">
                 {sortedTasks.map((task, index) => (
                   <TabsTrigger
@@ -407,15 +443,21 @@ export function TilePage({
                   </TabsTrigger>
                 ))}
               </TabsList>
-              {sortedTasks.map((task, index) => (
-                <TabsContent
-                  key={task.id}
-                  value={`task${index + 1}`}
-                  className="w-full"
-                >
-                  {getTaskTabContent(task, teamProgresses)}
-                </TabsContent>
-              ))}
+              {tabContents ? (
+                tabContents.map((item, index) => (
+                  <TabsContent
+                    key={item.taskId}
+                    value={`task${index + 1}`}
+                    className="w-full"
+                    forceMount
+                    hidden={activeTab !== `task${index + 1}`}
+                  >
+                    {item.content}
+                  </TabsContent>
+                ))
+              ) : (
+                <ProgressSkeleton />
+              )}
             </Tabs>
           </div>
         </div>
