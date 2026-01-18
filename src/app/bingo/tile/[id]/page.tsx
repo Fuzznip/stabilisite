@@ -3,14 +3,12 @@ import { TilePage } from "./TilePage";
 import { TileProgressResponse, TileWithTasks } from "@/lib/types/v2";
 
 async function getTile(tileId: string): Promise<TileWithTasks> {
-  "use cache";
-  return fetch(`${process.env.API_URL}/v2/tiles/${tileId}`).then((res) =>
-    res.json(),
-  );
+  return fetch(`${process.env.API_URL}/v2/tiles/${tileId}`, {
+    next: { tags: [`tile-${tileId}`] },
+  }).then((res) => res.json());
 }
 
 async function getTileProgress(tileId: string): Promise<TileProgressResponse> {
-  "use cache";
   return fetch(`${process.env.API_URL}/v2/tiles/${tileId}/progress`, {
     next: { tags: ["bingo-progress", `tile-progress-${tileId}`] },
   }).then((res) => res.json());

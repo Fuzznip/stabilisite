@@ -3,14 +3,12 @@ import { BingoClientWrapper } from "./_components/BingoClientWrapper";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
 
 async function getActiveEvent(): Promise<EventWithDetails> {
-  "use cache";
-  return fetch(`${process.env.API_URL}/v2/events/active`).then((res) =>
-    res.json(),
-  );
+  return fetch(`${process.env.API_URL}/v2/events/active`, {
+    next: { tags: ["bingo-event"] },
+  }).then((res) => res.json());
 }
 
 async function getTeamProgress(teamId: string): Promise<TeamProgressResponse> {
-  "use cache";
   return fetch(`${process.env.API_URL}/v2/teams/${teamId}/progress`, {
     next: { tags: ["bingo-progress", `team-progress-${teamId}`] },
   }).then((res) => res.json());
