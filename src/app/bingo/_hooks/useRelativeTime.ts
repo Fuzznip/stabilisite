@@ -29,22 +29,21 @@ function getRelativeTimeString(date: Date): string {
 
 export function useRelativeTime(date: Date | string | number) {
   const pastDate = useMemo(() => new Date(date), [date]);
+
   const [relativeTime, setRelativeTime] = useState(() =>
-    getRelativeTimeString(pastDate)
+    getRelativeTimeString(pastDate),
   );
 
   useEffect(() => {
-    const updateInterval = setInterval(
-      () => {
-        setRelativeTime(getRelativeTimeString(pastDate));
-      },
-      relativeTime.includes("seconds") || relativeTime.includes("just now")
-        ? 1000
-        : 30000
-    );
+    // Update immediately in case the date changes
+    setRelativeTime(getRelativeTimeString(pastDate));
 
-    return () => clearInterval(updateInterval);
-  }, [pastDate, relativeTime]);
+    const interval = setInterval(() => {
+      setRelativeTime(getRelativeTimeString(pastDate));
+    }, 60_000); // 1 minute
+
+    return () => clearInterval(interval);
+  }, [pastDate]);
 
   return relativeTime;
 }
