@@ -32,12 +32,6 @@ export default function Leaderboard({
         Click a team to see their progress
       </p>
       <Card className="relative flex w-full h-full flex-col gap-4 rounded-lg">
-        <Image
-          src="/bingo_bg.png"
-          alt=""
-          className="absolute inset-0 object-fill opacity-30 z-10"
-          fill
-        />
         <CardContent className="py-4 [&>*:not(:last-child)]:mb-4 z-20">
           {teams.length ? (
             teams.map((team, index) => (
@@ -46,7 +40,7 @@ export default function Leaderboard({
                 className={cn(
                   "flex justify-between text-3xl gap-12 text-left items-center w-full h-fit p-4 box-border",
                   selectedTeamId === team.id &&
-                    "bg-accent outline outline-foreground"
+                    "bg-accent outline outline-foreground",
                 )}
                 key={team.name}
                 onClick={() => handleTeamClick(team)}

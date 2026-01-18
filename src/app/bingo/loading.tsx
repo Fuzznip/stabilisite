@@ -5,6 +5,12 @@ import Image from "next/image";
 function BingoBoardSkeleton() {
   return (
     <div className="w-full max-w-[80vh] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
+      <Image
+        src="/bingo_bg.png"
+        alt=""
+        className="absolute inset-0 object-fill opacity-20 z-10"
+        fill
+      />
       <div className="grid grid-cols-5 grid-auto-rows-[1fr] gap-0 w-full z-10">
         {Array.from({ length: 25 }).map((_, i) => (
           <div
@@ -27,12 +33,6 @@ function LeaderboardSkeleton() {
         Click a team to see their progress
       </span>
       <Card className="flex w-full h-full flex-col gap-4 rounded-lg relative">
-        <Image
-          src="/bingo_bg.png"
-          alt=""
-          className="absolute inset-0 object-fill opacity-30 z-10"
-          fill
-        />
         <CardContent className="py-4 [&>*:not(:last-child)]:mb-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <div

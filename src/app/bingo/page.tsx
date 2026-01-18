@@ -1,5 +1,7 @@
-import { EventWithDetails, TeamProgressResponse } from "@/lib/types/v2";
+import { Suspense } from "react";
+import { EventWithDetails } from "@/lib/types/v2";
 import { BingoClientWrapper } from "./_components/BingoClientWrapper";
+import { ProgressLoader } from "./_components/ProgressLoader";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
 
 export default async function HomePage({
@@ -16,32 +18,26 @@ export default async function HomePage({
       </div>
     );
   }
+
   const { teamId } = await searchParams;
   const event: EventWithDetails = await fetch(
-    `${process.env.API_URL}/v2/events/active`
+    `${process.env.API_URL}/v2/events/active`,
+    {
+      next: { revalidate: 1 }, // Cache and revalidate in background after 1 second
+    }
   ).then((res) => res.json());
 
-  // Fetch progress for ALL teams upfront
-  const allTeamProgress = await Promise.all(
-    event.teams.map(async (team) => {
-      const progress: TeamProgressResponse = await fetch(
-        `${process.env.API_URL}/v2/teams/${team.id}/progress`
-      ).then((res) => res.json());
-      return { teamId: team.id, progress };
-    })
-  );
-
-  const progressMap = Object.fromEntries(
-    allTeamProgress.map(({ teamId, progress }) => [teamId, progress])
-  );
-
+  // Render the board immediately with tiles, stream in progress data via Suspense
   return (
     <BingoClientWrapper
       endDate={event.end_date}
       teams={event.teams}
       tiles={event.tiles}
-      progressMap={progressMap}
       initialTeamId={teamId}
-    />
+    >
+      <Suspense fallback={null}>
+        <ProgressLoader teams={event.teams} />
+      </Suspense>
+    </BingoClientWrapper>
   );
 }

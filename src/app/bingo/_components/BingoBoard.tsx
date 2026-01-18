@@ -13,12 +13,12 @@ export default function BingoBoard({
 }) {
   return (
     <div className="w-full max-w-[80vh] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
-      {/* <Image
+      <Image
         src="/bingo_bg.png"
-        className="absolute object-cover"
-        fill
         alt=""
-      /> */}
+        className="absolute inset-0 object-fill opacity-20 z-10"
+        fill
+      />
       <div className="grid grid-cols-5 grid-auto-rows-[1fr] gap-0 w-full z-10">
         {tiles
           .sort((tileA, tileB) => tileA.index - tileB.index)
@@ -48,7 +48,7 @@ function BingoCard({
       <CardContent
         className={cn(
           "relative w-full h-full p-0",
-          "transition-transform duration-300 ease-in-out cursor-pointer transform hover:z-50 shadow-none hover:shadow-[0_0_20px_rgba(255,255,255,0.75)] hover:rounded-sm"
+          "transition-transform duration-300 ease-in-out cursor-pointer transform hover:z-50 shadow-none hover:shadow-[0_0_20px_rgba(255,255,255,0.75)] hover:rounded-sm",
         )}
       >
         <Link
@@ -81,7 +81,7 @@ function BingoCard({
 }
 
 function getMedalSrcForMedalLevel(
-  medalLevel: "none" | "bronze" | "silver" | "gold"
+  medalLevel: "none" | "bronze" | "silver" | "gold",
 ): string {
   if (medalLevel === "bronze") {
     return "/bronze_medal.png";

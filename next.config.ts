@@ -45,6 +45,9 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "8mb",
     },
+    staleTimes: {
+      dynamic: 60, // Cache dynamic pages for 30 seconds on client-side navigation
+    },
   },
 };
 
