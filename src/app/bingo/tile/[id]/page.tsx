@@ -1,9 +1,20 @@
-import { Suspense } from "react";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import { TilePage } from "./TilePage";
-import { TileWithTasks } from "@/lib/types/v2";
-import { TileProgressProvider } from "./TileProgressContext";
-import { TileProgressLoader } from "./TileProgressLoader";
+import { TileProgressResponse, TileWithTasks } from "@/lib/types/v2";
+
+async function getTile(tileId: string): Promise<TileWithTasks> {
+  "use cache";
+  return fetch(`${process.env.API_URL}/v2/tiles/${tileId}`).then((res) =>
+    res.json(),
+  );
+}
+
+async function getTileProgress(tileId: string): Promise<TileProgressResponse> {
+  "use cache";
+  return fetch(`${process.env.API_URL}/v2/tiles/${tileId}/progress`, {
+    next: { tags: ["bingo-progress", `tile-progress-${tileId}`] },
+  }).then((res) => res.json());
+}
 
 export default async function Page({
   params,
@@ -21,21 +32,14 @@ export default async function Page({
     );
   }
 
-  // Fetch tile details with caching
-  const tile: TileWithTasks = await fetch(
-    `${process.env.API_URL}/v2/tiles/${tileId}`,
-    { next: { revalidate: 1 } }
-  ).then((res) => res.json());
+  const [tile, progress] = await Promise.all([
+    getTile(tileId),
+    getTileProgress(tileId),
+  ]);
 
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center">
-      <TileProgressProvider>
-        <TilePage tile={tile}>
-          <Suspense fallback={null}>
-            <TileProgressLoader tileId={tileId} />
-          </Suspense>
-        </TilePage>
-      </TileProgressProvider>
+      <TilePage tile={tile} teamProgresses={progress.teams} />
     </div>
   );
 }

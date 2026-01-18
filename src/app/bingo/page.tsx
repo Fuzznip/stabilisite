@@ -1,8 +1,20 @@
-import { Suspense } from "react";
-import { EventWithDetails } from "@/lib/types/v2";
+import { EventWithDetails, TeamProgressResponse } from "@/lib/types/v2";
 import { BingoClientWrapper } from "./_components/BingoClientWrapper";
-import { ProgressLoader } from "./_components/ProgressLoader";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
+
+async function getActiveEvent(): Promise<EventWithDetails> {
+  "use cache";
+  return fetch(`${process.env.API_URL}/v2/events/active`).then((res) =>
+    res.json(),
+  );
+}
+
+async function getTeamProgress(teamId: string): Promise<TeamProgressResponse> {
+  "use cache";
+  return fetch(`${process.env.API_URL}/v2/teams/${teamId}/progress`, {
+    next: { tags: ["bingo-progress", `team-progress-${teamId}`] },
+  }).then((res) => res.json());
+}
 
 export default async function HomePage({
   searchParams,
@@ -20,24 +32,27 @@ export default async function HomePage({
   }
 
   const { teamId } = await searchParams;
-  const event: EventWithDetails = await fetch(
-    `${process.env.API_URL}/v2/events/active`,
-    {
-      next: { revalidate: 1 }, // Cache and revalidate in background after 1 second
-    }
-  ).then((res) => res.json());
+  const event = await getActiveEvent();
 
-  // Render the board immediately with tiles, stream in progress data via Suspense
+  // Fetch all team progress in parallel
+  const allTeamProgress = await Promise.all(
+    event.teams.map(async (team) => {
+      const progress = await getTeamProgress(team.id);
+      return { teamId: team.id, progress };
+    }),
+  );
+
+  const progressMap = Object.fromEntries(
+    allTeamProgress.map(({ teamId, progress }) => [teamId, progress]),
+  );
+
   return (
     <BingoClientWrapper
       endDate={event.end_date}
       teams={event.teams}
       tiles={event.tiles}
       initialTeamId={teamId}
-    >
-      <Suspense fallback={null}>
-        <ProgressLoader teams={event.teams} />
-      </Suspense>
-    </BingoClientWrapper>
+      progressMap={progressMap}
+    />
   );
 }

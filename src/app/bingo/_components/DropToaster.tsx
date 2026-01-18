@@ -9,7 +9,7 @@ import { useRelativeTime } from "../_hooks/useRelativeTime";
 import { X } from "lucide-react";
 import { Drop } from "@/lib/types/drop";
 import { Team } from "@/lib/types/v2";
-import { useProgress } from "./ProgressStore";
+import { revalidateBingoProgress } from "../actions";
 
 export default function DropToaster({
   teams,
@@ -18,7 +18,6 @@ export default function DropToaster({
 }): React.ReactElement {
   const { newDrop } = useNewDrop();
   const [lastDropId, setLastDropId] = useState<string | undefined>(undefined);
-  const { refetchTeamProgress } = useProgress();
 
   useEffect(() => {
     if (newDrop && teams.length > 0 && newDrop.id !== lastDropId) {
@@ -29,10 +28,8 @@ export default function DropToaster({
           .includes(newDrop?.player.toLowerCase() || "")
       );
 
-      // Refetch progress for the team that got the drop
-      if (team) {
-        refetchTeamProgress(team.id);
-      }
+      // Revalidate progress cache so next navigation gets fresh data
+      revalidateBingoProgress();
 
       toast.custom(
         (id) => (
@@ -88,7 +85,7 @@ export default function DropToaster({
         }
       );
     }
-  }, [lastDropId, newDrop, teams, refetchTeamProgress]);
+  }, [lastDropId, newDrop, teams]);
   return <Toaster />;
 }
 

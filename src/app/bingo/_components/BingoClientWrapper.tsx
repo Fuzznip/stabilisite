@@ -6,12 +6,7 @@ import Leaderboard from "./Leaderboard";
 import TeamMembers from "./TeamMembers";
 import DropToaster from "./DropToaster";
 import { ProgressProvider, useProgress } from "./ProgressStore";
-import {
-  TeamWithMembers,
-  TeamProgressResponse,
-  Tile,
-  EventWithDetails,
-} from "@/lib/types/v2";
+import { TeamWithMembers, TeamProgressResponse, Tile } from "@/lib/types/v2";
 
 type BingoClientWrapperProps = {
   teams: TeamWithMembers[];
@@ -19,13 +14,7 @@ type BingoClientWrapperProps = {
   progressMap?: Record<string, TeamProgressResponse>;
   initialTeamId?: string;
   endDate: string;
-  children?: React.ReactNode;
 };
-
-async function fetchEventData(): Promise<EventWithDetails> {
-  const response = await fetch("/api/bingo/event");
-  return response.json();
-}
 
 function formatTimeRemaining(endDate: string): string {
   const now = new Date();
@@ -53,7 +42,6 @@ export function BingoClientWrapper({
   progressMap: initialProgressMap,
   initialTeamId,
   endDate,
-  children,
 }: BingoClientWrapperProps) {
   return (
     <ProgressProvider initialProgressMap={initialProgressMap}>
@@ -63,61 +51,36 @@ export function BingoClientWrapper({
         initialTeamId={initialTeamId}
         endDate={endDate}
       />
-      {children}
     </ProgressProvider>
   );
 }
 
 function BingoContent({
-  teams: initialTeams,
-  tiles: initialTiles,
+  teams,
+  tiles,
   initialTeamId,
-  endDate: initialEndDate,
+  endDate,
 }: {
   teams: TeamWithMembers[];
   tiles: Tile[];
   initialTeamId?: string;
   endDate: string;
 }) {
-  const [teams, setTeams] = useState(initialTeams);
-  const [tiles, setTiles] = useState(initialTiles);
-  const [endDate, setEndDate] = useState(initialEndDate);
   const [selectedTeamId, setSelectedTeamId] = useState<string | undefined>(
-    initialTeamId
+    initialTeamId,
   );
-  const [timeRemaining, setTimeRemaining] = useState(
-    formatTimeRemaining(endDate)
-  );
-  const { progressMap, refetchAllTeamsProgress } = useProgress();
-
-  // Refresh event data and progress on mount (handles cached client-side navigation)
-  useEffect(() => {
-    fetchEventData().then((event) => {
-      setTeams(event.teams);
-      setTiles(event.tiles);
-      setEndDate(event.end_date);
-      refetchAllTeamsProgress(event.teams.map((t) => t.id));
-    });
-  }, [refetchAllTeamsProgress]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeRemaining(formatTimeRemaining(endDate));
-    }, 60000); // Update every minute
-    return () => clearInterval(interval);
-  }, [endDate]);
+  const { progressMap } = useProgress();
 
   const selectedTeam = selectedTeamId
     ? teams.find((t) => t.id === selectedTeamId)
     : undefined;
-
   const progress = selectedTeamId ? progressMap[selectedTeamId] : undefined;
 
   return (
     <>
       <div className="mb-2 z-10">
         <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
-        <p className="text-lg text-muted-foreground">{timeRemaining}</p>
+        <TimeRemaining endDate={endDate} />
       </div>
       <div className="hidden lg:flex w-full h-full flex-row items-start justify-start gap-8 z-10">
         <BingoBoard tiles={tiles} progress={progress} />
@@ -142,4 +105,19 @@ function BingoContent({
       <DropToaster teams={teams} />
     </>
   );
+}
+
+function TimeRemaining({ endDate }: { endDate: string }): React.ReactElement {
+  const [timeRemaining, setTimeRemaining] = useState(
+    formatTimeRemaining(endDate),
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeRemaining(formatTimeRemaining(endDate));
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [endDate]);
+
+  return <p className="text-lg text-muted-foreground">{timeRemaining}</p>;
 }

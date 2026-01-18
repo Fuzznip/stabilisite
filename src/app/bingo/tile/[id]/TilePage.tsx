@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,19 +15,12 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Task, TeamProgress, TileWithTasks } from "@/lib/types/v2";
-import { useTileProgress } from "./TileProgressContext";
 import { ProgressSkeleton } from "./ProgressSkeleton";
 
 type TilePageProps = {
   tile: TileWithTasks;
-  children?: React.ReactNode;
+  teamProgresses: TeamProgress[] | null;
 };
-
-async function fetchTileData(tileId: string): Promise<TileWithTasks> {
-  const response = await fetch(`/api/bingo/tile/${tileId}`);
-  return response.json();
-}
-
 
 type ChallengeDisplayItem = {
   id: string;
@@ -55,7 +48,7 @@ function ChallengeDisplay({
     const hasNestedGroups = challenge.children.some((child) => child.isParent);
     // Check if any children have quantity > PROGRESS_CUTOFF
     const hasLargeQuantityChildren = challenge.children.some(
-      (child) => child.required > PROGRESS_CUTOFF
+      (child) => child.required > PROGRESS_CUTOFF,
     );
 
     if (hasNestedGroups || hasLargeQuantityChildren) {
@@ -90,7 +83,7 @@ function ChallengeDisplay({
           "rounded-lg p-4 border-2",
           challenge.completed
             ? "bg-green-500/10 border-green-500/50"
-            : "bg-muted/30 border-muted"
+            : "bg-muted/30 border-muted",
         )}
       >
         <div className="text-sm text-muted-foreground flex items-center mb-3 justify-between">
@@ -112,7 +105,7 @@ function ChallengeDisplay({
                     "relative size-20 border-2 rounded transition-all",
                     child.completed
                       ? "border-green-500"
-                      : "border-foreground/50"
+                      : "border-foreground/50",
                   )}
                 >
                   <Image
@@ -123,7 +116,7 @@ function ChallengeDisplay({
                     unoptimized
                     className={cn(
                       "rounded-sm object-contain p-1",
-                      !child.completed && "opacity-50"
+                      !child.completed && "opacity-50",
                     )}
                   />
                   {child.completed && (
@@ -155,7 +148,7 @@ function ChallengeDisplay({
           "flex items-center gap-4 w-full rounded-lg p-4 border-2",
           challenge.completed
             ? "bg-green-500/10 border-green-500/50"
-            : "bg-muted/30 border-muted"
+            : "bg-muted/30 border-muted",
         )}
       >
         <Tooltip>
@@ -165,7 +158,7 @@ function ChallengeDisplay({
                 "relative size-20 border rounded flex-shrink-0",
                 challenge.completed
                   ? "border-green-500"
-                  : "border-foreground/50"
+                  : "border-foreground/50",
               )}
             >
               <Image
@@ -186,7 +179,7 @@ function ChallengeDisplay({
             value={(challenge.quantity / challenge.required) * 100}
             className={cn(
               "w-full",
-              challenge.completed && "[&>div]:bg-green-500"
+              challenge.completed && "[&>div]:bg-green-500",
             )}
           />
           <div className="text-sm text-muted-foreground text-right">
@@ -205,7 +198,7 @@ function ChallengeDisplay({
         "flex items-center gap-4 p-4 rounded-lg border-2",
         challenge.completed
           ? "bg-green-500/10 border-green-500/50"
-          : "bg-muted/30 border-muted"
+          : "bg-muted/30 border-muted",
       )}
     >
       <Tooltip>
@@ -213,7 +206,7 @@ function ChallengeDisplay({
           <div
             className={cn(
               "relative size-20 border-2 rounded transition-all",
-              challenge.completed ? "border-green-500" : "border-foreground/50"
+              challenge.completed ? "border-green-500" : "border-foreground/50",
             )}
           >
             <Image
@@ -224,7 +217,7 @@ function ChallengeDisplay({
               unoptimized
               className={cn(
                 "rounded-sm object-contain p-1",
-                !challenge.completed && "opacity-50"
+                !challenge.completed && "opacity-50",
               )}
             />
             {challenge.completed && (
@@ -241,29 +234,29 @@ function ChallengeDisplay({
         </TooltipTrigger>
         <TooltipContent>{challenge.name}</TooltipContent>
       </Tooltip>
-      <div className="text-sm">{challenge.name}</div>
+      <div className="text-sm text-muted-foreground">{challenge.name}</div>
     </div>
   );
 }
 
 function getTaskTabContent(
   task: Task,
-  teamProgresses: TeamProgress[]
+  teamProgresses: TeamProgress[],
 ): React.ReactElement {
   const teamsWithProgress = teamProgresses
     ?.map((teamProgress) => {
       const taskStatus = teamProgress.task_statuses.find(
-        (t) => t.task_id === task.id
+        (t) => t.task_id === task.id,
       );
 
       // Get all challenges for this task
       const allChallenges = teamProgress.challenge_statuses.filter(
-        (challenge) => challenge.task_id === task.id
+        (challenge) => challenge.task_id === task.id,
       );
 
       // Recursively build challenge hierarchy
       const buildChallengeTree = (
-        parentId: string | null
+        parentId: string | null,
       ): ChallengeDisplayItem[] => {
         return allChallenges
           .filter((c) => c.parent_challenge_id === parentId)
@@ -355,20 +348,10 @@ function getTaskTabContent(
 }
 
 export function TilePage({
-  tile: initialTile,
-  children,
+  tile,
+  teamProgresses,
 }: TilePageProps): React.ReactElement {
-  const [tile, setTile] = useState(initialTile);
   const [activeTab, setActiveTab] = useState("task1");
-  const { teamProgresses, refetchProgress } = useTileProgress();
-
-  // Refresh tile data and progress on mount (handles cached client-side navigation)
-  useEffect(() => {
-    fetchTileData(initialTile.id).then((tileData) => {
-      setTile(tileData);
-    });
-    refetchProgress(initialTile.id);
-  }, [initialTile.id, refetchProgress]);
 
   // Tasks are already in the correct order from the API
   const sortedTasks = tile.tasks;
@@ -384,7 +367,6 @@ export function TilePage({
 
   return (
     <div className="flex flex-col h-full w-full px-4 sm:px-0 my-4 sm:my-0">
-      {children}
       <Button asChild variant="outline" className="text-foreground mb-2 w-fit">
         <Link href={"/bingo"}>
           <ArrowLeft /> Back
@@ -412,7 +394,7 @@ export function TilePage({
                       key={task.id}
                       className={cn(
                         "text-xl flex gap-4",
-                        index < sortedTasks.length - 1 && "mb-8"
+                        index < sortedTasks.length - 1 && "mb-8",
                       )}
                     >
                       <div className="text-muted-foreground min-w-fit">
