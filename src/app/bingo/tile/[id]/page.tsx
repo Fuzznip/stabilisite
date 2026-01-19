@@ -1,6 +1,7 @@
-import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import { TilePage } from "./TilePage";
 import { TileProgressResponse, TileWithTasks } from "@/lib/types/v2";
+
+export const dynamic = "force-static";
 
 async function getTile(tileId: string): Promise<TileWithTasks> {
   return fetch(`${process.env.API_URL}/v2/tiles/${tileId}`, {
@@ -20,15 +21,6 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const tileId = (await params).id;
-  const user = await getAuthUser();
-
-  if (!user?.isAdmin) {
-    return (
-      <div className="w-fit mx-auto text-3xl text-stability">
-        Come back soon!
-      </div>
-    );
-  }
 
   const [tile, progress] = await Promise.all([
     getTile(tileId),

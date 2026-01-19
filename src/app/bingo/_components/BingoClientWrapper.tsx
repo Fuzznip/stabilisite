@@ -40,17 +40,11 @@ export function BingoClientWrapper({
   teams,
   tiles,
   progressMap: initialProgressMap,
-  initialTeamId,
   endDate,
 }: BingoClientWrapperProps) {
   return (
     <ProgressProvider initialProgressMap={initialProgressMap}>
-      <BingoContent
-        teams={teams}
-        tiles={tiles}
-        initialTeamId={initialTeamId}
-        endDate={endDate}
-      />
+      <BingoContent teams={teams} tiles={tiles} endDate={endDate} />
     </ProgressProvider>
   );
 }
@@ -58,16 +52,14 @@ export function BingoClientWrapper({
 function BingoContent({
   teams,
   tiles,
-  initialTeamId,
   endDate,
 }: {
   teams: TeamWithMembers[];
   tiles: Tile[];
-  initialTeamId?: string;
   endDate: string;
 }) {
   const [selectedTeamId, setSelectedTeamId] = useState<string | undefined>(
-    initialTeamId,
+    undefined,
   );
   const { progressMap } = useProgress();
 

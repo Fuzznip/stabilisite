@@ -1,11 +1,10 @@
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 
-export default async function Layout({
+export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // return <div className="w-fit mx-auto text-3xl my-24">Come back soon!</div>;
   return (
     <>
       <FlickeringGrid

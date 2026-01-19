@@ -1,6 +1,7 @@
 import { EventWithDetails, TeamProgressResponse } from "@/lib/types/v2";
 import { BingoClientWrapper } from "./_components/BingoClientWrapper";
-import { getAuthUser } from "@/lib/fetch/getAuthUser";
+
+export const dynamic = "force-static";
 
 async function getActiveEvent(): Promise<EventWithDetails> {
   return fetch(`${process.env.API_URL}/v2/events/active`, {
@@ -14,22 +15,7 @@ async function getTeamProgress(teamId: string): Promise<TeamProgressResponse> {
   }).then((res) => res.json());
 }
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ teamId?: string }>;
-}) {
-  const user = await getAuthUser();
-
-  if (!user?.isAdmin) {
-    return (
-      <div className="w-fit mx-auto text-3xl text-stability">
-        Come back soon!
-      </div>
-    );
-  }
-
-  const { teamId } = await searchParams;
+export default async function HomePage() {
   const event = await getActiveEvent();
 
   // Fetch all team progress in parallel
@@ -49,7 +35,6 @@ export default async function HomePage({
       endDate={event.end_date}
       teams={event.teams}
       tiles={event.tiles}
-      initialTeamId={teamId}
       progressMap={progressMap}
     />
   );

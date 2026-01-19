@@ -29,7 +29,9 @@ export default function NavBarLinks({
     tabs.push({ href: "/applications", title: "Applications" });
   }
 
-  tabs.push({ href: "/bingo", title: "Bingo" });
+  if (user?.isAdmin) {
+    tabs.push({ href: "/bingo", title: "Bingo" });
+  }
 
   return (
     <>
@@ -40,7 +42,7 @@ export default function NavBarLinks({
             href={`${tab.href}`}
             className={cn(
               "p-2 text-muted-foreground hover:text-foreground font-bold",
-              tab.href === pathname && "text-primary hover:text-primary"
+              tab.href === pathname && "text-primary hover:text-primary",
             )}
           >
             {tab.title}
