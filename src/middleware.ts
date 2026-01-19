@@ -11,6 +11,8 @@ const ALLOWED_BINGO_DISCORD_IDS = [
   "120691356925427712", // CrazyMuppets
   "104680242672566272", // IronIcedteee
   "334409893685624833", // SilentDDeath
+  "347948542049910794", // SoccerTheNub
+  "198296669253664768", // Xbrennyx
 ];
 
 export default auth((req) => {
