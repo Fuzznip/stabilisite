@@ -25,7 +25,7 @@ export default function DropToaster({
       const team = teams.find((team) =>
         team.members
           .map((member) => member.toLowerCase())
-          .includes(newDrop?.player.toLowerCase() || "")
+          .includes(newDrop?.player.toLowerCase() || ""),
       );
 
       // Revalidate progress cache so next navigation gets fresh data
@@ -66,6 +66,7 @@ export default function DropToaster({
 
               <div className="flex flex-col text-2xl text-foreground">
                 <div>
+                  {newDrop.submitType === "SKILL" && `${newDrop.quantity} `}
                   {newDrop.itemName
                     .toLowerCase()
                     .split(" ")
@@ -73,6 +74,7 @@ export default function DropToaster({
                     .join(" ")}
 
                   {newDrop.submitType === "KC" && " KC"}
+                  {newDrop.submitType === "SKILL" && " XP"}
                 </div>
                 <DropToasterDate drop={newDrop} />
               </div>
@@ -82,7 +84,7 @@ export default function DropToaster({
         {
           duration: Infinity,
           className: "w-full sm:w-80",
-        }
+        },
       );
     }
   }, [lastDropId, newDrop, teams]);

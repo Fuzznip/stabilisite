@@ -12,13 +12,13 @@ import { revalidateBingo } from "../_actions/revalidateBingo";
 
 export const useNewDrop = () => {
   const [newDrop, setNewDrop] = useState<Drop | undefined>(undefined);
-  const firstSnapshotIgnored = useRef<boolean>(false);
+  const firstSnapshotIgnored = useRef<boolean>(true);
 
   useEffect(() => {
     const q = query(
       collection(firestore, "drops"),
       orderBy("timestamp", "desc"),
-      limit(1)
+      limit(1),
     );
 
     const unsubscribe = onSnapshot(
@@ -45,23 +45,26 @@ export const useNewDrop = () => {
                 timestamp: string;
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
               } = doc.data() as any;
+
+              console.log(data);
               return {
                 id: doc.id,
                 player: data.rsn,
                 itemName: data.trigger,
                 itemSource: data.source,
+                quantity: data.quantity,
                 submitType: data.type,
                 // Firestore timestamps are in UTC by default; appending "Z" to ensure correct parsing
                 date: new Date(data.timestamp + "Z"),
               } as Drop;
-            })?.[0]
+            })?.[0],
           );
         } else {
           setNewDrop(undefined);
         }
       },
       (error) =>
-        console.error("Error fetching drops: ", error.code, error.message)
+        console.error("Error fetching drops: ", error.code, error.message),
     );
 
     return () => unsubscribe();
