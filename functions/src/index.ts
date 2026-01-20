@@ -7,8 +7,14 @@ initializeApp();
 const db = getFirestore();
 
 const COMPETITION_ID = 122545;
-const API_URL = "https://stability-backend-prototypes-production.up.railway.app";
-const TRACKED_SKILLS: Metric[] = [Metric.SLAYER, Metric.MINING, Metric.WOODCUTTING, Metric.HUNTER];
+const API_URL =
+  "https://stability-backend-prototypes-production.up.railway.app";
+const TRACKED_SKILLS: Metric[] = [
+  Metric.SLAYER,
+  Metric.MINING,
+  Metric.WOODCUTTING,
+  Metric.HUNTER,
+];
 
 const womClient = new WOMClient();
 
@@ -23,7 +29,7 @@ interface EventSubmission {
 }
 
 async function submitEvent(event: EventSubmission): Promise<void> {
-  const response = await fetch(`${API_URL}/event/submit`, {
+  const response = await fetch(`${API_URL}/events/submit`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -32,7 +38,9 @@ async function submitEvent(event: EventSubmission): Promise<void> {
   });
 
   if (!response.ok) {
-    console.error(`Failed to submit event for ${event.rsn}: ${response.status}`);
+    console.error(
+      `Failed to submit event for ${event.rsn}: ${response.status}`,
+    );
   }
 }
 
@@ -56,7 +64,13 @@ export const pollWomCompetition = onSchedule(
       // Fetch competition details for each tracked skill using previewMetric
       for (const skill of TRACKED_SKILLS) {
         console.log(`Fetching ${skill} gains...`);
-        const competition = await womClient.competitions.getCompetitionDetails(COMPETITION_ID, skill);
+        const competition = await womClient.competitions.getCompetitionDetails(
+          COMPETITION_ID,
+          skill,
+        );
+        console.log(
+          `Got ${competition.participations?.length ?? 0} participations for ${skill}`,
+        );
 
         for (const participation of competition.participations) {
           const playerName = participation.player.displayName;
@@ -70,6 +84,8 @@ export const pollWomCompetition = onSchedule(
           const previousXpGained = doc.exists ? (doc.data()?.xpGained ?? 0) : 0;
           const delta = currentXpGained - previousXpGained;
 
+          console.log(playerName, skill, delta);
+
           if (delta > 0) {
             const event: EventSubmission = {
               rsn: playerName,
@@ -82,7 +98,9 @@ export const pollWomCompetition = onSchedule(
             };
 
             await submitEvent(event);
-            console.log(`Submitted ${skill} XP delta for ${playerName}: ${delta} (total: ${currentXpGained})`);
+            console.log(
+              `Submitted ${skill} XP delta for ${playerName}: ${delta} (total: ${currentXpGained})`,
+            );
           }
 
           // Update stored XP value
@@ -100,5 +118,5 @@ export const pollWomCompetition = onSchedule(
       console.error("Error polling WOM competition:", error);
       throw error;
     }
-  }
+  },
 );
