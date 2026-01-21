@@ -1,6 +1,9 @@
-import { TilePage } from "./TilePage";
+import { Suspense } from "react";
+import { TilePageWrapper } from "./TilePage";
 import { TileProgressResponse, TileWithTasks } from "@/lib/types/v2";
 import { auth } from "@/auth";
+import Loading from "./loading";
+import { TileProgressHydrator } from "./TileProgressHydrator";
 
 // Temporary allowed Discord IDs for bingo
 const ALLOWED_BINGO_DISCORD_IDS = [
@@ -46,14 +49,28 @@ export default async function Page({
 
   const tileId = (await params).id;
 
-  const [tile, progress] = await Promise.all([
-    getTile(tileId),
-    getTileProgress(tileId),
-  ]);
-
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center">
-      <TilePage tile={tile} teamProgresses={progress.teams} />
+      <Suspense fallback={<Loading />}>
+        <TileContent tileId={tileId} />
+      </Suspense>
     </div>
   );
+}
+
+async function TileContent({ tileId }: { tileId: string }) {
+  const tile = await getTile(tileId);
+
+  return (
+    <TilePageWrapper tile={tile}>
+      <Suspense fallback={null}>
+        <ProgressContent tileId={tileId} />
+      </Suspense>
+    </TilePageWrapper>
+  );
+}
+
+async function ProgressContent({ tileId }: { tileId: string }) {
+  const progress = await getTileProgress(tileId);
+  return <TileProgressHydrator teamProgresses={progress.teams} />;
 }

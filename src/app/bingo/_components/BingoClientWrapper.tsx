@@ -12,8 +12,8 @@ type BingoClientWrapperProps = {
   teams: TeamWithMembers[];
   tiles: Tile[];
   progressMap?: Record<string, TeamProgressResponse>;
-  initialTeamId?: string;
   endDate: string;
+  children?: React.ReactNode;
 };
 
 function formatTimeRemaining(endDate: string): string {
@@ -41,10 +41,12 @@ export function BingoClientWrapper({
   tiles,
   progressMap: initialProgressMap,
   endDate,
+  children,
 }: BingoClientWrapperProps) {
   return (
     <ProgressProvider initialProgressMap={initialProgressMap}>
       <BingoContent teams={teams} tiles={tiles} endDate={endDate} />
+      {children}
     </ProgressProvider>
   );
 }

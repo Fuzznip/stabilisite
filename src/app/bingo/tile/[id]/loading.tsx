@@ -9,7 +9,7 @@ import { ProgressSkeleton } from "./ProgressSkeleton";
 
 export default function Loading(): React.ReactElement {
   return (
-    <div className="flex max-w-5xl mx-auto flex-col items-center justify-center">
+    <div className="flex max-w-5xl w-full mx-auto flex-col items-center justify-center">
       <div className="flex flex-col h-full w-full px-4 sm:px-0 my-4 sm:my-0">
         {/* Back button */}
         <Button

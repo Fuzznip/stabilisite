@@ -16,11 +16,37 @@ import {
 import { cn } from "@/lib/utils";
 import { Task, TeamProgress, TileWithTasks } from "@/lib/types/v2";
 import { ProgressSkeleton } from "./ProgressSkeleton";
+import {
+  TileProgressProvider,
+  useTileProgress,
+} from "./TileProgressContext";
 
 type TilePageProps = {
   tile: TileWithTasks;
-  teamProgresses: TeamProgress[] | null;
+  teamProgresses?: TeamProgress[] | null;
 };
+
+// Wrapper component that provides the context
+export function TilePageWrapper({
+  tile,
+  children,
+}: {
+  tile: TileWithTasks;
+  children?: React.ReactNode;
+}) {
+  return (
+    <TileProgressProvider>
+      <TilePageInner tile={tile} />
+      {children}
+    </TileProgressProvider>
+  );
+}
+
+// Inner component that uses the context
+function TilePageInner({ tile }: { tile: TileWithTasks }) {
+  const { teamProgresses } = useTileProgress();
+  return <TilePage tile={tile} teamProgresses={teamProgresses} />;
+}
 
 type ChallengeDisplayItem = {
   id: string;

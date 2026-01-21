@@ -1,6 +1,13 @@
-import { EventWithDetails, TeamProgressResponse } from "@/lib/types/v2";
+import { Suspense } from "react";
+import {
+  EventWithDetails,
+  TeamProgressResponse,
+  TeamWithMembers,
+} from "@/lib/types/v2";
 import { BingoClientWrapper } from "./_components/BingoClientWrapper";
+import { ProgressHydrator } from "./_components/ProgressHydrator";
 import { auth } from "@/auth";
+import Loading from "./loading";
 
 // Temporary allowed Discord IDs for bingo
 const ALLOWED_BINGO_DISCORD_IDS = [
@@ -40,11 +47,32 @@ export default async function HomePage() {
     );
   }
 
+  return (
+    <Suspense fallback={<Loading />}>
+      <EventContent />
+    </Suspense>
+  );
+}
+
+async function EventContent() {
   const event = await getActiveEvent();
 
-  // Fetch all team progress in parallel
+  return (
+    <BingoClientWrapper
+      endDate={event.end_date}
+      teams={event.teams}
+      tiles={event.tiles}
+    >
+      <Suspense fallback={null}>
+        <ProgressContent teams={event.teams} />
+      </Suspense>
+    </BingoClientWrapper>
+  );
+}
+
+async function ProgressContent({ teams }: { teams: TeamWithMembers[] }) {
   const allTeamProgress = await Promise.all(
-    event.teams.map(async (team) => {
+    teams.map(async (team) => {
       const progress = await getTeamProgress(team.id);
       return { teamId: team.id, progress };
     }),
@@ -54,12 +82,5 @@ export default async function HomePage() {
     allTeamProgress.map(({ teamId, progress }) => [teamId, progress]),
   );
 
-  return (
-    <BingoClientWrapper
-      endDate={event.end_date}
-      teams={event.teams}
-      tiles={event.tiles}
-      progressMap={progressMap}
-    />
-  );
+  return <ProgressHydrator progressMap={progressMap} />;
 }
