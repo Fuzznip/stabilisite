@@ -7,6 +7,8 @@ initializeApp();
 const db = getFirestore();
 
 const COMPETITION_ID = 122545;
+const COMPETITION_VERIFICATION_CODE =
+  process.env.WOM_COMPETITION_VERIFICATION_CODE || "";
 const API_URL =
   "https://stability-backend-prototypes-production.up.railway.app";
 const TRACKED_SKILLS: Metric[] = [
@@ -52,15 +54,44 @@ function getDocId(playerName: string, skill: string): string {
 
 export const pollWomCompetition = onSchedule(
   {
-    schedule: "every 30 minutes",
+    schedule: "every 2 hours",
     timeZone: "America/New_York",
   },
   async () => {
     console.log("Polling WOM competition:", COMPETITION_ID);
+    console.log("Verification code:", COMPETITION_VERIFICATION_CODE ? "set" : "not set");
 
     const collectionRef = db.collection(`wom_competition_${COMPETITION_ID}`);
 
     try {
+      // Update all participants in the competition at once
+      console.log("Updating all competition participants...");
+      try {
+        const updateResponse = await fetch(
+          `https://api.wiseoldman.net/v2/competitions/${COMPETITION_ID}/update-all`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              verificationCode: COMPETITION_VERIFICATION_CODE,
+            }),
+          },
+        );
+        if (updateResponse.ok) {
+          console.log("Successfully queued participant updates");
+        } else {
+          console.warn(
+            "Failed to update participants:",
+            updateResponse.status,
+            await updateResponse.text(),
+          );
+        }
+      } catch (err) {
+        console.warn("Failed to update all participants:", err);
+      }
+
       // Fetch competition details for each tracked skill using previewMetric
       for (const skill of TRACKED_SKILLS) {
         console.log(`Fetching ${skill} gains...`);
