@@ -54,7 +54,7 @@ export default function Loading(): React.ReactElement {
     <>
       <div className="mb-2 z-10">
         <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
-        <Skeleton className="h-7 w-48 mt-1" />
+        <Skeleton className="h-7 w-48" />
       </div>
       <div className="hidden lg:flex w-full h-full flex-row items-start justify-start gap-8 z-10">
         <BingoBoardSkeleton />
