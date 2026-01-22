@@ -252,6 +252,7 @@ export type ChallengeStatus = {
   parent_challenge_id: string | null; // UUID - for hierarchical challenges
   quantity: number; // Current progress
   required: number; // Required quantity to complete
+  value: number;
   completed: boolean;
   require_all: boolean; // If true, this is an AND challenge with children
   trigger: Trigger; // Full trigger details (name, source, type, img_path)
