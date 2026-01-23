@@ -15,7 +15,7 @@ export default function Layout({
         maxOpacity={0.3}
         flickerChance={0.2}
       />
-      <main>{children}</main>
+      <main className="pb-12">{children}</main>
     </>
   );
 }

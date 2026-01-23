@@ -5,7 +5,9 @@ import BingoBoard from "./BingoBoard";
 import Leaderboard from "./Leaderboard";
 import TeamMembers from "./TeamMembers";
 import DropToaster from "./DropToaster";
+import RecentDrops from "./RecentDrops";
 import { ProgressProvider, useProgress } from "./ProgressStore";
+import { RecentDropsProvider } from "./RecentDropsStore";
 import { TeamWithMembers, TeamProgressResponse, Tile } from "@/lib/types/v2";
 
 type BingoClientWrapperProps = {
@@ -76,7 +78,7 @@ function BingoContent({
         <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
         <TimeRemaining endDate={endDate} />
       </div>
-      <div className="hidden lg:flex w-full h-full flex-row items-start justify-start gap-8 z-10">
+      <div className="hidden h-0 lg:flex w-full lg:h-full flex-row items-start justify-start gap-8 z-10">
         <BingoBoard tiles={tiles} progress={progress} />
         <div className="flex flex-col gap-8 -mt-18">
           <Leaderboard
@@ -87,7 +89,7 @@ function BingoContent({
           <TeamMembers selectedTeam={selectedTeam} />
         </div>
       </div>
-      <div className="flex lg:hidden w-full h-full flex-col justify-center items-center gap-8 pb-12 z-10">
+      <div className="flex lg:hidden lg:h-0 w-full h-full flex-col justify-center items-center gap-8 lg:pb-12 z-10">
         <BingoBoard tiles={tiles} progress={progress} />
         <Leaderboard
           teams={teams}
@@ -96,7 +98,10 @@ function BingoContent({
         />
         <TeamMembers selectedTeam={selectedTeam} />
       </div>
-      <DropToaster teams={teams} />
+      <RecentDropsProvider>
+        <RecentDrops teams={teams} />
+        <DropToaster teams={teams} />
+      </RecentDropsProvider>
     </>
   );
 }

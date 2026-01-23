@@ -10,6 +10,7 @@ import { X } from "lucide-react";
 import { Drop } from "@/lib/types/drop";
 import { Team } from "@/lib/types/v2";
 import { revalidateBingoProgress } from "../actions";
+import { useRecentDrops } from "./RecentDropsStore";
 
 export default function DropToaster({
   teams,
@@ -17,6 +18,7 @@ export default function DropToaster({
   teams: Team[];
 }): React.ReactElement {
   const { newDrop } = useNewDrop();
+  const { addDrop } = useRecentDrops();
   const [lastDropId, setLastDropId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -27,6 +29,9 @@ export default function DropToaster({
           .map((member) => member.toLowerCase())
           .includes(newDrop?.player.toLowerCase() || ""),
       );
+
+      // Add the new drop to the recent drops list
+      addDrop(newDrop);
 
       // Revalidate progress cache so next navigation gets fresh data
       revalidateBingoProgress();
@@ -87,7 +92,7 @@ export default function DropToaster({
         },
       );
     }
-  }, [lastDropId, newDrop, teams]);
+  }, [addDrop, lastDropId, newDrop, teams]);
   return <Toaster />;
 }
 

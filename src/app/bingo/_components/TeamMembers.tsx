@@ -13,7 +13,7 @@ export default function TeamMembers({
     <div
       className={cn(
         "flex flex-col items-start w-full",
-        !selectedTeam && "invisible"
+        !selectedTeam && "invisible h-0",
       )}
     >
       <span className="text-3xl text-foreground mb-2">Members</span>
