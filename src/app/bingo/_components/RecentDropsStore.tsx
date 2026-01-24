@@ -119,6 +119,13 @@ export function RecentDropsProvider({ children }: { children: React.ReactNode })
   }, [loading, hasMore]);
 
   const addDrop = useCallback((drop: Drop) => {
+    // Check if drop matches active filters
+    const filters = currentFiltersRef.current;
+    const allowedTypes = Array.from(filters).flatMap((f) => FILTER_TO_FIRESTORE[f]);
+    if (!allowedTypes.includes(drop.submitType)) {
+      return;
+    }
+
     setDrops((prev) => {
       // Avoid duplicates
       if (prev.some((d) => d.id === drop.id)) {
