@@ -85,15 +85,17 @@ export default function DropToaster({
                   </div>
                   <DropToasterDate drop={newDrop} />
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    toast.getToasts().forEach((t) => toast.dismiss(t.id));
-                  }}
-                  className="flex items-center gap-1 text-sm text-card-foreground hover:text-foreground w-fit bg-card"
-                >
-                  Clear All
-                </Button>
+                {toast.getToasts()[0]?.id === id && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      toast.getToasts().forEach((t) => toast.dismiss(t.id));
+                    }}
+                    className="flex items-center gap-1 text-sm text-card-foreground hover:text-foreground w-fit bg-card"
+                  >
+                    Clear All
+                  </Button>
+                )}
               </div>
             </div>
           </div>
