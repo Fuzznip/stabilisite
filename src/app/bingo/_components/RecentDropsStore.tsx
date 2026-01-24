@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useCallback, useRef, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
 import {
   collection,
   query,
@@ -39,9 +45,15 @@ type RecentDropsStore = {
   addDrop: (drop: Drop) => void;
 };
 
-const RecentDropsContext = createContext<RecentDropsStore | undefined>(undefined);
+const RecentDropsContext = createContext<RecentDropsStore | undefined>(
+  undefined,
+);
 
-export function RecentDropsProvider({ children }: { children: React.ReactNode }) {
+export function RecentDropsProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [drops, setDrops] = useState<Drop[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -75,7 +87,9 @@ export function RecentDropsProvider({ children }: { children: React.ReactNode })
     setLoading(true);
 
     try {
-      const filterValues = Array.from(filters).flatMap((f) => FILTER_TO_FIRESTORE[f]);
+      const filterValues = Array.from(filters).flatMap(
+        (f) => FILTER_TO_FIRESTORE[f],
+      );
 
       let q = query(
         collection(firestore, "drops"),
@@ -100,7 +114,7 @@ export function RecentDropsProvider({ children }: { children: React.ReactNode })
         setHasMore(false);
       } else {
         const newDrops = snapshot.docs.map((doc) =>
-          convertRawDropToDrop(doc.id, doc.data())
+          convertRawDropToDrop(doc.id, doc.data()),
         );
 
         setDrops((prev) => [...prev, ...newDrops]);
@@ -121,7 +135,9 @@ export function RecentDropsProvider({ children }: { children: React.ReactNode })
   const addDrop = useCallback((drop: Drop) => {
     // Check if drop matches active filters
     const filters = currentFiltersRef.current;
-    const allowedTypes = Array.from(filters).flatMap((f) => FILTER_TO_FIRESTORE[f]);
+    const allowedTypes = Array.from(filters).flatMap(
+      (f) => FILTER_TO_FIRESTORE[f],
+    );
     if (!allowedTypes.includes(drop.submitType)) {
       return;
     }
