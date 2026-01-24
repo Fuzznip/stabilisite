@@ -13,7 +13,7 @@ import { convertRawDropToDrop } from "@/lib/utils/drop";
 
 export const useNewDrop = () => {
   const [newDrop, setNewDrop] = useState<Drop | undefined>(undefined);
-  const firstSnapshotIgnored = useRef<boolean>(true);
+  const firstSnapshotIgnored = useRef<boolean>(false);
 
   useEffect(() => {
     const q = query(
