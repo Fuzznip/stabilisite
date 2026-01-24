@@ -99,6 +99,7 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
                 key={type}
                 checked={activeFilters.has(type)}
                 onCheckedChange={() => toggleFilter(type)}
+                onSelect={(e) => e.preventDefault()}
                 className={activeFilters.has(type) ? "bg-muted" : ""}
               >
                 {DROP_TYPE_LABELS[type]}

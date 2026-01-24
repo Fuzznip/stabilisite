@@ -121,45 +121,53 @@ function ChallengeDisplay({
           )}
         </div>
         <div className="flex gap-2 flex-wrap">
-          {challenge.children.map((child) => (
-            <Tooltip key={child.id}>
-              <TooltipTrigger asChild>
-                <div
-                  className={cn(
-                    "relative size-20 border-2 rounded transition-all",
-                    child.completed
-                      ? "border-green-500"
-                      : "border-foreground/50",
-                  )}
-                >
-                  <Image
-                    src={child.imgPath || ""}
-                    alt={child.name || "Item"}
-                    fill
-                    sizes="100%"
-                    unoptimized
+          {challenge.children.map((child) => {
+            const hasNoRequirement = child.required == null;
+            const isGreen =
+              child.completed || (hasNoRequirement && child.quantity >= 1);
+            return (
+              <Tooltip key={child.id}>
+                <TooltipTrigger asChild>
+                  <div
                     className={cn(
-                      "rounded-sm object-contain p-1",
-                      !child.completed && "opacity-50",
+                      "relative size-20 border-2 rounded transition-all",
+                      isGreen ? "border-green-500" : "border-foreground/50",
                     )}
-                  />
-                  {child.completed && (
-                    <div className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1">
-                      <Check className="size-4 text-white" />
-                    </div>
-                  )}
-                  {child.required > 1 && (
-                    <div className="absolute bottom-0 right-0 bg-black/70 text-white text-sm px-2 py-1 rounded-tl rounded-br">
-                      {child.quantity}/{child.required}
-                    </div>
-                  )}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                {child.name} {child.value > 1 ? ` (${child.value} pts)` : ""}
-              </TooltipContent>
-            </Tooltip>
-          ))}
+                  >
+                    <Image
+                      src={child.imgPath || ""}
+                      alt={child.name || "Item"}
+                      fill
+                      sizes="100%"
+                      unoptimized
+                      className={cn(
+                        "rounded-sm object-contain p-1",
+                        !isGreen && "opacity-50",
+                      )}
+                    />
+                    {isGreen && (
+                      <div className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1">
+                        <Check className="size-4 text-white" />
+                      </div>
+                    )}
+                    {child.required > 1 && (
+                      <div className="absolute bottom-0 right-0 bg-black/70 text-white text-sm px-2 py-1 rounded-tl rounded-br">
+                        {child.quantity}/{child.required}
+                      </div>
+                    )}
+                    {hasNoRequirement && child.quantity >= 1 && (
+                      <div className="absolute bottom-0 right-0 bg-green-600 text-white text-sm px-2 py-1 rounded-tl rounded-br">
+                        {child.quantity}
+                      </div>
+                    )}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {child.name} {child.value > 1 ? ` (${child.value} pts)` : ""}
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
         </div>
       </div>
     );
@@ -218,11 +226,15 @@ function ChallengeDisplay({
   }
 
   // Single item with quantity
+  const hasNoRequirement = challenge.required == null;
+  const isGreen =
+    challenge.completed || (hasNoRequirement && challenge.quantity >= 1);
+
   return (
     <div
       className={cn(
         "flex items-center gap-4 p-4 rounded-lg border-2",
-        challenge.completed
+        isGreen
           ? "bg-green-500/10 border-green-500/50"
           : "bg-muted/30 border-muted",
       )}
@@ -232,7 +244,7 @@ function ChallengeDisplay({
           <div
             className={cn(
               "relative size-20 border-2 rounded transition-all",
-              challenge.completed ? "border-green-500" : "border-foreground/50",
+              isGreen ? "border-green-500" : "border-foreground/50",
             )}
           >
             <Image
@@ -243,10 +255,10 @@ function ChallengeDisplay({
               unoptimized
               className={cn(
                 "rounded-sm object-contain p-1",
-                !challenge.completed && "opacity-50",
+                !isGreen && "opacity-50",
               )}
             />
-            {challenge.completed && (
+            {isGreen && (
               <div className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1">
                 <Check className="size-4 text-white" />
               </div>
@@ -254,6 +266,11 @@ function ChallengeDisplay({
             {challenge.required > 1 && (
               <div className="absolute bottom-0 left-0 bg-black/70 text-white text-sm px-2 py-1 rounded-tl rounded-br">
                 {challenge.quantity}/{challenge.required}
+              </div>
+            )}
+            {hasNoRequirement && challenge.quantity >= 1 && (
+              <div className="absolute bottom-0 left-0 bg-green-600 text-white text-sm px-2 py-1 rounded-tl rounded-br">
+                {challenge.quantity}
               </div>
             )}
           </div>
