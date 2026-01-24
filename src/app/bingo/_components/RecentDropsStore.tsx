@@ -8,6 +8,7 @@ import {
   limit,
   getDocs,
   startAfter,
+  where,
   QueryDocumentSnapshot,
   DocumentData,
 } from "firebase/firestore";
@@ -17,11 +18,23 @@ import { convertRawDropToDrop } from "@/lib/utils/drop";
 
 const PAGE_SIZE = 10;
 
+export type DropTypeFilter = "DROP" | "KC" | "SKILL";
+
+// Map our filter types to Firestore 'type' field values
+// DROP and LOOT are equivalent in Firestore
+const FILTER_TO_FIRESTORE: Record<DropTypeFilter, string[]> = {
+  DROP: ["DROP", "LOOT"],
+  KC: ["KC"],
+  SKILL: ["SKILL"],
+};
+
 type RecentDropsStore = {
   drops: Drop[];
   loading: boolean;
   hasMore: boolean;
   initialized: boolean;
+  activeFilters: Set<DropTypeFilter>;
+  setFilters: (filters: Set<DropTypeFilter>) => void;
   loadMore: () => Promise<void>;
   addDrop: (drop: Drop) => void;
 };
@@ -33,16 +46,40 @@ export function RecentDropsProvider({ children }: { children: React.ReactNode })
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [initialized, setInitialized] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<Set<DropTypeFilter>>(
+    new Set(["DROP", "KC", "SKILL"]),
+  );
   const lastDocRef = useRef<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const currentFiltersRef = useRef<Set<DropTypeFilter>>(activeFilters);
+
+  const setFilters = useCallback((filters: Set<DropTypeFilter>) => {
+    setActiveFilters(filters);
+    currentFiltersRef.current = filters;
+    // Reset pagination when filters change
+    setDrops([]);
+    setHasMore(true);
+    setInitialized(false);
+    lastDocRef.current = null;
+  }, []);
 
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;
 
+    const filters = currentFiltersRef.current;
+    if (filters.size === 0) {
+      setInitialized(true);
+      setHasMore(false);
+      return;
+    }
+
     setLoading(true);
 
     try {
+      const filterValues = Array.from(filters).flatMap((f) => FILTER_TO_FIRESTORE[f]);
+
       let q = query(
         collection(firestore, "drops"),
+        where("type", "in", filterValues),
         orderBy("timestamp", "desc"),
         limit(PAGE_SIZE),
       );
@@ -50,6 +87,7 @@ export function RecentDropsProvider({ children }: { children: React.ReactNode })
       if (lastDocRef.current) {
         q = query(
           collection(firestore, "drops"),
+          where("type", "in", filterValues),
           orderBy("timestamp", "desc"),
           startAfter(lastDocRef.current),
           limit(PAGE_SIZE),
@@ -97,6 +135,8 @@ export function RecentDropsProvider({ children }: { children: React.ReactNode })
         loading,
         hasMore,
         initialized,
+        activeFilters,
+        setFilters,
         loadMore,
         addDrop,
       }}

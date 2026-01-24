@@ -4,11 +4,24 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
-import { useRecentDrops } from "./RecentDropsStore";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
+import { useRecentDrops, DropTypeFilter } from "./RecentDropsStore";
 import { useRelativeTime } from "../_hooks/useRelativeTime";
 import { Drop } from "@/lib/types/drop";
 import { TeamWithMembers } from "@/lib/types/v2";
 import Image from "next/image";
+
+const DROP_TYPE_LABELS: Record<DropTypeFilter, string> = {
+  DROP: "Drop",
+  KC: "KC",
+  SKILL: "Skill",
+};
 
 type RecentDropsProps = {
   teams: TeamWithMembers[];
@@ -25,13 +38,35 @@ function findTeamForPlayer(
 
 export default function RecentDrops({ teams }: RecentDropsProps) {
   const [expanded, setExpanded] = useState(false);
-  const { drops, loading, hasMore, loadMore, initialized } = useRecentDrops();
+  const {
+    drops,
+    loading,
+    hasMore,
+    loadMore,
+    initialized,
+    activeFilters,
+    setFilters,
+  } = useRecentDrops();
 
   const handleToggle = () => {
     if (!expanded && !initialized) {
       loadMore();
     }
     setExpanded(!expanded);
+  };
+
+  const toggleFilter = (filter: DropTypeFilter) => {
+    const next = new Set(activeFilters);
+    if (next.has(filter)) {
+      next.delete(filter);
+    } else {
+      next.add(filter);
+    }
+    setFilters(next);
+    // Trigger reload after filter change
+    if (expanded) {
+      loadMore();
+    }
   };
 
   const filteredDrops = useMemo(
@@ -43,21 +78,45 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
   const showEmpty = initialized && !loading && filteredDrops.length === 0;
 
   return (
-    <div className="flex w-full flex-col items-start lg:mt-8 max-w-[80vh]">
-      <div className="flex w-full items-center justify-start gap-12 mb-2">
+    <div className="flex w-full flex-col items-start mx-auto lg:mx-0 lg:mt-12 max-w-[80vh]">
+      <div className="flex w-full items-end justify-between mb-2">
         <div>
           <h2 className="text-2xl text-foreground">Recent Drops</h2>
           <p className="text-lg text-muted-foreground">
             All drops from the event
           </p>
         </div>
-        <Button variant="outline" onClick={handleToggle}>
-          {expanded ? "Hide" : "Show"}
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              Filter
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {(["DROP", "KC", "SKILL"] as DropTypeFilter[]).map((type) => (
+              <DropdownMenuCheckboxItem
+                key={type}
+                checked={activeFilters.has(type)}
+                onCheckedChange={() => toggleFilter(type)}
+              >
+                {DROP_TYPE_LABELS[type]}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-      {expanded && (
-        <Card className="w-full p-6">
-          <div className="flex flex-col divide-y divide-border">
+      <Card className="w-full p-6 flex">
+        {!expanded ? (
+          <Button
+            variant="outline"
+            onClick={handleToggle}
+            className="w-fit px-6 py-2 mx-auto"
+          >
+            Show Drops
+          </Button>
+        ) : (
+          <div className="flex flex-col divide-y divide-border w-full">
             {showSkeletons ? (
               <>
                 <DropItemSkeleton />
@@ -88,8 +147,8 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
               </>
             )}
           </div>
-        </Card>
-      )}
+        )}
+      </Card>
     </div>
   );
 }

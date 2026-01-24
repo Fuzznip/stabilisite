@@ -26,7 +26,7 @@ export default function Leaderboard({
   };
 
   return (
-    <div className="flex h-full w-full flex-col sm:min-w-[30rem]">
+    <div className="flex h-full w-full flex-col sm:max-w-md">
       <h2 className="text-2xl text-foreground">Leaderboard</h2>
       <p className="text-lg text-muted-foreground mb-2">
         Click a team to see their progress
@@ -38,7 +38,7 @@ export default function Leaderboard({
               <Button
                 variant="ghost"
                 className={cn(
-                  "flex justify-between text-3xl gap-12 text-left items-center w-full h-fit p-4 box-border",
+                  "flex justify-between text-2xl gap-12 text-left items-center w-full h-fit p-4 box-border",
                   selectedTeamId === team.id &&
                     "bg-accent outline outline-foreground",
                 )}
@@ -49,7 +49,7 @@ export default function Leaderboard({
                   <div className="font-extrabold">{index + 1}</div>
                   <div className="flex gap-4 items-center">
                     {true && (
-                      <div className="relative h-20 w-20">
+                      <div className="relative h-16 w-16">
                         <Image
                           src={`${team.image_url}`}
                           alt={team.name + " team image"}
