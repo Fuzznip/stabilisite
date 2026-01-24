@@ -93,12 +93,13 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="flex flex-col gap-1">
             {(["DROP", "KC", "SKILL"] as DropTypeFilter[]).map((type) => (
               <DropdownMenuCheckboxItem
                 key={type}
                 checked={activeFilters.has(type)}
                 onCheckedChange={() => toggleFilter(type)}
+                className={activeFilters.has(type) ? "bg-muted" : ""}
               >
                 {DROP_TYPE_LABELS[type]}
               </DropdownMenuCheckboxItem>
