@@ -65,7 +65,12 @@ function BingoContent({
   const [selectedTeamId, setSelectedTeamId] = useState<string | undefined>(
     undefined,
   );
-  const { progressMap } = useProgress();
+  const { progressMap, prefetchTeams } = useProgress();
+
+  // Prefetch all team progress data on mount
+  useEffect(() => {
+    prefetchTeams(teams.map((t) => t.id));
+  }, [teams, prefetchTeams]);
 
   const selectedTeam = selectedTeamId
     ? teams.find((t) => t.id === selectedTeamId)

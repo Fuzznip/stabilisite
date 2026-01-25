@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Check, X } from "lucide-react";
+import { ArrowLeft, Check, Eye, X } from "lucide-react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
@@ -13,8 +13,20 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Task, TeamProgress, TileWithTasks } from "@/lib/types/v2";
+import {
+  ChallengeStatusProof,
+  Task,
+  TeamProgress,
+  TileWithTasks,
+} from "@/lib/types/v2";
 import { ProgressSkeleton } from "./ProgressSkeleton";
 import { TileProgressProvider, useTileProgress } from "./TileProgressContext";
 
@@ -282,6 +294,86 @@ function ChallengeDisplay({
   );
 }
 
+type TeamTaskProgressData = {
+  team: TeamProgress;
+  complete: boolean | undefined;
+  progress: ChallengeDisplayItem[];
+  proofs: ChallengeStatusProof[];
+};
+
+function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
+  return (
+    <div className="mb-12 flex flex-col gap-2">
+      <div className="flex gap-4 w-full mr-8 sm:mr-0 items-center">
+        <div className="relative size-20 rounded">
+          <Image
+            src={teamData.team.image_url || ""}
+            alt={teamData.team.name + " team image"}
+            fill
+            sizes="100%"
+            unoptimized
+            className="rounded-sm object-cover"
+          />
+        </div>
+        <div className="hidden sm:flex items-center text-2xl">
+          {teamData.team.name}
+        </div>
+        <div className="flex items-center gap-2 ml-auto">
+          {teamData.proofs.length > 0 && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Eye className="size-6" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>
+                    {teamData.team.name} - Proof Images
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  {teamData.proofs.map((proof) => (
+                    <div key={proof.id} className="flex flex-col gap-2">
+                      <div className="relative aspect-video w-full border rounded overflow-hidden">
+                        <Image
+                          src={proof.img_path}
+                          alt="Proof image"
+                          fill
+                          sizes="100%"
+                          unoptimized
+                          className="object-contain"
+                        />
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {new Date(proof.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+          <div className="text-muted-foreground text-2xl text-nowrap w-fit h-fit">
+            {teamData.complete ? (
+              <Check className="size-12 text-green-500" />
+            ) : (
+              <X className="size-12 h-16 text-red-800" />
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col gap-6 w-full pl-0 sm:pl-24">
+        {teamData.progress.map((challenge) => (
+          <div key={challenge.id} className="flex flex-col gap-2">
+            <ChallengeDisplay challenge={challenge} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function getTaskTabContent(
   task: Task,
   teamProgresses: TeamProgress[],
@@ -295,6 +387,11 @@ function getTaskTabContent(
       // Get all challenges for this task
       const allChallenges = teamProgress.challenge_statuses.filter(
         (challenge) => challenge.task_id === task.id,
+      );
+
+      // Collect all proofs from challenges for this task
+      const proofs = allChallenges.flatMap(
+        (challenge) => challenge.proofs || [],
       );
 
       // Recursively build challenge hierarchy
@@ -342,6 +439,7 @@ function getTaskTabContent(
         team: teamProgress,
         complete: taskStatus?.completed,
         progress,
+        proofs,
       };
     })
     .sort((teamA, teamB) => teamA.team.name.localeCompare(teamB.team.name));
@@ -354,37 +452,7 @@ function getTaskTabContent(
       </CardTitle>
       <CardContent className="flex flex-col">
         {teamsWithProgress?.map((teamData) => (
-          <div key={teamData.team.id} className="mb-12 flex flex-col gap-2">
-            <div className="flex gap-4 w-full mr-8 sm:mr-0 items-center">
-              <div className="relative size-20 rounded">
-                <Image
-                  src={teamData.team.image_url || ""}
-                  alt={teamData.team.name + " team image"}
-                  fill
-                  sizes="100%"
-                  unoptimized
-                  className="rounded-sm object-cover"
-                />
-              </div>
-              <div className="hidden sm:flex items-center text-2xl">
-                {teamData.team.name}
-              </div>
-              <div className="text-muted-foreground text-2xl text-nowrap w-fit h-fit ml-auto">
-                {teamData.complete ? (
-                  <Check className="size-12 text-blue-800 ml-auto" />
-                ) : (
-                  <X className="size-12 h-16 text-red-800 ml-auto" />
-                )}
-              </div>
-            </div>
-            <div className="flex flex-col gap-6 w-full pl-0 sm:pl-24">
-              {teamData.progress.map((challenge) => (
-                <div key={challenge.id} className="flex flex-col gap-2">
-                  <ChallengeDisplay challenge={challenge} />
-                </div>
-              ))}
-            </div>
-          </div>
+          <TeamTaskProgress key={teamData.team.id} teamData={teamData} />
         ))}
       </CardContent>
     </Card>
