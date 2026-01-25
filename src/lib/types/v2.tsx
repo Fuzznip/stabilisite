@@ -245,6 +245,13 @@ export type ChallengeProgress = Challenge & {
   };
 };
 
+// Proof attached to a challenge status
+export type ChallengeStatusProof = {
+  id: string;
+  img_path: string;
+  created_at: string;
+};
+
 // Challenge status (team progress on a challenge) - ENRICHED VERSION
 export type ChallengeStatus = {
   challenge_id: string; // UUID
@@ -259,6 +266,7 @@ export type ChallengeStatus = {
   status_id?: string; // UUID - only present if ChallengeStatus exists
   created_at?: string; // ISO 8601 - only present if ChallengeStatus exists
   updated_at?: string; // ISO 8601 - only present if ChallengeStatus exists
+  proofs?: ChallengeStatusProof[]; // Proofs for this challenge
 };
 
 // Team with progress data
