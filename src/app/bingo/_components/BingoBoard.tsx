@@ -2,14 +2,17 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import { TeamProgressResponse, TileProgress, Tile } from "@/lib/types/v2";
 
 export default function BingoBoard({
   tiles,
   progress,
+  isLoading,
 }: {
   tiles: Tile[];
   progress?: TeamProgressResponse;
+  isLoading?: boolean;
 }) {
   return (
     <div className="w-full max-w-[80vh] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
@@ -25,7 +28,12 @@ export default function BingoBoard({
           .map((tile) => {
             const tileProgress = progress?.find((p) => p.index === tile.index);
             return (
-              <BingoCard key={tile.index} tile={tile} progress={tileProgress} />
+              <BingoCard
+                key={tile.index}
+                tile={tile}
+                progress={tileProgress}
+                isLoading={isLoading}
+              />
             );
           })}
       </div>
@@ -36,9 +44,11 @@ export default function BingoBoard({
 function BingoCard({
   tile,
   progress,
+  isLoading,
 }: {
   tile?: Tile;
   progress?: TileProgress;
+  isLoading?: boolean;
 }): React.ReactElement {
   const medalSrc = progress
     ? getMedalSrcForMedalLevel(progress.status.medal_level)
@@ -63,6 +73,11 @@ function BingoCard({
             className="object-contain"
             alt={`${tile?.name} tile image`}
           />
+          {isLoading && !progress && (
+            <div className="absolute bottom-0 left-0 aspect-square size-1/2 flex items-center justify-center">
+              <Loader2 className="size-2/3 animate-spin text-stability stroke-3" />
+            </div>
+          )}
           {medalSrc && (
             <div className="absolute bottom-0 left-0 aspect-square h-1/2">
               <Image

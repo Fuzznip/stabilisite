@@ -11,6 +11,7 @@ import { TeamProgressResponse } from "@/lib/types/v2";
 
 type ProgressStore = {
   progressMap: Record<string, TeamProgressResponse>;
+  loadingTeams: Set<string>;
   hydrateProgress: (progressMap: Record<string, TeamProgressResponse>) => void;
   prefetchTeams: (teamIds: string[]) => void;
 };
@@ -25,6 +26,7 @@ export function ProgressProvider({
   initialProgressMap?: Record<string, TeamProgressResponse>;
 }) {
   const [progressMap, setProgressMap] = useState(initialProgressMap);
+  const [loadingTeams, setLoadingTeams] = useState<Set<string>>(new Set());
   const fetchingRef = useRef<Set<string>>(new Set());
 
   const hydrateProgress = useCallback(
@@ -42,6 +44,7 @@ export function ProgressProvider({
       }
 
       fetchingRef.current.add(teamId);
+      setLoadingTeams((prev) => new Set(prev).add(teamId));
 
       fetch(`/api/bingo/progress/${teamId}`)
         .then((res) => res.json())
@@ -57,6 +60,11 @@ export function ProgressProvider({
         })
         .finally(() => {
           fetchingRef.current.delete(teamId);
+          setLoadingTeams((prev) => {
+            const next = new Set(prev);
+            next.delete(teamId);
+            return next;
+          });
         });
     });
   }, []);
@@ -65,6 +73,7 @@ export function ProgressProvider({
     <ProgressContext.Provider
       value={{
         progressMap,
+        loadingTeams,
         hydrateProgress,
         prefetchTeams,
       }}

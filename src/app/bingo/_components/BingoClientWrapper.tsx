@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import BingoBoard from "./BingoBoard";
 import Leaderboard from "./Leaderboard";
-import TeamMembers from "./TeamMembers";
 import DropToaster from "./DropToaster";
 import RecentDrops from "./RecentDrops";
 import { ProgressProvider, useProgress } from "./ProgressStore";
@@ -65,17 +64,17 @@ function BingoContent({
   const [selectedTeamId, setSelectedTeamId] = useState<string | undefined>(
     undefined,
   );
-  const { progressMap, prefetchTeams } = useProgress();
+  const { progressMap, loadingTeams, prefetchTeams } = useProgress();
 
   // Prefetch all team progress data on mount
   useEffect(() => {
     prefetchTeams(teams.map((t) => t.id));
   }, [teams, prefetchTeams]);
 
-  const selectedTeam = selectedTeamId
-    ? teams.find((t) => t.id === selectedTeamId)
-    : undefined;
   const progress = selectedTeamId ? progressMap[selectedTeamId] : undefined;
+  const isLoadingProgress = selectedTeamId
+    ? loadingTeams.has(selectedTeamId)
+    : false;
 
   return (
     <>
@@ -84,24 +83,22 @@ function BingoContent({
         <TimeRemaining endDate={endDate} />
       </div>
       <div className="hidden h-0 lg:flex w-full lg:h-full flex-row items-start justify-start gap-8 z-10">
-        <BingoBoard tiles={tiles} progress={progress} />
+        <BingoBoard tiles={tiles} progress={progress} isLoading={isLoadingProgress} />
         <div className="flex flex-col gap-8 -mt-18">
           <Leaderboard
             teams={teams}
             selectedTeamId={selectedTeamId}
             onTeamSelect={setSelectedTeamId}
           />
-          <TeamMembers selectedTeam={selectedTeam} />
         </div>
       </div>
       <div className="flex lg:hidden lg:h-0 w-full h-full flex-col justify-center items-center gap-8 lg:pb-12 z-10">
-        <BingoBoard tiles={tiles} progress={progress} />
+        <BingoBoard tiles={tiles} progress={progress} isLoading={isLoadingProgress} />
         <Leaderboard
           teams={teams}
           selectedTeamId={selectedTeamId}
           onTeamSelect={setSelectedTeamId}
         />
-        <TeamMembers selectedTeam={selectedTeam} />
       </div>
       <RecentDropsProvider>
         <RecentDrops teams={teams} />

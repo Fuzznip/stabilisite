@@ -34,15 +34,15 @@ function LeaderboardSkeleton({ className }: { className?: string }) {
       <span className="text-lg text-muted-foreground mb-2">
         Click a team to see their progress
       </span>
-      <Card className="flex w-full h-full flex-col gap-4 rounded-lg relative">
+      <Card className="flex w-full h-[466px] flex-col gap-4 rounded-lg relative">
         <CardContent className="py-4 [&>*:not(:last-child)]:mb-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="flex text-3xl gap-4 text-left items-center w-full h-fit p-4 box-border"
+              className="flex text-3xl gap-4 text-left items-center w-full p-4 box-border h-fit"
             >
               <div>{index + 1}</div>
-              <Skeleton className="h-20 flex-1 rounded-sm" />
+              <Skeleton className="h-16 flex-1 rounded-sm" />
             </div>
           ))}
         </CardContent>
