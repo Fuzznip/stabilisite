@@ -1,83 +1,32 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useRef,
-} from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 import { TeamProgressResponse } from "@/lib/types/v2";
 
 type ProgressStore = {
   progressMap: Record<string, TeamProgressResponse>;
-  loadingTeams: Set<string>;
+  isLoading: boolean;
   hydrateProgress: (progressMap: Record<string, TeamProgressResponse>) => void;
-  prefetchTeams: (teamIds: string[]) => void;
 };
 
 const ProgressContext = createContext<ProgressStore | undefined>(undefined);
 
-export function ProgressProvider({
-  children,
-  initialProgressMap = {},
-}: {
-  children: React.ReactNode;
-  initialProgressMap?: Record<string, TeamProgressResponse>;
-}) {
-  const [progressMap, setProgressMap] = useState(initialProgressMap);
-  const [loadingTeams, setLoadingTeams] = useState<Set<string>>(new Set());
-  const fetchingRef = useRef<Set<string>>(new Set());
+export function ProgressProvider({ children }: { children: React.ReactNode }) {
+  const [progressMap, setProgressMap] = useState<
+    Record<string, TeamProgressResponse>
+  >({});
+  const [isLoading, setIsLoading] = useState(true);
 
   const hydrateProgress = useCallback(
     (newProgressMap: Record<string, TeamProgressResponse>) => {
       setProgressMap(newProgressMap);
+      setIsLoading(false);
     },
-    [],
+    []
   );
 
-  const prefetchTeams = useCallback((teamIds: string[]) => {
-    teamIds.forEach((teamId) => {
-      // Skip if already have data or currently fetching
-      if (fetchingRef.current.has(teamId)) {
-        return;
-      }
-
-      fetchingRef.current.add(teamId);
-      setLoadingTeams((prev) => new Set(prev).add(teamId));
-
-      fetch(`/api/bingo/progress/${teamId}`)
-        .then((res) => res.json())
-        .then((data: TeamProgressResponse) => {
-          setProgressMap((prev) => {
-            // Don't override if we already have data (from server)
-            if (prev[teamId]) return prev;
-            return { ...prev, [teamId]: data };
-          });
-        })
-        .catch((err) => {
-          console.error(`Failed to prefetch team ${teamId}:`, err);
-        })
-        .finally(() => {
-          fetchingRef.current.delete(teamId);
-          setLoadingTeams((prev) => {
-            const next = new Set(prev);
-            next.delete(teamId);
-            return next;
-          });
-        });
-    });
-  }, []);
-
   return (
-    <ProgressContext.Provider
-      value={{
-        progressMap,
-        loadingTeams,
-        hydrateProgress,
-        prefetchTeams,
-      }}
-    >
+    <ProgressContext.Provider value={{ progressMap, isLoading, hydrateProgress }}>
       {children}
     </ProgressContext.Provider>
   );

@@ -7,12 +7,11 @@ import DropToaster from "./DropToaster";
 import RecentDrops from "./RecentDrops";
 import { ProgressProvider, useProgress } from "./ProgressStore";
 import { RecentDropsProvider } from "./RecentDropsStore";
-import { TeamWithMembers, TeamProgressResponse, Tile } from "@/lib/types/v2";
+import { TeamWithMembers, Tile } from "@/lib/types/v2";
 
 type BingoClientWrapperProps = {
   teams: TeamWithMembers[];
   tiles: Tile[];
-  progressMap?: Record<string, TeamProgressResponse>;
   endDate: string;
   children?: React.ReactNode;
 };
@@ -40,12 +39,11 @@ function formatTimeRemaining(endDate: string): string {
 export function BingoClientWrapper({
   teams,
   tiles,
-  progressMap: initialProgressMap,
   endDate,
   children,
 }: BingoClientWrapperProps) {
   return (
-    <ProgressProvider initialProgressMap={initialProgressMap}>
+    <ProgressProvider>
       <BingoContent teams={teams} tiles={tiles} endDate={endDate} />
       {children}
     </ProgressProvider>
@@ -64,17 +62,10 @@ function BingoContent({
   const [selectedTeamId, setSelectedTeamId] = useState<string | undefined>(
     undefined,
   );
-  const { progressMap, loadingTeams, prefetchTeams } = useProgress();
-
-  // Prefetch all team progress data on mount
-  useEffect(() => {
-    prefetchTeams(teams.map((t) => t.id));
-  }, [teams, prefetchTeams]);
+  const { progressMap, isLoading } = useProgress();
 
   const progress = selectedTeamId ? progressMap[selectedTeamId] : undefined;
-  const isLoadingProgress = selectedTeamId
-    ? loadingTeams.has(selectedTeamId)
-    : false;
+  const isLoadingProgress = selectedTeamId ? isLoading : false;
 
   return (
     <>

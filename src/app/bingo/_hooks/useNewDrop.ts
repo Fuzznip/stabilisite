@@ -23,54 +23,80 @@ export const useNewDrop = () => {
   const unsubscribeRef = useRef<Unsubscribe | null>(null);
 
   const subscribe = useCallback(() => {
-    const q = query(
-      collection(firestore, "drops"),
-      orderBy("timestamp", "desc"),
-      limit(1),
-    );
+    try {
+      // Check if firestore is available
+      if (!firestore) {
+        console.warn("Firestore not initialized, skipping subscription");
+        return;
+      }
 
-    unsubscribeRef.current = onSnapshot(
-      q,
-      (snapshot) => {
-        // Reset retry count on successful snapshot
-        retryCount.current = 0;
+      const q = query(
+        collection(firestore, "drops"),
+        orderBy("timestamp", "desc"),
+        limit(1),
+      );
 
-        if (!firstSnapshotIgnored.current) {
-          firstSnapshotIgnored.current = true;
-          return;
-        }
+      unsubscribeRef.current = onSnapshot(
+        q,
+        (snapshot) => {
+          // Reset retry count on successful snapshot
+          retryCount.current = 0;
 
-        if (!snapshot.empty) {
-          revalidateBingo();
-          const doc = snapshot.docs[0];
-          setNewDrop(convertRawDropToDrop(doc.id, doc.data()));
-        } else {
-          setNewDrop(undefined);
-        }
-      },
-      (error) => {
-        console.error("Error fetching drops: ", error.code, error.message);
+          if (!firstSnapshotIgnored.current) {
+            firstSnapshotIgnored.current = true;
+            return;
+          }
 
-        // Cleanup current subscription
-        if (unsubscribeRef.current) {
-          unsubscribeRef.current();
-          unsubscribeRef.current = null;
-        }
+          if (!snapshot.empty) {
+            revalidateBingo();
+            const doc = snapshot.docs[0];
+            setNewDrop(convertRawDropToDrop(doc.id, doc.data()));
+          } else {
+            setNewDrop(undefined);
+          }
+        },
+        (error) => {
+          // Cleanup current subscription
+          if (unsubscribeRef.current) {
+            unsubscribeRef.current();
+            unsubscribeRef.current = null;
+          }
 
-        // Retry with exponential backoff
-        if (retryCount.current < MAX_RETRIES) {
-          const delay = BASE_DELAY_MS * Math.pow(2, retryCount.current);
-          retryCount.current += 1;
-          console.log(`Retrying Firestore connection in ${delay}ms (attempt ${retryCount.current}/${MAX_RETRIES})`);
+          // Don't log expected disconnection errors
+          const isExpectedDisconnect =
+            error.code === "unavailable" ||
+            error.message?.includes("connection") ||
+            error.message?.includes("closed");
 
-          retryTimeoutRef.current = setTimeout(() => {
-            subscribe();
-          }, delay);
-        } else {
-          console.error("Max retries reached for Firestore connection");
-        }
-      },
-    );
+          if (!isExpectedDisconnect) {
+            console.error("Error fetching drops:", error.code, error.message);
+          }
+
+          // Retry with exponential backoff
+          if (retryCount.current < MAX_RETRIES) {
+            const delay = BASE_DELAY_MS * Math.pow(2, retryCount.current);
+            retryCount.current += 1;
+
+            retryTimeoutRef.current = setTimeout(() => {
+              subscribe();
+            }, delay);
+          }
+        },
+      );
+    } catch (error) {
+      // Catch any synchronous errors during subscription setup
+      console.warn("Failed to setup Firestore subscription:", error);
+
+      // Retry with backoff
+      if (retryCount.current < MAX_RETRIES) {
+        const delay = BASE_DELAY_MS * Math.pow(2, retryCount.current);
+        retryCount.current += 1;
+
+        retryTimeoutRef.current = setTimeout(() => {
+          subscribe();
+        }, delay);
+      }
+    }
   }, []);
 
   useEffect(() => {
