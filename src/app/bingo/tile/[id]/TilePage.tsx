@@ -382,7 +382,8 @@ function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
           {teamData.team.name}
         </div>
         <div className="flex items-center gap-2 ml-auto">
-          {teamData.proofs.length > 0 && (
+          {teamData.proofs.filter((proof) => proof.img_path?.length > 0)
+            .length > 0 && (
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="icon">
