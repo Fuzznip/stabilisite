@@ -11,6 +11,7 @@ export type RawDropData = {
   type: string;
   value: string;
   timestamp: unknown;
+  img_path?: string | null;
 };
 
 function parseTimestamp(timestamp: unknown): Date {
@@ -33,10 +34,7 @@ function parseTimestamp(timestamp: unknown): Date {
   }
 
   // Handle Firestore Timestamp with seconds/nanoseconds
-  if (
-    typeof timestamp === "object" &&
-    "seconds" in timestamp
-  ) {
+  if (typeof timestamp === "object" && "seconds" in timestamp) {
     const ts = timestamp as { seconds: number; nanoseconds?: number };
     return new Date(ts.seconds * 1000 + (ts.nanoseconds ?? 0) / 1000000);
   }
@@ -54,5 +52,6 @@ export function convertRawDropToDrop(id: string, data: DocumentData): Drop {
     quantity: rawData.quantity,
     submitType: rawData.type,
     date: parseTimestamp(rawData.timestamp),
+    imgPath: rawData.img_path,
   };
 }

@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
+import { ProofImageDialog } from "@/components/ProofImageDialog";
 import { useRecentDrops, DropTypeFilter } from "./RecentDropsStore";
 import { useRelativeTime } from "../_hooks/useRelativeTime";
 import { Drop } from "@/lib/types/drop";
@@ -208,6 +209,12 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
           {suffix}
         </span>
       </div>
+      {drop.imgPath && (
+        <ProofImageDialog
+          images={[{ src: drop.imgPath }]}
+          title={`${formattedItemName} - ${drop.player}`}
+        />
+      )}
       <DropTime date={drop.date} />
     </div>
   );

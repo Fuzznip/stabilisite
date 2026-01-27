@@ -6,4 +6,5 @@ export type Drop = {
   quantity: string;
   itemSource: string;
   submitType: string;
+  imgPath?: string | null;
 };

@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Check, Eye, X } from "lucide-react";
+import { ArrowLeft, Check, X } from "lucide-react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
@@ -13,13 +13,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { ProofImageDialog } from "@/components/ProofImageDialog";
 import { cn } from "@/lib/utils";
 import {
   ChallengeStatusProof,
@@ -382,40 +376,16 @@ function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
           {teamData.team.name}
         </div>
         <div className="flex items-center gap-2 ml-auto">
-          {teamData.proofs.filter((proof) => proof.img_path?.length > 0)
-            .length > 0 && (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Eye className="size-6" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>{teamData.team.name} - Proof Images</DialogTitle>
-                </DialogHeader>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                  {teamData.proofs.map((proof) => (
-                    <div key={proof.id} className="flex flex-col gap-2">
-                      <div className="relative aspect-video w-full border rounded overflow-hidden">
-                        <Image
-                          src={proof.img_path}
-                          alt="Proof image"
-                          fill
-                          sizes="100%"
-                          unoptimized
-                          className="object-contain"
-                        />
-                      </div>
-                      <span className="text-sm text-muted-foreground">
-                        {new Date(proof.created_at).toLocaleString()}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
+          <ProofImageDialog
+            images={teamData.proofs
+              .filter((proof) => proof.img_path?.length > 0)
+              .map((proof) => ({
+                src: proof.img_path,
+                timestamp: new Date(proof.created_at),
+              }))}
+            title={`${teamData.team.name} - Proof Images`}
+            iconSize={6}
+          />
           <div className="text-muted-foreground text-2xl text-nowrap w-fit h-fit">
             {teamData.complete ? (
               <Check className="size-12 text-green-500" />
