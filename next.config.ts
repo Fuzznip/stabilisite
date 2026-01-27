@@ -40,6 +40,7 @@ const nextConfig: NextConfig = {
         pathname: "**",
       },
     ],
+    minimumCacheTTL: 2678400, // 31 days
   },
   experimental: {
     serverActions: {

@@ -1,6 +1,11 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  getFirestore,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,4 +20,25 @@ const firebaseConfig = {
 export const firebaseApp =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-export const firestore = getFirestore(firebaseApp);
+// Initialize Firestore with persistence for offline support
+// Only initialize with persistence on client side
+function getFirestoreInstance() {
+  if (typeof window === "undefined") {
+    // Server-side: use basic Firestore
+    return getFirestore(firebaseApp);
+  }
+
+  try {
+    // Client-side: initialize with persistence
+    return initializeFirestore(firebaseApp, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch {
+    // If already initialized, just get the existing instance
+    return getFirestore(firebaseApp);
+  }
+}
+
+export const firestore = getFirestoreInstance();

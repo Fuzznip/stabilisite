@@ -12,8 +12,9 @@ import { firestore } from "@/lib/config/firebase";
 import { revalidateBingo } from "../_actions/revalidateBingo";
 import { convertRawDropToDrop } from "@/lib/utils/drop";
 
-const MAX_RETRIES = 5;
+const MAX_RETRIES = 15; // Increased from 5 - covers ~9 hours with exponential backoff capped
 const BASE_DELAY_MS = 1000;
+const MAX_DELAY_MS = 60000; // Cap at 1 minute between retries
 
 export const useNewDrop = () => {
   const [newDrop, setNewDrop] = useState<Drop | undefined>(undefined);
@@ -72,9 +73,12 @@ export const useNewDrop = () => {
             console.error("Error fetching drops:", error.code, error.message);
           }
 
-          // Retry with exponential backoff
+          // Retry with exponential backoff (capped)
           if (retryCount.current < MAX_RETRIES) {
-            const delay = BASE_DELAY_MS * Math.pow(2, retryCount.current);
+            const delay = Math.min(
+              BASE_DELAY_MS * Math.pow(2, retryCount.current),
+              MAX_DELAY_MS,
+            );
             retryCount.current += 1;
 
             retryTimeoutRef.current = setTimeout(() => {
@@ -87,9 +91,12 @@ export const useNewDrop = () => {
       // Catch any synchronous errors during subscription setup
       console.warn("Failed to setup Firestore subscription:", error);
 
-      // Retry with backoff
+      // Retry with backoff (capped)
       if (retryCount.current < MAX_RETRIES) {
-        const delay = BASE_DELAY_MS * Math.pow(2, retryCount.current);
+        const delay = Math.min(
+          BASE_DELAY_MS * Math.pow(2, retryCount.current),
+          MAX_DELAY_MS,
+        );
         retryCount.current += 1;
 
         retryTimeoutRef.current = setTimeout(() => {
@@ -102,7 +109,28 @@ export const useNewDrop = () => {
   useEffect(() => {
     subscribe();
 
+    // Resubscribe when coming back online
+    const handleOnline = () => {
+      // Reset retry count and resubscribe
+      retryCount.current = 0;
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+      // Small delay to let the connection stabilize
+      retryTimeoutRef.current = setTimeout(() => {
+        subscribe();
+      }, 1000);
+    };
+
+    window.addEventListener("online", handleOnline);
+
     return () => {
+      window.removeEventListener("online", handleOnline);
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
       }
