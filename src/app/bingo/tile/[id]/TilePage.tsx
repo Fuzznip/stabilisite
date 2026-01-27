@@ -26,6 +26,7 @@ import {
   Task,
   TeamProgress,
   TileWithTasks,
+  Trigger,
 } from "@/lib/types/v2";
 import { ProgressSkeleton } from "./ProgressSkeleton";
 import { TileProgressProvider, useTileProgress } from "./TileProgressContext";
@@ -69,6 +70,7 @@ type ChallengeDisplayItem = {
   requireAll: boolean;
   isParent: boolean;
   children?: ChallengeDisplayItem[];
+  trigger: Trigger;
 };
 
 const PROGRESS_CUTOFF = 4;
@@ -86,6 +88,67 @@ function ChallengeDisplay({
     const hasLargeQuantityChildren = challenge.children.some(
       (child) => child.required > PROGRESS_CUTOFF,
     );
+    // Check if this is a KC parent with multiple triggers
+    const isKcWithMultipleTriggers =
+      challenge.children.length > 1 &&
+      challenge.children.every((child) => child.trigger?.type === "KC");
+
+    // KC parent with multiple triggers - show all images with progress bar
+    if (isKcWithMultipleTriggers && challenge.required > PROGRESS_CUTOFF) {
+      return (
+        <div
+          className={cn(
+            "flex items-center gap-4 w-full rounded-lg p-4 border-2",
+            challenge.completed
+              ? "bg-green-500/10 border-green-500/50"
+              : "bg-muted/30 border-muted",
+          )}
+        >
+          <div className="flex flex-wrap gap-2 flex-shrink-0">
+            {challenge.children.map((child) => (
+              <Tooltip key={child.id}>
+                <TooltipTrigger asChild>
+                  <div
+                    className={cn(
+                      "relative size-16 border rounded",
+                      challenge.completed
+                        ? "border-green-500"
+                        : "border-foreground/50",
+                    )}
+                  >
+                    <Image
+                      src={child.imgPath || ""}
+                      alt={child.name || "Item"}
+                      fill
+                      sizes="100%"
+                      unoptimized
+                      className="rounded-sm object-contain p-1"
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>{child.name}</TooltipContent>
+              </Tooltip>
+            ))}
+          </div>
+          <div className="flex flex-col gap-2 flex-1">
+            <div className="text-sm text-muted-foreground">
+              {challenge.children.map((c) => c.name).join(" or ")}
+            </div>
+            <Progress
+              value={(challenge.quantity / challenge.required) * 100}
+              className={cn(
+                "w-full",
+                challenge.completed && "[&>div]:bg-green-500",
+              )}
+            />
+            <div className="text-sm text-muted-foreground text-right">
+              {challenge.quantity.toLocaleString()} /{" "}
+              {challenge.required.toLocaleString()}
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     if (hasNestedGroups || hasLargeQuantityChildren) {
       // Grandparent level - render nested groups
@@ -328,9 +391,7 @@ function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
               </DialogTrigger>
               <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>
-                    {teamData.team.name} - Proof Images
-                  </DialogTitle>
+                  <DialogTitle>{teamData.team.name} - Proof Images</DialogTitle>
                 </DialogHeader>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                   {teamData.proofs.map((proof) => (
@@ -414,6 +475,7 @@ function getTaskTabContent(
               requireAll: challenge.require_all,
               isParent: children.length > 0,
               children: children.length > 0 ? children : undefined,
+              trigger: challenge.trigger,
             };
           })
           .sort((a, b) => {
