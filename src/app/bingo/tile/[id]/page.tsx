@@ -1,9 +1,15 @@
 import { Suspense } from "react";
 import { TilePageWrapper } from "./TilePage";
-import { TileProgressResponse, TileWithTasks } from "@/lib/types/v2";
+import {
+  EventWithDetails,
+  TileProgressResponse,
+  TileWithTasks,
+} from "@/lib/types/v2";
 import { auth } from "@/auth";
 import Loading from "./loading";
 import { TileProgressHydrator } from "./TileProgressHydrator";
+import { RecentDropsProvider } from "../../_components/RecentDropsStore";
+import DropToaster from "../../_components/DropToaster";
 
 // Temporary allowed Discord IDs for bingo
 const ALLOWED_BINGO_DISCORD_IDS = [
@@ -28,6 +34,12 @@ async function getTile(tileId: string): Promise<TileWithTasks> {
 async function getTileProgress(tileId: string): Promise<TileProgressResponse> {
   return fetch(`${process.env.API_URL}/v2/tiles/${tileId}/progress`, {
     next: { tags: ["bingo-progress", `tile-progress-${tileId}`] },
+  }).then((res) => res.json());
+}
+
+async function getActiveEvent(): Promise<EventWithDetails> {
+  return fetch(`${process.env.API_URL}/v2/events/active`, {
+    next: { tags: ["bingo-event"] },
   }).then((res) => res.json());
 }
 
@@ -59,14 +71,17 @@ export default async function Page({
 }
 
 async function TileContent({ tileId }: { tileId: string }) {
-  const tile = await getTile(tileId);
+  const [tile, event] = await Promise.all([getTile(tileId), getActiveEvent()]);
 
   return (
-    <TilePageWrapper tile={tile}>
-      <Suspense fallback={null}>
-        <ProgressContent tileId={tileId} />
-      </Suspense>
-    </TilePageWrapper>
+    <RecentDropsProvider>
+      <TilePageWrapper tile={tile}>
+        <Suspense fallback={null}>
+          <ProgressContent tileId={tileId} />
+        </Suspense>
+      </TilePageWrapper>
+      <DropToaster teams={event.teams} />
+    </RecentDropsProvider>
   );
 }
 

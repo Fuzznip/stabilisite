@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNewDrop } from "../_hooks/useNewDrop";
 import { toast } from "sonner";
 import { useRelativeTime } from "../_hooks/useRelativeTime";
@@ -19,11 +19,11 @@ export default function DropToaster({
 }): React.ReactElement {
   const { newDrop } = useNewDrop();
   const { addDrop } = useRecentDrops();
-  const [lastDropId, setLastDropId] = useState<string | undefined>(undefined);
+  const lastDropIdRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    if (newDrop && teams.length > 0 && newDrop.id !== lastDropId) {
-      setLastDropId(newDrop.id);
+    if (newDrop && teams.length > 0 && newDrop.id !== lastDropIdRef.current) {
+      lastDropIdRef.current = newDrop.id;
       const team = teams.find((team) =>
         team.members
           .map((member) => member.toLowerCase())
@@ -95,68 +95,8 @@ export default function DropToaster({
           className: "w-100 sm:w-100",
         },
       );
-      toast.custom(
-        (id) => (
-          <div className="relative flex w-full items-center gap-4 rounded-md border bg-background p-4 shadow-lg">
-            <button
-              onClick={() => toast.dismiss(id)}
-              className="absolute top-4 right-2 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-6 w-6" />
-            </button>
-
-            <div className="flex flex-col w-full gap-6">
-              <div className="flex gap-4">
-                <div className="relative h-16 w-16">
-                  <Image
-                    src={`${team?.image_url}`}
-                    alt={team?.name + " team image"}
-                    fill
-                    sizes="100%"
-                    unoptimized
-                    className="rounded-sm object-cover"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <span className="text-xl text-foreground capitalize">
-                    {newDrop?.player}
-                  </span>
-                  <span className="text-lg text-muted-foreground capitalize">
-                    {team?.name}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <div className="flex flex-col text-2xl text-foreground">
-                  <div>
-                    {newDrop.submitType === "SKILL" && `${newDrop.quantity} `}
-                    {newDrop.itemName
-                      .toLowerCase()
-                      .split(" ")
-                      .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
-                      )
-                      .join(" ")}
-
-                    {newDrop.submitType === "KC" && " KC"}
-                    {newDrop.submitType === "SKILL" && " XP"}
-                  </div>
-                  <DropToasterDate drop={newDrop} />
-                </div>
-                <ClearAllButton toastId={id} />
-              </div>
-            </div>
-          </div>
-        ),
-        {
-          duration: Infinity,
-          className: "w-100 sm:w-100",
-        },
-      );
     }
-  }, [addDrop, lastDropId, newDrop, teams]);
+  }, [addDrop, newDrop, teams]);
 
   return <></>;
 }
@@ -176,7 +116,9 @@ function ClearAllButton({ toastId }: { toastId: string | number }) {
     const checkIfTop = () => {
       const toasts = toast.getToasts();
       // Show on the most recent (last) toast when there are multiple
-      setIsTopToast(toasts[toasts.length - 1]?.id === toastId && toasts.length > 1);
+      setIsTopToast(
+        toasts[toasts.length - 1]?.id === toastId && toasts.length > 1,
+      );
     };
 
     checkIfTop();
