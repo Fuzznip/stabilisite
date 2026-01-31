@@ -117,7 +117,11 @@ export function RecentDropsProvider({
           convertRawDropToDrop(doc.id, doc.data()),
         );
 
-        setDrops((prev) => [...prev, ...newDrops]);
+        setDrops((prev) => {
+          const existingIds = new Set(prev.map((d) => d.id));
+          const uniqueNewDrops = newDrops.filter((d) => !existingIds.has(d.id));
+          return [...prev, ...uniqueNewDrops];
+        });
         lastDocRef.current = snapshot.docs[snapshot.docs.length - 1];
 
         if (snapshot.docs.length < PAGE_SIZE) {

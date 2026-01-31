@@ -16,6 +16,15 @@ const MAX_RETRIES = 15; // Increased from 5 - covers ~9 hours with exponential b
 const BASE_DELAY_MS = 1000;
 const MAX_DELAY_MS = 60000; // Cap at 1 minute between retries
 
+const log = (message: string, data?: unknown) => {
+  const timestamp = new Date().toISOString();
+  if (data !== undefined) {
+    console.log(`[useNewDrop ${timestamp}] ${message}`, data);
+  } else {
+    console.log(`[useNewDrop ${timestamp}] ${message}`);
+  }
+};
+
 export const useNewDrop = () => {
   const [newDrop, setNewDrop] = useState<Drop | undefined>(undefined);
   const firstSnapshotIgnored = useRef<boolean>(false);
@@ -24,10 +33,12 @@ export const useNewDrop = () => {
   const unsubscribeRef = useRef<Unsubscribe | null>(null);
 
   const subscribe = useCallback(() => {
+    log("subscribe() called", { retryCount: retryCount.current });
+
     try {
       // Check if firestore is available
       if (!firestore) {
-        console.warn("Firestore not initialized, skipping subscription");
+        log("Firestore not initialized, skipping subscription");
         return;
       }
 
@@ -37,40 +48,51 @@ export const useNewDrop = () => {
         limit(1),
       );
 
+      log("Setting up onSnapshot listener");
+
       unsubscribeRef.current = onSnapshot(
         q,
         (snapshot) => {
+          log("Snapshot received", {
+            empty: snapshot.empty,
+            size: snapshot.size,
+            fromCache: snapshot.metadata.fromCache,
+            hasPendingWrites: snapshot.metadata.hasPendingWrites,
+            firstSnapshotIgnored: firstSnapshotIgnored.current,
+          });
+
           // Reset retry count on successful snapshot
           retryCount.current = 0;
 
           if (!firstSnapshotIgnored.current) {
             firstSnapshotIgnored.current = true;
+            log("First snapshot ignored (initial load)");
             return;
           }
 
           if (!snapshot.empty) {
-            revalidateBingo();
             const doc = snapshot.docs[0];
+            log("New drop detected", { docId: doc.id });
+            revalidateBingo();
             setNewDrop(convertRawDropToDrop(doc.id, doc.data()));
           } else {
+            log("Empty snapshot, clearing drop");
             setNewDrop(undefined);
           }
         },
         (error) => {
+          log("Snapshot error", {
+            code: error.code,
+            message: error.message,
+            name: error.name,
+            retryCount: retryCount.current,
+          });
+
           // Cleanup current subscription
           if (unsubscribeRef.current) {
+            log("Cleaning up subscription after error");
             unsubscribeRef.current();
             unsubscribeRef.current = null;
-          }
-
-          // Don't log expected disconnection errors
-          const isExpectedDisconnect =
-            error.code === "unavailable" ||
-            error.message?.includes("connection") ||
-            error.message?.includes("closed");
-
-          if (!isExpectedDisconnect) {
-            console.error("Error fetching drops:", error.code, error.message);
           }
 
           // Retry with exponential backoff (capped)
@@ -81,15 +103,23 @@ export const useNewDrop = () => {
             );
             retryCount.current += 1;
 
+            log("Scheduling retry", {
+              retryNumber: retryCount.current,
+              delayMs: delay,
+            });
+
             retryTimeoutRef.current = setTimeout(() => {
               subscribe();
             }, delay);
+          } else {
+            log("Max retries reached, giving up", { maxRetries: MAX_RETRIES });
           }
         },
       );
+
+      log("onSnapshot listener attached");
     } catch (error) {
-      // Catch any synchronous errors during subscription setup
-      console.warn("Failed to setup Firestore subscription:", error);
+      log("Synchronous error during subscription setup", error);
 
       // Retry with backoff (capped)
       if (retryCount.current < MAX_RETRIES) {
@@ -99,18 +129,27 @@ export const useNewDrop = () => {
         );
         retryCount.current += 1;
 
+        log("Scheduling retry after sync error", {
+          retryNumber: retryCount.current,
+          delayMs: delay,
+        });
+
         retryTimeoutRef.current = setTimeout(() => {
           subscribe();
         }, delay);
+      } else {
+        log("Max retries reached after sync error", { maxRetries: MAX_RETRIES });
       }
     }
   }, []);
 
   useEffect(() => {
+    log("useEffect mounting, initial subscribe");
     subscribe();
 
     // Resubscribe when coming back online
     const handleOnline = () => {
+      log("Online event detected, resubscribing");
       // Reset retry count and resubscribe
       retryCount.current = 0;
       if (retryTimeoutRef.current) {
@@ -127,10 +166,17 @@ export const useNewDrop = () => {
       }, 1000);
     };
 
+    const handleOffline = () => {
+      log("Offline event detected");
+    };
+
     window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
+      log("useEffect cleanup, unsubscribing");
       window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
       }
