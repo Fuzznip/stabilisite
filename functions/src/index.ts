@@ -59,7 +59,6 @@ export const pollWomCompetition = onSchedule(
   },
   async () => {
     console.log("Polling WOM competition:", COMPETITION_ID);
-    console.log("Verification code:", COMPETITION_VERIFICATION_CODE ? "set" : "not set");
 
     const collectionRef = db.collection(`wom_competition_${COMPETITION_ID}`);
 
