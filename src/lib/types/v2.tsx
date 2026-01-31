@@ -49,6 +49,7 @@ export type Trigger = {
   source: string | null;
   type: string; // 'DROP' | 'KC' | etc.
   img_path: string | null;
+  wiki_id: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -76,9 +77,11 @@ export type Challenge = {
   id: string;
   task_id: string;
   parent_challenge_id: string | null;
-  trigger_id: string;
+  trigger_id: string | null; // null for parent challenges
   require_all: boolean;
-  quantity: number;
+  quantity: number | null; // null = repeatable challenge
+  value: number;
+  count_per_action: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -105,7 +108,17 @@ export type ChallengeProof = {
   id: string;
   challenge_status_id: string;
   action_id: string;
+  img_path: string | null;
   created_at: string;
+};
+
+// ===========================================
+// PLAYER TYPE - For action attribution
+// ===========================================
+
+export type Player = {
+  id: string;
+  runescape_name: string;
 };
 
 // ===========================================
@@ -149,7 +162,7 @@ export type TaskWithChallenges = Task & {
  * Challenge with trigger information
  */
 export type ChallengeWithTrigger = Challenge & {
-  trigger: Trigger;
+  trigger?: Trigger; // Optional - only present if challenge has a trigger_id
   children?: ChallengeWithTrigger[]; // For parent challenges
 };
 
@@ -164,7 +177,7 @@ export type TeamWithMembers = Team & {
  * Tile status with medal level helper
  */
 export type TileStatusWithMedal = TileStatus & {
-  medal_level: "none" | "bronze" | "silver" | "gold";
+  medal_level: MedalLevel;
 };
 
 export type EventProgress = {
@@ -176,7 +189,7 @@ export type EventProgress = {
  * Challenge status with proofs
  */
 export type ChallengeStatusWithProofs = ChallengeStatus & {
-  proofs: ChallengeProof[];
+  proofs: ChallengeStatusProof[];
 };
 
 /**
@@ -193,11 +206,11 @@ export type BingoBoardState = {
       status: TaskStatus | null;
       challenges: Array<{
         challenge: Challenge;
-        trigger: Trigger;
+        trigger?: Trigger;
         status: ChallengeStatus | null;
         children?: Array<{
           challenge: Challenge;
-          trigger: Trigger;
+          trigger?: Trigger;
           status: ChallengeStatus | null;
         }>;
       }>;
@@ -205,7 +218,82 @@ export type BingoBoardState = {
   }>;
 };
 
-// Progress-specific types for team progress endpoint
+// ===========================================
+// TILE PROGRESS ENDPOINT TYPES
+// ===========================================
+
+// Action details included in proof (subset of full Action)
+export type ProofAction = {
+  id: string;
+  name: string;
+  source: string | null;
+  type: string;
+  quantity: number;
+  value: number | null;
+  date: string | null; // ISO 8601
+  player?: Player; // Player who performed the action
+};
+
+// Proof attached to a challenge status - UPDATED with action details
+export type ChallengeStatusProof = {
+  id: string;
+  img_path: string | null;
+  created_at: string; // ISO 8601
+  action?: ProofAction; // Action details with player info
+};
+
+// Challenge status (team progress on a challenge) - ENRICHED VERSION
+export type ChallengeStatus = {
+  challenge_id: string; // UUID
+  task_id: string; // UUID - which task this belongs to
+  parent_challenge_id: string | null; // UUID - for hierarchical challenges
+  quantity: number; // Current progress
+  required: number | null; // Required quantity to complete (null = repeatable)
+  value: number;
+  completed: boolean;
+  require_all: boolean; // If true, this is an AND challenge with children
+  trigger?: Trigger; // Full trigger details - only present if challenge has a trigger
+  status_id?: string; // UUID - only present if ChallengeStatus exists in DB
+  created_at?: string; // ISO 8601 - only present if ChallengeStatus exists
+  updated_at?: string; // ISO 8601 - only present if ChallengeStatus exists
+  proofs?: ChallengeStatusProof[]; // Proofs with action details - only present if status exists
+};
+
+// Task status for tile progress endpoint (simplified)
+export type TaskStatusProgress = {
+  task_id: string; // UUID
+  completed: boolean;
+  status_id?: string; // UUID - only present if TaskStatus exists in DB
+};
+
+// Team progress on a specific tile
+export type TeamProgress = {
+  id: string; // UUID
+  event_id: string; // UUID
+  name: string;
+  image_url: string | null;
+  points: number;
+  created_at: string; // ISO 8601 datetime
+  updated_at: string; // ISO 8601 datetime
+  tile_status:
+    | TileStatusWithMedal
+    | {
+        tasks_completed: 0;
+        medal_level: "none";
+      };
+  task_statuses: TaskStatusProgress[];
+  challenge_statuses: ChallengeStatus[];
+};
+
+// Main response type for GET /v2/tiles/<tile_id>/progress
+export type TileProgressResponse = {
+  tile: TileWithTasks;
+  teams: TeamProgress[];
+};
+
+// ===========================================
+// TEAM PROGRESS ENDPOINT TYPES
+// ===========================================
 
 export type TileProgress = Tile & {
   status: {
@@ -233,7 +321,7 @@ export type TaskProgress = Task & {
 };
 
 export type ChallengeProgress = Challenge & {
-  trigger: Trigger;
+  trigger?: Trigger;
   status: {
     id?: string;
     team_id?: string;
@@ -243,55 +331,6 @@ export type ChallengeProgress = Challenge & {
     created_at?: string;
     updated_at?: string;
   };
-};
-
-// Proof attached to a challenge status
-export type ChallengeStatusProof = {
-  id: string;
-  img_path: string;
-  created_at: string;
-};
-
-// Challenge status (team progress on a challenge) - ENRICHED VERSION
-export type ChallengeStatus = {
-  challenge_id: string; // UUID
-  task_id: string; // UUID - which task this belongs to
-  parent_challenge_id: string | null; // UUID - for hierarchical challenges
-  quantity: number; // Current progress
-  required: number; // Required quantity to complete
-  value: number;
-  completed: boolean;
-  require_all: boolean; // If true, this is an AND challenge with children
-  trigger: Trigger; // Full trigger details (name, source, type, img_path)
-  status_id?: string; // UUID - only present if ChallengeStatus exists
-  created_at?: string; // ISO 8601 - only present if ChallengeStatus exists
-  updated_at?: string; // ISO 8601 - only present if ChallengeStatus exists
-  proofs?: ChallengeStatusProof[]; // Proofs for this challenge
-};
-
-// Team with progress data
-export type TeamProgress = {
-  id: string; // UUID
-  event_id: string; // UUID
-  name: string;
-  image_url: string | null;
-  points: number;
-  created_at: string; // ISO 8601 datetime
-  updated_at: string; // ISO 8601 datetime
-  tile_status:
-    | TileStatus
-    | {
-        tasks_completed: 0;
-        medal_level: "none";
-      }; // Default object if no status exists
-  task_statuses: TaskStatus[];
-  challenge_statuses: ChallengeStatus[]; // Now includes full challenge metadata!
-};
-
-// Main response type for GET /v2/tiles/<tile_id>/progress
-export type TileProgressResponse = {
-  tile: Tile;
-  teams: TeamProgress[];
 };
 
 // The return type of GET /v2/teams/<team_id>/progress

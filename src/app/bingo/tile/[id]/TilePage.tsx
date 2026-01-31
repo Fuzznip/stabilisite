@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
-  ChallengeStatusProof,
   Task,
   TeamProgress,
   TileWithTasks,
@@ -58,19 +57,28 @@ type ChallengeDisplayItem = {
   imgPath: string | null;
   value: number;
   quantity: number;
-  required: number;
+  required: number | null;
   completed: boolean;
   requireAll: boolean;
   isParent: boolean;
   children?: ChallengeDisplayItem[];
-  trigger: Trigger;
+  trigger?: Trigger;
+};
+
+type EnrichedProof = {
+  id: string;
+  img_path: string | null;
+  created_at: string;
+  itemName: string | null;
+  playerName: string | null;
+  source: string | null;
 };
 
 type TeamTaskProgressData = {
   team: TeamProgress;
   complete: boolean | undefined;
   progress: ChallengeDisplayItem[];
-  proofs: ChallengeStatusProof[];
+  proofs: EnrichedProof[];
 };
 
 const PROGRESS_CUTOFF = 4;
@@ -149,7 +157,7 @@ function ItemGrid({ items }: { items: ChallengeDisplayItem[] }) {
                       <Check className="size-4 text-white stroke-[3]" />
                     </div>
                   )}
-                  {item.required > 1 && (
+                  {item.required != null && item.required > 1 && (
                     <div className="absolute bottom-0 right-0 bg-black/80 text-white text-xs font-bold px-2 py-0.5 rounded-tl-lg rounded-br-md">
                       {item.quantity}/{item.required}
                     </div>
@@ -213,7 +221,7 @@ function ItemWithProgressBar({
         <div className="text-sm text-muted-foreground">{challenge.name}</div>
         <BoldProgressBar
           current={challenge.quantity}
-          required={challenge.required}
+          required={challenge.required ?? 0}
           completed={challenge.completed}
         />
       </div>
@@ -267,7 +275,7 @@ function MultiImageProgressBar({
         </div>
         <BoldProgressBar
           current={challenge.quantity}
-          required={challenge.required}
+          required={challenge.required ?? 0}
           completed={challenge.completed}
         />
       </div>
@@ -283,13 +291,13 @@ function ChallengeDisplay({
   if (challenge.isParent && challenge.children) {
     const hasNestedGroups = challenge.children.some((child) => child.isParent);
     const hasLargeQuantityChildren = challenge.children.some(
-      (child) => child.required > PROGRESS_CUTOFF
+      (child) => (child.required ?? 0) > PROGRESS_CUTOFF
     );
     const isKcWithMultipleTriggers =
       challenge.children.length > 1 &&
       challenge.children.every((child) => child.trigger?.type === "KC");
 
-    if (isKcWithMultipleTriggers && challenge.required > PROGRESS_CUTOFF) {
+    if (isKcWithMultipleTriggers && (challenge.required ?? 0) > PROGRESS_CUTOFF) {
       return <MultiImageProgressBar challenge={challenge} />;
     }
 
@@ -302,7 +310,7 @@ function ChallengeDisplay({
                 ? "Collect all"
                 : `Any ${challenge.required}`}
             </span>
-            {challenge.required > 1 && (
+            {challenge.required != null && challenge.required > 1 && (
               <span className="text-xl font-bold tabular-nums">
                 {challenge.quantity}/{challenge.required}
               </span>
@@ -330,7 +338,7 @@ function ChallengeDisplay({
           <span className="text-sm text-muted-foreground">
             {challenge.requireAll ? "Collect all" : `Any ${challenge.required}`}
           </span>
-          {challenge.required > 1 && (
+          {challenge.required != null && challenge.required > 1 && (
             <span className="text-lg font-bold tabular-nums">
               {challenge.quantity} / {challenge.required}
             </span>
@@ -341,7 +349,7 @@ function ChallengeDisplay({
     );
   }
 
-  if (challenge.required > PROGRESS_CUTOFF) {
+  if ((challenge.required ?? 0) > PROGRESS_CUTOFF) {
     return <ItemWithProgressBar challenge={challenge} />;
   }
 
@@ -381,7 +389,7 @@ function ChallengeDisplay({
                 <Check className="size-4 text-white stroke-[3]" />
               </div>
             )}
-            {challenge.required > 1 && (
+            {challenge.required != null && challenge.required > 1 && (
               <div className="absolute bottom-0 left-0 bg-black/80 text-white text-xs font-bold px-2 py-0.5 rounded-tr-lg rounded-bl-md">
                 {challenge.quantity}/{challenge.required}
               </div>
@@ -421,12 +429,18 @@ function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
 
         <ProofImageDialog
           images={teamData.proofs
-            .filter((proof) => proof.img_path?.length > 0)
+            .filter((proof): proof is EnrichedProof & { img_path: string } =>
+              typeof proof.img_path === "string" && proof.img_path.length > 0
+            )
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
             .map((proof) => ({
               src: proof.img_path,
               timestamp: new Date(proof.created_at),
+              itemName: proof.itemName || undefined,
+              playerName: proof.playerName || undefined,
+              source: proof.source || undefined,
             }))}
-          title={`${teamData.team.name} - Proof Images`}
+          title="Proof Images"
           iconSize={6}
         />
 
@@ -465,9 +479,16 @@ function getTaskTabContent(
         (challenge) => challenge.task_id === task.id,
       );
 
-      // Collect all proofs from challenges for this task
-      const proofs = allChallenges.flatMap(
-        (challenge) => challenge.proofs || [],
+      // Collect all proofs from challenges for this task, enriched with item names, player names, and sources
+      const proofs: EnrichedProof[] = allChallenges.flatMap((challenge) =>
+        (challenge.proofs || []).map((proof) => ({
+          id: proof.id,
+          img_path: proof.img_path,
+          created_at: proof.created_at,
+          itemName: proof.action?.name || challenge.trigger?.name || null,
+          playerName: proof.action?.player?.runescape_name || null,
+          source: proof.action?.source || challenge.trigger?.source || null,
+        })),
       );
 
       // Recursively build challenge hierarchy

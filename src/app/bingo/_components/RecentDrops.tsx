@@ -209,13 +209,15 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
           {suffix}
         </span>
       </div>
+      <DropTime date={drop.date} />
       {drop.imgPath && (
         <ProofImageDialog
-          images={[{ src: drop.imgPath }]}
-          title={`${formattedItemName} - ${drop.player}`}
+          images={[{ src: drop.imgPath, timestamp: drop.date }]}
+          title={formattedItemName}
+          subtitle={drop.player}
+          date={drop.date}
         />
       )}
-      <DropTime date={drop.date} />
     </div>
   );
 }
