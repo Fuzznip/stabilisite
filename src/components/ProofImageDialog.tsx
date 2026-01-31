@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { Eye, X, Calendar, User, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,10 +44,11 @@ export function ProofImageDialog({
   iconSize = 5,
 }: ProofImageDialogProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [expandedImage, setExpandedImage] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
 
-  const handleThumbnailClick = useCallback(
+  const goToImage = useCallback(
     (index: number) => {
       setSelectedIndex(index);
       carouselApi?.scrollTo(index);
@@ -55,19 +56,41 @@ export function ProofImageDialog({
     [carouselApi],
   );
 
-  const handleCarouselSelect = useCallback(() => {
+  // Sync carousel selection with state
+  useEffect(() => {
     if (!carouselApi) return;
-    setSelectedIndex(carouselApi.selectedScrollSnap());
+    const onSelect = () => setSelectedIndex(carouselApi.selectedScrollSnap());
+    carouselApi.on("select", onSelect);
+    return () => { carouselApi.off("select", onSelect); };
   }, [carouselApi]);
 
-  const handleApiChange = useCallback(
-    (api: CarouselApi) => {
-      setCarouselApi(api);
-      if (!api) return;
-      api.on("select", handleCarouselSelect);
-    },
-    [handleCarouselSelect],
-  );
+  // Keyboard navigation
+  useEffect(() => {
+    if (!dialogOpen && !isExpanded) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowLeft":
+          if (selectedIndex > 0) {
+            e.preventDefault();
+            goToImage(selectedIndex - 1);
+          }
+          break;
+        case "ArrowRight":
+          if (selectedIndex < images.length - 1) {
+            e.preventDefault();
+            goToImage(selectedIndex + 1);
+          }
+          break;
+        case "Escape":
+          if (isExpanded) setIsExpanded(false);
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [dialogOpen, isExpanded, selectedIndex, images.length, goToImage]);
 
   if (images.length === 0) return null;
 
@@ -91,7 +114,7 @@ export function ProofImageDialog({
 
   return (
     <>
-      <Dialog>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
           <Button variant="ghost" size="icon">
             <Eye className={`size-${iconSize}`} />
@@ -131,7 +154,7 @@ export function ProofImageDialog({
           <div className="flex-1 min-h-0 p-6">
             <div
               className="relative w-full h-full bg-black/5 rounded-xl overflow-hidden cursor-pointer group"
-              onClick={() => setExpandedImage(currentImage.src)}
+              onClick={() => setIsExpanded(true)}
             >
               <Image
                 src={currentImage.src}
@@ -158,14 +181,14 @@ export function ProofImageDialog({
                     align: "start",
                     dragFree: true,
                   }}
-                  setApi={handleApiChange}
+                  setApi={setCarouselApi}
                   className="w-full"
                 >
                   <CarouselContent className="p-2">
                     {images.map((image, index) => (
                       <CarouselItem key={index} className="pl-3 basis-auto">
                         <button
-                          onClick={() => handleThumbnailClick(index)}
+                          onClick={() => goToImage(index)}
                           className={cn(
                             "relative size-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
                             selectedIndex === index
@@ -206,10 +229,10 @@ export function ProofImageDialog({
       </Dialog>
 
       {/* Fullscreen Expanded View */}
-      {expandedImage && (
+      {isExpanded && (
         <div
           className="fixed inset-0 z-[100] flex flex-col bg-black/95 backdrop-blur-md"
-          onClick={() => setExpandedImage(null)}
+          onClick={() => setIsExpanded(false)}
         >
           {/* Header row */}
           <div className="flex items-center justify-between p-6 shrink-0">
@@ -231,7 +254,7 @@ export function ProofImageDialog({
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/10 size-14"
-              onClick={() => setExpandedImage(null)}
+              onClick={() => setIsExpanded(false)}
             >
               <X className="size-10" />
             </Button>
@@ -243,7 +266,7 @@ export function ProofImageDialog({
             onClick={(e) => e.stopPropagation()}
           >
             <Image
-              src={expandedImage}
+              src={currentImage.src}
               alt="Expanded proof image"
               fill
               sizes="95vw"
@@ -262,10 +285,7 @@ export function ProofImageDialog({
                 className="absolute left-6 bottom-1/2 text-white hover:bg-white/10 size-16 disabled:opacity-20"
                 onClick={(e) => {
                   e.stopPropagation();
-                  const newIndex = Math.max(0, selectedIndex - 1);
-                  setSelectedIndex(newIndex);
-                  setExpandedImage(images[newIndex].src);
-                  carouselApi?.scrollTo(newIndex);
+                  goToImage(selectedIndex - 1);
                 }}
                 disabled={selectedIndex === 0}
               >
@@ -289,13 +309,7 @@ export function ProofImageDialog({
                 className="absolute right-6 bottom-1/2 text-white hover:bg-white/10 size-16 disabled:opacity-20"
                 onClick={(e) => {
                   e.stopPropagation();
-                  const newIndex = Math.min(
-                    images.length - 1,
-                    selectedIndex + 1,
-                  );
-                  setSelectedIndex(newIndex);
-                  setExpandedImage(images[newIndex].src);
-                  carouselApi?.scrollTo(newIndex);
+                  goToImage(selectedIndex + 1);
                 }}
                 disabled={selectedIndex === images.length - 1}
               >
