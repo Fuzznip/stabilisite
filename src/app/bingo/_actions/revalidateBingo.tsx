@@ -1,8 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 export async function revalidateBingo() {
-  revalidatePath(`${process.env.API_URL}events/board`);
-  revalidatePath(`${process.env.API_URL}events/teams`);
+  // Revalidate cached data for the bingo event (includes board and teams)
+  revalidateTag("bingo-event");
 }
