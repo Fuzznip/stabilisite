@@ -24,11 +24,20 @@ export default function DropToaster({
   useEffect(() => {
     if (newDrop && teams.length > 0 && newDrop.id !== lastDropIdRef.current) {
       lastDropIdRef.current = newDrop.id;
-      const team = teams.find((team) =>
-        team.members
-          .map((member) => member.toLowerCase())
-          .includes(newDrop?.player.toLowerCase() || ""),
-      );
+
+      // Look up team by ID if available (new format), otherwise fall back to player name lookup
+      const team = newDrop.teamId
+        ? teams.find((t) => t.id === newDrop.teamId)
+        : teams.find((t) =>
+            t.members
+              .map((m) => m.toLowerCase())
+              .includes(newDrop.player.toLowerCase()),
+          );
+
+      // Show playerRsn in parentheses if different from submitted RSN
+      const showAltName =
+        newDrop.playerRsn &&
+        newDrop.playerRsn.toLowerCase() !== newDrop.player.toLowerCase();
 
       // Add the new drop to the recent drops list
       addDrop(newDrop);
@@ -47,20 +56,28 @@ export default function DropToaster({
 
             <div className="flex flex-col w-full gap-6">
               <div className="flex gap-4">
-                <div className="relative h-16 w-16">
-                  <Image
-                    src={`${team?.image_url}`}
-                    alt={team?.name + " team image"}
-                    fill
-                    sizes="100%"
-                    unoptimized
-                    className="rounded-sm object-cover"
-                  />
-                </div>
+                {team?.image_url && (
+                  <div className="relative h-16 w-16">
+                    <Image
+                      src={team.image_url}
+                      alt={team.name + " team image"}
+                      fill
+                      sizes="100%"
+                      unoptimized
+                      className="rounded-sm object-cover"
+                    />
+                  </div>
+                )}
 
                 <div className="flex flex-col">
                   <span className="text-xl text-foreground capitalize">
-                    {newDrop?.player}
+                    {newDrop.player}
+                    {showAltName && (
+                      <span className="text-muted-foreground">
+                        {" "}
+                        ({newDrop.playerRsn})
+                      </span>
+                    )}
                   </span>
                   <span className="text-lg text-muted-foreground capitalize">
                     {team?.name}
