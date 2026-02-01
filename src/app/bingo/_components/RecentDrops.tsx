@@ -71,7 +71,10 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
   };
 
   const filteredDrops = useMemo(
-    () => drops.filter((drop) => findTeamForPlayer(drop.player, teams)),
+    () =>
+      drops.filter(
+        (drop) => drop.teamId || findTeamForPlayer(drop.player, teams),
+      ),
     [drops, teams],
   );
 
@@ -170,7 +173,15 @@ function DropItemSkeleton() {
 }
 
 function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
-  const team = findTeamForPlayer(drop.player, teams)!;
+  // Look up team by ID if available (new format), otherwise fall back to player name lookup
+  const team = drop.teamId
+    ? teams.find((t) => t.id === drop.teamId)
+    : findTeamForPlayer(drop.player, teams);
+
+  // Show playerRsn in parentheses if different from submitted RSN
+  const showAltName =
+    drop.playerRsn &&
+    drop.playerRsn.toLowerCase() !== drop.player.toLowerCase();
 
   const formattedItemName = drop.itemName
     .toLowerCase()
@@ -185,7 +196,7 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
 
   return (
     <div className="flex items-center gap-4 py-4">
-      {team.image_url && (
+      {team?.image_url && (
         <div className="relative h-12 w-12 shrink-0">
           <Image
             src={team.image_url}
@@ -201,6 +212,9 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
         <div className="flex items-center gap-2">
           <span className="text-lg text-muted-foreground capitalize truncate">
             {drop.player}
+            {showAltName && (
+              <span className="text-muted-foreground/70"> ({drop.playerRsn})</span>
+            )}
           </span>
         </div>
         <span className="text-2xl text-foreground">
