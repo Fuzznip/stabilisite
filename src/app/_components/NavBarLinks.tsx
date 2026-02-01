@@ -1,16 +1,18 @@
 "use client";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Home, User as UserIcon, Trophy, FileText, Grid3X3 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+const iconMap: Record<string, React.ElementType> = {
+  Home: Home,
+  Profile: UserIcon,
+  Leaderboards: Trophy,
+  Applications: FileText,
+  Bingo: Grid3X3,
+};
 
 export default function NavBarLinks({
   user,
@@ -18,7 +20,6 @@ export default function NavBarLinks({
   user: User | null;
 }): React.ReactElement {
   const pathname = usePathname();
-  const router = useRouter();
   const tabs = [
     { href: "/", title: "Home" },
     { href: `/profile/${user?.discordId}`, title: "Profile" },
@@ -33,36 +34,74 @@ export default function NavBarLinks({
     tabs.push({ href: "/bingo", title: "Bingo" });
   }
 
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
+
   return (
     <>
+      {/* Desktop: Horizontal links */}
       <div className="items-center ml-8 gap-4 hidden md:flex">
-        {tabs.map((tab) => (
-          <Link
-            key={tab.href}
-            href={`${tab.href}`}
-            className={cn(
-              "p-2 text-muted-foreground hover:text-foreground font-bold",
-              tab.href === pathname && "text-primary hover:text-primary",
-            )}
-          >
-            {tab.title}
-          </Link>
-        ))}
+        {tabs.map((tab) => {
+          const active = isActive(tab.href);
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              className={cn(
+                "p-2 pb-1 text-muted-foreground hover:text-foreground font-bold relative",
+                active && "text-stability hover:text-stability"
+              )}
+            >
+              {tab.title}
+              {active && (
+                <span
+                  className="absolute bottom-0 left-2 right-2 h-1 bg-stability rounded-full"
+                  style={{ boxShadow: "0 0 8px rgba(165, 45, 42, 0.6)" }}
+                />
+              )}
+            </Link>
+          );
+        })}
       </div>
-      <div className="block md:hidden w-44">
-        <Select onValueChange={(value) => router.push(value)} defaultValue="/">
-          <SelectTrigger className="text-lg bg-background! ml-2">
-            <SelectValue defaultValue="/" className="bg-background" />
-          </SelectTrigger>
-          <SelectContent className="bg-background">
-            {tabs.map((tab) => (
-              <SelectItem key={tab.href} value={tab.href} className="text-lg">
-                {tab.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+
+      {/* Mobile: Bottom tab bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-lg border-t border-border h-16">
+        <div className="flex justify-around items-center h-full px-2">
+          {tabs.map((tab) => {
+            const Icon = iconMap[tab.title] || Home;
+            const active = isActive(tab.href);
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "flex-1 max-w-[100px] flex flex-col items-center justify-center gap-1",
+                  "px-2 py-2 rounded-md relative",
+                  "transition-all duration-200 ease-out",
+                  "active:scale-95",
+                  active
+                    ? "text-stability"
+                    : "text-muted-foreground active:bg-accent/50"
+                )}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="text-[10px] font-semibold tracking-wide uppercase">
+                  {tab.title}
+                </span>
+                {active && (
+                  <span
+                    className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-stability rounded-full animate-in slide-in-from-bottom-2 duration-200"
+                    style={{ boxShadow: "0 0 8px rgba(165, 45, 42, 0.6)" }}
+                  />
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </>
   );
 }

@@ -29,12 +29,12 @@ export default function RootLayout({
         className={`${lato.className} antialiased relative bg-background w-full h-full`}
       >
         <FlickeringGrid
-          className="absolute inset-0 -z-10 size-full [mask-image:radial-gradient(1100px_circle_at_center,white,transparent)]"
+          className="fixed inset-0 -z-10 size-full [mask-image:radial-gradient(90%_90%_at_center,white,transparent)]"
           squareSize={4}
-          gridGap={12}
+          gridGap={10}
           color="#A52D2A"
-          maxOpacity={0.3}
-          flickerChance={0.2}
+          maxOpacity={0.5}
+          flickerChance={0.25}
         />
         <ThemeProvider
           attribute="class"
@@ -43,7 +43,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NavBar />
-          <div className="flex flex-col w-full px-8 lg:px-0 lg:max-w-10/12 min-w-96 mx-auto mt-8 sm:mt-12 gap-12">
+          <div className="flex flex-col w-full px-8 lg:px-0 lg:max-w-10/12 min-w-96 mx-auto mt-8 sm:mt-12 gap-12 pb-20 md:pb-0">
             {children}
           </div>
           <Toaster richColors />
