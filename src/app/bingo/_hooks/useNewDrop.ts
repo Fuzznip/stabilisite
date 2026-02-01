@@ -70,6 +70,13 @@ export const useNewDrop = () => {
             return;
           }
 
+          // Only process if there's an actual document change
+          const changes = snapshot.docChanges();
+          if (changes.length === 0) {
+            log("No document changes, skipping");
+            return;
+          }
+
           if (!snapshot.empty) {
             const doc = snapshot.docs[0];
             log("New drop detected", { docId: doc.id });
@@ -150,8 +157,9 @@ export const useNewDrop = () => {
     // Resubscribe when coming back online
     const handleOnline = () => {
       log("Online event detected, resubscribing");
-      // Reset retry count and resubscribe
+      // Reset state and resubscribe
       retryCount.current = 0;
+      firstSnapshotIgnored.current = false;
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
         retryTimeoutRef.current = null;
