@@ -35,7 +35,7 @@ export default function NavBarLinks({
 
   return (
     <>
-      <div className="items-center ml-8 gap-4 hidden sm:flex">
+      <div className="items-center ml-8 gap-4 hidden md:flex">
         {tabs.map((tab) => (
           <Link
             key={tab.href}
@@ -49,9 +49,9 @@ export default function NavBarLinks({
           </Link>
         ))}
       </div>
-      <div className="block sm:hidden w-44">
+      <div className="block md:hidden w-44">
         <Select onValueChange={(value) => router.push(value)} defaultValue="/">
-          <SelectTrigger className="text-lg flex sm:hidden bg-background! ml-2">
+          <SelectTrigger className="text-lg bg-background! ml-2">
             <SelectValue defaultValue="/" className="bg-background" />
           </SelectTrigger>
           <SelectContent className="bg-background">
