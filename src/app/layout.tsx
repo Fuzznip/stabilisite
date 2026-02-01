@@ -33,7 +33,7 @@ export default function RootLayout({
           squareSize={4}
           gridGap={10}
           color="#A52D2A"
-          maxOpacity={0.5}
+          maxOpacity={0.25}
           flickerChance={0.25}
         />
         <ThemeProvider
