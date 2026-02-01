@@ -30,10 +30,12 @@ function getFirestoreInstance() {
 
   try {
     // Client-side: initialize with persistence
+    // Use long polling to avoid QUIC protocol errors on unstable connections
     return initializeFirestore(firebaseApp, {
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager(),
       }),
+      experimentalForceLongPolling: true,
     });
   } catch {
     // If already initialized, just get the existing instance
