@@ -83,7 +83,9 @@ export function ProofImageDialog({
           }
           break;
         case "Escape":
-          if (isExpanded) setIsExpanded(false);
+          if (isExpanded) {
+            setIsExpanded(false);
+          }
           break;
       }
     };
@@ -154,7 +156,10 @@ export function ProofImageDialog({
           <div className="flex-1 min-h-0 p-6">
             <div
               className="relative w-full h-full bg-black/5 rounded-xl overflow-hidden cursor-pointer group"
-              onClick={() => setIsExpanded(true)}
+              onClick={() => {
+                setDialogOpen(false);
+                setIsExpanded(true);
+              }}
             >
               <Image
                 src={currentImage.src}
@@ -235,7 +240,10 @@ export function ProofImageDialog({
           onClick={() => setIsExpanded(false)}
         >
           {/* Header row */}
-          <div className="flex items-center justify-between p-6 shrink-0">
+          <div
+            className="flex items-center justify-between p-6 shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-6">
               <div className="px-5 py-3 bg-white/10 text-white rounded-xl backdrop-blur-sm">
                 <div className="text-lg font-semibold">{displayTitle}</div>
@@ -254,7 +262,10 @@ export function ProofImageDialog({
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/10 size-14"
-              onClick={() => setIsExpanded(false)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(false);
+              }}
             >
               <X className="size-10" />
             </Button>
