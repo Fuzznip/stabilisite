@@ -29,7 +29,7 @@ export type DropTypeFilter = "DROP" | "KC" | "SKILL";
 // Map our filter types to Firestore 'type' field values
 // DROP and LOOT are equivalent in Firestore
 const FILTER_TO_FIRESTORE: Record<DropTypeFilter, string[]> = {
-  DROP: ["DROP", "LOOT"],
+  DROP: ["DROP", "LOOT", "PET"],
   KC: ["KC"],
   SKILL: ["SKILL"],
 };
