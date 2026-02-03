@@ -7,11 +7,13 @@ export async function GET(
 ) {
   try {
     const { tileId } = await params;
+    const start = Date.now();
     const response = await fetch(
       `${process.env.API_URL}/v2/tiles/${tileId}/progress`,
       { next: { tags: ["bingo-progress", `tile-progress-${tileId}`] } }
     );
     const progress: TileProgressResponse = await response.json();
+    console.log(`[tile-progress] ${tileId}: ${Date.now() - start}ms`);
     return NextResponse.json(progress);
   } catch (error) {
     console.error("Failed to fetch tile progress:", error);

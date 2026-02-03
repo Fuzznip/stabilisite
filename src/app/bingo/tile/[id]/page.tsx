@@ -26,21 +26,33 @@ const ALLOWED_BINGO_DISCORD_IDS = [
 ];
 
 async function getTile(tileId: string): Promise<TileWithTasks> {
-  return fetch(`${process.env.API_URL}/v2/tiles/${tileId}`, {
+  const start = Date.now();
+  const res = await fetch(`${process.env.API_URL}/v2/tiles/${tileId}`, {
     next: { tags: [`tile-${tileId}`] },
-  }).then((res) => res.json());
+  });
+  const data = await res.json();
+  console.log(`[getTile] ${tileId}: ${Date.now() - start}ms`);
+  return data;
 }
 
 async function getTileProgress(tileId: string): Promise<TileProgressResponse> {
-  return fetch(`${process.env.API_URL}/v2/tiles/${tileId}/progress`, {
+  const start = Date.now();
+  const res = await fetch(`${process.env.API_URL}/v2/tiles/${tileId}/progress`, {
     next: { tags: ["bingo-progress", `tile-progress-${tileId}`] },
-  }).then((res) => res.json());
+  });
+  const data = await res.json();
+  console.log(`[getTileProgress] ${tileId}: ${Date.now() - start}ms`);
+  return data;
 }
 
 async function getActiveEvent(): Promise<EventWithDetails> {
-  return fetch(`${process.env.API_URL}/v2/events/active`, {
+  const start = Date.now();
+  const res = await fetch(`${process.env.API_URL}/v2/events/active`, {
     next: { tags: ["bingo-event"] },
-  }).then((res) => res.json());
+  });
+  const data = await res.json();
+  console.log(`[getActiveEvent]: ${Date.now() - start}ms`);
+  return data;
 }
 
 export default async function Page({
