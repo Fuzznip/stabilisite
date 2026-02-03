@@ -8,7 +8,8 @@ export async function GET(
   try {
     const { tileId } = await params;
     const response = await fetch(
-      `${process.env.API_URL}/v2/tiles/${tileId}/progress`
+      `${process.env.API_URL}/v2/tiles/${tileId}/progress`,
+      { next: { tags: ["bingo-progress", `tile-progress-${tileId}`] } }
     );
     const progress: TileProgressResponse = await response.json();
     return NextResponse.json(progress);

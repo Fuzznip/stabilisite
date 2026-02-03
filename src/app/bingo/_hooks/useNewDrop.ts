@@ -9,6 +9,7 @@ import {
 import { Drop } from "@/lib/types/drop";
 import { firestore } from "@/lib/config/firebase";
 import { revalidateBingo } from "../_actions/revalidateBingo";
+import { revalidateBingoProgress } from "../actions";
 import { convertRawDropToDrop } from "@/lib/utils/drop";
 
 export const useNewDrop = () => {
@@ -43,6 +44,7 @@ export const useNewDrop = () => {
         // Genuinely new drop
         lastDropId.current = doc.id;
         revalidateBingo();
+        revalidateBingoProgress();
         setNewDrop(convertRawDropToDrop(doc.id, doc.data()));
       },
       (error) => {

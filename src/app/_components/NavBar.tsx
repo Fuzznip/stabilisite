@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
@@ -43,7 +44,18 @@ export default async function NavBar(): Promise<React.ReactElement> {
             <Link href="/apply">Apply</Link>
           </Button>
         )}
-        {user && user.isMember && <SubmitPopover />}
+        {user && user.isMember && (
+          <Suspense
+            fallback={
+              <Button className="flex items-center gap-1 bg-stability hover:bg-stability/90 text-white mr-4 opacity-50">
+                Submit
+                <ChevronDown className="w-4 h-4 hidden sm:flex" />
+              </Button>
+            }
+          >
+            <SubmitPopover />
+          </Suspense>
+        )}
         {user ? (
           <Popover>
             <PopoverTrigger asChild>
