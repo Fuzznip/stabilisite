@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { QueryClient, QueryClientProvider, useQueries } from "@tanstack/react-query";
 import BingoBoard from "./BingoBoard";
 import Leaderboard from "./Leaderboard";
 import DropToaster from "./DropToaster";
 import RecentDrops from "./RecentDrops";
-import { ProgressProvider, useProgress } from "./ProgressStore";
 import { RecentDropsProvider } from "./RecentDropsStore";
-import { TeamWithMembers, Tile } from "@/lib/types/v2";
+import { TeamProgressResponse, TeamWithMembers, Tile } from "@/lib/types/v2";
+
+const queryClient = new QueryClient();
 
 type BingoClientWrapperProps = {
   teams: TeamWithMembers[];
   tiles: Tile[];
   endDate: string;
-  children?: React.ReactNode;
 };
 
 function formatTimeRemaining(endDate: string): string {
@@ -40,13 +41,11 @@ export function BingoClientWrapper({
   teams,
   tiles,
   endDate,
-  children,
 }: BingoClientWrapperProps) {
   return (
-    <ProgressProvider>
+    <QueryClientProvider client={queryClient}>
       <BingoContent teams={teams} tiles={tiles} endDate={endDate} />
-      {children}
-    </ProgressProvider>
+    </QueryClientProvider>
   );
 }
 
@@ -62,10 +61,18 @@ function BingoContent({
   const [selectedTeamId, setSelectedTeamId] = useState<string | undefined>(
     undefined,
   );
-  const { progressMap, isLoading } = useProgress();
 
-  const progress = selectedTeamId ? progressMap[selectedTeamId] : undefined;
-  const isLoadingProgress = selectedTeamId ? isLoading : false;
+  const progressQueries = useQueries({
+    queries: teams.map((team) => ({
+      queryKey: ["team-progress", team.id],
+      queryFn: () =>
+        fetch(`/api/bingo/progress/${team.id}`).then((res) => res.json()) as Promise<TeamProgressResponse>,
+    })),
+  });
+
+  const selectedIndex = teams.findIndex((team) => team.id === selectedTeamId);
+  const progress = selectedIndex >= 0 ? progressQueries[selectedIndex].data : undefined;
+  const isLoadingProgress = selectedIndex >= 0 ? progressQueries[selectedIndex].isLoading : false;
 
   return (
     <>

@@ -1,11 +1,6 @@
 import { Suspense } from "react";
-import {
-  EventWithDetails,
-  TeamProgressResponse,
-  TeamWithMembers,
-} from "@/lib/types/v2";
+import { EventWithDetails } from "@/lib/types/v2";
 import { BingoClientWrapper } from "./_components/BingoClientWrapper";
-import { ProgressHydrator } from "./_components/ProgressHydrator";
 import { auth } from "@/auth";
 import Loading from "./loading";
 
@@ -26,12 +21,6 @@ const ALLOWED_BINGO_DISCORD_IDS = [
 async function getActiveEvent(): Promise<EventWithDetails> {
   return fetch(`${process.env.API_URL}/v2/events/active`, {
     next: { tags: ["bingo-event"] },
-  }).then((res) => res.json());
-}
-
-async function getTeamProgress(teamId: string): Promise<TeamProgressResponse> {
-  return fetch(`${process.env.API_URL}/v2/teams/${teamId}/progress`, {
-    next: { tags: ["bingo-progress", `team-progress-${teamId}`] },
   }).then((res) => res.json());
 }
 
@@ -62,25 +51,6 @@ async function EventContent() {
       endDate={event.end_date}
       teams={event.teams}
       tiles={event.tiles}
-    >
-      <Suspense fallback={null}>
-        <ProgressContent teams={event.teams} />
-      </Suspense>
-    </BingoClientWrapper>
+    />
   );
-}
-
-async function ProgressContent({ teams }: { teams: TeamWithMembers[] }) {
-  const allTeamProgress = await Promise.all(
-    teams.map(async (team) => {
-      const progress = await getTeamProgress(team.id);
-      return { teamId: team.id, progress };
-    }),
-  );
-
-  const progressMap = Object.fromEntries(
-    allTeamProgress.map(({ teamId, progress }) => [teamId, progress]),
-  );
-
-  return <ProgressHydrator progressMap={progressMap} />;
 }
