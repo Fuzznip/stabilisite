@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+} from "firebase/firestore";
 import { Drop } from "@/lib/types/drop";
 import { firestore } from "@/lib/config/firebase";
 import { revalidateBingo } from "../_actions/revalidateBingo";
@@ -44,7 +50,10 @@ export const useNewDrop = () => {
       },
     );
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      lastDropId.current = null;
+    };
   }, []);
 
   return { newDrop };
