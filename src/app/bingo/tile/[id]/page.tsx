@@ -11,6 +11,8 @@ import { TileProgressHydrator } from "./TileProgressHydrator";
 import { RecentDropsProvider } from "../../_components/RecentDropsStore";
 import DropToaster from "../../_components/DropToaster";
 
+export const runtime = "edge";
+
 // Temporary allowed Discord IDs for bingo
 const ALLOWED_BINGO_DISCORD_IDS = [
   "156543787882119168", // Tboodle
