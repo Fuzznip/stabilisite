@@ -22,6 +22,7 @@ import {
 import { ProgressSkeleton } from "./ProgressSkeleton";
 import { TileProgressProvider, useTileProgress } from "./TileProgressContext";
 import { ProofImageDialog } from "@/components/ProofImageDialog";
+import { PlayerBreakdownDialog } from "@/components/PlayerBreakdownDialog";
 
 type TilePageProps = {
   tile: TileWithTasks;
@@ -72,6 +73,8 @@ type EnrichedProof = {
   itemName: string | null;
   playerName: string | null;
   source: string | null;
+  quantity: number;
+  triggerType: string | null;
 };
 
 type TeamTaskProgressData = {
@@ -409,6 +412,23 @@ function ChallengeDisplay({
 }
 
 function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
+  // Determine if this is a KC/SKILL challenge based on trigger types in proofs
+  const triggerType = teamData.proofs[0]?.triggerType;
+  const isKcOrSkill = triggerType === "KC" || triggerType === "SKILL";
+
+  // Calculate total required from progress (for KC/SKILL display)
+  const totalRequired = teamData.progress.reduce(
+    (sum, p) => sum + (p.required || 0),
+    0
+  );
+
+  // Filter proofs with images for the image dialog
+  const proofsWithImages = teamData.proofs
+    .filter((proof): proof is EnrichedProof & { img_path: string } =>
+      typeof proof.img_path === "string" && proof.img_path.length > 0
+    )
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
   return (
     <div className="mb-12">
       <div className="flex items-center gap-4 mb-6">
@@ -427,22 +447,26 @@ function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
           {teamData.team.name}
         </h3>
 
-        <ProofImageDialog
-          images={teamData.proofs
-            .filter((proof): proof is EnrichedProof & { img_path: string } =>
-              typeof proof.img_path === "string" && proof.img_path.length > 0
-            )
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-            .map((proof) => ({
+        {isKcOrSkill ? (
+          <PlayerBreakdownDialog
+            proofs={teamData.proofs}
+            title="Player Breakdown"
+            total={totalRequired > 0 ? totalRequired : undefined}
+            iconSize={6}
+          />
+        ) : (
+          <ProofImageDialog
+            images={proofsWithImages.map((proof) => ({
               src: proof.img_path,
               timestamp: new Date(proof.created_at),
               itemName: proof.itemName || undefined,
               playerName: proof.playerName || undefined,
               source: proof.source || undefined,
             }))}
-          title="Proof Images"
-          iconSize={6}
-        />
+            title="Proof Images"
+            iconSize={6}
+          />
+        )}
 
         {teamData.complete ? (
           <div className="bg-emerald-500 rounded-full p-2 shadow-lg shadow-emerald-500/30">
@@ -488,6 +512,8 @@ function getTaskTabContent(
           itemName: proof.action?.name || challenge.trigger?.name || null,
           playerName: proof.action?.player?.runescape_name || null,
           source: proof.action?.source || challenge.trigger?.source || null,
+          quantity: proof.action?.quantity || 0,
+          triggerType: challenge.trigger?.type || null,
         })),
       );
 

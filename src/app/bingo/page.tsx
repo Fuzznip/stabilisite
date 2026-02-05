@@ -46,6 +46,14 @@ export default async function HomePage() {
 async function EventContent() {
   const event = await getActiveEvent();
 
+  if (!event.teams || !event.tiles) {
+    return (
+      <div className="w-fit mx-auto text-3xl text-stability">
+        No active event found.
+      </div>
+    );
+  }
+
   return (
     <BingoClientWrapper
       endDate={event.end_date}
