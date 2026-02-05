@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Eye, User } from "lucide-react";
+import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
