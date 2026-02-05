@@ -6,6 +6,7 @@ import { ThemeProvider } from "./_components/ThemeProvider";
 import { ThemedBackground } from "./_components/ThemedBackground";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const lato = Lato({
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({
           </div>
           <Toaster richColors />
           <Analytics />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>
