@@ -22,7 +22,7 @@ export const useNewDrop = () => {
     const q = query(
       collection(firestore, "drops"),
       orderBy("timestamp", "desc"),
-      limit(1),
+      limit(1)
     );
 
     const unsubscribe = onSnapshot(
@@ -32,8 +32,12 @@ export const useNewDrop = () => {
 
         const doc = snapshot.docs[0];
 
-        // First snapshot on mount — just store the ID, don't toast
+        // Baseline not yet established. persistentLocalCache fires a
+        // fromCache snapshot first — skip it and wait for the server-
+        // confirmed one to set the baseline. This prevents toasting a
+        // drop that arrived between the stale cache and now.
         if (lastDropId.current === null) {
+          if (snapshot.metadata.fromCache) return;
           lastDropId.current = doc.id;
           return;
         }
@@ -41,7 +45,7 @@ export const useNewDrop = () => {
         // Same drop as before, nothing to do
         if (doc.id === lastDropId.current) return;
 
-        // Genuinely new drop
+        // Genuinely new drop arrived after baseline was set
         lastDropId.current = doc.id;
         revalidateBingo();
         revalidateBingoProgress();
@@ -49,7 +53,7 @@ export const useNewDrop = () => {
       },
       (error) => {
         console.error("[useNewDrop] Snapshot error", error);
-      },
+      }
     );
 
     return () => {
