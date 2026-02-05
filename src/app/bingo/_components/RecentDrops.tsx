@@ -82,7 +82,7 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
   const showEmpty = initialized && !loading && filteredDrops.length === 0;
 
   return (
-    <div className="flex w-full flex-col items-start mx-auto lg:mx-0 mt-12 max-w-[80vh]">
+    <div className="flex w-full flex-col items-start mx-auto lg:mx-0 mt-12 max-w-[80vh] min-w-0">
       <div className="flex w-full items-end justify-between mb-2">
         <div>
           <h2 className="text-2xl text-foreground">Recent Drops</h2>
@@ -112,7 +112,7 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Card className="w-full p-6 flex">
+      <Card className="w-full p-4 sm:p-6 flex overflow-hidden">
         {!expanded ? (
           <Button
             variant="outline"
@@ -195,9 +195,9 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
   const prefix = drop.submitType === "SKILL" ? `${drop.quantity} ` : "";
 
   return (
-    <div className="flex items-center gap-4 py-4">
+    <div className="flex items-center gap-2 sm:gap-4 py-4">
       {team?.image_url && (
-        <div className="relative h-12 w-12 shrink-0">
+        <div className="relative h-10 w-10 sm:h-12 sm:w-12 shrink-0">
           <Image
             src={team.image_url}
             alt={`${team.name} team image`}
@@ -210,14 +210,14 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
       )}
       <div className="flex flex-col flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-lg text-muted-foreground capitalize truncate">
+          <span className="text-sm sm:text-lg text-muted-foreground capitalize truncate">
             {drop.player}
             {showAltName && (
               <span className="text-muted-foreground/70"> ({drop.playerRsn})</span>
             )}
           </span>
         </div>
-        <span className="text-2xl text-foreground">
+        <span className="text-lg sm:text-2xl text-foreground truncate">
           {prefix}
           {formattedItemName}
           {suffix}
@@ -239,7 +239,7 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
 function DropTime({ date }: { date: Date }) {
   const relativeTime = useRelativeTime(date);
   return (
-    <span className="text-base text-muted-foreground whitespace-nowrap">
+    <span className="text-xs sm:text-base text-muted-foreground whitespace-nowrap shrink-0">
       {relativeTime}
     </span>
   );
