@@ -22,7 +22,7 @@ import { getRanks } from "@/lib/fetch/getRanks";
 export default async function NavBar(): Promise<React.ReactElement> {
   const user = await getAuthUser();
   return (
-    <div className="flex w-full h-16 px-4 justify-between items-center mt-2">
+    <div className="flex w-full h-16 px-2 sm:px-4 justify-between items-center mt-2">
       <div className="flex items-center h-full w-full">
         <Link
           className="flex w-36 relative h-full bg-background rounded-lg hover:cursor-pointer"

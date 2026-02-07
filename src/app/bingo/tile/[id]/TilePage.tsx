@@ -608,7 +608,7 @@ export function TilePage({
   }, [sortedTasks, teamProgresses]);
 
   return (
-    <div className="flex flex-col h-full w-full px-4 sm:px-0 my-4 sm:my-0">
+    <div className="flex flex-col h-full w-full px-2 sm:px-0 my-4 sm:my-0">
       <Button asChild variant="outline" className="text-foreground mb-2 w-fit">
         <Link href={"/bingo"}>
           <ArrowLeft /> Back
@@ -656,12 +656,12 @@ export function TilePage({
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="mb-4 py-6">
+              <TabsList className="mb-4 py-6 w-full sm:w-fit">
                 {sortedTasks.map((task, index) => (
                   <TabsTrigger
                     key={task.id}
                     value={`task${index + 1}`}
-                    className="px-8 h-10 text-md"
+                    className="px-8 h-10 text-md grow"
                   >
                     Task {index + 1}
                   </TabsTrigger>

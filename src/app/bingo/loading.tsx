@@ -28,7 +28,7 @@ function BingoBoardSkeleton() {
 function LeaderboardSkeleton({ className }: { className?: string }) {
   return (
     <div
-      className={`flex h-full flex-col sm:min-w-[30rem] flex-shrink-0 ${className ?? ""}`}
+      className={`flex h-full flex-col sm:min-w-[30rem] flex-shrink-0 w-full ${className ?? ""}`}
     >
       <span className="text-2xl text-foreground">Leaderboard</span>
       <span className="text-lg text-muted-foreground mb-2">

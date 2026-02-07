@@ -30,7 +30,7 @@ export default function Leaderboard({
       </p>
       <Card className="relative flex w-full h-[466px] flex-col rounded-lg">
         {selectedTeam ? (
-          <CardContent className="py-4 flex flex-col h-full overflow-hidden z-20">
+          <CardContent className="p-2! flex flex-col h-full overflow-hidden z-20">
             <div className="shrink-0 flex flex-col">
               <Button
                 variant="outline"
@@ -99,9 +99,7 @@ export default function Leaderboard({
                             />
                           </div>
                         )}
-                        <div className="items-center hidden sm:flex">
-                          {team.name}
-                        </div>
+                        <div className="items-center">{team.name}</div>
                       </div>
                     </div>
                     <div>{team.points}</div>

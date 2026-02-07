@@ -10,7 +10,7 @@ import { ProgressSkeleton } from "./ProgressSkeleton";
 export default function Loading(): React.ReactElement {
   return (
     <div className="flex max-w-5xl w-full mx-auto flex-col items-center justify-center">
-      <div className="flex flex-col h-full w-full px-4 sm:px-0 my-4 sm:my-0">
+      <div className="flex flex-col h-full w-full px-2 sm:px-0 my-4 sm:my-0">
         {/* Back button */}
         <Button
           asChild
@@ -65,12 +65,12 @@ export default function Loading(): React.ReactElement {
             <div className="flex flex-col items-start gap-4 w-full">
               {/* Tab switcher - shown during loading */}
 
-              <TabsList className="mb-2 py-6">
+              <TabsList className="mb-4 py-6 w-full sm:w-fit">
                 {Array.from({ length: 3 }).map((_, index) => (
                   <TabsTrigger
                     key={index}
                     value={`task${index + 1}`}
-                    className="px-8 h-10 text-md"
+                    className="px-8 h-10 text-md w-full grow"
                   >
                     Task {index + 1}
                   </TabsTrigger>
