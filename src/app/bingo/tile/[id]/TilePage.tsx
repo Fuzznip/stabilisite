@@ -13,12 +13,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import {
-  Task,
-  TeamProgress,
-  TileWithTasks,
-  Trigger,
-} from "@/lib/types/v2";
+import { Task, TeamProgress, TileWithTasks, Trigger } from "@/lib/types/v2";
 import { ProgressSkeleton } from "./ProgressSkeleton";
 import { TileProgressProvider, useTileProgress } from "./TileProgressContext";
 import { ProofImageDialog } from "@/components/ProofImageDialog";
@@ -105,7 +100,7 @@ function BoldProgressBar({
             "h-full rounded-full transition-all duration-500 ease-out",
             completed
               ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
-              : "bg-gradient-to-r from-foreground/40 to-foreground/30"
+              : "bg-gradient-to-r from-foreground/40 to-foreground/30",
           )}
           style={{ width: `${percentage}%` }}
         />
@@ -114,7 +109,7 @@ function BoldProgressBar({
         <span
           className={cn(
             "text-2xl font-bold tabular-nums tracking-tight",
-            completed ? "text-emerald-500" : "text-foreground"
+            completed ? "text-emerald-500" : "text-foreground",
           )}
         >
           {current.toLocaleString()}
@@ -144,7 +139,7 @@ function ItemGrid({ items }: { items: ChallengeDisplayItem[] }) {
                     "relative size-20 rounded-lg border-2 transition-all duration-200",
                     isCompleted
                       ? "border-emerald-500 shadow-md shadow-emerald-500/20"
-                      : "border-foreground/20 opacity-50 group-hover:opacity-75"
+                      : "border-foreground/20 opacity-50 group-hover:opacity-75",
                   )}
                 >
                   <Image
@@ -195,7 +190,7 @@ function ItemWithProgressBar({
         "flex items-start gap-4 p-4 rounded-lg border-2 transition-all",
         challenge.completed
           ? "bg-emerald-500/5 border-emerald-500/30"
-          : "bg-muted/20 border-foreground/10"
+          : "bg-muted/20 border-foreground/10",
       )}
     >
       <Tooltip>
@@ -205,7 +200,7 @@ function ItemWithProgressBar({
               "relative size-20 flex-shrink-0 rounded-lg border-2 transition-all",
               challenge.completed
                 ? "border-emerald-500 shadow-md shadow-emerald-500/20"
-                : "border-foreground/20"
+                : "border-foreground/20",
             )}
           >
             <Image
@@ -243,7 +238,7 @@ function MultiImageProgressBar({
         "flex items-start gap-4 p-4 rounded-lg border-2 transition-all",
         challenge.completed
           ? "bg-emerald-500/5 border-emerald-500/30"
-          : "bg-muted/20 border-foreground/10"
+          : "bg-muted/20 border-foreground/10",
       )}
     >
       <div className="flex flex-wrap gap-2 flex-shrink-0">
@@ -255,7 +250,7 @@ function MultiImageProgressBar({
                   "relative size-14 border-2 rounded-lg",
                   challenge.completed
                     ? "border-emerald-500"
-                    : "border-foreground/20"
+                    : "border-foreground/20",
                 )}
               >
                 <Image
@@ -294,13 +289,16 @@ function ChallengeDisplay({
   if (challenge.isParent && challenge.children) {
     const hasNestedGroups = challenge.children.some((child) => child.isParent);
     const hasLargeQuantityChildren = challenge.children.some(
-      (child) => (child.required ?? 0) > PROGRESS_CUTOFF
+      (child) => (child.required ?? 0) > PROGRESS_CUTOFF,
     );
     const isKcWithMultipleTriggers =
       challenge.children.length > 1 &&
       challenge.children.every((child) => child.trigger?.type === "KC");
 
-    if (isKcWithMultipleTriggers && (challenge.required ?? 0) > PROGRESS_CUTOFF) {
+    if (
+      isKcWithMultipleTriggers &&
+      (challenge.required ?? 0) > PROGRESS_CUTOFF
+    ) {
       return <MultiImageProgressBar challenge={challenge} />;
     }
 
@@ -334,7 +332,7 @@ function ChallengeDisplay({
           "rounded-lg p-4 border-2",
           challenge.completed
             ? "bg-emerald-500/5 border-emerald-500/30"
-            : "bg-muted/20 border-foreground/10"
+            : "bg-muted/20 border-foreground/10",
         )}
       >
         <div className="flex items-center justify-between mb-3">
@@ -366,7 +364,7 @@ function ChallengeDisplay({
         "flex items-center gap-4 p-4 rounded-lg border-2",
         isCompleted
           ? "bg-emerald-500/5 border-emerald-500/30"
-          : "bg-muted/20 border-foreground/10"
+          : "bg-muted/20 border-foreground/10",
       )}
     >
       <Tooltip>
@@ -376,7 +374,7 @@ function ChallengeDisplay({
               "relative size-20 flex-shrink-0 rounded-lg border-2 transition-all",
               isCompleted
                 ? "border-emerald-500 shadow-md shadow-emerald-500/20"
-                : "border-foreground/20 opacity-50"
+                : "border-foreground/20 opacity-50",
             )}
           >
             <Image
@@ -413,21 +411,27 @@ function ChallengeDisplay({
 
 function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
   // Determine if this is a KC/SKILL challenge based on trigger types in proofs
+  console.log(teamData);
   const triggerType = teamData.proofs[0]?.triggerType;
-  const isKcOrSkill = triggerType === "KC" || triggerType === "SKILL";
+  const showPlayerBreakdown =
+    triggerType === "KC" || triggerType === "SKILL" || triggerType === "CHAT";
 
   // Calculate total required from progress (for KC/SKILL display)
   const totalRequired = teamData.progress.reduce(
     (sum, p) => sum + (p.required || 0),
-    0
+    0,
   );
 
   // Filter proofs with images for the image dialog
   const proofsWithImages = teamData.proofs
-    .filter((proof): proof is EnrichedProof & { img_path: string } =>
-      typeof proof.img_path === "string" && proof.img_path.length > 0
+    .filter(
+      (proof): proof is EnrichedProof & { img_path: string } =>
+        typeof proof.img_path === "string" && proof.img_path.length > 0,
     )
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
 
   return (
     <div className="mb-12">
@@ -447,7 +451,7 @@ function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
           {teamData.team.name}
         </h3>
 
-        {isKcOrSkill ? (
+        {showPlayerBreakdown ? (
           <PlayerBreakdownDialog
             proofs={teamData.proofs}
             title="Player Breakdown"
