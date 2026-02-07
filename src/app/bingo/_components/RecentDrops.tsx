@@ -190,9 +190,18 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
     .join(" ");
 
   const suffix =
-    drop.submitType === "KC" ? " KC" : drop.submitType === "SKILL" ? " XP" : "";
+    drop.submitType === "KC"
+      ? " KC"
+      : drop.submitType === "SKILL"
+        ? " XP"
+        : drop.submitType === "CHAT" && Number(drop.quantity) > 1
+          ? "s"
+          : "";
 
-  const prefix = drop.submitType === "SKILL" ? `${drop.quantity} ` : "";
+  const prefix =
+    drop.submitType === "SKILL" || drop.submitType === "CHAT"
+      ? `${drop.quantity} `
+      : "";
 
   return (
     <div className="flex items-center gap-2 sm:gap-4 py-4">
