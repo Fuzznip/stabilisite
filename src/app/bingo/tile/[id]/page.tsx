@@ -1,15 +1,15 @@
 import { Suspense } from "react";
 import { TilePageWrapper } from "./TilePage";
-import {
-  EventWithDetails,
-  TileProgressResponse,
-  TileWithTasks,
-} from "@/lib/types/v2";
 import { auth } from "@/auth";
 import Loading from "./loading";
 import { TileProgressHydrator } from "./TileProgressHydrator";
 import { RecentDropsProvider } from "../../_components/RecentDropsStore";
 import DropToaster from "../../_components/DropToaster";
+import {
+  getActiveEvent,
+  getTile,
+  getTileProgress,
+} from "@/lib/fetch/getBingo";
 
 export const runtime = "edge";
 
@@ -26,36 +26,6 @@ const ALLOWED_BINGO_DISCORD_IDS = [
   "347948542049910794", // SoccerTheNub
   "198296669253664768", // Xbrennyx
 ];
-
-async function getTile(tileId: string): Promise<TileWithTasks> {
-  const start = Date.now();
-  const res = await fetch(`${process.env.API_URL}/v2/tiles/${tileId}`, {
-    next: { tags: [`tile-${tileId}`] },
-  });
-  const data = await res.json();
-  console.log(`[getTile] ${tileId}: ${Date.now() - start}ms`);
-  return data;
-}
-
-async function getTileProgress(tileId: string): Promise<TileProgressResponse> {
-  const start = Date.now();
-  const res = await fetch(`${process.env.API_URL}/v2/tiles/${tileId}/progress`, {
-    next: { tags: ["bingo-progress", `tile-progress-${tileId}`] },
-  });
-  const data = await res.json();
-  console.log(`[getTileProgress] ${tileId}: ${Date.now() - start}ms`);
-  return data;
-}
-
-async function getActiveEvent(): Promise<EventWithDetails> {
-  const start = Date.now();
-  const res = await fetch(`${process.env.API_URL}/v2/events/active`, {
-    next: { tags: ["bingo-event"] },
-  });
-  const data = await res.json();
-  console.log(`[getActiveEvent]: ${Date.now() - start}ms`);
-  return data;
-}
 
 export default async function Page({
   params,

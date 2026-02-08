@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import { EventWithDetails } from "@/lib/types/v2";
 import { BingoClientWrapper } from "./_components/BingoClientWrapper";
 import { auth } from "@/auth";
 import Loading from "./loading";
+import { getActiveEvent } from "@/lib/fetch/getBingo";
 
 // Temporary allowed Discord IDs for bingo
 const ALLOWED_BINGO_DISCORD_IDS = [
@@ -17,12 +17,6 @@ const ALLOWED_BINGO_DISCORD_IDS = [
   "347948542049910794", // SoccerTheNub
   "198296669253664768", // Xbrennyx
 ];
-
-async function getActiveEvent(): Promise<EventWithDetails> {
-  return fetch(`${process.env.API_URL}/v2/events/active`, {
-    next: { tags: ["bingo-event"] },
-  }).then((res) => res.json());
-}
 
 export default async function HomePage() {
   const session = await auth();
