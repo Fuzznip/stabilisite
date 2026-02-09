@@ -26,13 +26,20 @@ export async function uploadToS3(file?: File | null): Promise<string> {
   const signedUrl = await getSignedUrl(s3, command, { expiresIn: 60 });
   const fileUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${key}`;
 
-  await fetch(signedUrl, {
+  const uploadResponse = await fetch(signedUrl, {
     method: "PUT",
     body: file,
     headers: {
       "Content-Type": fileType!,
     },
   });
+
+  if (!uploadResponse.ok) {
+    console.error(
+      `S3 upload failed [${uploadResponse.status}]: ${await uploadResponse.text()}`
+    );
+    throw new Error("Failed to upload file. Please try again.");
+  }
 
   return fileUrl;
 }

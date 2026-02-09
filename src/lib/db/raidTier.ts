@@ -22,7 +22,11 @@ export async function submitRaidTierForm(
     },
     body: JSON.stringify(raidTierRequest),
   });
-  if (!response.ok) throw await response.text();
+  if (!response.ok) {
+    const body = await response.text();
+    console.error(`Raid tier submission failed [${response.status}]: ${body}`);
+    throw new Error(body || `Raid tier submission failed (${response.status})`);
+  }
   return;
 }
 

@@ -23,8 +23,9 @@ export async function submitRankForm(
     body: JSON.stringify(rankRequest),
   });
   if (!response.ok) {
-    console.error("API Error: ", response.status, response.statusText);
-    throw await response.text();
+    const body = await response.text();
+    console.error(`Rank submission failed [${response.status}]: ${body}`);
+    throw new Error(body || `Rank submission failed (${response.status})`);
   }
   return;
 }

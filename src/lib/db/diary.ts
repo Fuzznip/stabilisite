@@ -43,7 +43,11 @@ export async function submitDiaryEntry(
     },
     body: JSON.stringify(diaryRequest),
   });
-  if (!response.ok) throw response.text();
+  if (!response.ok) {
+    const body = await response.text();
+    console.error(`Diary submission failed [${response.status}]: ${body}`);
+    throw new Error(body || `Diary submission failed (${response.status})`);
+  }
   return;
 }
 

@@ -40,8 +40,10 @@ async function submitEvent(event: EventSubmission): Promise<void> {
   });
 
   if (!response.ok) {
+    const body = await response.text();
     console.error(
-      `Failed to submit event for ${event.rsn}: ${response.status}`,
+      `Failed to submit event for ${event.rsn} [${response.status}]: ${body}`,
+      JSON.stringify(event),
     );
   }
 }

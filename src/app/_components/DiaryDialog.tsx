@@ -195,33 +195,29 @@ function SpeedRunForm({
     defaultValues: defaultForm,
   });
 
-  const onSubmit = (data: SpeedRunZodForm) => {
-    submitDiary({
+  const onSubmit = async (data: SpeedRunZodForm) => {
+    const result = await submitDiary({
       ...data,
       shorthand:
         selectedDiary.scales.find((scale) => scale.scale === selectedScale)
           ?.shorthand || "",
       scale: Number(selectedScale),
-    })
-      .then(() => {
-        toast.success(
-          `Your ${selectedDiary.name} (${getScaleDisplay(
-            selectedScale
-          )}) diary was submitted and is under review.`
-        );
-        form.reset(defaultForm);
-        setTeamMembers([user?.runescapeName || ""]);
-      })
-      .catch((err) => {
-        toast.error(
-          `There was an error submitting your ${
-            selectedDiary.name
-          } (${getScaleDisplay(selectedScale)}) diary: ${err}`,
-          { duration: 10000 }
-        );
-        form.reset(defaultForm);
-      });
-    setDialogOpen(false);
+    });
+
+    if (result.success) {
+      toast.success(
+        `Your ${selectedDiary.name} (${getScaleDisplay(
+          selectedScale
+        )}) diary was submitted and is under review.`
+      );
+      setDialogOpen(false);
+    } else {
+      toast.error(
+        "Something went wrong submitting your diary entry. Please try again.",
+        { duration: 10000 }
+      );
+    }
+    form.reset(defaultForm);
     setTeamMembers([user?.runescapeName || ""]);
   };
 
@@ -543,26 +539,25 @@ function AchievementForm({
     defaultValues: defaultForm,
   });
 
-  const onSubmit = (data: SpeedRunZodForm) => {
-    submitDiary({
+  const onSubmit = async (data: SpeedRunZodForm) => {
+    const result = await submitDiary({
       ...data,
       shorthand: selectedShorthand,
       scale: 1,
-    })
-      .then(() => {
-        toast.success(
-          `Your ${selectedDiary.name} diary was submitted and is under review.`
-        );
-        form.reset(defaultForm);
-      })
-      .catch((err) => {
-        toast.error(
-          `There was an error submitting your ${selectedDiary.name} diary: ${err}`,
-          { duration: 10000 }
-        );
-        form.reset(defaultForm);
-      });
-    setDialogOpen(false);
+    });
+
+    if (result.success) {
+      toast.success(
+        `Your ${selectedDiary.name} diary was submitted and is under review.`
+      );
+      setDialogOpen(false);
+    } else {
+      toast.error(
+        "Something went wrong submitting your diary entry. Please try again.",
+        { duration: 10000 }
+      );
+    }
+    form.reset(defaultForm);
   };
 
   return (

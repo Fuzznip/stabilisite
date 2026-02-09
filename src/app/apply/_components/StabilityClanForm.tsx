@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import Link from "next/link";
 import { submitClanApplication } from "../_actions/submitClanApplication";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   runescapeName: z
@@ -41,8 +42,14 @@ function ClanForm({
   });
 
   const onSubmit = async (data: FormData) => {
-    submitClanApplication(data);
-    setApplied(true);
+    const result = await submitClanApplication(data);
+    if (result.success) {
+      setApplied(true);
+    } else {
+      toast.error("Something went wrong submitting your application. Please try again.", {
+        duration: 10000,
+      });
+    }
   };
   return (
     <form

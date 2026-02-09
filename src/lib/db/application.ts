@@ -19,5 +19,11 @@ export async function createApplication(
     body: JSON.stringify(clanApplication),
   });
 
+  if (!response.ok) {
+    const body = await response.text();
+    console.error(`Clan application failed [${response.status}]: ${body}`);
+    throw new Error(body || `Clan application failed (${response.status})`);
+  }
+
   return response.json();
 }

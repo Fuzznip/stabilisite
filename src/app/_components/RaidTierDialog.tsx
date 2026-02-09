@@ -78,24 +78,24 @@ export function RaidTierDialog({
     defaultValues: defaultForm,
   });
 
-  const onSubmit = (data: RaidTierSchema) => {
-    submitRaidTier({ targetRaidTierId: data.tier, proof: data.proof })
-      .then(() => {
-        toast.success(
-          `Your ${selectedRaid.raidName} Tier ${selectedTier.order} application was submitted!`
-        );
-        form.reset(defaultForm);
-      })
-      .catch((err) => {
-        toast.error(
-          `There was an error submitting your ${selectedRaid.raidName} Tier ${selectedTier.order} application: ${err}`,
-          { duration: 10000 }
-        );
-        form.reset(defaultForm);
-      });
+  const onSubmit = async (data: RaidTierSchema) => {
+    const result = await submitRaidTier({
+      targetRaidTierId: data.tier,
+      proof: data.proof,
+    });
 
-    setDialogOpen(false);
-    form.reset();
+    if (result.success) {
+      toast.success(
+        `Your ${selectedRaid.raidName} Tier ${selectedTier.order} application was submitted!`
+      );
+      setDialogOpen(false);
+    } else {
+      toast.error(
+        "Something went wrong submitting your raid tier application. Please try again.",
+        { duration: 10000 }
+      );
+    }
+    form.reset(defaultForm);
   };
 
   return (

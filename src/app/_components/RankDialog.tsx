@@ -86,21 +86,28 @@ export function RankDialog({
     try {
       const fileUrls = await getFileUrlsForProof(data.proof);
 
-      await submitRank({
+      const result = await submitRank({
         rank: selectedRank.rankName,
         rankOrder: selectedRank.rankOrder,
         proof: fileUrls, // now a list of string URLs
       });
 
-      toast.success(
-        `Your ${selectedRank.rankName} rank application was submitted!`
-      );
+      if (result.success) {
+        toast.success(
+          `Your ${selectedRank.rankName} rank application was submitted!`
+        );
+        setDialogOpen(false);
+      } else {
+        toast.error(
+          `Something went wrong submitting your rank application. Please try again.`,
+          { duration: 10000 }
+        );
+      }
       form.reset(defaultForm);
-      setDialogOpen(false);
     } catch (err) {
-      console.error(err);
+      console.error("[RankDialog] Submission error:", err);
       toast.error(
-        `There was an error submitting your ${selectedRank.rankName} rank application: ${err}`,
+        "Something went wrong submitting your rank application. Please try again.",
         { duration: 10000 }
       );
       form.reset(defaultForm);
