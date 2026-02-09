@@ -8,7 +8,7 @@ import {
 export async function submitRaidTierForm(
   user: User | null,
   raidTierForm: RaidTierForm,
-  fileUrls: string[]
+  fileUrls: string[],
 ): Promise<void> {
   const raidTierRequest = {
     user_id: user?.discordId,
@@ -31,10 +31,10 @@ export async function submitRaidTierForm(
 }
 
 export async function getRaidTierApplications(
-  user?: User | undefined
+  user?: User | undefined,
 ): Promise<RaidTierApplication[]> {
   const raidTierApplicationResponse = await fetch(
-    `${process.env.API_URL}/applications/raidTier`
+    `${process.env.API_URL}/applications/raidTier`,
   ).then((res) => res.json());
 
   const applications: RaidTierApplication[] = raidTierApplicationResponse.map(
@@ -48,14 +48,14 @@ export async function getRaidTierApplications(
       userId: application.user_id,
       verdictReason: application.verdict_reason,
       verdictDate: new Date(application.verdict_timestamp || ""),
-    })
+    }),
   );
 
   if (user) {
     return applications.filter(
       (application) =>
         application.status === "Accepted" &&
-        application.runescapeName === user.runescapeName
+        application.userId === user.discordId,
     );
   }
   return applications;

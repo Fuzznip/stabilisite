@@ -7,7 +7,7 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { useState, useCallback, useEffect } from "react";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, FileRejection } from "react-dropzone";
 import Image from "next/image";
 import {
   Carousel,
@@ -17,6 +17,9 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
+const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
 
 export default function ProofField({
   onFileSelect,
@@ -53,10 +56,22 @@ export default function ProofField({
     };
   }, [previews]);
 
+  const onDropRejected = useCallback((rejections: FileRejection[]) => {
+    for (const rejection of rejections) {
+      if (rejection.errors.some((e) => e.code === "file-too-large")) {
+        toast.error("File is too large. Maximum size is 8MB.", {
+          duration: 10000,
+        });
+      }
+    }
+  }, []);
+
   const { getInputProps, getRootProps, isDragActive, open } = useDropzone({
     onDrop,
+    onDropRejected,
     multiple: allowMultiple,
     accept: { "image/*": [] },
+    maxSize: MAX_FILE_SIZE,
     noClick: true,
   });
 

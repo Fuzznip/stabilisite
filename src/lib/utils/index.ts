@@ -139,16 +139,16 @@ export function getCAForShorthand(shorthand: string): string {
 
 export function mapDiariesForComabtAchievements(
   diary: ShortDiary,
-  entries: DiaryApplication[]
+  entries: DiaryApplication[],
 ): ShortDiary | null {
   const gmCompleted = entries.filter(
-    (entry) => entry.shorthand === "gm" && entry.status === "Accepted"
+    (entry) => entry.shorthand === "gm" && entry.status === "Accepted",
   ).length;
   const masterCompleted = entries.filter(
-    (entry) => entry.shorthand === "master" && entry.status === "Accepted"
+    (entry) => entry.shorthand === "master" && entry.status === "Accepted",
   ).length;
   const eliteCompleted = entries.filter(
-    (entry) => entry.shorthand === "elite" && entry.status === "Accepted"
+    (entry) => entry.shorthand === "elite" && entry.status === "Accepted",
   ).length;
 
   let scales: {
@@ -162,7 +162,7 @@ export function mapDiariesForComabtAchievements(
     scales = diary.scales.filter((scale) => scale.shorthand === "gm");
   } else if (eliteCompleted) {
     scales = diary.scales.filter(
-      (scale) => scale.shorthand === "gm" || scale.shorthand === "master"
+      (scale) => scale.shorthand === "gm" || scale.shorthand === "master",
     );
   } else {
     scales = diary.scales;
@@ -178,12 +178,13 @@ export function mapDiariesForComabtAchievements(
 
 export function getMaxRaidTiers(
   applications: RaidTierApplication[],
-  raids: Raid[]
+  raids: Raid[],
 ): {
   "Tombs of Amascut": number;
   "Theatre of Blood": number;
   "Chambers of Xeric": number;
 } {
+  console.log(applications);
   const raidMaxes = {
     "Tombs of Amascut": 0,
     "Theatre of Blood": 0,
@@ -193,9 +194,9 @@ export function getMaxRaidTiers(
   const raidTiers = new Map(
     raids.flatMap((raid) =>
       raid.tiers.map(
-        (tier) => [tier.id, { name: raid.raidName, tier: tier.order }] as const
-      )
-    )
+        (tier) => [tier.id, { name: raid.raidName, tier: tier.order }] as const,
+      ),
+    ),
   );
 
   for (const { targetRaidTierId } of applications) {
@@ -225,7 +226,7 @@ export function getFileUrlsForProof(files: File[]): Promise<string[]> {
       });
 
       return fileUrl;
-    })
+    }),
   );
 }
 

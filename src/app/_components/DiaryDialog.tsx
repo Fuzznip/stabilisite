@@ -25,7 +25,7 @@ import { NotebookPen, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, FileRejection } from "react-dropzone";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
@@ -672,6 +672,8 @@ function AchievementForm({
   );
 }
 
+const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
+
 function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -686,9 +688,21 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
     [onFileSelect]
   );
 
+  const onDropRejected = useCallback((rejections: FileRejection[]) => {
+    for (const rejection of rejections) {
+      if (rejection.errors.some((e) => e.code === "file-too-large")) {
+        toast.error("File is too large. Maximum size is 8MB.", {
+          duration: 10000,
+        });
+      }
+    }
+  }, []);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     multiple: false,
+    maxSize: MAX_FILE_SIZE,
     accept: {
       "image/*": [],
     },
