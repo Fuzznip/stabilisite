@@ -23,7 +23,7 @@ export default function Leaderboard({
     : undefined;
 
   return (
-    <div className="flex h-full w-full flex-col max-w-[80vw] lg:w-96 xl:w-120">
+    <div className="flex h-full w-full flex-col max-w-[80vw] lg:w-96 xl:w-120 mt-8 lg:mt-0">
       <h2 className="text-2xl text-foreground">Leaderboard</h2>
       <p className="text-lg text-muted-foreground mb-2">
         Click a team to see their progress

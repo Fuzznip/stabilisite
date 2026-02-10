@@ -112,7 +112,7 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Card className="w-full p-4 pt-2 flex overflow-hidden">
+      <Card className="w-full p-4 flex overflow-hidden ">
         {!expanded ? (
           <Button
             variant="outline"
@@ -122,7 +122,7 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
             Show Drops
           </Button>
         ) : (
-          <div className="flex flex-col divide-y divide-border w-full">
+          <div className="flex flex-col divide-y divide-border w-full space-y-4">
             {showSkeletons ? (
               <>
                 <DropItemSkeleton />
@@ -204,7 +204,7 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
       : "";
 
   return (
-    <div className="flex items-center gap-2 sm:gap-4 py-4">
+    <div className="flex items-center gap-2 sm:gap-4 pb-4">
       {team?.image_url && (
         <div className="relative h-10 w-10 sm:h-12 sm:w-12 shrink-0">
           <Image

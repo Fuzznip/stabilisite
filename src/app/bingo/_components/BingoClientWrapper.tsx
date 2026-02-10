@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { QueryClient, QueryClientProvider, useQueries } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueries,
+} from "@tanstack/react-query";
 import BingoBoard from "./BingoBoard";
 import Leaderboard from "./Leaderboard";
 import DropToaster from "./DropToaster";
@@ -66,27 +70,36 @@ function BingoContent({
     queries: teams.map((team) => ({
       queryKey: ["team-progress", team.id],
       queryFn: () =>
-        fetch(`/api/bingo/progress/${team.id}`).then((res) => res.json()) as Promise<TeamProgressResponse>,
+        fetch(`/api/bingo/progress/${team.id}`).then((res) =>
+          res.json(),
+        ) as Promise<TeamProgressResponse>,
     })),
   });
 
   const selectedIndex = teams.findIndex((team) => team.id === selectedTeamId);
-  const progress = selectedIndex >= 0 ? progressQueries[selectedIndex].data : undefined;
-  const isLoadingProgress = selectedIndex >= 0 ? progressQueries[selectedIndex].isLoading : false;
+  const progress =
+    selectedIndex >= 0 ? progressQueries[selectedIndex].data : undefined;
+  const isLoadingProgress =
+    selectedIndex >= 0 ? progressQueries[selectedIndex].isLoading : false;
 
   return (
-    <>
-      <div className="mb-2 z-10">
-        <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
-        <TimeRemaining endDate={endDate} />
-      </div>
+    <div className="flex flex-col items-center w-full">
       <RecentDropsProvider>
-        <div className="hidden h-0 lg:flex w-full lg:h-full flex-row items-start justify-start gap-8 z-10">
+        {/* Desktop layout */}
+        <div className="hidden h-0 lg:flex lg:h-full flex-row items-start gap-8 w-full z-10">
           <div className="flex flex-col min-w-0 flex-1">
-            <BingoBoard tiles={tiles} progress={progress} isLoading={isLoadingProgress} />
+            <div className="mb-2">
+              <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
+              <TimeRemaining endDate={endDate} />
+            </div>
+            <BingoBoard
+              tiles={tiles}
+              progress={progress}
+              isLoading={isLoadingProgress}
+            />
             <RecentDrops teams={teams} />
           </div>
-          <div className="flex flex-col gap-8 -mt-18 shrink-0">
+          <div className="flex flex-col gap-8 shrink-0">
             <Leaderboard
               teams={teams}
               selectedTeamId={selectedTeamId}
@@ -94,8 +107,17 @@ function BingoContent({
             />
           </div>
         </div>
-        <div className="flex lg:hidden lg:h-0 w-full h-full flex-col justify-center items-center gap-8 lg:pb-12 z-10">
-          <BingoBoard tiles={tiles} progress={progress} isLoading={isLoadingProgress} />
+        {/* Mobile layout */}
+        <div className="flex lg:hidden lg:h-0 w-full h-full flex-col items-center z-10">
+          <div className="mb-2 w-full max-w-[80vw]">
+            <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
+            <TimeRemaining endDate={endDate} />
+          </div>
+          <BingoBoard
+            tiles={tiles}
+            progress={progress}
+            isLoading={isLoadingProgress}
+          />
           <Leaderboard
             teams={teams}
             selectedTeamId={selectedTeamId}
@@ -105,7 +127,7 @@ function BingoContent({
         </div>
         <DropToaster teams={teams} />
       </RecentDropsProvider>
-    </>
+    </div>
   );
 }
 
