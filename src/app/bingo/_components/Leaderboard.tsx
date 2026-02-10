@@ -161,7 +161,7 @@ export default function Leaderboard({
                       key={team.id}
                       onClick={() => onTeamSelect(team.id)}
                       className={cn(
-                        "w-full flex items-center gap-3 p-4 text-left transition-all hover:bg-muted/50 active:bg-muted group",
+                        "w-full flex items-center gap-2 p-4 text-left transition-all hover:bg-muted/50 active:bg-muted group",
                       )}
                     >
                       {/* Rank indicator */}
@@ -170,14 +170,14 @@ export default function Leaderboard({
                           <Badge
                             variant="outline"
                             className={cn(
-                              "h-6 w-6 p-0 justify-center font-bold border-2 text-base",
+                              "size-8 p-0 justify-center font-bold border-2 text-lg",
                               rankBadge.className,
                             )}
                           >
                             {rank}
                           </Badge>
                         ) : (
-                          <span className="font-bold text-muted-foreground tabular-nums">
+                          <span className="text-lg font-bold text-muted-foreground tabular-nums">
                             {rank}
                           </span>
                         )}
