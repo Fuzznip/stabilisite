@@ -20,7 +20,7 @@ export default function BingoBoard({
   isLoading?: boolean;
 }) {
   return (
-    <div className="w-full max-w-[80vh] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
+    <div className="w-full max-w-[80vw] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
       <Image
         src="/bingo_bg.png"
         alt=""

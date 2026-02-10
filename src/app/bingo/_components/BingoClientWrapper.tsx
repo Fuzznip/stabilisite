@@ -80,26 +80,29 @@ function BingoContent({
         <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
         <TimeRemaining endDate={endDate} />
       </div>
-      <div className="hidden h-0 lg:flex w-full lg:h-full flex-row items-start justify-start gap-8 z-10">
-        <BingoBoard tiles={tiles} progress={progress} isLoading={isLoadingProgress} />
-        <div className="flex flex-col gap-8 -mt-18">
+      <RecentDropsProvider>
+        <div className="hidden h-0 lg:flex w-full lg:h-full flex-row items-start justify-start gap-8 z-10">
+          <div className="flex flex-col min-w-0 flex-1">
+            <BingoBoard tiles={tiles} progress={progress} isLoading={isLoadingProgress} />
+            <RecentDrops teams={teams} />
+          </div>
+          <div className="flex flex-col gap-8 -mt-18 shrink-0">
+            <Leaderboard
+              teams={teams}
+              selectedTeamId={selectedTeamId}
+              onTeamSelect={setSelectedTeamId}
+            />
+          </div>
+        </div>
+        <div className="flex lg:hidden lg:h-0 w-full h-full flex-col justify-center items-center gap-8 lg:pb-12 z-10">
+          <BingoBoard tiles={tiles} progress={progress} isLoading={isLoadingProgress} />
           <Leaderboard
             teams={teams}
             selectedTeamId={selectedTeamId}
             onTeamSelect={setSelectedTeamId}
           />
+          <RecentDrops teams={teams} />
         </div>
-      </div>
-      <div className="flex lg:hidden lg:h-0 w-full h-full flex-col justify-center items-center gap-8 lg:pb-12 z-10">
-        <BingoBoard tiles={tiles} progress={progress} isLoading={isLoadingProgress} />
-        <Leaderboard
-          teams={teams}
-          selectedTeamId={selectedTeamId}
-          onTeamSelect={setSelectedTeamId}
-        />
-      </div>
-      <RecentDropsProvider>
-        <RecentDrops teams={teams} />
         <DropToaster teams={teams} />
       </RecentDropsProvider>
     </>

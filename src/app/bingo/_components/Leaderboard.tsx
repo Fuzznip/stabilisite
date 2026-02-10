@@ -23,23 +23,15 @@ export default function Leaderboard({
     : undefined;
 
   return (
-    <div className="flex h-full w-full flex-col md:w-md">
+    <div className="flex h-full w-full flex-col max-w-[80vw] lg:w-96 xl:w-120">
       <h2 className="text-2xl text-foreground">Leaderboard</h2>
       <p className="text-lg text-muted-foreground mb-2">
         Click a team to see their progress
       </p>
       <Card className="relative flex w-full h-[466px] flex-col rounded-lg">
         {selectedTeam ? (
-          <CardContent className="p-2! flex flex-col h-full overflow-hidden z-20">
-            <div className="shrink-0 flex flex-col">
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 h-fit p-2 text-base w-fit mb-2"
-                onClick={() => onTeamSelect(undefined)}
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span>Back</span>
-              </Button>
+          <CardContent className="p-4! flex flex-col h-full overflow-hidden z-20">
+            <div className="shrink-0 flex justify-between px-4 gap-2">
               <div className="flex items-center gap-4 mb-4">
                 {selectedTeam.image_url && (
                   <div className="relative h-16 w-16 shrink-0">
@@ -62,6 +54,14 @@ export default function Leaderboard({
                   </span>
                 </div>
               </div>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 h-fit p-2 text-base w-fit mb-2"
+                onClick={() => onTeamSelect(undefined)}
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span>Back</span>
+              </Button>
             </div>
             <div className="grid grid-cols-2 gap-2 overflow-y-auto border-t pt-1">
               {selectedTeam.members.map((member) => (
@@ -99,7 +99,9 @@ export default function Leaderboard({
                             />
                           </div>
                         )}
-                        <div className="items-center">{team.name}</div>
+                        <div className="items-center lg:max-w-20 xl:max-w-full text-wrap">
+                          {team.name}
+                        </div>
                       </div>
                     </div>
                     <div>{team.points}</div>

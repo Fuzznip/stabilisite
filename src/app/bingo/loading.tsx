@@ -4,7 +4,7 @@ import Image from "next/image";
 
 function BingoBoardSkeleton() {
   return (
-    <div className="w-full max-w-[80vh] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
+    <div className="w-full max-w-[80vw] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
       <Image
         src="/bingo_bg.png"
         alt=""
@@ -53,7 +53,7 @@ function LeaderboardSkeleton({ className }: { className?: string }) {
 
 function RecentDropsSkeleton() {
   return (
-    <div className="flex w-full flex-col items-start mx-auto lg:mx-0 lg:mt-12 max-w-[80vh]">
+    <div className="flex w-full flex-col items-start mx-auto lg:mx-0 lg:mt-12 max-w-[80vw]">
       <div className="flex w-full items-end justify-between mb-2">
         <div>
           <h2 className="text-2xl text-foreground">Recent Drops</h2>

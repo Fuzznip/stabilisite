@@ -82,7 +82,7 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
   const showEmpty = initialized && !loading && filteredDrops.length === 0;
 
   return (
-    <div className="flex w-full flex-col items-start mx-auto lg:mx-0 mt-12 max-w-[80vh] min-w-0">
+    <div className="flex w-full flex-col items-start mt-12 min-w-0 max-w-[80vw]">
       <div className="flex w-full items-end justify-between mb-2">
         <div>
           <h2 className="text-2xl text-foreground">Recent Drops</h2>
@@ -112,7 +112,7 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Card className="w-full p-4 sm:p-6 flex overflow-hidden">
+      <Card className="w-full p-4 pt-2 flex overflow-hidden">
         {!expanded ? (
           <Button
             variant="outline"
@@ -222,7 +222,10 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
           <span className="text-sm sm:text-lg text-muted-foreground capitalize truncate">
             {drop.player}
             {showAltName && (
-              <span className="text-muted-foreground/70"> ({drop.playerRsn})</span>
+              <span className="text-muted-foreground/70">
+                {" "}
+                ({drop.playerRsn})
+              </span>
             )}
           </span>
         </div>
