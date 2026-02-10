@@ -4,7 +4,7 @@ import Image from "next/image";
 
 function BingoBoardSkeleton() {
   return (
-    <div className="w-full max-w-[80vw] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
+    <div className="w-full max-w-[80vw] lg:max-w-[calc(100vh-8rem)] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
       <Image
         src="/bingo_bg.png"
         alt=""
@@ -25,11 +25,9 @@ function BingoBoardSkeleton() {
   );
 }
 
-function LeaderboardSkeleton({ className }: { className?: string }) {
+function LeaderboardSkeleton() {
   return (
-    <div
-      className={`flex h-full flex-col sm:min-w-[30rem] flex-shrink-0 w-full ${className ?? ""}`}
-    >
+    <div className="flex h-full w-full flex-col max-w-[80vw] lg:w-96 xl:w-120 mt-8 lg:mt-0">
       <span className="text-2xl text-foreground">Leaderboard</span>
       <span className="text-lg text-muted-foreground mb-2">
         Click a team to see their progress
@@ -53,7 +51,7 @@ function LeaderboardSkeleton({ className }: { className?: string }) {
 
 function RecentDropsSkeleton() {
   return (
-    <div className="flex w-full flex-col items-start mx-auto lg:mx-0 lg:mt-12 max-w-[80vw]">
+    <div className="flex w-full flex-col items-start mt-12 min-w-0 max-w-[80vw]">
       <div className="flex w-full items-end justify-between mb-2">
         <div>
           <h2 className="text-2xl text-foreground">Recent Drops</h2>
@@ -72,22 +70,31 @@ function RecentDropsSkeleton() {
 
 export default function Loading(): React.ReactElement {
   return (
-    <>
-      <div className="mb-2 z-10">
-        <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
-        <Skeleton className="h-7 w-48" />
-      </div>
-      <div className="hidden h-0 lg:flex w-full lg:h-full flex-row items-start justify-start gap-8 z-10">
-        <BingoBoardSkeleton />
-        <div className="flex flex-col gap-8 -mt-18">
+    <div className="flex flex-col items-center w-full">
+      {/* Desktop layout */}
+      <div className="hidden h-0 lg:flex lg:h-full flex-row items-start gap-8 w-full z-10">
+        <div className="flex flex-col min-w-0 flex-1 max-w-[80vw] lg:max-w-[calc(100vh-8rem)]">
+          <div className="mb-2">
+            <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
+            <Skeleton className="h-7 w-48" />
+          </div>
+          <BingoBoardSkeleton />
+          <RecentDropsSkeleton />
+        </div>
+        <div className="flex flex-col gap-8 shrink-0">
           <LeaderboardSkeleton />
         </div>
       </div>
-      <div className="flex lg:hidden lg:h-0 w-full h-full flex-col justify-center items-center gap-8 z-10">
+      {/* Mobile layout */}
+      <div className="flex lg:hidden lg:h-0 w-full h-full flex-col items-center z-10">
+        <div className="mb-2 w-full max-w-[80vw]">
+          <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
+          <Skeleton className="h-7 w-48" />
+        </div>
         <BingoBoardSkeleton />
         <LeaderboardSkeleton />
+        <RecentDropsSkeleton />
       </div>
-      <RecentDropsSkeleton />
-    </>
+    </div>
   );
 }
