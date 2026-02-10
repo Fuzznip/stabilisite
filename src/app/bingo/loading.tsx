@@ -4,7 +4,7 @@ import Image from "next/image";
 
 function BingoBoardSkeleton() {
   return (
-    <div className="w-full max-w-[80vw] lg:max-w-[calc(100vh-8rem)] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
+    <div className="w-full max-w-[80vw] lg:max-w-[min(calc(100vh-8rem),800px)] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
       <Image
         src="/bingo_bg.png"
         alt=""
@@ -73,7 +73,7 @@ export default function Loading(): React.ReactElement {
     <div className="flex flex-col items-center w-full">
       {/* Desktop layout */}
       <div className="hidden h-0 lg:flex lg:h-full flex-row items-start gap-8 w-full z-10">
-        <div className="flex flex-col min-w-0 flex-1 max-w-[80vw] lg:max-w-[calc(100vh-8rem)]">
+        <div className="flex flex-col min-w-0 flex-1 max-w-[80vw] lg:max-w-[min(calc(100vh-8rem),800px)]">
           <div className="mb-2">
             <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
             <Skeleton className="h-7 w-48" />
