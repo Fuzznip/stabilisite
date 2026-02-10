@@ -4,13 +4,43 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Trophy, Award, Users } from "lucide-react";
 import { TeamWithMembers } from "@/lib/types/v2";
 
 type LeaderboardProps = {
   teams: TeamWithMembers[];
   selectedTeamId?: string;
   onTeamSelect: (teamId: string | undefined) => void;
+};
+
+// Medal styling for top 3 teams
+const getRankBadge = (rank: number) => {
+  if (rank === 1) {
+    return {
+      icon: Trophy,
+      className:
+        "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-500/30",
+      label: "1st",
+    };
+  }
+  if (rank === 2) {
+    return {
+      icon: Award,
+      className:
+        "bg-slate-400/20 text-slate-600 dark:text-slate-300 border-slate-400/30",
+      label: "2nd",
+    };
+  }
+  if (rank === 3) {
+    return {
+      icon: Award,
+      className:
+        "bg-amber-600/20 text-amber-700 dark:text-amber-500 border-amber-600/30",
+      label: "3rd",
+    };
+  }
+  return null;
 };
 
 export default function Leaderboard({
@@ -22,95 +52,180 @@ export default function Leaderboard({
     ? teams.find((t) => t.id === selectedTeamId)
     : undefined;
 
+  const selectedTeamRank = selectedTeam
+    ? teams.findIndex((t) => t.id === selectedTeamId) + 1
+    : 0;
+
   return (
-    <div className="flex h-full w-full flex-col max-w-[80vw] lg:w-96 xl:w-120 mt-8 lg:mt-0">
-      <h2 className="text-2xl text-foreground">Leaderboard</h2>
+    <div className="flex h-full w-full flex-col max-w-[80vw] lg:w-96 xl:w-120 mt-8 lg:mt-2">
+      <h2 className="text-2xl font-bold text-foreground">Leaderboard</h2>
       <p className="text-lg text-muted-foreground mb-2">
-        Click a team to see their progress
+        {selectedTeam ? "Team Details" : "Click a team to see members"}
       </p>
-      <Card className="relative flex w-full h-[466px] flex-col rounded-lg">
+
+      <Card className="relative flex w-full flex-col rounded-lg overflow-hidden">
         {selectedTeam ? (
-          <CardContent className="p-4! flex flex-col h-full overflow-hidden z-20">
-            <div className="shrink-0 flex justify-between px-4 gap-2">
-              <div className="flex items-center gap-4 mb-4">
+          // SELECTED TEAM VIEW
+          <CardContent className="p-0 flex flex-col min-h-[466px] max-h-[80vh]">
+            {/* Header with back button */}
+            <div className="shrink-0 border-b p-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground"
+                onClick={() => onTeamSelect(undefined)}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to leaderboard
+              </Button>
+
+              {/* Team info header */}
+              <div className="flex items-start gap-4">
                 {selectedTeam.image_url && (
-                  <div className="relative h-16 w-16 shrink-0">
+                  <div className="relative h-20 w-20 shrink-0 rounded-md overflow-hidden border-2 border-border">
                     <Image
                       src={selectedTeam.image_url}
-                      alt={selectedTeam.name + " team image"}
+                      alt={selectedTeam.name}
                       fill
-                      sizes="64px"
+                      sizes="80px"
                       unoptimized
-                      className="rounded-sm object-cover"
+                      className="object-cover"
                     />
                   </div>
                 )}
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold">
-                    {selectedTeam.name}
-                  </span>
-                  <span className="text-lg text-muted-foreground">
-                    {selectedTeam.points} points
-                  </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-2xl font-bold truncate">
+                      {selectedTeam.name}
+                    </h3>
+                    {getRankBadge(selectedTeamRank) && (
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "gap-1 font-semibold",
+                          getRankBadge(selectedTeamRank)?.className,
+                        )}
+                      >
+                        {(() => {
+                          const badge = getRankBadge(selectedTeamRank);
+                          const Icon = badge?.icon;
+                          return Icon && <Icon className="h-3 w-3" />;
+                        })()}
+                        {getRankBadge(selectedTeamRank)?.label}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold tabular-nums">
+                      {selectedTeam.points}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      points
+                    </span>
+                  </div>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 h-fit p-2 text-base w-fit mb-2"
-                onClick={() => onTeamSelect(undefined)}
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span>Back</span>
-              </Button>
             </div>
-            <div className="grid grid-cols-2 gap-2 overflow-y-auto border-t pt-1">
-              {selectedTeam.members.map((member) => (
-                <div key={member} className="text-lg py-2 px-4">
-                  {member}
-                </div>
-              ))}
+
+            {/* Members section */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Team Members ({selectedTeam.members.length})
+                </h4>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {selectedTeam.members.map((member) => (
+                  <div
+                    key={member}
+                    className="px-3 py-2 rounded-md bg-muted/40 border border-border/50 text-sm font-medium truncate hover:bg-muted/60 transition-colors"
+                  >
+                    {member}
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         ) : (
-          <CardContent className="py-4 overflow-y-auto z-20">
+          // TEAM LIST VIEW
+          <CardContent className="p-0">
             {teams.length ? (
-              <div className="flex flex-col [&>*:not(:last-child)]:mb-4">
-                {teams.map((team, index) => (
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "flex justify-between text-2xl gap-12 text-left items-center w-full h-fit p-4 box-border",
-                    )}
-                    key={team.name}
-                    onClick={() => onTeamSelect(team.id)}
-                  >
-                    <div className="flex gap-4 items-center">
-                      <div className="font-extrabold">{index + 1}</div>
-                      <div className="flex gap-4 items-center">
-                        {team.image_url && (
-                          <div className="relative h-16 w-16">
-                            <Image
-                              src={team.image_url}
-                              alt={team.name + " team image"}
-                              fill
-                              sizes="100%"
-                              unoptimized
-                              className="rounded-sm object-cover"
-                            />
-                          </div>
+              <div className="divide-y divide-border max-h-[80vh] overflow-y-auto">
+                {teams.map((team, index) => {
+                  const rank = index + 1;
+                  const rankBadge = getRankBadge(rank);
+
+                  return (
+                    <button
+                      key={team.id}
+                      onClick={() => onTeamSelect(team.id)}
+                      className={cn(
+                        "w-full flex items-center gap-3 p-4 text-left transition-all hover:bg-muted/50 active:bg-muted group",
+                      )}
+                    >
+                      {/* Rank indicator */}
+                      <div className="flex items-center justify-center shrink-0 w-8">
+                        {rankBadge ? (
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "h-6 w-6 p-0 justify-center font-bold border-2 text-base",
+                              rankBadge.className,
+                            )}
+                          >
+                            {rank}
+                          </Badge>
+                        ) : (
+                          <span className="font-bold text-muted-foreground tabular-nums">
+                            {rank}
+                          </span>
                         )}
-                        <div className="items-center lg:max-w-20 xl:max-w-full text-wrap">
+                      </div>
+
+                      {/* Team image */}
+                      {team.image_url && (
+                        <div className="relative h-16 w-16 shrink-0 rounded overflow-hidden border border-border group-hover:border-foreground/20 transition-colors">
+                          <Image
+                            src={team.image_url}
+                            alt={team.name}
+                            fill
+                            sizes="64px"
+                            unoptimized
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+
+                      {/* Team name */}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-2xl truncate group-hover:text-foreground transition-colors">
                           {team.name}
                         </div>
+                        <div className="text-sm text-muted-foreground">
+                          {team.members.length}{" "}
+                          {team.members.length === 1 ? "member" : "members"}
+                        </div>
                       </div>
-                    </div>
-                    <div>{team.points}</div>
-                  </Button>
-                ))}
+
+                      {/* Points */}
+                      <div className="text-right shrink-0">
+                        <div className="text-xl font-bold tabular-nums">
+                          {team.points}
+                        </div>
+                        <div className="text-sm text-muted-foreground">pts</div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             ) : (
-              <div className="text-muted-foreground text-2xl w-fit mx-auto my-24">
-                No Team Data
+              <div className="flex flex-col items-center justify-center py-24 px-4">
+                <Trophy className="h-12 w-12 text-muted-foreground/40 mb-4" />
+                <p className="text-lg text-muted-foreground">No teams yet</p>
+                <p className="text-sm text-muted-foreground/60">
+                  Teams will appear here when created
+                </p>
               </div>
             )}
           </CardContent>

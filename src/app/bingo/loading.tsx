@@ -27,20 +27,34 @@ function BingoBoardSkeleton() {
 
 function LeaderboardSkeleton() {
   return (
-    <div className="flex h-full w-full flex-col max-w-[80vw] lg:w-96 xl:w-120 mt-8 lg:mt-0">
-      <span className="text-2xl text-foreground">Leaderboard</span>
-      <span className="text-lg text-muted-foreground mb-2">
-        Click a team to see their progress
-      </span>
-      <Card className="flex w-full h-[466px] flex-col gap-4 rounded-lg relative">
-        <CardContent className="py-4 [&>*:not(:last-child)]:mb-4">
+    <div className="flex h-full w-full flex-col max-w-[80vw] lg:w-96 xl:w-120 mt-8 lg:mt-2">
+      <span className="text-2xl font-bold text-foreground">Leaderboard</span>
+      <p className="text-lg text-muted-foreground mb-2">
+        Click a team to see members
+      </p>
+      <Card className="flex w-full flex-col rounded-lg overflow-hidden">
+        <CardContent className="p-0 divide-y divide-border">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="flex text-3xl gap-4 text-left items-center w-full p-4 box-border h-fit"
+              className="flex items-center gap-3 p-4"
             >
-              <div>{index + 1}</div>
-              <Skeleton className="h-16 flex-1 rounded-sm" />
+              <div className="w-8 shrink-0 flex justify-center">
+                {index < 3 ? (
+                  <Skeleton className="h-6 w-6 rounded-md" />
+                ) : (
+                  <Skeleton className="h-5 w-5 rounded" />
+                )}
+              </div>
+              <Skeleton className="h-16 w-16 shrink-0 rounded" />
+              <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                <Skeleton className="h-6 w-32 rounded" />
+                <Skeleton className="h-3.5 w-20 rounded" />
+              </div>
+              <div className="flex flex-col items-end gap-1.5">
+                <Skeleton className="h-5 w-12 rounded" />
+                <Skeleton className="h-3.5 w-6 rounded" />
+              </div>
             </div>
           ))}
         </CardContent>
