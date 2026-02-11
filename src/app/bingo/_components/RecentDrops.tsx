@@ -218,24 +218,27 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
         </div>
       )}
       <div className="flex flex-col flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-sm sm:text-lg text-muted-foreground capitalize truncate">
-            {drop.player}
-            {showAltName && (
-              <span className="text-muted-foreground/70">
-                {" "}
-                ({drop.playerRsn})
-              </span>
-            )}
-          </span>
-        </div>
-        <span className="text-lg sm:text-2xl text-foreground truncate">
+        <span className="text-base text-muted-foreground capitalize truncate">
+          {drop.player}
+          {showAltName && (
+            <span className="text-muted-foreground/70">
+              {" "}
+              ({drop.playerRsn})
+            </span>
+          )}
+        </span>
+        <span className="text-xl text-foreground truncate">
           {prefix}
           {formattedItemName}
           {suffix}
         </span>
+        <span className="sm:hidden">
+          <DropTime date={drop.date} />
+        </span>
       </div>
-      <DropTime date={drop.date} />
+      <span className="hidden sm:inline">
+        <DropTime date={drop.date} />
+      </span>
       {drop.imgPath && (
         <ProofImageDialog
           images={[{ src: drop.imgPath, timestamp: drop.date }]}
@@ -251,7 +254,7 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
 function DropTime({ date }: { date: Date }) {
   const relativeTime = useRelativeTime(date);
   return (
-    <span className="text-xs sm:text-base text-muted-foreground whitespace-nowrap shrink-0">
+    <span className="text-base text-muted-foreground whitespace-nowrap shrink-0">
       {relativeTime}
     </span>
   );
