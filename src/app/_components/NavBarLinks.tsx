@@ -67,7 +67,7 @@ export default function NavBarLinks({
       </div>
 
       {/* Mobile: Bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-lg border-t border-border h-16">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-lg border-t border-border pb-[env(safe-area-inset-bottom)]" style={{ minHeight: "4rem" }}>
         <div className="flex justify-around items-center h-full px-2">
           {tabs.map((tab) => {
             const Icon = iconMap[tab.title] || Home;
