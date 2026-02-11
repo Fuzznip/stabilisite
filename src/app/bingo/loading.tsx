@@ -4,7 +4,7 @@ import Image from "next/image";
 
 function BingoBoardSkeleton() {
   return (
-    <div className="w-full max-w-[80vw] lg:max-w-[min(calc(100vh-8rem),800px)] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
+    <div className="w-full max-w-[90vw] sm:max-w-[80vw] lg:max-w-[min(calc(100vh-8rem),800px)] flex justify-center relative bg-background rounded-md border-2 border-bingo-grid">
       <Image
         src="/bingo_bg.png"
         alt=""
@@ -27,7 +27,7 @@ function BingoBoardSkeleton() {
 
 function LeaderboardSkeleton() {
   return (
-    <div className="flex h-full w-full flex-col max-w-[80vw] lg:w-96 xl:w-120 mt-8 lg:mt-2">
+    <div className="flex h-full w-full flex-col max-w-[90vw] sm:max-w-[80vw] lg:w-96 xl:w-120 mt-8 lg:mt-2">
       <span className="text-2xl font-bold text-foreground">Leaderboard</span>
       <p className="text-lg text-muted-foreground mb-2">
         Click a team to see members
@@ -65,7 +65,7 @@ function LeaderboardSkeleton() {
 
 function RecentDropsSkeleton() {
   return (
-    <div className="flex w-full flex-col items-start mt-12 min-w-0 max-w-[80vw]">
+    <div className="flex w-full flex-col items-start mt-12 min-w-0 max-w-[90vw] sm:max-w-[80vw]">
       <div className="flex w-full items-end justify-between mb-2">
         <div>
           <h2 className="text-2xl text-foreground">Recent Drops</h2>
@@ -101,7 +101,7 @@ export default function Loading(): React.ReactElement {
       </div>
       {/* Mobile layout */}
       <div className="flex lg:hidden lg:h-0 w-full h-full flex-col items-center z-10">
-        <div className="mb-2 w-full max-w-[80vw]">
+        <div className="mb-2 w-full max-w-[90vw] sm:max-w-[80vw]">
           <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
           <Skeleton className="h-7 w-48" />
         </div>

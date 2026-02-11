@@ -12,58 +12,42 @@ import {
 function ClanPointTableSkeleton() {
   return (
     <section className="flex flex-col w-full h-full">
-      <div className="w-full flex flex-col mb-3">
-        <h2 className="text-2xl font-bold">Clan Points</h2>
-        <p className="text-sm text-muted-foreground">
+      <div className="w-full flex flex-col">
+        <h2 className="text-2xl font-bold mb-0">Clan Points</h2>
+        <p className="text-muted-foreground mb-2">
           Click a name to view their profile
         </p>
       </div>
-      <Card className="flex flex-col p-0 overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table className="w-full sm:table-fixed">
-            <TableHeader>
-              <TableRow className="bg-muted/30 hover:bg-muted/30">
-                <TableHead className="w-16 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  #
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Name
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground text-right sm:text-left">
-                  Points
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground hidden sm:table-cell">
-                  Rank
-                </TableHead>
+      <Card className="flex flex-col gap-4 p-4 min-h-72 h-full">
+        <Table className="w-full sm:table-fixed">
+          <TableHeader>
+            <TableRow className="text-lg">
+              <TableHead className="text-muted-foreground">Place</TableHead>
+              <TableHead className="text-muted-foreground">Points</TableHead>
+              <TableHead className="text-muted-foreground">Name</TableHead>
+              <TableHead className="text-muted-foreground">Rank</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="text-xl">
+            {Array.from({ length: 10 }).map((_, index) => (
+              <TableRow key={index} className="h-16">
+                <TableCell>
+                  <Skeleton className="h-6 w-8" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-6 w-16" />
+                </TableCell>
+                <TableCell className="w-48 sm:w-auto">
+                  <Skeleton className="h-6 w-32" />
+                </TableCell>
+                <TableCell className="flex items-center my-auto h-16">
+                  <Skeleton className="size-6 mr-2 rounded-full" />
+                  <Skeleton className="h-6 w-20" />
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Array.from({ length: 10 }).map((_, index) => (
-                <TableRow key={index} className="h-14">
-                  <TableCell className="w-16">
-                    {index < 3 ? (
-                      <Skeleton className="h-5 w-5 rounded" />
-                    ) : (
-                      <Skeleton className="h-4 w-5 rounded" />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-28 rounded" />
-                  </TableCell>
-                  <TableCell className="text-right sm:text-left">
-                    <Skeleton className="h-4 w-14 rounded" />
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="size-5 rounded-full" />
-                      <Skeleton className="h-4 w-16 rounded" />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+            ))}
+          </TableBody>
+        </Table>
       </Card>
     </section>
   );

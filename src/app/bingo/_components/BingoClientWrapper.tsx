@@ -109,7 +109,7 @@ function BingoContent({
         </div>
         {/* Mobile layout */}
         <div className="flex lg:hidden lg:h-0 w-full h-full flex-col items-center z-10">
-          <div className="mb-2 w-full max-w-[80vw]">
+          <div className="mb-2 w-full max-w-[90vw] sm:max-w-[80vw]">
             <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
             <TimeRemaining endDate={endDate} />
           </div>

@@ -82,7 +82,7 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
   const showEmpty = initialized && !loading && filteredDrops.length === 0;
 
   return (
-    <div className="flex w-full flex-col items-start mt-12 min-w-0 max-w-[80vw]">
+    <div className="flex w-full flex-col items-start mt-12 min-w-0 max-w-[90vw] sm:max-w-[80vw]">
       <div className="flex w-full items-end justify-between mb-2">
         <div>
           <h2 className="text-2xl text-foreground">Recent Drops</h2>

@@ -22,15 +22,8 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination";
 import Link from "next/link";
-import { Trophy, Medal, Award } from "lucide-react";
 
 const PAGE_SIZE = 10;
-
-const podiumConfig = [
-  { icon: Trophy, color: "text-yellow-500 dark:text-yellow-400" },
-  { icon: Medal, color: "text-slate-400 dark:text-slate-300" },
-  { icon: Award, color: "text-amber-700 dark:text-amber-500" },
-] as const;
 
 export default function ClanPointTable({ users }: { users: User[] }) {
   const [page, setPage] = useState(1);
@@ -66,145 +59,115 @@ export default function ClanPointTable({ users }: { users: User[] }) {
 
   return (
     <section className="flex flex-col w-full h-full">
-      <div className="w-full flex flex-col mb-3">
-        <h2 className="text-2xl font-bold">Clan Points</h2>
-        <p className="text-sm text-muted-foreground">
+      <div className="w-full flex flex-col">
+        <h2 className="text-2xl font-bold mb-0">Clan Points</h2>
+        <p className="text-muted-foreground mb-2">
           Click a name to view their profile
         </p>
       </div>
-      <Card className="flex flex-col p-0 overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table className="w-full sm:table-fixed">
-            <TableHeader>
-              <TableRow className="bg-muted/30 hover:bg-muted/30">
-                <TableHead className="w-16 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  #
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Name
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground text-right sm:text-left">
-                  Points
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground hidden sm:table-cell">
-                  Rank
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentUsers.map((user, index) => {
-                const globalIndex = start + index;
-                const rank = rank_colors.find(
-                  (rank) => rank.name === (user?.rank || "Guest")
-                );
-                const podium =
-                  globalIndex < 3 ? podiumConfig[globalIndex] : null;
-                const PodiumIcon = podium?.icon;
-
-                return (
-                  <TableRow
-                    key={`${user.discordId}-clanPoints`}
+      <Card className="flex flex-col gap-4 p-4 min-h-72 h-full">
+        <Table className="w-full sm:table-fixed">
+          <TableHeader>
+            <TableRow className="text-lg">
+              <TableHead className="text-muted-foreground">Place</TableHead>
+              <TableHead className="text-muted-foreground">Points</TableHead>
+              <TableHead className="text-muted-foreground">Name</TableHead>
+              <TableHead className="text-muted-foreground">Rank</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="text-xl">
+            {currentUsers.map((user, index) => {
+              const globalIndex = start + index;
+              const rank = rank_colors.find(
+                (rank) => rank.name === (user?.rank || "Guest")
+              );
+              return (
+                <TableRow key={`${user.discordId}-clanPoints`} className="h-16">
+                  <TableCell
                     className={cn(
-                      "h-14 transition-colors",
-                      globalIndex < 3 && "bg-muted/10",
+                      "font-extrabold",
+                      globalIndex === 0 && "text-yellow-500 text-3xl",
+                      globalIndex === 1 && "text-gray-500 text-3xl",
+                      globalIndex === 2 && "text-yellow-800 text-3xl",
+                      globalIndex > 2 && "text-muted-foreground"
                     )}
                   >
-                    <TableCell className="w-16">
-                      {podium && PodiumIcon ? (
-                        <PodiumIcon
-                          className={cn("h-5 w-5", podium.color)}
-                        />
-                      ) : (
-                        <span className="text-sm font-bold text-muted-foreground tabular-nums">
-                          {globalIndex + 1}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Link
-                        href={`/profile/${user.runescapeName}`}
-                        className="font-medium hover:underline"
-                      >
-                        {user.runescapeName}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-right sm:text-left">
-                      <span className="font-bold tabular-nums">
-                        {Math.trunc(user.rankPoints || 0).toLocaleString()}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <div className="flex items-center gap-2">
-                        <div className="relative size-5 shrink-0">
-                          <Image
-                            src={`/${rank?.name.toLowerCase()}.png`}
-                            alt={`${rank?.name.toLowerCase()} rank`}
-                            className="object-contain"
-                            sizes="20px"
-                            fill
-                          />
-                        </div>
-                        <span
-                          className={cn(
-                            "text-sm capitalize font-medium",
-                            rank?.textColor,
-                            "dark:brightness-150 brightness-90",
-                          )}
-                        >
-                          {rank?.name}
-                        </span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                    {globalIndex + 1}
+                  </TableCell>
+                  <TableCell>
+                    {Math.trunc(user.rankPoints || 0).toLocaleString()}
+                  </TableCell>
+                  <TableCell className="w-48 sm:w-auto">
+                    <Link
+                      href={`/profile/${user.runescapeName}`}
+                      className="hover:underline"
+                    >
+                      {user.runescapeName}
+                    </Link>
+                  </TableCell>
+                  <TableCell className="flex items-center my-auto h-16">
+                    <div className="relative size-6 mr-2">
+                      <Image
+                        src={`/${rank?.name.toLowerCase()}.png`}
+                        alt={`${rank?.name.toLowerCase()} rank`}
+                        className="absolute object-contain"
+                        sizes="100%"
+                        fill
+                      />
+                    </div>
+                    <div
+                      className={`capitalize ${rank?.textColor} dark:brightness-150 brightness-90`}
+                    >
+                      {rank?.name}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
 
         {totalPages > 1 && (
-          <div className="border-t p-3">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage((prev) => Math.max(prev - 1, 1));
-                    }}
-                  />
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage((prev) => Math.max(prev - 1, 1));
+                  }}
+                />
+              </PaginationItem>
+              {visiblePages.map((p, i) => (
+                <PaginationItem key={i}>
+                  {typeof p === "string" ? (
+                    <span className="px-2 text-muted-foreground">…</span>
+                  ) : (
+                    <PaginationLink
+                      href="#"
+                      isActive={page === p}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(p);
+                      }}
+                    >
+                      {p}
+                    </PaginationLink>
+                  )}
                 </PaginationItem>
-                {visiblePages.map((p, i) => (
-                  <PaginationItem key={i}>
-                    {typeof p === "string" ? (
-                      <span className="px-2 text-muted-foreground">…</span>
-                    ) : (
-                      <PaginationLink
-                        href="#"
-                        isActive={page === p}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setPage(p);
-                        }}
-                      >
-                        {p}
-                      </PaginationLink>
-                    )}
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage((prev) => Math.min(prev + 1, totalPages));
-                    }}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage((prev) => Math.min(prev + 1, totalPages));
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         )}
       </Card>
     </section>

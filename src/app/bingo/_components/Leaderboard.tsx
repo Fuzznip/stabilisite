@@ -57,7 +57,7 @@ export default function Leaderboard({
     : 0;
 
   return (
-    <div className="flex h-full w-full flex-col max-w-[80vw] lg:w-96 xl:w-120 mt-8 lg:mt-2">
+    <div className="flex h-full w-full flex-col max-w-[90vw] sm:max-w-[80vw] lg:w-96 xl:w-120 mt-8 lg:mt-2">
       <h2 className="text-2xl font-bold text-foreground">Leaderboard</h2>
       <p className="text-lg text-muted-foreground mb-2">
         {selectedTeam ? "Team Details" : "Click a team to see members"}
@@ -199,7 +199,7 @@ export default function Leaderboard({
 
                       {/* Team name */}
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-2xl truncate group-hover:text-foreground transition-colors">
+                        <div className="font-semibold text-2xl lg:truncate group-hover:text-foreground transition-colors">
                           {team.name}
                         </div>
                         <div className="text-sm text-muted-foreground">
