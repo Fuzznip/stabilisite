@@ -608,7 +608,7 @@ export function TilePage({
   }, [sortedTasks, teamProgresses]);
 
   return (
-    <div className="flex flex-col h-full w-full px-2 sm:px-0 my-4 sm:my-0">
+    <div className="flex flex-col h-full w-full px-2 sm:px-0 mb-4 sm:my-0">
       <Button asChild variant="outline" className="text-foreground mb-2 w-fit">
         <Link href={"/bingo"}>
           <ArrowLeft /> Back
