@@ -122,13 +122,13 @@ export function ProofImageDialog({
             <Eye className={`size-${iconSize}`} />
           </Button>
         </DialogTrigger>
-        <DialogContent className="min-w-[75vw] max-w-[95vw] h-[90vh] max-h-[90vh] p-0 overflow-hidden gap-0 flex flex-col">
+        <DialogContent className="fixed inset-0 translate-x-0 translate-y-0 top-0 left-0 w-full h-full max-w-none rounded-none sm:inset-auto sm:top-[50%] sm:left-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:min-w-[75vw] sm:max-w-[95vw] sm:h-[90vh] sm:max-h-[90vh] sm:rounded-lg p-0 overflow-hidden gap-0 flex flex-col">
           {/* Header */}
-          <DialogHeader className="px-8 pt-6 pb-4 border-b border-foreground/10 shrink-0">
-            <DialogTitle className="text-3xl font-bold tracking-tight">
+          <DialogHeader className="px-4 pt-4 pb-3 sm:px-8 sm:pt-6 sm:pb-4 border-b border-foreground/10 shrink-0">
+            <DialogTitle className="text-xl sm:text-3xl font-bold tracking-tight pr-8">
               {displayTitle}
             </DialogTitle>
-            <div className="flex items-center gap-6 text-muted-foreground mt-2">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-muted-foreground mt-1 sm:mt-2">
               {displaySubtitle && (
                 <div className="flex items-center gap-2">
                   <User className="size-5" />
