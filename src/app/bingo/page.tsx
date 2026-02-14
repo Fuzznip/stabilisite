@@ -16,6 +16,11 @@ const ALLOWED_BINGO_DISCORD_IDS = [
   "334409893685624833", // SilentDDeath
   "347948542049910794", // SoccerTheNub
   "198296669253664768", // Xbrennyx
+  "1155183555278815333", // Barsk
+  "252224906668802048", // Before NA
+  "1015449869026066483", // noeyi
+  "484871950032830473", // Indy 500
+  "347029646824701952", // TM 72 BTW
 ];
 
 export default async function HomePage() {
