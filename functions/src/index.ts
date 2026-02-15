@@ -60,6 +60,13 @@ export const pollWomCompetition = onSchedule(
     timeZone: "America/New_York",
   },
   async () => {
+    // Don't run until event starts: 3pm ET on 02/20/2026
+    const eventStart = new Date("2026-02-20T15:00:00-05:00");
+    if (new Date() < eventStart) {
+      console.log("Event hasn't started yet, skipping.");
+      return;
+    }
+
     console.log("Polling WOM competition:", COMPETITION_ID);
 
     const collectionRef = db.collection(`wom_competition_${COMPETITION_ID}`);
