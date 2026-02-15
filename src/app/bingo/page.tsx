@@ -58,6 +58,7 @@ async function EventContent() {
       endDate={event.end_date}
       teams={event.teams}
       tiles={event.tiles}
+      eventId={event.id}
     />
   );
 }

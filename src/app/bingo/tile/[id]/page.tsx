@@ -63,13 +63,13 @@ async function TileContent({ tileId }: { tileId: string }) {
   const [tile, event] = await Promise.all([getTile(tileId), getActiveEvent()]);
 
   return (
-    <RecentDropsProvider>
+    <RecentDropsProvider eventId={event.id}>
       <TilePageWrapper tile={tile}>
         <Suspense fallback={null}>
           <ProgressContent tileId={tileId} />
         </Suspense>
       </TilePageWrapper>
-      <DropToaster teams={event.teams} />
+      <DropToaster teams={event.teams} eventId={event.id} />
     </RecentDropsProvider>
   );
 }

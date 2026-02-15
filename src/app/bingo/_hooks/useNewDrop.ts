@@ -12,7 +12,7 @@ import { revalidateBingo } from "../_actions/revalidateBingo";
 import { revalidateBingoProgress } from "../actions";
 import { convertRawDropToDrop } from "@/lib/utils/drop";
 
-export const useNewDrop = () => {
+export const useNewDrop = (eventId: string) => {
   const [newDrop, setNewDrop] = useState<Drop | undefined>(undefined);
   const lastDropId = useRef<string | null>(null);
 
@@ -20,7 +20,7 @@ export const useNewDrop = () => {
     if (!firestore) return;
 
     const q = query(
-      collection(firestore, "drops"),
+      collection(firestore, `drops_${eventId}`),
       orderBy("timestamp", "desc"),
       limit(1)
     );
@@ -60,7 +60,7 @@ export const useNewDrop = () => {
       unsubscribe();
       lastDropId.current = null;
     };
-  }, []);
+  }, [eventId]);
 
   return { newDrop };
 };

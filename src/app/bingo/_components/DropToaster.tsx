@@ -14,10 +14,12 @@ import { Button } from "@/components/ui/button";
 
 export default function DropToaster({
   teams,
+  eventId,
 }: {
   teams: Team[];
+  eventId: string;
 }): React.ReactElement {
-  const { newDrop } = useNewDrop();
+  const { newDrop } = useNewDrop(eventId);
   const { addDrop } = useRecentDrops();
   const lastDropIdRef = useRef<string | undefined>(undefined);
 

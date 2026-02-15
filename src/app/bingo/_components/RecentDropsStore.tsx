@@ -52,8 +52,10 @@ const RecentDropsContext = createContext<RecentDropsStore | undefined>(
 
 export function RecentDropsProvider({
   children,
+  eventId,
 }: {
   children: React.ReactNode;
+  eventId: string;
 }) {
   const [drops, setDrops] = useState<Drop[]>([]);
   const [loading, setLoading] = useState(false);
@@ -93,7 +95,7 @@ export function RecentDropsProvider({
       );
 
       let q = query(
-        collection(firestore, "drops"),
+        collection(firestore, `drops_${eventId}`),
         where("type", "in", filterValues),
         orderBy("timestamp", "desc"),
         limit(PAGE_SIZE),
@@ -101,7 +103,7 @@ export function RecentDropsProvider({
 
       if (lastDocRef.current) {
         q = query(
-          collection(firestore, "drops"),
+          collection(firestore, `drops_${eventId}`),
           where("type", "in", filterValues),
           orderBy("timestamp", "desc"),
           startAfter(lastDocRef.current),
@@ -135,7 +137,7 @@ export function RecentDropsProvider({
       setLoading(false);
       setInitialized(true);
     }
-  }, [loading, hasMore]);
+  }, [loading, hasMore, eventId]);
 
   const addDrop = useCallback((drop: Drop) => {
     // Check if drop matches active filters

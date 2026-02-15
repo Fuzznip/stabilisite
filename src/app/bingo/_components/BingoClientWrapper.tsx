@@ -19,6 +19,7 @@ type BingoClientWrapperProps = {
   teams: TeamWithMembers[];
   tiles: Tile[];
   endDate: string;
+  eventId: string;
 };
 
 function formatTimeRemaining(endDate: string): string {
@@ -45,10 +46,11 @@ export function BingoClientWrapper({
   teams,
   tiles,
   endDate,
+  eventId,
 }: BingoClientWrapperProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <BingoContent teams={teams} tiles={tiles} endDate={endDate} />
+      <BingoContent teams={teams} tiles={tiles} endDate={endDate} eventId={eventId} />
     </QueryClientProvider>
   );
 }
@@ -57,10 +59,12 @@ function BingoContent({
   teams,
   tiles,
   endDate,
+  eventId,
 }: {
   teams: TeamWithMembers[];
   tiles: Tile[];
   endDate: string;
+  eventId: string;
 }) {
   const [selectedTeamId, setSelectedTeamId] = useState<string | undefined>(
     undefined,
@@ -84,7 +88,7 @@ function BingoContent({
 
   return (
     <div className="flex flex-col items-center w-full">
-      <RecentDropsProvider>
+      <RecentDropsProvider eventId={eventId}>
         {/* Desktop layout */}
         <div className="hidden h-0 lg:flex lg:h-full flex-row items-start gap-8 w-full z-10 justify-center">
           <div className="flex flex-col min-w-0 flex-1 max-w-[80vw] lg:max-w-[min(calc(100vh-8rem),800px)]">
@@ -125,7 +129,7 @@ function BingoContent({
           />
           <RecentDrops teams={teams} />
         </div>
-        <DropToaster teams={teams} />
+        <DropToaster teams={teams} eventId={eventId} />
       </RecentDropsProvider>
     </div>
   );
