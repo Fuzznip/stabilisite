@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
@@ -70,16 +70,8 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
     }
   };
 
-  const filteredDrops = useMemo(
-    () =>
-      drops.filter(
-        (drop) => drop.teamId || findTeamForPlayer(drop.player, teams),
-      ),
-    [drops, teams],
-  );
-
   const showSkeletons = !initialized && loading;
-  const showEmpty = initialized && !loading && filteredDrops.length === 0;
+  const showEmpty = initialized && !loading && drops.length === 0;
 
   return (
     <div className="flex w-full flex-col items-start mt-12 min-w-0 max-w-[90vw] sm:max-w-[80vw]">
@@ -137,7 +129,7 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
               </div>
             ) : (
               <>
-                {filteredDrops.map((drop) => (
+                {drops.map((drop) => (
                   <DropItem key={drop.id} drop={drop} teams={teams} />
                 ))}
                 {hasMore && (
