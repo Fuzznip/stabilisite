@@ -1,8 +1,15 @@
 "use client";
 
 import { User } from "@/lib/types";
+import { Event } from "@/lib/types/v2";
 import { cn } from "@/lib/utils";
-import { Home, User as UserIcon, Trophy, FileText, Grid3X3 } from "lucide-react";
+import {
+  Home,
+  User as UserIcon,
+  Trophy,
+  FileText,
+  Grid3X3,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -16,8 +23,10 @@ const iconMap: Record<string, React.ElementType> = {
 
 export default function NavBarLinks({
   user,
+  event,
 }: {
   user: User | null;
+  event?: Event;
 }): React.ReactElement {
   const pathname = usePathname();
   const tabs = [
@@ -30,8 +39,8 @@ export default function NavBarLinks({
     tabs.push({ href: "/applications", title: "Applications" });
   }
 
-  if (user?.isAdmin) {
-    tabs.push({ href: "/bingo", title: "Bingo" });
+  if (event) {
+    tabs.push({ href: `/bingo/${event.id}`, title: "Bingo" });
   }
 
   const isActive = (href: string) => {
@@ -51,7 +60,7 @@ export default function NavBarLinks({
               href={tab.href}
               className={cn(
                 "p-2 pb-1 text-muted-foreground hover:text-foreground font-bold relative",
-                active && "text-stability hover:text-stability"
+                active && "text-stability hover:text-stability",
               )}
             >
               {tab.title}
@@ -67,7 +76,10 @@ export default function NavBarLinks({
       </div>
 
       {/* Mobile: Bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-lg border-t border-border pb-[env(safe-area-inset-bottom)]" style={{ minHeight: "4rem" }}>
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-lg border-t border-border pb-[env(safe-area-inset-bottom)]"
+        style={{ minHeight: "4rem" }}
+      >
         <div className="flex justify-around items-center h-full px-2">
           {tabs.map((tab) => {
             const Icon = iconMap[tab.title] || Home;
@@ -84,7 +96,7 @@ export default function NavBarLinks({
                   "active:scale-95",
                   active
                     ? "text-stability"
-                    : "text-muted-foreground active:bg-accent/50"
+                    : "text-muted-foreground active:bg-accent/50",
                 )}
               >
                 <Icon className="w-5 h-5" />

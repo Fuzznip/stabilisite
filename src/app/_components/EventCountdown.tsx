@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-
-type EventCountdownProps = {
-  startDate: Date;
-  endDate: Date;
-};
+import { Event } from "@/lib/types/v2";
 
 type EventStatus = "upcoming" | "ongoing" | "ended";
 
@@ -45,9 +41,15 @@ function getCountdownText(startDate: Date, endDate: Date): string {
   return "Event ended";
 }
 
-export function EventCountdown({ startDate, endDate }: EventCountdownProps) {
-  const [countdown, setCountdown] = useState(getCountdownText(startDate, endDate));
-  const [status, setStatus] = useState<EventStatus>(getEventStatus(startDate, endDate));
+export function EventCountdown({ event }: { event: Event }) {
+  const startDate = useMemo(() => new Date(event.start_date), [event]);
+  const endDate = useMemo(() => new Date(event.end_date), [event]);
+  const [countdown, setCountdown] = useState(
+    getCountdownText(startDate, endDate),
+  );
+  const [status, setStatus] = useState<EventStatus>(
+    getEventStatus(startDate, endDate),
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,12 +64,16 @@ export function EventCountdown({ startDate, endDate }: EventCountdownProps) {
     <>
       <p className="text-lg text-foreground">{countdown}</p>
       {status === "upcoming" ? (
-        <Button className="absolute bottom-4 right-4 cursor-not-allowed" size="sm" disabled>
+        <Button
+          className="absolute bottom-4 right-4 cursor-not-allowed"
+          size="sm"
+          disabled
+        >
           Coming Soon!
         </Button>
       ) : status === "ongoing" ? (
         <Button asChild className="absolute bottom-4 right-4" size="sm">
-          <Link href="/bingo">
+          <Link href={`/bingo/${event.id}`}>
             View Event <ArrowRight className="ml-2 size-4" />
           </Link>
         </Button>

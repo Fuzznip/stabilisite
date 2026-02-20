@@ -18,9 +18,11 @@ import { RaidTierDialog } from "./RaidTierDialog";
 import { getRaids } from "@/lib/fetch/getRaids";
 import { RankDialog } from "./RankDialog";
 import { getRanks } from "@/lib/fetch/getRanks";
+import { getActiveEvent } from "@/lib/fetch/getBingo";
 
 export default async function NavBar(): Promise<React.ReactElement> {
   const user = await getAuthUser();
+  const event = await getActiveEvent();
   return (
     <div className="flex w-full h-16 px-2 sm:px-4 justify-between items-center mt-2">
       <div className="flex items-center h-full w-full">
@@ -36,7 +38,7 @@ export default async function NavBar(): Promise<React.ReactElement> {
             className="object-contain"
           />
         </Link>
-        <NavBarLinks user={user} />
+        <NavBarLinks user={user} event={event} />
       </div>
       <div className="flex items-center gap-2">
         {user && !user.isMember && (

@@ -184,7 +184,6 @@ export function getMaxRaidTiers(
   "Theatre of Blood": number;
   "Chambers of Xeric": number;
 } {
-  console.log(applications);
   const raidMaxes = {
     "Tombs of Amascut": 0,
     "Theatre of Blood": 0,

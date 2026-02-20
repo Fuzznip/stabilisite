@@ -22,7 +22,7 @@ export const useNewDrop = (eventId: string) => {
     const q = query(
       collection(firestore, `drops_${eventId}`),
       orderBy("timestamp", "desc"),
-      limit(1)
+      limit(1),
     );
 
     const unsubscribe = onSnapshot(
@@ -53,7 +53,7 @@ export const useNewDrop = (eventId: string) => {
       },
       (error) => {
         console.error("[useNewDrop] Snapshot error", error);
-      }
+      },
     );
 
     return () => {

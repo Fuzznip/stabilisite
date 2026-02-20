@@ -411,7 +411,6 @@ function ChallengeDisplay({
 
 function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
   // Determine if this is a KC/SKILL challenge based on trigger types in proofs
-  console.log(teamData);
   const triggerType = teamData.proofs[0]?.triggerType;
   const showPlayerBreakdown =
     triggerType === "KC" || triggerType === "SKILL" || triggerType === "CHAT";
