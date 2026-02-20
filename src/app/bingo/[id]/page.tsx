@@ -33,16 +33,6 @@ export default async function HomePage({
 
 async function EventContent({ id }: { id: string }) {
   const event = await getEvent(id);
-  const user = await getAuthUser();
-  const discordId = user?.id;
-
-  if (!discordId || !user?.isAdmin) {
-    return (
-      <div className="w-fit mx-auto text-3xl text-stability">
-        Come back soon!
-      </div>
-    );
-  }
 
   return (
     <BingoClientWrapper
