@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { BingoClientWrapper } from "./_components/BingoClientWrapper";
 import Loading from "./loading";
 import { getEvent } from "@/lib/fetch/getBingo";
-import { auth } from "@/auth";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
 
 export default async function HomePage({
