@@ -21,6 +21,14 @@ export async function getActiveEvent(): Promise<EventWithDetails | undefined> {
   return res.status === 200 ? json : undefined;
 }
 
+export async function getReleasedEvent(): Promise<Event | undefined> {
+  const events = await getEvents();
+  const now = new Date();
+  return events.find(
+    (e) => now >= new Date(e.release_date) && now < new Date(e.end_date),
+  );
+}
+
 export async function getEvent(id: string): Promise<EventWithDetails> {
   const res = await fetch(`${process.env.API_URL}/v2/events/${id}`, {
     next: { tags: ["bingo-event"] },
