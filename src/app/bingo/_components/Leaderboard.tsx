@@ -82,12 +82,12 @@ export default function Leaderboard({
               {/* Team info header */}
               <div className="flex items-start gap-4">
                 {selectedTeam.image_url && (
-                  <div className="relative h-20 w-20 shrink-0 rounded-md overflow-hidden border-2 border-border">
+                  <div className="relative h-24 w-24 shrink-0 rounded-md overflow-hidden border-2 border-border">
                     <Image
                       src={selectedTeam.image_url}
                       alt={selectedTeam.name}
                       fill
-                      sizes="80px"
+                      sizes="96px"
                       unoptimized
                       className="object-cover"
                     />
@@ -185,12 +185,12 @@ export default function Leaderboard({
 
                       {/* Team image */}
                       {team.image_url && (
-                        <div className="relative h-16 w-16 shrink-0 rounded overflow-hidden border border-border group-hover:border-foreground/20 transition-colors">
+                        <div className="relative h-20 w-20 shrink-0 rounded overflow-hidden border border-border group-hover:border-foreground/20 transition-colors">
                           <Image
                             src={team.image_url}
                             alt={team.name}
                             fill
-                            sizes="64px"
+                            sizes="80px"
                             unoptimized
                             className="object-cover"
                           />

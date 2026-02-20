@@ -59,12 +59,12 @@ export default function DropToaster({
             <div className="flex flex-col w-full gap-6">
               <div className="flex gap-4">
                 {team?.image_url && (
-                  <div className="relative h-16 w-16">
+                  <div className="relative h-20 w-20">
                     <Image
                       src={team.image_url}
                       alt={team.name + " team image"}
                       fill
-                      sizes="100%"
+                      sizes="80px"
                       unoptimized
                       className="rounded-sm object-cover"
                     />

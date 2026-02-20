@@ -154,7 +154,7 @@ export default function RecentDrops({ teams }: RecentDropsProps) {
 function DropItemSkeleton() {
   return (
     <div className="flex items-center gap-4 py-4">
-      <Skeleton className="h-12 w-12 shrink-0 rounded-sm" />
+      <Skeleton className="h-14 w-14 shrink-0 rounded-sm" />
       <div className="flex flex-col flex-1 gap-2">
         <Skeleton className="h-5 w-24" />
         <Skeleton className="h-7 w-40" />
@@ -198,12 +198,12 @@ function DropItem({ drop, teams }: { drop: Drop; teams: TeamWithMembers[] }) {
   return (
     <div className="flex items-center gap-2 sm:gap-4 pb-4">
       {team?.image_url && (
-        <div className="relative h-10 w-10 sm:h-12 sm:w-12 shrink-0">
+        <div className="relative h-12 w-12 sm:h-14 sm:w-14 shrink-0">
           <Image
             src={team.image_url}
             alt={`${team.name} team image`}
             fill
-            sizes="48px"
+            sizes="56px"
             unoptimized
             className="rounded-sm object-cover"
           />
