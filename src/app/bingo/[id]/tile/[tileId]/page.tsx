@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Metadata } from "next";
 import { TilePageWrapper } from "./TilePage";
 import Loading from "./loading";
 import { TileProgressHydrator } from "./TileProgressHydrator";
@@ -7,6 +8,19 @@ import DropToaster from "../../_components/DropToaster";
 import { RecentDropsProvider } from "../../_components/RecentDropsStore";
 
 export const runtime = "edge";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string; tileId: string }>;
+}): Promise<Metadata> {
+  const { id, tileId } = await params;
+  const [tile, event] = await Promise.all([getTile(tileId), getEvent(id)]);
+  return {
+    title: tile.name,
+    description: `The ${tile.name} tile for the Stability clan event ${event.name}`,
+  };
+}
 
 export default async function Page({
   params,
