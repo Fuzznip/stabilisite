@@ -17,9 +17,7 @@ export default function Loading(): React.ReactElement {
           variant="outline"
           className="text-foreground mb-2 w-fit"
         >
-          <Link href={"/bingo"}>
-            <ArrowLeft /> Back
-          </Link>
+          <ArrowLeft /> Back
         </Button>
 
         <div className="flex flex-col h-full w-full">

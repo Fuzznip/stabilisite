@@ -609,7 +609,7 @@ export function TilePage({
   return (
     <div className="flex flex-col h-full w-full px-2 sm:px-0 mb-4 sm:my-0">
       <Button asChild variant="outline" className="text-foreground mb-2 w-fit">
-        <Link href={"/bingo"}>
+        <Link href={`/bingo/${tile.event_id}`}>
           <ArrowLeft /> Back
         </Link>
       </Button>
