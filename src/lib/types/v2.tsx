@@ -7,6 +7,7 @@ export type Event = {
   name: string;
   start_date: string; // ISO 8601 datetime
   end_date: string; // ISO 8601 datetime
+  release_date: string; // ISO 8601 datetime
   thread_id: string | null;
   created_at: string;
   updated_at: string;

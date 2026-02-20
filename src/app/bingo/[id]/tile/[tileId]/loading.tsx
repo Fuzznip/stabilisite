@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ProgressSkeleton } from "./ProgressSkeleton";
 
@@ -12,11 +11,7 @@ export default function Loading(): React.ReactElement {
     <div className="flex max-w-5xl w-full mx-auto flex-col items-center justify-center">
       <div className="flex flex-col h-full w-full px-2 sm:px-0 mb-4 sm:my-0">
         {/* Back button */}
-        <Button
-          asChild
-          variant="outline"
-          className="text-foreground mb-2 w-fit"
-        >
+        <Button variant="outline" className="text-foreground mb-2 w-fit">
           <ArrowLeft /> Back
         </Button>
 
