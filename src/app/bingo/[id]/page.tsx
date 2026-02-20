@@ -3,7 +3,6 @@ import { Metadata } from "next";
 import { BingoClientWrapper } from "./_components/BingoClientWrapper";
 import Loading from "./loading";
 import { getEvent } from "@/lib/fetch/getBingo";
-import { getAuthUser } from "@/lib/fetch/getAuthUser";
 
 export async function generateMetadata({
   params,
