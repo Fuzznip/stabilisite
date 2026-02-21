@@ -62,7 +62,7 @@ export function RecentDropsProvider({
   const [hasMore, setHasMore] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const [activeFilters, setActiveFilters] = useState<Set<DropTypeFilter>>(
-    new Set(["DROP", "KC", "SKILL"]),
+    new Set(["DROP"]),
   );
   const lastDocRef = useRef<QueryDocumentSnapshot<DocumentData> | null>(null);
   const currentFiltersRef = useRef<Set<DropTypeFilter>>(activeFilters);

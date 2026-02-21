@@ -27,6 +27,11 @@ export default function DropToaster({
     if (newDrop && teams.length > 0 && newDrop.id !== lastDropIdRef.current) {
       lastDropIdRef.current = newDrop.id;
 
+      // Revalidate progress cache so next navigation gets fresh data
+      revalidateBingoProgress();
+
+      if (newDrop.submitType === "SKILL") return;
+
       // Look up team by ID if available (new format), otherwise fall back to player name lookup
       const team = newDrop.teamId
         ? teams.find((t) => t.id === newDrop.teamId)
@@ -43,9 +48,6 @@ export default function DropToaster({
 
       // Add the new drop to the recent drops list
       addDrop(newDrop);
-
-      // Revalidate progress cache so next navigation gets fresh data
-      revalidateBingoProgress();
       toast.custom(
         (id) => (
           <div className="relative flex w-full items-center gap-4 rounded-md border bg-background p-4 shadow-lg">
