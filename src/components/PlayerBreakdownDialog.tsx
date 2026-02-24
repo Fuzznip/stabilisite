@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,15 @@ import {
   TableRow,
   TableFooter,
 } from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const PAGE_SIZE = 10;
 
 type ProofData = {
   playerName: string | null;
@@ -45,6 +54,8 @@ export function PlayerBreakdownDialog({
   total,
   iconSize = 6,
 }: PlayerBreakdownDialogProps) {
+  const [page, setPage] = useState(0);
+
   const playerBreakdown = useMemo(() => {
     const breakdown = new Map<string, PlayerStats>();
 
@@ -75,6 +86,12 @@ export function PlayerBreakdownDialog({
     [playerBreakdown],
   );
 
+  const totalPages = Math.ceil(playerBreakdown.length / PAGE_SIZE);
+  const paginatedBreakdown = playerBreakdown.slice(
+    page * PAGE_SIZE,
+    (page + 1) * PAGE_SIZE,
+  );
+
   if (proofs.length === 0) return null;
 
   const formatDate = (d: Date) => {
@@ -85,7 +102,7 @@ export function PlayerBreakdownDialog({
   };
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={(open) => { if (!open) setPage(0); }}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Eye className={`size-${iconSize}`} />
@@ -111,7 +128,7 @@ export function PlayerBreakdownDialog({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {playerBreakdown.map((player) => (
+            {paginatedBreakdown.map((player) => (
               <TableRow key={player.playerName}>
                 <TableCell className="text-lg font-bold">
                   <div className="flex items-center gap-2">
@@ -138,6 +155,30 @@ export function PlayerBreakdownDialog({
             </TableRow>
           </TableFooter>
         </Table>
+
+        {totalPages > 1 && (
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={(e) => { e.preventDefault(); setPage((p) => p - 1); }}
+                  className={page === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <span className="text-sm text-muted-foreground px-2">
+                  {page + 1} / {totalPages}
+                </span>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={(e) => { e.preventDefault(); setPage((p) => p + 1); }}
+                  className={page === totalPages - 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </DialogContent>
     </Dialog>
   );
