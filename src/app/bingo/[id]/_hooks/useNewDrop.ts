@@ -34,11 +34,11 @@ export const useNewDrop = (eventId: string) => {
         // fromCache snapshot first — skip it and wait for the server-
         // confirmed one to set the baseline. This prevents toasting a
         // drop that arrived between the stale cache and now.
-        // if (lastDropId.current === null) {
-        //   if (snapshot.metadata.fromCache) return;
-        //   lastDropId.current = doc.id;
-        //   return;
-        // }
+        if (lastDropId.current === null) {
+          if (snapshot.metadata.fromCache) return;
+          lastDropId.current = doc.id;
+          return;
+        }
 
         // Same drop as before, nothing to do
         if (doc.id === lastDropId.current) return;
