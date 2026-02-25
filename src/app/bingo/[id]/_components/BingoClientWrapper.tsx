@@ -82,7 +82,7 @@ function BingoContent({
 
   const selectedIndex = teams.findIndex((team) => team.id === selectedTeamId);
   const progress =
-    selectedIndex >= 0 ? progressQueries[selectedIndex].data : undefined;
+    selectedIndex >= 0 ? progressQueries[selectedIndex].data?.tiles : undefined;
   const isLoadingProgress =
     selectedIndex >= 0 ? progressQueries[selectedIndex].isLoading : false;
 

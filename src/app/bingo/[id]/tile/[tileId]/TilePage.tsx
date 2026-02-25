@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Check, X } from "lucide-react";
+import { ArrowLeft, Check, X, Eye, Loader2 } from "lucide-react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -13,7 +13,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { Task, TeamProgress, TileWithTasks, Trigger } from "@/lib/types/v2";
+import { Task, TeamProgress, TileProofsEntry, TileWithTasks, Trigger } from "@/lib/types/v2";
 import { ProgressSkeleton } from "./ProgressSkeleton";
 import { TileProgressProvider, useTileProgress } from "./TileProgressContext";
 import { ProofImageDialog } from "@/components/ProofImageDialog";
@@ -76,7 +76,7 @@ type TeamTaskProgressData = {
   team: TeamProgress;
   complete: boolean | undefined;
   progress: ChallengeDisplayItem[];
-  proofs: EnrichedProof[];
+  triggerType: string | null;
 };
 
 const PROGRESS_CUTOFF = 4;
@@ -409,23 +409,55 @@ function ChallengeDisplay({
   );
 }
 
-function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
-  // Determine if this is a KC/SKILL challenge based on trigger types in proofs
-  const triggerType = teamData.proofs[0]?.triggerType;
+function TeamTaskProgress({
+  teamData,
+  tileId,
+  taskId,
+}: {
+  teamData: TeamTaskProgressData;
+  tileId: string;
+  taskId: string;
+}) {
   const showPlayerBreakdown =
-    triggerType === "KC" || triggerType === "SKILL" || triggerType === "CHAT";
+    teamData.triggerType === "KC" ||
+    teamData.triggerType === "SKILL" ||
+    teamData.triggerType === "CHAT";
 
-  // Calculate total required from progress (for KC/SKILL display)
   const totalRequired = teamData.progress.reduce(
     (sum, p) => sum + (p.required || 0),
     0,
   );
 
-  // Filter proofs with images for the image dialog
-  const proofsWithImages = teamData.proofs
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [proofs, setProofs] = useState<EnrichedProof[] | null>(null);
+  const [proofsLoading, setProofsLoading] = useState(false);
+
+  const handleOpenDialog = useCallback(async () => {
+    setDialogOpen(true);
+    if (proofs !== null) return;
+    setProofsLoading(true);
+    const data: TileProofsEntry[] = await fetch(
+      `/api/bingo/tile/${tileId}/proofs?team_id=${teamData.team.id}&task_id=${taskId}`,
+    ).then((r) => r.json());
+    setProofs(
+      data.map((p) => ({
+        id: p.id,
+        img_path: p.img_path,
+        created_at: p.created_at,
+        itemName: p.item_name,
+        playerName: p.player_name,
+        source: p.source,
+        quantity: p.quantity,
+        triggerType: p.trigger_type,
+      })),
+    );
+    setProofsLoading(false);
+  }, [tileId, taskId, teamData.team.id, proofs]);
+
+  const proofsWithImages = (proofs ?? [])
     .filter(
-      (proof): proof is EnrichedProof & { img_path: string } =>
-        typeof proof.img_path === "string" && proof.img_path.length > 0,
+      (p): p is EnrichedProof & { img_path: string } =>
+        typeof p.img_path === "string" && p.img_path.length > 0,
     )
     .sort(
       (a, b) =>
@@ -450,12 +482,22 @@ function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
           {teamData.team.name}
         </h3>
 
+        <Button variant="ghost" size="icon" onClick={handleOpenDialog}>
+          {proofsLoading ? (
+            <Loader2 className="size-6 animate-spin" />
+          ) : (
+            <Eye className="size-6" />
+          )}
+        </Button>
+
         {showPlayerBreakdown ? (
           <PlayerBreakdownDialog
-            proofs={teamData.proofs}
+            proofs={proofs ?? []}
             title="Player Breakdown"
             total={totalRequired > 0 ? totalRequired : undefined}
-            iconSize={6}
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            isLoading={proofsLoading}
           />
         ) : (
           <ProofImageDialog
@@ -467,7 +509,9 @@ function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
               source: proof.source || undefined,
             }))}
             title="Proof Images"
-            iconSize={6}
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            isLoading={proofsLoading}
           />
         )}
 
@@ -494,6 +538,7 @@ function TeamTaskProgress({ teamData }: { teamData: TeamTaskProgressData }) {
 function getTaskTabContent(
   task: Task,
   teamProgresses: TeamProgress[],
+  tileId: string,
 ): React.ReactElement {
   const teamsWithProgress = teamProgresses
     ?.map((teamProgress) => {
@@ -501,24 +546,12 @@ function getTaskTabContent(
         (t) => t.task_id === task.id,
       );
 
-      // Get all challenges for this task
       const allChallenges = teamProgress.challenge_statuses.filter(
         (challenge) => challenge.task_id === task.id,
       );
 
-      // Collect all proofs from challenges for this task, enriched with item names, player names, and sources
-      const proofs: EnrichedProof[] = allChallenges.flatMap((challenge) =>
-        (challenge.proofs || []).map((proof) => ({
-          id: proof.id,
-          img_path: proof.img_path,
-          created_at: proof.created_at,
-          itemName: proof.action?.name || challenge.trigger?.name || null,
-          playerName: proof.action?.player?.runescape_name || null,
-          source: proof.action?.source || challenge.trigger?.source || null,
-          quantity: proof.action?.quantity || 0,
-          triggerType: challenge.trigger?.type || null,
-        })),
-      );
+      const triggerType =
+        allChallenges.find((c) => c.trigger?.type)?.trigger?.type ?? null;
 
       // Recursively build challenge hierarchy
       const buildChallengeTree = (
@@ -544,19 +577,11 @@ function getTaskTabContent(
             };
           })
           .sort((a, b) => {
-            // Sort by source first, then by name as tiebreaker
             const sourceA = a.source || "";
             const sourceB = b.source || "";
             const sourceCompare = sourceA.localeCompare(sourceB);
-
-            if (sourceCompare !== 0) {
-              return sourceCompare;
-            }
-
-            // If sources are the same, sort by name
-            const nameA = a.name || "";
-            const nameB = b.name || "";
-            return nameA.localeCompare(nameB);
+            if (sourceCompare !== 0) return sourceCompare;
+            return (a.name || "").localeCompare(b.name || "");
           });
       };
 
@@ -566,7 +591,7 @@ function getTaskTabContent(
         team: teamProgress,
         complete: taskStatus?.completed,
         progress,
-        proofs,
+        triggerType,
       };
     })
     .sort((teamA, teamB) => teamA.team.name.localeCompare(teamB.team.name));
@@ -579,7 +604,12 @@ function getTaskTabContent(
       </CardTitle>
       <CardContent className="flex flex-col">
         {teamsWithProgress?.map((teamData) => (
-          <TeamTaskProgress key={teamData.team.id} teamData={teamData} />
+          <TeamTaskProgress
+            key={teamData.team.id}
+            teamData={teamData}
+            tileId={tileId}
+            taskId={task.id}
+          />
         ))}
       </CardContent>
     </Card>
@@ -602,9 +632,9 @@ export function TilePage({
     if (!teamProgresses) return null;
     return sortedTasks.map((task) => ({
       taskId: task.id,
-      content: getTaskTabContent(task, teamProgresses),
+      content: getTaskTabContent(task, teamProgresses, tile.id),
     }));
-  }, [sortedTasks, teamProgresses]);
+  }, [sortedTasks, teamProgresses, tile.id]);
 
   return (
     <div className="flex flex-col h-full w-full px-2 sm:px-0 mb-4 sm:my-0">

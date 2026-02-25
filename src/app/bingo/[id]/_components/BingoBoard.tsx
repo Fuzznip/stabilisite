@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
-import { TeamProgressResponse, TileProgress, Tile } from "@/lib/types/v2";
+import { Tile } from "@/lib/types/v2";
 import {
   Tooltip,
   TooltipContent,
@@ -16,7 +16,7 @@ export default function BingoBoard({
   isLoading,
 }: {
   tiles: Tile[];
-  progress?: TeamProgressResponse;
+  progress?: { index: number; tasks_completed: number }[];
   isLoading?: boolean;
 }) {
   return (
@@ -52,11 +52,11 @@ function BingoCard({
   isLoading,
 }: {
   tile?: Tile;
-  progress?: TileProgress;
+  progress?: { index: number; tasks_completed: number };
   isLoading?: boolean;
 }): React.ReactElement {
   const medalSrc = progress
-    ? getMedalSrcForMedalLevel(progress.status.medal_level)
+    ? getMedalSrcForTasksCompleted(progress.tasks_completed)
     : undefined;
   return (
     <Tooltip>
@@ -105,15 +105,9 @@ function BingoCard({
   );
 }
 
-function getMedalSrcForMedalLevel(
-  medalLevel: "none" | "bronze" | "silver" | "gold",
-): string {
-  if (medalLevel === "bronze") {
-    return "/bronze_medal.png";
-  } else if (medalLevel === "silver") {
-    return "/silver_medal.png";
-  } else if (medalLevel === "gold") {
-    return "/gold_medal.png";
-  }
+function getMedalSrcForTasksCompleted(tasksCompleted: number): string {
+  if (tasksCompleted === 1) return "/bronze_medal.png";
+  if (tasksCompleted === 2) return "/silver_medal.png";
+  if (tasksCompleted === 3) return "/gold_medal.png";
   return "";
 }

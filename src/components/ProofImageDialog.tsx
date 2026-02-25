@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
-import { Eye, X, Calendar, User, Package } from "lucide-react";
+import { Eye, X, Calendar, User, Package, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,6 +34,10 @@ type ProofImageDialogProps = {
   subtitle?: string;
   date?: Date;
   iconSize?: number;
+  // Controlled mode — when provided, the trigger button is not rendered
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  isLoading?: boolean;
 };
 
 export function ProofImageDialog({
@@ -42,10 +46,16 @@ export function ProofImageDialog({
   subtitle,
   date,
   iconSize = 5,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  isLoading,
 }: ProofImageDialogProps) {
+  const isControlled = controlledOpen !== undefined;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const dialogOpen = isControlled ? controlledOpen : internalOpen;
+  const setDialogOpen = isControlled ? (controlledOnOpenChange ?? (() => {})) : setInternalOpen;
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
 
   const goToImage = useCallback(
@@ -94,7 +104,7 @@ export function ProofImageDialog({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [dialogOpen, isExpanded, selectedIndex, images.length, goToImage]);
 
-  if (images.length === 0) return null;
+  if (images.length === 0 && !isLoading && !isControlled) return null;
 
   const currentImage = images[selectedIndex];
   const hasMultipleImages = images.length > 1;
@@ -117,11 +127,13 @@ export function ProofImageDialog({
   return (
     <>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <Eye className={`size-${iconSize}`} />
-          </Button>
-        </DialogTrigger>
+        {!isControlled && (
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Eye className={`size-${iconSize}`} />
+            </Button>
+          </DialogTrigger>
+        )}
         <DialogContent className="fixed inset-0 translate-x-0 translate-y-0 top-0 left-0 w-full h-full max-w-none rounded-none sm:inset-auto sm:top-[50%] sm:left-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:min-w-[75vw] sm:max-w-[95vw] sm:h-[90vh] sm:max-h-[90vh] sm:rounded-lg p-0 overflow-hidden gap-0 flex flex-col">
           {/* Header */}
           <DialogHeader className="px-4 pt-4 pb-3 sm:px-8 sm:pt-6 sm:pb-4 border-b border-foreground/10 shrink-0">
@@ -152,8 +164,15 @@ export function ProofImageDialog({
             </div>
           </DialogHeader>
 
+          {/* Loading state */}
+          {isLoading && (
+            <div className="flex-1 flex items-center justify-center">
+              <Loader2 className="size-10 animate-spin text-muted-foreground" />
+            </div>
+          )}
+
           {/* Main Image - takes remaining space */}
-          <div className="flex-1 min-h-0 p-6">
+          {!isLoading && <div className="flex-1 min-h-0 p-6">
             <div
               className="relative w-full h-full bg-black/5 rounded-xl overflow-hidden cursor-pointer group"
               onClick={() => {
@@ -175,7 +194,7 @@ export function ProofImageDialog({
                 Click to expand
               </div>
             </div>
-          </div>
+          </div>}
 
           {/* Thumbnail Carousel */}
           {hasMultipleImages && (

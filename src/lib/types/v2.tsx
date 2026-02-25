@@ -187,13 +187,6 @@ export type EventProgress = {
 };
 
 /**
- * Challenge status with proofs
- */
-export type ChallengeStatusWithProofs = ChallengeStatus & {
-  proofs: ChallengeStatusProof[];
-};
-
-/**
  * Complete bingo board state for a team
  */
 export type BingoBoardState = {
@@ -223,27 +216,7 @@ export type BingoBoardState = {
 // TILE PROGRESS ENDPOINT TYPES
 // ===========================================
 
-// Action details included in proof (subset of full Action)
-export type ProofAction = {
-  id: string;
-  name: string;
-  source: string | null;
-  type: string;
-  quantity: number;
-  value: number | null;
-  date: string | null; // ISO 8601
-  player?: Player; // Player who performed the action
-};
-
-// Proof attached to a challenge status - UPDATED with action details
-export type ChallengeStatusProof = {
-  id: string;
-  img_path: string | null;
-  created_at: string; // ISO 8601
-  action?: ProofAction; // Action details with player info
-};
-
-// Challenge status (team progress on a challenge) - ENRICHED VERSION
+// Challenge status (team progress on a challenge)
 export type ChallengeStatus = {
   challenge_id: string; // UUID
   task_id: string; // UUID - which task this belongs to
@@ -254,11 +227,21 @@ export type ChallengeStatus = {
   completed: boolean;
   require_all: boolean; // If true, this is an AND challenge with children
   trigger?: Trigger; // Full trigger details - only present if challenge has a trigger
-  status_id?: string; // UUID - only present if ChallengeStatus exists in DB
-  created_at?: string; // ISO 8601 - only present if ChallengeStatus exists
-  updated_at?: string; // ISO 8601 - only present if ChallengeStatus exists
-  proofs?: ChallengeStatusProof[]; // Proofs with action details - only present if status exists
 };
+
+// Response from GET /v2/tiles/:tileId/proofs?team_id=X&task_id=Y
+export type TileProofsEntry = {
+  id: string;
+  img_path: string | null;
+  created_at: string; // ISO 8601
+  item_name: string | null; // action.name ?? trigger.name
+  player_name: string | null; // action.player.runescape_name
+  source: string | null;
+  quantity: number;
+  trigger_type: string | null;
+};
+
+export type TileProofsResponse = TileProofsEntry[];
 
 // Task status for tile progress endpoint (simplified)
 export type TaskStatusProgress = {
@@ -296,46 +279,14 @@ export type TileProgressResponse = {
 // TEAM PROGRESS ENDPOINT TYPES
 // ===========================================
 
-export type TileProgress = Tile & {
-  status: {
-    id?: string;
-    team_id?: string;
-    tile_id?: string;
-    tasks_completed: number;
-    medal_level: MedalLevel;
-    created_at?: string;
-    updated_at?: string;
-  };
-  tasks: TaskProgress[];
-};
-
-export type TaskProgress = Task & {
-  status: {
-    id?: string;
-    team_id?: string;
-    task_id?: string;
-    completed: boolean;
-    created_at?: string;
-    updated_at?: string;
-  };
-  challenges: ChallengeProgress[];
-};
-
-export type ChallengeProgress = Challenge & {
-  trigger?: Trigger;
-  status: {
-    id?: string;
-    team_id?: string;
-    challenge_id?: string;
-    quantity: number;
-    completed: boolean;
-    created_at?: string;
-    updated_at?: string;
-  };
-};
-
 // The return type of GET /v2/teams/<team_id>/progress
-export type TeamProgressResponse = TileProgress[];
+export type TeamProgressResponse = {
+  points: number;
+  tiles: {
+    index: number;
+    tasks_completed: 0 | 1 | 2 | 3; // 0=none, 1=bronze, 2=silver, 3=gold
+  }[];
+};
 
 // ===========================================
 // UTILITY TYPES
