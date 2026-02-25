@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useNewDrop } from "../_hooks/useNewDrop";
 import { toast } from "sonner";
 import { useRelativeTime } from "../_hooks/useRelativeTime";
@@ -131,32 +132,57 @@ function DropToasterDate({ drop }: { drop: Drop }): React.ReactElement {
 }
 
 function RefreshButton({ toastId }: { toastId: string | number }) {
-  const [isNewestToast, setIsNewestToast] = useState(false);
+  const [status, setStatus] = useState<"idle" | "revalidating" | "refreshing" | "done">("idle");
+  const [isNewestToast, setIsNewestToast] = useState(true);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   useEffect(() => {
-    const checkIfNewest = () => {
-      const toasts = toast.getToasts();
-      setIsNewestToast(toasts[toasts.length - 1]?.id === toastId);
-    };
-
-    checkIfNewest();
-    const interval = setInterval(checkIfNewest, 100);
+    const check = () =>
+      setIsNewestToast(toast.getToasts().at(-1)?.id === toastId);
+    check();
+    const interval = setInterval(check, 100);
     return () => clearInterval(interval);
   }, [toastId]);
 
+  useEffect(() => {
+    if (status === "refreshing" && !isPending) {
+      setStatus("done");
+    }
+  }, [isPending, status]);
+
   if (!isNewestToast) return null;
+
+  async function handleRefresh() {
+    setStatus("revalidating");
+    await Promise.all([revalidateBingo(), revalidateBingoProgress()]);
+    setStatus("refreshing");
+    startTransition(() => router.refresh());
+  }
+
+  const isLoading = status === "revalidating" || status === "refreshing";
+
+  if (status === "done") {
+    return (
+      <Button
+        variant="outline"
+        disabled
+        className="text-sm text-card-foreground bg-card"
+      >
+        Updated!
+      </Button>
+    );
+  }
 
   return (
     <Button
       variant="outline"
-      onClick={() => {
-        revalidateBingo();
-        revalidateBingoProgress();
-      }}
+      onClick={handleRefresh}
+      disabled={isLoading}
       className="text-card-foreground hover:text-foreground bg-card p-2"
       size="icon"
     >
-      <RefreshCw className="h-4 w-4" />
+      <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
     </Button>
   );
 }
