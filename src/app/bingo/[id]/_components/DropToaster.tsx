@@ -5,10 +5,11 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNewDrop } from "../_hooks/useNewDrop";
 import { toast } from "sonner";
 import { useRelativeTime } from "../_hooks/useRelativeTime";
-import { X } from "lucide-react";
+import { X, RefreshCw } from "lucide-react";
 import { Drop } from "@/lib/types/drop";
 import { Team } from "@/lib/types/v2";
 import { revalidateBingoProgress } from "../actions";
+import { revalidateBingo } from "../_actions/revalidateBingo";
 import { useRecentDrops } from "./RecentDropsStore";
 import { Button } from "@/components/ui/button";
 
@@ -26,9 +27,6 @@ export default function DropToaster({
   useEffect(() => {
     if (newDrop && teams.length > 0 && newDrop.id !== lastDropIdRef.current) {
       lastDropIdRef.current = newDrop.id;
-
-      // Revalidate progress cache so next navigation gets fresh data
-      revalidateBingoProgress();
 
       if (newDrop.submitType === "SKILL") return;
 
@@ -106,7 +104,10 @@ export default function DropToaster({
                   </div>
                   <DropToasterDate drop={newDrop} />
                 </div>
-                <ClearAllButton toastId={id} />
+                <div className="flex gap-2">
+                  <RefreshButton toastId={id} />
+                  <ClearAllButton toastId={id} />
+                </div>
               </div>
             </div>
           </div>
@@ -126,6 +127,37 @@ function DropToasterDate({ drop }: { drop: Drop }): React.ReactElement {
   const relativeTime = useRelativeTime(drop.date);
   return (
     <div className="text-muted-foreground text text-base">{relativeTime}</div>
+  );
+}
+
+function RefreshButton({ toastId }: { toastId: string | number }) {
+  const [isNewestToast, setIsNewestToast] = useState(false);
+
+  useEffect(() => {
+    const checkIfNewest = () => {
+      const toasts = toast.getToasts();
+      setIsNewestToast(toasts[toasts.length - 1]?.id === toastId);
+    };
+
+    checkIfNewest();
+    const interval = setInterval(checkIfNewest, 100);
+    return () => clearInterval(interval);
+  }, [toastId]);
+
+  if (!isNewestToast) return null;
+
+  return (
+    <Button
+      variant="outline"
+      onClick={() => {
+        revalidateBingo();
+        revalidateBingoProgress();
+      }}
+      className="text-card-foreground hover:text-foreground bg-card p-2"
+      size="icon"
+    >
+      <RefreshCw className="h-4 w-4" />
+    </Button>
   );
 }
 

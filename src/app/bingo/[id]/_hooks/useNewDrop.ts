@@ -8,8 +8,6 @@ import {
 } from "firebase/firestore";
 import { Drop } from "@/lib/types/drop";
 import { firestore } from "@/lib/config/firebase";
-import { revalidateBingo } from "../_actions/revalidateBingo";
-import { revalidateBingoProgress } from "../actions";
 import { convertRawDropToDrop } from "@/lib/utils/drop";
 
 export const useNewDrop = (eventId: string) => {
@@ -47,8 +45,6 @@ export const useNewDrop = (eventId: string) => {
 
         // Genuinely new drop arrived after baseline was set
         lastDropId.current = doc.id;
-        revalidateBingo();
-        revalidateBingoProgress();
         setNewDrop(convertRawDropToDrop(doc.id, doc.data()));
       },
       (error) => {
