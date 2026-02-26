@@ -70,6 +70,7 @@ function BingoCard({
           >
             <Link
               href={`/bingo/${tile?.event_id}/tile/${tile?.id}`}
+              prefetch={false}
               className="relative h-full w-full flex"
             >
               <Image
