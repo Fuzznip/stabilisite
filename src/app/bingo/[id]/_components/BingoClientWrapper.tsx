@@ -10,6 +10,7 @@ import BingoBoard from "./BingoBoard";
 import Leaderboard from "./Leaderboard";
 import DropToaster from "./DropToaster";
 import RecentDrops from "./RecentDrops";
+import WinnerBanner from "./WinnerBanner";
 import { RecentDropsProvider } from "./RecentDropsStore";
 import { TeamProgressResponse, TeamWithMembers, Tile } from "@/lib/types/v2";
 
@@ -50,7 +51,12 @@ export function BingoClientWrapper({
 }: BingoClientWrapperProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <BingoContent teams={teams} tiles={tiles} endDate={endDate} eventId={eventId} />
+      <BingoContent
+        teams={teams}
+        tiles={tiles}
+        endDate={endDate}
+        eventId={eventId}
+      />
     </QueryClientProvider>
   );
 }
@@ -86,33 +92,48 @@ function BingoContent({
   const isLoadingProgress =
     selectedIndex >= 0 ? progressQueries[selectedIndex].isLoading : false;
 
+  const isEventOver = new Date(endDate) <= new Date();
+  const winner = isEventOver && teams.length > 0 ? teams[0] : null;
+
   return (
     <div className="flex flex-col items-center w-full">
       <RecentDropsProvider eventId={eventId}>
         {/* Desktop layout */}
-        <div className="hidden h-0 lg:flex lg:h-full flex-row items-start gap-8 w-full z-10 justify-center">
-          <div className="flex flex-col min-w-0 flex-1 max-w-[80vw] lg:max-w-[min(calc(100vh-8rem),800px)]">
-            <div className="mb-2">
-              <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
-              <TimeRemaining endDate={endDate} />
+        <div className="hidden h-0 lg:flex lg:h-full flex-col w-full z-10 items-center">
+          {winner && (
+            <div className="w-full max-w-2xl">
+              <WinnerBanner winner={winner} />
             </div>
-            <BingoBoard
-              tiles={tiles}
-              progress={progress}
-              isLoading={isLoadingProgress}
-            />
-            <RecentDrops teams={teams} />
-          </div>
-          <div className="flex flex-col gap-8 shrink-0">
-            <Leaderboard
-              teams={teams}
-              selectedTeamId={selectedTeamId}
-              onTeamSelect={setSelectedTeamId}
-            />
+          )}
+          <div className="flex flex-row items-start gap-8 w-full justify-center">
+            <div className="flex flex-col min-w-0 flex-1 max-w-[80vw] lg:max-w-[min(calc(100vh-8rem),800px)]">
+              <div className="mb-2">
+                <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
+                <TimeRemaining endDate={endDate} />
+              </div>
+              <BingoBoard
+                tiles={tiles}
+                progress={progress}
+                isLoading={isLoadingProgress}
+              />
+              <RecentDrops teams={teams} />
+            </div>
+            <div className="flex flex-col gap-8 shrink-0">
+              <Leaderboard
+                teams={teams}
+                selectedTeamId={selectedTeamId}
+                onTeamSelect={setSelectedTeamId}
+              />
+            </div>
           </div>
         </div>
         {/* Mobile layout */}
         <div className="flex lg:hidden lg:h-0 w-full h-full flex-col items-center z-10">
+          {winner && (
+            <div className="w-full max-w-[90vw] sm:max-w-[80vw]">
+              <WinnerBanner winner={winner} />
+            </div>
+          )}
           <div className="mb-2 w-full max-w-[90vw] sm:max-w-[80vw]">
             <h1 className="text-4xl font-bold">Winter Bingo 2026</h1>
             <TimeRemaining endDate={endDate} />

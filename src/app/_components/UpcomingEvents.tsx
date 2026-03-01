@@ -7,13 +7,14 @@ export async function UpcomingEvents() {
   const events = await getEvents();
   const now = new Date();
 
+  const twoWeeks = 14 * 24 * 60 * 60 * 1000;
   const upcomingEvents = events?.filter(
-    (event) => new Date(event.end_date).getTime() - now.getTime() > 0,
+    (event) => new Date(event.end_date).getTime() + twoWeeks - now.getTime() > 0,
   );
   return (
     upcomingEvents.length > 0 && (
       <div className="flex flex-col gap-4">
-        <h2 className="text-3xl text-foreground">Upcoming Events</h2>
+        <h2 className="text-3xl text-foreground">Events</h2>
         {events.map((event) => (
           <Card
             className="relative overflow-hidden h-48 w-full sm:w-96"
