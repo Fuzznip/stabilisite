@@ -295,6 +295,7 @@ export type Raid = {
     order: number;
     icon: string | null;
     color: string;
+    description: string;
     requirements: string;
     points: number;
   }[];

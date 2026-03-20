@@ -52,7 +52,7 @@ const raidTierSchema = z.object({
         files.every((file) => file instanceof File && file.size > 0),
       {
         message: "Please upload at least one valid image file",
-      }
+      },
     ),
 });
 
@@ -86,13 +86,13 @@ export function RaidTierDialog({
 
     if (result.success) {
       toast.success(
-        `Your ${selectedRaid.raidName} Tier ${selectedTier.order} application was submitted!`
+        `Your ${selectedRaid.raidName} Tier ${selectedTier.order} application was submitted!`,
       );
       setDialogOpen(false);
     } else {
       toast.error(
         "Something went wrong submitting your raid tier application. Please try again.",
-        { duration: 10000 }
+        { duration: 10000 },
       );
     }
     form.reset(defaultForm);
@@ -137,7 +137,7 @@ export function RaidTierDialog({
                           setSelectedRaid(newRaid);
                           const newTier =
                             newRaid.tiers.find(
-                              (tier) => tier.order === selectedTier.order
+                              (tier) => tier.order === selectedTier.order,
                             ) || newRaid.tiers[0];
                           setSelectedTier(newTier);
                           form.setValue("tier", newTier.id);
@@ -176,8 +176,8 @@ export function RaidTierDialog({
                         onValueChange={(val) => {
                           setSelectedTier(
                             selectedRaid.tiers.find(
-                              (tier) => tier.id === val
-                            ) || selectedRaid.tiers[0]
+                              (tier) => tier.id === val,
+                            ) || selectedRaid.tiers[0],
                           );
                           field.onChange(val);
                         }}
@@ -203,8 +203,8 @@ export function RaidTierDialog({
             <Alert className="mt-4">
               <Info />
               <AlertTitle>Requirement</AlertTitle>
-              <AlertDescription className="text-foreground font-semibold text-base">
-                {selectedTier.requirements}
+              <AlertDescription className="text-foreground text-base">
+                {selectedTier.description}
               </AlertDescription>
             </Alert>
             <FormField
@@ -212,9 +212,11 @@ export function RaidTierDialog({
               name="proof"
               render={() => (
                 <ProofField
+                  description={selectedTier.requirements}
                   onFileSelect={(files) => {
                     form.setValue("proof", files);
                   }}
+                  allowMultiple
                 />
               )}
             />

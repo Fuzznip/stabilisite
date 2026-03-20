@@ -90,12 +90,13 @@ export function SplitDialog(): React.ReactElement {
         toast.success(`Your ${form.getValues("item")} split was submitted!`);
         form.reset();
       })
-      .catch(() => {
+      .catch((e) => {
         toast.error(
           `There was an error submitting your ${form.getValues(
-            "item"
-          )} split. Ask Funzip y it no work.`
+            "item",
+          )} split. Ask Funzip y it no work.`,
         );
+        console.error(e);
         form.reset();
       });
     setDialogOpen(false);
@@ -166,7 +167,7 @@ export function SplitDialog(): React.ReactElement {
                         className={cn(
                           "flex items-center",
                           (form.getValues().price || 0) / 1000000 >= 10 &&
-                            "text-[#23FE9A]"
+                            "text-[#23FE9A]",
                         )}
                       >
                         <div className="relative size-4 mr-1">
@@ -244,7 +245,7 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
         onFileSelect(file);
       }
     },
-    [onFileSelect]
+    [onFileSelect],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

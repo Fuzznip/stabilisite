@@ -52,7 +52,7 @@ const rankSchema = z.object({
         files.every((file) => file instanceof File && file.size > 0),
       {
         message: "Please upload at least one valid image file",
-      }
+      },
     ),
 });
 
@@ -69,7 +69,7 @@ export function RankDialog({
   const [selectedRank, setSelectedRank] = useState<Rank>(ranks[0]);
   const daysInClan = differenceInCalendarDays(
     new Date(),
-    user?.joinDate || new Date()
+    user?.joinDate || new Date(),
   );
   const clanPoints = user?.rankPoints || 0;
   const defaultForm = {
@@ -94,13 +94,13 @@ export function RankDialog({
 
       if (result.success) {
         toast.success(
-          `Your ${selectedRank.rankName} rank application was submitted!`
+          `Your ${selectedRank.rankName} rank application was submitted!`,
         );
         setDialogOpen(false);
       } else {
         toast.error(
           `Something went wrong submitting your rank application. Please try again.`,
-          { duration: 10000 }
+          { duration: 10000 },
         );
       }
       form.reset(defaultForm);
@@ -108,7 +108,7 @@ export function RankDialog({
       console.error("[RankDialog] Submission error:", err);
       toast.error(
         "Something went wrong submitting your rank application. Please try again.",
-        { duration: 10000 }
+        { duration: 10000 },
       );
       form.reset(defaultForm);
     }
@@ -156,7 +156,7 @@ export function RankDialog({
                           onValueChange={(rankId) =>
                             setSelectedRank(
                               ranks.find((rank) => rank.id === rankId) ||
-                                ranks[0]
+                                ranks[0],
                             )
                           }
                         >
@@ -239,7 +239,7 @@ export function RankDialog({
                     onFileSelect={(files) => {
                       form.setValue("proof", files);
                     }}
-                    allowMultiple={true}
+                    allowMultiple
                   />
                 )}
               />

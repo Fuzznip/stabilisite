@@ -2,7 +2,7 @@ import { Raid, RaidTierResponse } from "../types";
 
 export async function getRaids(): Promise<Raid[]> {
   const raidResposne = await fetch(`${process.env.API_URL}/raidTier`).then(
-    (res) => res.json()
+    (res) => res.json(),
   );
 
   return groupRaidTiers(raidResposne);
@@ -19,6 +19,7 @@ function groupRaidTiers(data: RaidTierResponse[]): Raid[] {
       icon: item.tier_icon,
       color: item.tier_color,
       requirements: item.tier_requirements,
+      description: item.tier_description,
       points: item.tier_points,
     };
 

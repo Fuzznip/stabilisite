@@ -22,9 +22,11 @@ import { toast } from "sonner";
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
 
 export default function ProofField({
+  description,
   onFileSelect,
   allowMultiple = false,
 }: {
+  description?: string;
   onFileSelect: (files: File[]) => void;
   allowMultiple?: boolean;
 }) {
@@ -35,19 +37,19 @@ export default function ProofField({
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length) {
         const newPreviews = acceptedFiles.map((file) =>
-          URL.createObjectURL(file)
+          URL.createObjectURL(file),
         );
         const newFiles = allowMultiple
           ? [...acceptedFiles, ...files]
           : acceptedFiles;
         setFiles(newFiles);
         setPreviews(
-          allowMultiple ? (prev) => [...newPreviews, ...prev] : newPreviews
+          allowMultiple ? (prev) => [...newPreviews, ...prev] : newPreviews,
         );
         onFileSelect(newFiles);
       }
     },
-    [onFileSelect, allowMultiple, files]
+    [onFileSelect, allowMultiple, files],
   );
 
   useEffect(() => {
@@ -79,7 +81,8 @@ export default function ProofField({
     <FormItem className="flex flex-col w-full relative gap-1">
       <FormLabel>Proof</FormLabel>
       <FormDescription className="mb-1">
-        Make sure to show all requirements in the provided screenshots!
+        {description ??
+          "Make sure to show all requirements in the provided screenshots!"}
       </FormDescription>
       <FormControl>
         <div>

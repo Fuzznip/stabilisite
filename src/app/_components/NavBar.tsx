@@ -97,6 +97,7 @@ async function SubmitPopover(): Promise<React.ReactElement> {
   const user = await getAuthUser();
   const entries = await getDiaryEntries(user);
   const raids = await getRaids();
+  console.log(raids.flatMap((raid) => raid.tiers));
   const ranks = await getRanks();
   const userRankIndex = ranks.findIndex((rank) => rank.rankName === user?.rank);
   const filteredRanks = ranks.splice(userRankIndex + 1);
