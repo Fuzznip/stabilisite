@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getDiaryApplications } from "@/lib/db/diary";
@@ -13,6 +12,7 @@ import {
 import { differenceInCalendarDays, formatDistanceToNow } from "date-fns";
 import acceptApplication from "./_actions/acceptApplication";
 import rejectApplication from "./_actions/rejectApplication";
+import { Button } from "@/components/ui/button";
 import RejectModal from "./_components/RejectModal";
 import {
   CheckCircle,
@@ -225,13 +225,8 @@ function ClanApplications({
                   applicationId={application.id || ""}
                   rejectAction={rejectApplication}
                 />
-                <form
-                  action={acceptApplication.bind(null, application.id || "")}
-                >
-                  <Button
-                    className="text-green-500 border-green-500 hover:cursor-pointer"
-                    variant="outline"
-                  >
+                <form action={acceptApplication.bind(null, application.id || "")}>
+                  <Button className="text-green-500 border-green-500 hover:cursor-pointer" variant="outline">
                     Accept
                   </Button>
                 </form>
@@ -375,16 +370,8 @@ function DiaryApplications({
                   applicationId={application.id || ""}
                   rejectAction={rejectDiaryApplication}
                 />
-                <form
-                  action={acceptDiaryApplication.bind(
-                    null,
-                    application.id || ""
-                  )}
-                >
-                  <Button
-                    className="text-green-500 border-green-500 hover:cursor-pointer"
-                    variant="outline"
-                  >
+                <form action={acceptDiaryApplication.bind(null, application.id || "")}>
+                  <Button className="text-green-500 border-green-500 hover:cursor-pointer" variant="outline">
                     Accept
                   </Button>
                 </form>
@@ -506,16 +493,8 @@ async function RaidTierApplications({
                   applicationId={application.id || ""}
                   rejectAction={rejectRaidTierApplication}
                 />
-                <form
-                  action={acceptRaidTierApplication.bind(
-                    null,
-                    application.id || ""
-                  )}
-                >
-                  <Button
-                    className="text-green-500 border-green-500 hover:cursor-pointer"
-                    variant="outline"
-                  >
+                <form action={acceptRaidTierApplication.bind(null, application.id || "")}>
+                  <Button className="text-green-500 border-green-500 hover:cursor-pointer" variant="outline">
                     Accept
                   </Button>
                 </form>
@@ -692,16 +671,8 @@ async function RankApplications({
                   applicationId={application.id || ""}
                   rejectAction={rejectRankApplication}
                 />
-                <form
-                  action={acceptRankApplication.bind(
-                    null,
-                    application.id || ""
-                  )}
-                >
-                  <Button
-                    className="text-green-500 border-green-500 hover:cursor-pointer"
-                    variant="outline"
-                  >
+                <form action={acceptRankApplication.bind(null, application.id || "")}>
+                  <Button className="text-green-500 border-green-500 hover:cursor-pointer" variant="outline">
                     Accept
                   </Button>
                 </form>

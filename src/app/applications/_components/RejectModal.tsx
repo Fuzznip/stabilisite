@@ -27,7 +27,6 @@ export default function RejectModal({
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [isPending, startTransition] = useTransition();
-
   function handleSubmit() {
     startTransition(async () => {
       await rejectAction(applicationId, reason);

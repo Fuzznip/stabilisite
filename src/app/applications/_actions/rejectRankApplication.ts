@@ -8,10 +8,8 @@ export default async function rejectRankApplication(
 ): Promise<void> {
   await fetch(`${process.env.API_URL}/applications/rank/${id}/reject`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ verdict_reason: reason }),
   });
-  revalidatePath("/applications/rank");
+  revalidatePath("/applications");
 }

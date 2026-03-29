@@ -7,7 +7,7 @@ import {
 
 export async function submitRankForm(
   user: User | null,
-  rankForm: RankForm
+  rankForm: RankForm,
 ): Promise<void> {
   const rankRequest = {
     user_id: user?.discordId,
@@ -31,10 +31,10 @@ export async function submitRankForm(
 }
 
 export async function getRankApplications(
-  user?: User | undefined
+  user?: User | undefined,
 ): Promise<RankApplication[]> {
   const rankApplicationResponse = await fetch(
-    `${process.env.API_URL}/applications/rank`
+    `${process.env.API_URL}/applications/rank`,
   ).then((res) => res.json());
 
   const applications: RankApplication[] = rankApplicationResponse.map(
@@ -48,14 +48,14 @@ export async function getRankApplications(
       userId: application.user_id,
       verdictReason: application.verdict_reason,
       verdictDate: new Date(application.verdict_timestamp || ""),
-    })
+    }),
   );
 
   if (user) {
     return applications.filter(
       (application) =>
         application.status === "Accepted" &&
-        application.runescapeName === user.runescapeName
+        application.runescapeName === user.runescapeName,
     );
   }
   return applications;
