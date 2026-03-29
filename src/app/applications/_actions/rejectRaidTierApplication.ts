@@ -13,5 +13,5 @@ export default async function rejectRaidTierApplication(
     },
     body: JSON.stringify({ verdict_reason: reason }),
   });
-  revalidatePath("/applications/raidTier");
+  revalidatePath("/applications");
 }

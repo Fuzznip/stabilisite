@@ -13,5 +13,5 @@ export default async function rejectDiaryApplication(
     },
     body: JSON.stringify({ verdict_reason: reason }),
   });
-  revalidatePath("/applications/diary");
+  revalidatePath("/applications");
 }

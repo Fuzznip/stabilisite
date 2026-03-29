@@ -10,5 +10,5 @@ export default async function acceptRankApplication(id: string): Promise<void> {
     },
   });
 
-  revalidatePath("/applications/rank");
+  revalidatePath("/applications");
 }

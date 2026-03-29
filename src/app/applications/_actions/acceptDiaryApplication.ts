@@ -9,5 +9,5 @@ export default async function acceptDiaryApplication(id: string): Promise<void> 
       "Content-Type": "application/json",
     },
   });
-  revalidatePath("/applications/diary");
+  revalidatePath("/applications");
 }

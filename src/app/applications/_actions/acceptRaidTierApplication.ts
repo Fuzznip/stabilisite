@@ -12,5 +12,5 @@ export default async function acceptRaidTierApplication(
     },
   });
 
-  revalidatePath("/applications/raidTier");
+  revalidatePath("/applications");
 }
