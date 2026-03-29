@@ -8,7 +8,7 @@ import {
 export async function submitDiaryEntry(
   user: User | null,
   diaryForm: DiaryForm,
-  fileUrl: string
+  fileUrl: string,
 ): Promise<void> {
   const party =
     diaryForm.teamMembers?.length === diaryForm.scale
@@ -16,7 +16,7 @@ export async function submitDiaryEntry(
       : [
           ...(diaryForm.teamMembers || []),
           ...Array(
-            (diaryForm.scale || 1) - (diaryForm.teamMembers?.length || 0)
+            (diaryForm.scale || 1) - (diaryForm.teamMembers?.length || 0),
           ).fill(""),
         ];
   const diaryRequest: {
@@ -61,7 +61,9 @@ export type PaginatedResponse<T> = {
   has_prev: boolean;
 };
 
-function mapDiaryApplication(diary: DiaryApplicationResponse): DiaryApplication {
+function mapDiaryApplication(
+  diary: DiaryApplicationResponse,
+): DiaryApplication {
   return {
     id: diary.id,
     userId: diary.user_id,
@@ -81,12 +83,12 @@ function mapDiaryApplication(diary: DiaryApplicationResponse): DiaryApplication 
 }
 
 export async function getDiaryApplications(
-  user?: User | null
+  user?: User | null,
 ): Promise<DiaryApplication[]> {
   const userParam = `?discord_id=${user?.discordId}`;
 
   const userDiaries = await fetch(
-    `${process.env.API_URL}/applications/diary${user ? userParam : ""}`
+    `${process.env.API_URL}/applications/diary${user ? userParam : ""}`,
   ).then((res) => res.json());
 
   return userDiaries.map(mapDiaryApplication);
@@ -95,7 +97,7 @@ export async function getDiaryApplications(
 export async function getDiaryApplicationsPaginated(
   page: number,
   perPage: number = 10,
-  status?: string
+  status?: string,
 ): Promise<PaginatedResponse<DiaryApplication>> {
   const params = new URLSearchParams({
     page: String(page),
@@ -104,7 +106,7 @@ export async function getDiaryApplicationsPaginated(
   if (status) params.set("status", status);
 
   const response = await fetch(
-    `${process.env.API_URL}/applications/diary?${params}`
+    `${process.env.API_URL}/applications/diary?${params}`,
   );
   const data = await response.json();
 

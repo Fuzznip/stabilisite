@@ -18,7 +18,7 @@ function mapSplit(split: SplitResponse): Split {
     itemName: split.item_name,
     itemPrice: Number(split.item_price),
     itemImg: `https://oldschool.runescape.wiki/images/${encodeURIComponent(
-      split.item_name.replace(/ /g, "_")
+      split.item_name.replace(/ /g, "_"),
     )}.png`,
     splitContribution: Number(split.split_contribution),
     groupSize: Number(split.group_size),
@@ -34,16 +34,16 @@ export async function getSplits(user?: User | null): Promise<Split[]> {
     .then((splits) =>
       splits
         .map(mapSplit)
-        .sort((a: Split, b: Split) => b.date.getTime() - a.date.getTime())
+        .sort((a: Split, b: Split) => b.date.getTime() - a.date.getTime()),
     );
 }
 
 export async function getSplitsPaginated(
   page: number,
-  perPage: number = 10
+  perPage: number = 10,
 ): Promise<PaginatedResponse<Split>> {
   const response = await fetch(
-    `${process.env.API_URL}/splits?page=${page}&per_page=${perPage}`
+    `${process.env.API_URL}/splits?page=${page}&per_page=${perPage}`,
   );
   const data = await response.json();
 

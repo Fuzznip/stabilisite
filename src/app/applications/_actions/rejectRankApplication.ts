@@ -2,13 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 
-export default async function rejectRankApplication(id: string): Promise<void> {
+export default async function rejectRankApplication(
+  id: string,
+  reason: string
+): Promise<void> {
   await fetch(`${process.env.API_URL}/applications/rank/${id}/reject`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ verdict_reason: "lol I dont support this yet" }),
+    body: JSON.stringify({ verdict_reason: reason }),
   });
   revalidatePath("/applications/rank");
 }
