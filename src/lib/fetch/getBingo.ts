@@ -9,7 +9,6 @@ export async function getEvents(): Promise<Event[]> {
   const res = await fetch(`${process.env.API_URL}/v2/events`, {
     next: { tags: ["bingo-event"] },
   });
-  if (!res.ok) return [];
   const json = await res.json();
   return json.data;
 }

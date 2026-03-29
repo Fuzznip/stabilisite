@@ -20,22 +20,6 @@ interface RejectModalProps {
   rejectAction: RejectAction;
 }
 
-async function mockSendDiscordNotification(
-  applicationId: string,
-  reason: string
-): Promise<void> {
-  // TODO: Replace with real endpoint when available
-  console.log("[mock] POST /notifications/discord/reject", {
-    applicationId,
-    reason,
-  });
-  // await fetch(`${process.env.NEXT_PUBLIC_NOTIFICATION_URL}/discord/reject`, {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify({ applicationId, reason }),
-  // });
-}
-
 export default function RejectModal({
   applicationId,
   rejectAction,
@@ -47,7 +31,6 @@ export default function RejectModal({
   function handleSubmit() {
     startTransition(async () => {
       await rejectAction(applicationId, reason);
-      await mockSendDiscordNotification(applicationId, reason);
       setOpen(false);
       setReason("");
     });
