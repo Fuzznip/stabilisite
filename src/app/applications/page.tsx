@@ -13,6 +13,7 @@ import {
 import { differenceInCalendarDays, formatDistanceToNow } from "date-fns";
 import acceptApplication from "./_actions/acceptApplication";
 import rejectApplication from "./_actions/rejectApplication";
+import RejectModal from "./_components/RejectModal";
 import {
   CheckCircle,
   CircleCheck,
@@ -220,16 +221,10 @@ function ClanApplications({
             </div>
             {application.status === "Pending" && (
               <div className="w-fit flex items-center gap-2 ml-auto mt-2 h-10">
-                <form
-                  action={rejectApplication.bind(null, application.id || "")}
-                >
-                  <Button
-                    className="text-red-500 border-red-500 hover:cursor-pointer"
-                    variant="outline"
-                  >
-                    Reject
-                  </Button>
-                </form>
+                <RejectModal
+                  applicationId={application.id || ""}
+                  rejectAction={rejectApplication}
+                />
                 <form
                   action={acceptApplication.bind(null, application.id || "")}
                 >
@@ -254,11 +249,18 @@ function ClanApplications({
               </div>
             )}
             {application.status === "Rejected" && (
-              <div className="w-fit ml-auto text-red-500/80 flex items-center gap-1 mt-2 text-sm h-10">
-                <XCircle className="size-4" />{" "}
-                {application.verdictDate && (
-                  <span>
-                    Rejected on {formatDateTime(application.verdictDate)}
+              <div className="w-fit ml-auto text-red-500/80 flex flex-col items-end gap-1 mt-2 text-sm">
+                <div className="flex items-center gap-1 h-10">
+                  <XCircle className="size-4" />{" "}
+                  {application.verdictDate && (
+                    <span>
+                      Rejected on {formatDateTime(application.verdictDate)}
+                    </span>
+                  )}
+                </div>
+                {application.verdictReason && (
+                  <span className="text-muted-foreground italic">
+                    &ldquo;{application.verdictReason}&rdquo;
                   </span>
                 )}
               </div>
@@ -369,19 +371,10 @@ function DiaryApplications({
             </div>
             {application.status === "Pending" && (
               <div className="w-fit flex items-center gap-2 ml-auto mt-2 h-10">
-                <form
-                  action={rejectDiaryApplication.bind(
-                    null,
-                    application.id || ""
-                  )}
-                >
-                  <Button
-                    className="text-red-500 border-red-500 hover:cursor-pointer"
-                    variant="outline"
-                  >
-                    Reject
-                  </Button>
-                </form>
+                <RejectModal
+                  applicationId={application.id || ""}
+                  rejectAction={rejectDiaryApplication}
+                />
                 <form
                   action={acceptDiaryApplication.bind(
                     null,
@@ -407,10 +400,17 @@ function DiaryApplications({
               </div>
             )}
             {application.status === "Rejected" && (
-              <div className="w-fit ml-auto text-red-500/80 flex items-center gap-1 mt-2 text-sm h-10">
-                <XCircle className="size-4" />{" "}
-                {application.verdictTimestamp && (
-                  <span>Rejected on {formatDateTime(new Date())}</span>
+              <div className="w-fit ml-auto text-red-500/80 flex flex-col items-end gap-1 mt-2 text-sm">
+                <div className="flex items-center gap-1 h-10">
+                  <XCircle className="size-4" />{" "}
+                  {application.verdictTimestamp && (
+                    <span>Rejected on {formatDateTime(new Date())}</span>
+                  )}
+                </div>
+                {application.verdictReason && (
+                  <span className="text-muted-foreground italic">
+                    &ldquo;{application.verdictReason}&rdquo;
+                  </span>
                 )}
               </div>
             )}
@@ -502,19 +502,10 @@ async function RaidTierApplications({
             </div>
             {application.status === "Pending" && (
               <div className="w-fit flex items-center gap-2 ml-auto mt-2 h-10">
-                <form
-                  action={rejectRaidTierApplication.bind(
-                    null,
-                    application.id || ""
-                  )}
-                >
-                  <Button
-                    className="text-red-500 border-red-500 hover:cursor-pointer"
-                    variant="outline"
-                  >
-                    Reject
-                  </Button>
-                </form>
+                <RejectModal
+                  applicationId={application.id || ""}
+                  rejectAction={rejectRaidTierApplication}
+                />
                 <form
                   action={acceptRaidTierApplication.bind(
                     null,
@@ -540,10 +531,17 @@ async function RaidTierApplications({
               </div>
             )}
             {application.status === "Rejected" && (
-              <div className="w-fit ml-auto text-red-500/80 flex items-center gap-1 mt-2 text-sm h-10">
-                <XCircle className="size-4" />
-                {application.verdictDate && (
-                  <span>Rejected on {formatDateTime(new Date())}</span>
+              <div className="w-fit ml-auto text-red-500/80 flex flex-col items-end gap-1 mt-2 text-sm">
+                <div className="flex items-center gap-1 h-10">
+                  <XCircle className="size-4" />
+                  {application.verdictDate && (
+                    <span>Rejected on {formatDateTime(new Date())}</span>
+                  )}
+                </div>
+                {application.verdictReason && (
+                  <span className="text-muted-foreground italic">
+                    &ldquo;{application.verdictReason}&rdquo;
+                  </span>
                 )}
               </div>
             )}
@@ -690,19 +688,10 @@ async function RankApplications({
             </div>
             {application.status === "Pending" && (
               <div className="w-fit flex items-center gap-2 ml-auto mt-2 h-10">
-                <form
-                  action={rejectRankApplication.bind(
-                    null,
-                    application.id || ""
-                  )}
-                >
-                  <Button
-                    className="text-red-500 border-red-500 hover:cursor-pointer"
-                    variant="outline"
-                  >
-                    Reject
-                  </Button>
-                </form>
+                <RejectModal
+                  applicationId={application.id || ""}
+                  rejectAction={rejectRankApplication}
+                />
                 <form
                   action={acceptRankApplication.bind(
                     null,
@@ -728,10 +717,17 @@ async function RankApplications({
               </div>
             )}
             {application.status === "Rejected" && (
-              <div className="w-fit ml-auto text-red-500/80 flex items-center gap-1 mt-2 text-sm h-10">
-                <XCircle className="size-4" />
-                {application.verdictDate && (
-                  <span>Rejected on {formatDateTime(new Date())}</span>
+              <div className="w-fit ml-auto text-red-500/80 flex flex-col items-end gap-1 mt-2 text-sm">
+                <div className="flex items-center gap-1 h-10">
+                  <XCircle className="size-4" />
+                  {application.verdictDate && (
+                    <span>Rejected on {formatDateTime(new Date())}</span>
+                  )}
+                </div>
+                {application.verdictReason && (
+                  <span className="text-muted-foreground italic">
+                    &ldquo;{application.verdictReason}&rdquo;
+                  </span>
                 )}
               </div>
             )}

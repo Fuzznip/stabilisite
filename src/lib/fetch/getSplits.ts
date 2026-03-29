@@ -45,6 +45,7 @@ export async function getSplitsPaginated(
   const response = await fetch(
     `${process.env.API_URL}/splits?page=${page}&per_page=${perPage}`
   );
+  if (!response.ok) return { items: [], page, per_page: perPage, total: 0, pages: 0, has_next: false, has_prev: false };
   const data = await response.json();
 
   return {

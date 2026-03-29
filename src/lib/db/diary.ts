@@ -106,6 +106,7 @@ export async function getDiaryApplicationsPaginated(
   const response = await fetch(
     `${process.env.API_URL}/applications/diary?${params}`
   );
+  if (!response.ok) return { items: [], page, per_page: perPage, total: 0, pages: 0, has_next: false, has_prev: false };
   const data = await response.json();
 
   return {
