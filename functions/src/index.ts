@@ -121,7 +121,10 @@ export const pollWomCompetition = onSchedule(
             collectionRef.doc(getDocId(p.player.displayName, skill)),
           );
           const snapshots = await db.getAll(...docRefs);
-          const snapshotMap = new Map(snapshots.map((snap) => [snap.id, snap]));
+          const snapshotMap = new Map(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            snapshots.map((snap: any) => [snap.id, snap]),
+          );
 
           interface PendingEvent {
             event: EventSubmission;
@@ -157,7 +160,12 @@ export const pollWomCompetition = onSchedule(
                 type: "SKILL",
               },
               ref: collectionRef.doc(docId),
-              data: { playerName, skill, xpGained: currentXpGained, updatedAt: new Date() },
+              data: {
+                playerName,
+                skill,
+                xpGained: currentXpGained,
+                updatedAt: new Date(),
+              },
             });
           }
 
@@ -175,7 +183,10 @@ export const pollWomCompetition = onSchedule(
             );
             results.forEach((result, j) => {
               if (result.status === "fulfilled") {
-                successfulWrites.push({ ref: chunk[j].ref, data: chunk[j].data });
+                successfulWrites.push({
+                  ref: chunk[j].ref,
+                  data: chunk[j].data,
+                });
               } else {
                 console.error(
                   `Failed to submit event for ${chunk[j].event.rsn} (${skill}):`,
