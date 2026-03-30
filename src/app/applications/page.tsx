@@ -12,8 +12,8 @@ import {
 import { differenceInCalendarDays, formatDistanceToNow } from "date-fns";
 import acceptApplication from "./_actions/acceptApplication";
 import rejectApplication from "./_actions/rejectApplication";
-import { Button } from "@/components/ui/button";
 import RejectModal from "./_components/RejectModal";
+import AcceptButton from "./_components/AcceptButton";
 import {
   CheckCircle,
   CircleCheck,
@@ -84,7 +84,7 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
             <Badge className="ml-2 bg-foreground text-background">
               {
                 applications.filter(
-                  (application) => application.status === "Pending"
+                  (application) => application.status === "Pending",
                 ).length
               }
             </Badge>
@@ -94,7 +94,7 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
             <Badge className="ml-2 bg-foreground text-background">
               {
                 diaryApplications.filter(
-                  (application) => application.status === "Pending"
+                  (application) => application.status === "Pending",
                 ).length
               }
             </Badge>
@@ -104,7 +104,7 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
             <Badge className="ml-2 bg-foreground text-background">
               {
                 raidTierApplications.filter(
-                  (application) => application.status === "Pending"
+                  (application) => application.status === "Pending",
                 ).length
               }
             </Badge>
@@ -114,7 +114,7 @@ export default async function ApplicationPage(): Promise<React.ReactElement> {
             <Badge className="ml-2 bg-foreground text-background">
               {
                 rankApplications.filter(
-                  (application) => application.status === "Pending"
+                  (application) => application.status === "Pending",
                 ).length
               }
             </Badge>
@@ -225,10 +225,10 @@ function ClanApplications({
                   applicationId={application.id || ""}
                   rejectAction={rejectApplication}
                 />
-                <form action={acceptApplication.bind(null, application.id || "")}>
-                  <Button className="text-green-500 border-green-500 hover:cursor-pointer" variant="outline">
-                    Accept
-                  </Button>
+                <form
+                  action={acceptApplication.bind(null, application.id || "")}
+                >
+                  <AcceptButton />
                 </form>
               </div>
             )}
@@ -370,10 +370,13 @@ function DiaryApplications({
                   applicationId={application.id || ""}
                   rejectAction={rejectDiaryApplication}
                 />
-                <form action={acceptDiaryApplication.bind(null, application.id || "")}>
-                  <Button className="text-green-500 border-green-500 hover:cursor-pointer" variant="outline">
-                    Accept
-                  </Button>
+                <form
+                  action={acceptDiaryApplication.bind(
+                    null,
+                    application.id || "",
+                  )}
+                >
+                  <AcceptButton />
                 </form>
               </div>
             )}
@@ -382,7 +385,10 @@ function DiaryApplications({
               <div className="w-fit ml-auto text-green-500/80 flex items-center gap-1 mt-2 text-sm h-10">
                 <CheckCircle className="size-4" />{" "}
                 {application.verdictTimestamp && (
-                  <span>Accepted on {formatDateTime(new Date())}</span>
+                  <span>
+                    Accepted on{" "}
+                    {formatDateTime(new Date(application.verdictTimestamp))}
+                  </span>
                 )}
               </div>
             )}
@@ -391,7 +397,10 @@ function DiaryApplications({
                 <div className="flex items-center gap-1 h-10">
                   <XCircle className="size-4" />{" "}
                   {application.verdictTimestamp && (
-                    <span>Rejected on {formatDateTime(new Date())}</span>
+                    <span>
+                      Rejected on{" "}
+                      {formatDateTime(new Date(application.verdictTimestamp))}
+                    </span>
                   )}
                 </div>
                 {application.verdictReason && (
@@ -424,11 +433,11 @@ async function RaidTierApplications({
         const raid = raids.find((raid) =>
           raid?.tiers
             .map((tier) => tier.id)
-            .includes(application.targetRaidTierId || "")
+            .includes(application.targetRaidTierId || ""),
         );
 
         const tier = raid?.tiers.find(
-          (tier) => tier.id === application.targetRaidTierId
+          (tier) => tier.id === application.targetRaidTierId,
         );
         const img = (
           <Image
@@ -493,10 +502,13 @@ async function RaidTierApplications({
                   applicationId={application.id || ""}
                   rejectAction={rejectRaidTierApplication}
                 />
-                <form action={acceptRaidTierApplication.bind(null, application.id || "")}>
-                  <Button className="text-green-500 border-green-500 hover:cursor-pointer" variant="outline">
-                    Accept
-                  </Button>
+                <form
+                  action={acceptRaidTierApplication.bind(
+                    null,
+                    application.id || "",
+                  )}
+                >
+                  <AcceptButton />
                 </form>
               </div>
             )}
@@ -505,7 +517,9 @@ async function RaidTierApplications({
               <div className="w-fit ml-auto text-green-500/80 flex items-center gap-1 mt-2 text-sm h-10">
                 <CheckCircle className="size-4" />
                 {application.verdictDate && (
-                  <span>Accepted on {formatDateTime(new Date())}</span>
+                  <span>
+                    Accepted on {formatDateTime(application.verdictDate)}
+                  </span>
                 )}
               </div>
             )}
@@ -543,12 +557,12 @@ async function RankApplications({
           addSuffix: true,
         });
         const newRank = ranks.find(
-          (rank) => rank.rankName === application.rank
+          (rank) => rank.rankName === application.rank,
         )!;
         const user = await getUser(application.userId!);
         const daysInClan = differenceInCalendarDays(
           new Date(),
-          user?.joinDate || new Date()
+          user?.joinDate || new Date(),
         );
         const clanPoints = user?.rankPoints || 0;
         const proofImages =
@@ -671,10 +685,13 @@ async function RankApplications({
                   applicationId={application.id || ""}
                   rejectAction={rejectRankApplication}
                 />
-                <form action={acceptRankApplication.bind(null, application.id || "")}>
-                  <Button className="text-green-500 border-green-500 hover:cursor-pointer" variant="outline">
-                    Accept
-                  </Button>
+                <form
+                  action={acceptRankApplication.bind(
+                    null,
+                    application.id || "",
+                  )}
+                >
+                  <AcceptButton />
                 </form>
               </div>
             )}
@@ -683,7 +700,9 @@ async function RankApplications({
               <div className="w-fit ml-auto text-green-500/80 flex items-center gap-1 mt-2 text-sm h-10">
                 <CheckCircle className="size-4" />
                 {application.verdictDate && (
-                  <span>Accepted on {formatDateTime(new Date())}</span>
+                  <span>
+                    Accepted on {formatDateTime(application.verdictDate)}
+                  </span>
                 )}
               </div>
             )}
@@ -710,7 +729,7 @@ async function RankApplications({
 }
 
 function sortApplications(
-  applications: { status?: string; date?: Date; verdictDate?: Date }[]
+  applications: { status?: string; date?: Date; verdictDate?: Date }[],
 ): { status?: string; date?: Date; verdictDate?: Date }[] {
   const apps = applications.sort((a, b) => {
     const aIsPending = a.status === "Pending";
