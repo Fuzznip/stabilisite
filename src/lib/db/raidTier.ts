@@ -47,7 +47,7 @@ export async function getRaidTierApplications(
       date: new Date(application.timestamp),
       userId: application.user_id,
       verdictReason: application.verdict_reason,
-      verdictDate: new Date(application.verdict_timestamp || ""),
+      verdictDate: application.verdict_timestamp ? new Date(application.verdict_timestamp) : undefined,
     }),
   );
 
