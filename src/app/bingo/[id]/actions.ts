@@ -3,5 +3,5 @@
 import { revalidateTag } from "next/cache";
 
 export async function revalidateBingoProgress() {
-  revalidateTag("bingo-progress");
+  revalidateTag("bingo-progress", "default");
 }

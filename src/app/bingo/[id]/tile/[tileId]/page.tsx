@@ -7,8 +7,6 @@ import { getEvent, getTile, getTileProgress } from "@/lib/fetch/getBingo";
 import DropToaster from "../../_components/DropToaster";
 import { RecentDropsProvider } from "../../_components/RecentDropsStore";
 
-export const runtime = "edge";
-
 export async function generateMetadata({
   params,
 }: {
