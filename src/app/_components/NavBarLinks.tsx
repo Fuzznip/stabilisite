@@ -9,6 +9,7 @@ import {
   Trophy,
   FileText,
   Grid3X3,
+  Map,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -19,6 +20,7 @@ const iconMap: Record<string, React.ElementType> = {
   Leaderboards: Trophy,
   Applications: FileText,
   Bingo: Grid3X3,
+  Conquest: Map,
 };
 
 export default function NavBarLinks({
@@ -40,7 +42,11 @@ export default function NavBarLinks({
   }
 
   if (event) {
-    tabs.push({ href: `/bingo/${event.id}`, title: "Bingo" });
+    if (event.type === "conquest") {
+      tabs.push({ href: `/conquest/${event.id}`, title: "Conquest" });
+    } else {
+      tabs.push({ href: `/bingo/${event.id}`, title: "Bingo" });
+    }
   }
 
   const isActive = (href: string) => {

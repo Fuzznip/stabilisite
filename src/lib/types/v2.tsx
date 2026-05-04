@@ -2,9 +2,12 @@
 // BASE MODELS - Direct database representations
 // ===========================================
 
+export type EventType = "bingo" | "conquest";
+
 export type Event = {
   id: string;
   name: string;
+  type: EventType;
   start_date: string; // ISO 8601 datetime
   end_date: string; // ISO 8601 datetime
   release_date: string; // ISO 8601 datetime
@@ -17,11 +20,67 @@ export type Team = {
   id: string;
   event_id: string;
   name: string;
+  color: string;
   image_url: string | null;
   points: number;
   created_at: string;
   updated_at: string;
   members: string[]; // Array of RuneScape usernames
+};
+
+// ===========================================
+// CONQUEST EVENT TYPES
+// ===========================================
+
+export type ConquestRegion = {
+  id: string;
+  event_id: string;
+  name: string;
+  controlling_team_id: string | null;
+  green_logged_teams: string[];
+  image_url: string | null;
+  offset_x: number | null;
+  offset_y: number | null;
+  created_at: string;
+};
+
+export type ConquestTerritory = {
+  id: string;
+  region_id: string;
+  name: string;
+  tier: string | null;
+  challenge_id: string | null;
+  controlling_team_id: string | null;
+  display_order: number | null;
+  offset_x: number | null;
+  offset_y: number | null;
+  polygon_points: unknown | null;
+  created_at: string;
+};
+
+export type EventLogType =
+  | "CHALLENGE_COMPLETED"
+  | "TERRITORY_CONTROL"
+  | "REGION_CONTROL"
+  | "GREEN_LOG";
+
+export type EventLogEntityType = "challenge" | "territory" | "region" | null;
+
+export type EventLogMeta = {
+  previousTeamId?: string | null;  // TERRITORY_CONTROL, REGION_CONTROL
+  completionCount?: number;        // CHALLENGE_COMPLETED
+  challengeName?: string;          // CHALLENGE_COMPLETED
+};
+
+export type EventLog = {
+  id: string;
+  event_id: string;
+  team_id: string;
+  type: EventLogType;
+  entity_type: EventLogEntityType;
+  entity_id: string | null;
+  meta: EventLogMeta;
+  created_at: string;
 };
 
 export type TeamMember = {
