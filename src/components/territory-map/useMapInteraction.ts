@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { RegionData, OverlayBuffer, HoverState, HoverInfo } from "./types";
+import type { ViewTransform } from "./useMapPanZoom";
 import { getGroupDisplayName } from "./map-data";
 
 export function useMapInteraction({
@@ -9,11 +10,15 @@ export function useMapInteraction({
   regionData,
   overlayBuffersRef,
   setHoverState,
+  transformRef,
+  isDraggingRef,
 }: {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   regionData: RegionData[];
   overlayBuffersRef: React.RefObject<Record<string, OverlayBuffer>>;
   setHoverState: (state: HoverState | null) => void;
+  transformRef: React.RefObject<ViewTransform>;
+  isDraggingRef: React.RefObject<boolean>;
 }) {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -46,29 +51,38 @@ export function useMapInteraction({
       const canvas = canvasRef.current;
       if (!canvas) return;
 
+      // Suppress territory hover while the user is panning
+      if (isDraggingRef.current) return;
+
       setMousePos({ x: e.clientX, y: e.clientY });
 
       const rect = canvas.getBoundingClientRect();
-      const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
-      const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+      const cssToCanvas = canvas.width / rect.width;
+      // Canvas-pixel position, then inverse the pan/zoom transform → world coords
+      const cp_x = (e.clientX - rect.left) * cssToCanvas;
+      const cp_y = (e.clientY - rect.top) * cssToCanvas;
+      const { scale, x: tx, y: ty } = transformRef.current;
+      const mx = (cp_x - tx) / scale;
+      const my = (cp_y - ty) / scale;
 
       const hit = hitTest(mx, my);
 
       if (hit) {
         setHoverState(hit);
         const rd = regionData.find((r) => r.name === hit.regionName);
-        const territory = rd?.territories[hit.label - 1]; // 1-based index
+        const territory = rd?.territories.find((t) => t.index === hit.label);
         if (rd && territory) {
           setHoverInfo({
             regionDisplayName: getGroupDisplayName(rd.name),
             territoryName: territory.name,
+            territoryId: territory.id,
           });
         }
         canvas.style.cursor = "pointer";
       } else {
         setHoverState(null);
         setHoverInfo(null);
-        canvas.style.cursor = "default";
+        canvas.style.cursor = transformRef.current.scale > 1 ? "grab" : "default";
       }
     }
 
@@ -77,6 +91,7 @@ export function useMapInteraction({
       setHoverInfo(null);
       const canvas = canvasRef.current;
       if (canvas) canvas.style.cursor = "default";
+      // Pan/zoom will restore "grab" cursor if needed via its own pointerleave handler
     }
 
     canvas.addEventListener("mousemove", onMouseMove);
@@ -86,7 +101,7 @@ export function useMapInteraction({
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseleave", onMouseLeave);
     };
-  }, [canvasRef, regionData, hitTest, setHoverState]);
+  }, [canvasRef, regionData, hitTest, setHoverState, transformRef, isDraggingRef]);
 
   return { hoverInfo, mousePos };
 }

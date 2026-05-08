@@ -1,3 +1,4 @@
+import "leaflet/dist/leaflet.css";
 import { Cinzel } from "next/font/google";
 
 const cinzel = Cinzel({

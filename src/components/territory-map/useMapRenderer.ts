@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RegionData, OverlayBuffer, HoverState } from "./types";
 import type { ConquestTerritory, Team } from "@/lib/types/v2";
+import type { ViewTransform } from "./useMapPanZoom";
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
@@ -75,7 +76,7 @@ function buildOverlayBuffer(
       const label = labelData[y * w + x]; // territory index (1-based), 0=sea
       if (label === 0) continue;
 
-      const territory = territories[label - 1]; // 1-based index
+      const territory = territories.find((t) => t.index === label);
       if (!territory) continue;
 
       const terrColor = resolveTerritoryColor(
@@ -129,10 +130,15 @@ function fullRedraw(
   regionData: RegionData[],
   regionImages: Record<string, HTMLImageElement>,
   overlayBuffers: Record<string, OverlayBuffer>,
-  tempCanvases: Record<string, { hover: HTMLCanvasElement; border: HTMLCanvasElement }>
+  tempCanvases: Record<string, { hover: HTMLCanvasElement; border: HTMLCanvasElement }>,
+  transform: ViewTransform
 ) {
+  // Fill background at identity (covers the whole canvas regardless of zoom)
   ctx.fillStyle = BACKGROUND_COLOR;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  ctx.save();
+  ctx.setTransform(transform.scale, 0, 0, transform.scale, transform.x, transform.y);
 
   for (const rd of regionData) {
     const img = regionImages[rd.filename];
@@ -154,6 +160,8 @@ function fullRedraw(
     tc.border.getContext("2d")!.putImageData(buf.borderData, 0, 0);
     ctx.drawImage(tc.border, buf.offsetX, buf.offsetY);
   }
+
+  ctx.restore();
 }
 
 /** Extract just the red channel from a loaded label PNG into a flat Uint8Array. */
@@ -183,7 +191,8 @@ async function extractLabelData(
 export function useMapRenderer(
   regionData: RegionData[],
   conquestTerritories: ConquestTerritory[],
-  teams: Team[]
+  teams: Team[],
+  transformRef: React.MutableRefObject<ViewTransform>
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const regionImagesRef = useRef<Record<string, HTMLImageElement>>({});
@@ -198,6 +207,7 @@ export function useMapRenderer(
 
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [overlaysBuilt, setOverlaysBuilt] = useState(false);
+  const transformDirtyRef = useRef(false);
 
   // Load region PNGs + label PNGs in parallel
   useEffect(() => {
@@ -277,7 +287,7 @@ export function useMapRenderer(
 
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx) {
-      fullRedraw(ctx, regionData, regionImagesRef.current, buffers, tempCanvases);
+      fullRedraw(ctx, regionData, regionImagesRef.current, buffers, tempCanvases, transformRef.current);
     }
 
     setOverlaysBuilt(true);
@@ -334,7 +344,8 @@ export function useMapRenderer(
         }
       }
 
-      if (dirty) {
+      if (dirty || transformDirtyRef.current) {
+        transformDirtyRef.current = false;
         const ctx = canvasRef.current?.getContext("2d");
         if (ctx) {
           fullRedraw(
@@ -342,7 +353,8 @@ export function useMapRenderer(
             regionData,
             regionImagesRef.current,
             overlayBuffersRef.current,
-            tempCanvasesRef.current
+            tempCanvasesRef.current,
+            transformRef.current
           );
         }
       }
@@ -358,5 +370,9 @@ export function useMapRenderer(
     hoverStateRef.current = state;
   }, []);
 
-  return { canvasRef, overlayBuffersRef, setHoverState, overlaysBuilt };
+  const markTransformDirty = useCallback(() => {
+    transformDirtyRef.current = true;
+  }, []);
+
+  return { canvasRef, overlayBuffersRef, setHoverState, overlaysBuilt, markTransformDirty };
 }

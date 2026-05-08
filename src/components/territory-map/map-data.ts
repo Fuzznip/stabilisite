@@ -2,6 +2,8 @@ export const CANVAS_WIDTH = 459;
 export const CANVAS_HEIGHT = 211;
 export const BACKGROUND_COLOR = "#b8b0a4";
 export const MAP_PATH_PREFIX = "/map/";
+// Slightly lighter/warmer than the background — used for outer territory borders
+export const BORDER_COLOR: [number, number, number] = [210, 205, 198];
 
 // Regions that share a territory ID space across two PNGs
 export const GROUPS: Record<string, string> = {
@@ -30,15 +32,15 @@ export const REGION_GROUPS: RegionGroup[] = [
 ];
 
 export const REGION_COLORS: [number, number, number][] = [
-  [230, 57, 70],   // karamja_asgarnia — red
-  [42, 157, 143],  // fremennik — teal
-  [233, 196, 106], // misthalin_wilderness — gold
-  [255, 200, 60],  // kandarin — bright yellow
-  [244, 162, 97],  // desert — peach
-  [200, 80, 200],  // tirannwn — magenta
-  [72, 202, 228],  // morytania — sky blue
-  [140, 200, 60],  // kourend — lime
-  [255, 255, 255], // varlamore — white
+  [230, 25, 75],   // karamja_asgarnia — red
+  [60, 180, 75],   // fremennik — green
+  [255, 225, 25],  // misthalin_wilderness — yellow
+  [67, 99, 216],   // kandarin — blue
+  [245, 130, 49],  // desert — orange
+  [145, 30, 180],  // tirannwn — purple
+  [66, 212, 244],  // morytania — cyan
+  [240, 50, 230],  // kourend — magenta
+  [191, 239, 69],  // varlamore — lime
 ];
 
 // Fallback fill colors cycled by territory index when no team owns the territory

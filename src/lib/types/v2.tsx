@@ -25,7 +25,7 @@ export type Team = {
   points: number;
   created_at: string;
   updated_at: string;
-  members: string[]; // Array of RuneScape usernames
+  members: string[]; // Array of RuneScape usernames (bingo events)
 };
 
 // ===========================================
@@ -395,6 +395,18 @@ export type ChallengeProgress = Challenge & {
 
 // The return type of GET /v2/teams/<team_id>/progress
 export type TeamProgressResponse = TileProgress[];
+
+// ===========================================
+// CONQUEST TERRITORY PROGRESS TYPES
+// ===========================================
+
+export type TerritoryProgressEntry = {
+  team_id: string;
+  team_name: string;
+  quantity: number;       // current progress toward the challenge
+  required: number | null; // quantity needed; null = repeatable
+  completions: number;    // total times completed
+};
 
 // ===========================================
 // UTILITY TYPES

@@ -9,6 +9,7 @@ export interface Territory {
 
 export interface RegionData {
   name: string;
+  region_id: string;
   filename: string;
   label_filename: string;
   imageWidth: number;
@@ -39,4 +40,5 @@ export interface HoverState {
 export interface HoverInfo {
   regionDisplayName: string;
   territoryName: string;
+  territoryId: string;
 }

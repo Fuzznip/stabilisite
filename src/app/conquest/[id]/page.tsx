@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import path from "path";
 import type { Metadata } from "next";
 import { getEvent } from "@/lib/fetch/getBingo";
-import { getConquestTerritories } from "@/lib/fetch/getConquest";
+import { getConquestTerritories, getConquestRegions } from "@/lib/fetch/getConquest";
 import { ConquestClientWrapper } from "./_components/ConquestClientWrapper";
 import type { RegionData } from "@/components/territory-map/types";
 import Loading from "./loading";
@@ -35,9 +35,10 @@ export default async function ConquestPage({
 }
 
 async function ConquestContent({ id }: { id: string }) {
-  const [event, initialTerritories, regionData] = await Promise.all([
+  const [event, initialTerritories, initialRegions, regionData] = await Promise.all([
     getEvent(id),
     getConquestTerritories(id),
+    getConquestRegions(id),
     readFile(
       path.join(process.cwd(), "public", "map", "territories.json"),
       "utf8"
@@ -53,6 +54,7 @@ async function ConquestContent({ id }: { id: string }) {
         eventId={id}
         regionData={regionData}
         initialTerritories={initialTerritories}
+        initialRegions={initialRegions}
         teams={event.teams}
       />
     </div>
