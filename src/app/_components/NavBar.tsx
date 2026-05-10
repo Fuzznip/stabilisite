@@ -19,10 +19,16 @@ import { getRaids } from "@/lib/fetch/getRaids";
 import { RankDialog } from "./RankDialog";
 import { getRanks } from "@/lib/fetch/getRanks";
 import { getReleasedEvent } from "@/lib/fetch/getBingo";
+import { auth } from "@/auth";
+import { CONQUEST_ADMIN_IDS } from "@/lib/config/conquest";
 
 export default async function NavBar(): Promise<React.ReactElement> {
-  const user = await getAuthUser();
-  const event = await getReleasedEvent();
+  const [user, event, session] = await Promise.all([
+    getAuthUser(),
+    getReleasedEvent(),
+    auth(),
+  ]);
+  const isConquestAdmin = CONQUEST_ADMIN_IDS.includes(session?.user?.id ?? "");
   return (
     <div className="flex w-full h-16 px-2 sm:px-4 justify-between items-center mt-2">
       <div className="flex items-center h-full w-full">
@@ -38,7 +44,7 @@ export default async function NavBar(): Promise<React.ReactElement> {
             className="object-contain"
           />
         </Link>
-        <NavBarLinks user={user} event={event} />
+        <NavBarLinks user={user} event={event} isConquestAdmin={isConquestAdmin} />
       </div>
       <div className="flex items-center gap-2">
         {user && !user.isMember && (

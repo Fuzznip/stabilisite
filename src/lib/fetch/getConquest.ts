@@ -1,5 +1,12 @@
 import type { ConquestRegion, ConquestTerritory, EventLog } from "@/lib/types/v2";
 
+async function safeJson(res: Response) {
+  if (!res.ok) {
+    throw new Error(`API error ${res.status} ${res.url}`);
+  }
+  return res.json();
+}
+
 export async function getConquestRegions(
   eventId: string
 ): Promise<ConquestRegion[]> {
@@ -7,7 +14,7 @@ export async function getConquestRegions(
     `${process.env.API_URL}/v2/events/${eventId}/regions`,
     { next: { tags: [`conquest-regions-${eventId}`] } }
   );
-  const json = await res.json();
+  const json = await safeJson(res);
   return json.data;
 }
 
@@ -18,7 +25,7 @@ export async function getConquestTerritories(
     `${process.env.API_URL}/v2/events/${eventId}/territories`,
     { next: { tags: [`conquest-territories-${eventId}`] } }
   );
-  const json = await res.json();
+  const json = await safeJson(res);
   return json.data;
 }
 
@@ -31,5 +38,5 @@ export async function getEventLogs(
     `${process.env.API_URL}/v2/events/${eventId}/event-logs?page=${page}&per_page=${perPage}`,
     { next: { tags: [`conquest-logs-${eventId}`] } }
   );
-  return res.json();
+  return safeJson(res);
 }

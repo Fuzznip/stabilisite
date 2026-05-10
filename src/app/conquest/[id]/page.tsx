@@ -57,7 +57,8 @@ async function ConquestContent({ id }: { id: string }) {
       getEventLogs(id, 1, 10),
     ]);
 
-  const playerCount = event.teams.reduce((sum, t) => sum + t.members.length, 0);
+  const playerCount =
+    event.teams?.reduce((sum, t) => sum + t.members?.length || 0, 0) || 0;
 
   return (
     <ConquestClientWrapper
