@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { CONQUEST_ADMIN_IDS } from "@/lib/config/conquest";
 
 const iconMap: Record<string, React.ElementType> = {
   Home: Home,
@@ -43,7 +44,9 @@ export default function NavBarLinks({
 
   if (event) {
     if (event.type === "conquest") {
-      tabs.push({ href: `/conquest/${event.id}`, title: "Conquest" });
+      if (user?.discordId && CONQUEST_ADMIN_IDS.includes(user.discordId)) {
+        tabs.push({ href: `/conquest/${event.id}`, title: "Conquest" });
+      }
     } else {
       tabs.push({ href: `/bingo/${event.id}`, title: "Bingo" });
     }
