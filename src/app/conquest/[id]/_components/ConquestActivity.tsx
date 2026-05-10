@@ -17,7 +17,7 @@ function formatRelativeTime(isoDate: string): string {
   return `${Math.floor(hours / 24)}d`;
 }
 
-type ActivityType = "task" | "capture" | "region" | "greenlog";
+type ActivityType = "task" | "capture" | "region";
 
 function getActivityInfo(
   log: EventLog,
@@ -41,10 +41,6 @@ function getActivityInfo(
     case "REGION_CONTROL": {
       const region = regions.find((r) => r.id === log.entity_id);
       return { type: "region", target: region?.name ?? "Region" };
-    }
-    case "GREEN_LOG": {
-      const region = regions.find((r) => r.id === log.entity_id);
-      return { type: "greenlog", target: region?.name ?? "Region" };
     }
     default:
       return { type: "task", target: "Activity" };
@@ -126,24 +122,6 @@ function RegionIcon() {
   );
 }
 
-function GreenLogIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 14 14"
-      fill="none"
-      className="shrink-0"
-      style={{ color: "#5fcf72" }}
-    >
-      <path
-        d="M7 1 C4 1 2 3.5 2 6 C2 9 7 13 7 13 C7 13 12 9 12 6 C12 3.5 10 1 7 1 Z"
-        fill="currentColor"
-        opacity="0.8"
-      />
-    </svg>
-  );
-}
 
 interface ConquestActivityProps {
   logs: EventLog[];
@@ -156,7 +134,6 @@ const VERB_LABELS: Record<ActivityType, string> = {
   task: "Completed",
   capture: "Captured",
   region: "Secured region",
-  greenlog: "Green logged",
 };
 
 function SectionHeader() {
@@ -224,9 +201,7 @@ export function ConquestActivity({
               ? TaskIcon
               : type === "capture"
                 ? CaptureIcon
-                : type === "greenlog"
-                  ? GreenLogIcon
-                  : RegionIcon;
+                : RegionIcon;
 
           return (
             <div

@@ -6,7 +6,28 @@ import {
   QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
-import { TerritoryMap } from "@/components/territory-map/TerritoryMap";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+} from "@/components/territory-map/map-data";
+
+const TerritoryMap = dynamic(
+  () =>
+    import("@/components/territory-map/TerritoryMap").then(
+      (m) => m.TerritoryMap,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        className="w-full rounded-[18px]"
+        style={{ aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}` }}
+      />
+    ),
+  },
+);
 import { ConquestScoreboard } from "./ConquestScoreboard";
 import { ConquestRegions } from "./ConquestRegions";
 import { ConquestActivity } from "./ConquestActivity";

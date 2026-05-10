@@ -61,8 +61,7 @@ export type ConquestTerritory = {
 export type EventLogType =
   | "CHALLENGE_COMPLETED"
   | "TERRITORY_CONTROL"
-  | "REGION_CONTROL"
-  | "GREEN_LOG";
+  | "REGION_CONTROL";
 
 export type EventLogEntityType = "challenge" | "territory" | "region" | null;
 
