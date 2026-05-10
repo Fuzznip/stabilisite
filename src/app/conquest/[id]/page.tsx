@@ -3,7 +3,11 @@ import { readFile } from "fs/promises";
 import path from "path";
 import type { Metadata } from "next";
 import { getEvent } from "@/lib/fetch/getBingo";
-import { getConquestTerritories, getConquestRegions } from "@/lib/fetch/getConquest";
+import {
+  getConquestTerritories,
+  getConquestRegions,
+  getEventLogs,
+} from "@/lib/fetch/getConquest";
 import { ConquestClientWrapper } from "./_components/ConquestClientWrapper";
 import type { RegionData } from "@/components/territory-map/types";
 import Loading from "./loading";
@@ -35,28 +39,32 @@ export default async function ConquestPage({
 }
 
 async function ConquestContent({ id }: { id: string }) {
-  const [event, initialTerritories, initialRegions, regionData] = await Promise.all([
-    getEvent(id),
-    getConquestTerritories(id),
-    getConquestRegions(id),
-    readFile(
-      path.join(process.cwd(), "public", "map", "territories.json"),
-      "utf8"
-    ).then((raw) => JSON.parse(raw) as RegionData[]),
-  ]);
+  const [event, initialTerritories, initialRegions, regionData, logsResponse] =
+    await Promise.all([
+      getEvent(id),
+      getConquestTerritories(id),
+      getConquestRegions(id),
+      readFile(
+        path.join(process.cwd(), "public", "map", "territories.json"),
+        "utf8",
+      ).then((raw) => JSON.parse(raw) as RegionData[]),
+      getEventLogs(id, 1, 10),
+    ]);
+
+  const playerCount = event.teams.reduce(
+    (sum, t) => sum + t.members.length,
+    0,
+  );
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-center text-3xl font-bold tracking-[0.12em] uppercase text-foreground [font-family:var(--font-cinzel)]">
-        {event.name}
-      </h1>
-      <ConquestClientWrapper
-        eventId={id}
-        regionData={regionData}
-        initialTerritories={initialTerritories}
-        initialRegions={initialRegions}
-        teams={event.teams}
-      />
-    </div>
+    <ConquestClientWrapper
+      event={event}
+      regionData={regionData}
+      initialTerritories={initialTerritories}
+      initialRegions={initialRegions}
+      teams={event.teams}
+      initialLogs={logsResponse.data}
+      playerCount={playerCount}
+    />
   );
 }

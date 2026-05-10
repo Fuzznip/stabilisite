@@ -5,7 +5,12 @@ import { createPortal } from "react-dom";
 import { MapContainer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L, { CRS } from "leaflet";
 import type { RegionData, OverlayBuffer, HoverState, HoverInfo } from "./types";
-import type { ConquestRegion, ConquestTerritory, Team } from "@/lib/types/v2";
+import type {
+  ConquestRegion,
+  ConquestTerritory,
+  Event,
+  Team,
+} from "@/lib/types/v2";
 import { TerritoryHoverPanel } from "./TerritoryHoverPanel";
 import { MapLegend } from "./MapLegend";
 import {
@@ -26,11 +31,18 @@ const INTERIOR_TARGET = 0.45;
 const INNER_BORDER_DEFAULT = 0.6;
 const INNER_BORDER_HOVER = 0.8;
 
-const MAP_BOUNDS = L.latLngBounds([[-CANVAS_HEIGHT, 0], [0, CANVAS_WIDTH]]);
+const MAP_BOUNDS = L.latLngBounds([
+  [-CANVAS_HEIGHT, 0],
+  [0, CANVAS_WIDTH],
+]);
 
 // ─── Pure rendering functions ─────────────────────────────────────────────────
 
-async function extractLabelData(src: string, w: number, h: number): Promise<Uint8Array> {
+async function extractLabelData(
+  src: string,
+  w: number,
+  h: number,
+): Promise<Uint8Array> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -54,7 +66,7 @@ function classifyPixel(
   y: number,
   labelData: Uint8Array,
   w: number,
-  h: number
+  h: number,
 ): "sea" | "outer-border" | "inner-border" | "interior" {
   const label = labelData[y * w + x];
   if (label === 0) return "sea";
@@ -62,8 +74,10 @@ function classifyPixel(
   const right = x < w - 1 ? labelData[y * w + (x + 1)] : -1;
   const top = y > 0 ? labelData[(y - 1) * w + x] : -1;
   const bottom = y < h - 1 ? labelData[(y + 1) * w + x] : -1;
-  if ([left, right, top, bottom].some((n) => n === 0 || n === -1)) return "outer-border";
-  if ((right > 0 && right !== label) || (bottom > 0 && bottom !== label)) return "inner-border";
+  if ([left, right, top, bottom].some((n) => n === 0 || n === -1))
+    return "outer-border";
+  if ((right > 0 && right !== label) || (bottom > 0 && bottom !== label))
+    return "inner-border";
   return "interior";
 }
 
@@ -71,9 +85,16 @@ function buildOverlayBuffer(
   rd: RegionData,
   labelData: Uint8Array,
   conquestTerritories: ConquestTerritory[],
-  teams: Team[]
+  teams: Team[],
 ): OverlayBuffer {
-  const { name, imageWidth: w, imageHeight: h, offsetX, offsetY, territories } = rd;
+  const {
+    name,
+    imageWidth: w,
+    imageHeight: h,
+    offsetX,
+    offsetY,
+    territories,
+  } = rd;
   const regionColor = getRegionColor(name);
   const hoverData = new ImageData(w, h);
   const borderData = new ImageData(w, h);
@@ -90,7 +111,9 @@ function buildOverlayBuffer(
       let terrColor: [number, number, number];
       if (ct?.controlling_team_id) {
         const team = teams.find((t) => t.id === ct.controlling_team_id);
-        terrColor = team?.color ? hexToRgb(team.color) : getTerritoryColor(label);
+        terrColor = team?.color
+          ? hexToRgb(team.color)
+          : getTerritoryColor(label);
       } else {
         terrColor = getTerritoryColor(label);
       }
@@ -121,7 +144,18 @@ function buildOverlayBuffer(
     }
   }
 
-  return { name, imageWidth: w, imageHeight: h, offsetX, offsetY, hoverData, borderData, territoryPixels, innerBorderPixels, labelData };
+  return {
+    name,
+    imageWidth: w,
+    imageHeight: h,
+    offsetX,
+    offsetY,
+    hoverData,
+    borderData,
+    territoryPixels,
+    innerBorderPixels,
+    labelData,
+  };
 }
 
 function fullRedraw(
@@ -129,7 +163,10 @@ function fullRedraw(
   regionData: RegionData[],
   regionImages: Record<string, HTMLImageElement>,
   overlayBuffers: Record<string, OverlayBuffer>,
-  tempCanvases: Record<string, { hover: HTMLCanvasElement; border: HTMLCanvasElement }>
+  tempCanvases: Record<
+    string,
+    { hover: HTMLCanvasElement; border: HTMLCanvasElement }
+  >,
 ) {
   ctx.fillStyle = BACKGROUND_COLOR;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -167,10 +204,10 @@ function makeTeamIcon(team: Team): L.DivIcon {
     ? `<img src="${team.image_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
     : `<div style="width:100%;height:100%;border-radius:50%;background:${team.color ?? "#888"}"></div>`;
   return L.divIcon({
-    html: `<div style="width:40px;height:40px;border-radius:50%;overflow:hidden;opacity:0.65;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5))">${inner}</div>`,
+    html: `<div style="width:32px;height:32px;border-radius:50%;overflow:hidden;opacity:0.9;box-sizing:border-box;border:2px solid ${team.color ?? "#888"};filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5))">${inner}</div>`,
     className: "",
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
   });
 }
 
@@ -183,18 +220,29 @@ interface CanvasLayerProps {
   regionData: RegionData[];
   conquestTerritories: ConquestTerritory[];
   teams: Team[];
-  onHoverChange: (info: HoverInfo | null, mousePos: { x: number; y: number }) => void;
+  onHoverChange: (
+    info: HoverInfo | null,
+    mousePos: { x: number; y: number },
+  ) => void;
   onCentroidsReady: (centroids: CentroidMap) => void;
 }
 
-function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverChange, onCentroidsReady }: CanvasLayerProps) {
+function TerritoryCanvasLayer({
+  regionData,
+  conquestTerritories,
+  teams,
+  onHoverChange,
+  onCentroidsReady,
+}: CanvasLayerProps) {
   const map = useMap();
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const regionImagesRef = useRef<Record<string, HTMLImageElement>>({});
   const labelDataRef = useRef<Record<string, Uint8Array>>({});
   const overlayBuffersRef = useRef<Record<string, OverlayBuffer>>({});
-  const tempCanvasesRef = useRef<Record<string, { hover: HTMLCanvasElement; border: HTMLCanvasElement }>>({});
+  const tempCanvasesRef = useRef<
+    Record<string, { hover: HTMLCanvasElement; border: HTMLCanvasElement }>
+  >({});
   const hoverStateRef = useRef<HoverState | null>(null);
   const hoverProgressRef = useRef<Record<string, number>>({});
   const rafRef = useRef<number>(0);
@@ -223,7 +271,8 @@ function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverC
     function updatePosition() {
       // Skip during animated zoom — zoomanim already set the animated transform.
       // Calling setPosition here would clobber the scale and snap the canvas.
-      if ((map as unknown as { _animatingZoom: boolean })._animatingZoom) return;
+      if ((map as unknown as { _animatingZoom: boolean })._animatingZoom)
+        return;
       const nw = map.latLngToLayerPoint(L.latLng(0, 0));
       const se = map.latLngToLayerPoint(L.latLng(-CANVAS_HEIGHT, CANVAS_WIDTH));
       L.DomUtil.setPosition(canvas, nw);
@@ -236,13 +285,24 @@ function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverC
       // CSS transform so the CSS transition (from leaflet-zoom-animated)
       // animates both simultaneously, staying in sync with markers.
       const m = map as unknown as {
-        _latLngToNewLayerPoint: (ll: L.LatLng, zoom: number, center: L.LatLng) => L.Point;
+        _latLngToNewLayerPoint: (
+          ll: L.LatLng,
+          zoom: number,
+          center: L.LatLng,
+        ) => L.Point;
       };
       const nw = m._latLngToNewLayerPoint(L.latLng(0, 0), e.zoom, e.center);
       const scale = map.getZoomScale(e.zoom);
       // L.DomUtil.setTransform exists but may not be in @types/leaflet — cast.
-      (L.DomUtil as unknown as { setTransform: (el: HTMLElement, offset: L.Point, scale: number) => void })
-        .setTransform(canvas, nw, scale);
+      (
+        L.DomUtil as unknown as {
+          setTransform: (
+            el: HTMLElement,
+            offset: L.Point,
+            scale: number,
+          ) => void;
+        }
+      ).setTransform(canvas, nw, scale);
       // CSS width/height are left unchanged; the scale transform handles the
       // visual sizing during the transition. viewreset will sync them after.
     }
@@ -254,7 +314,9 @@ function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverC
       e.preventDefault();
       const delta = -e.deltaY / 150; // tune: higher divisor = slower zoom
       const containerPoint = map.mouseEventToContainerPoint(e);
-      map.setZoomAround(containerPoint, map.getZoom() + delta, { animate: false });
+      map.setZoomAround(containerPoint, map.getZoom() + delta, {
+        animate: false,
+      });
     }
     const container = map.getContainer();
     container.addEventListener("wheel", onWheel, { passive: false });
@@ -293,12 +355,22 @@ function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverC
 
     for (const rd of regionData) {
       const img = new Image();
-      img.onload = () => { images[rd.filename] = img; onDone(); };
+      img.onload = () => {
+        images[rd.filename] = img;
+        onDone();
+      };
       img.onerror = onDone;
       img.src = `${MAP_PATH_PREFIX}${rd.filename}`;
 
-      extractLabelData(`${MAP_PATH_PREFIX}${rd.label_filename}`, rd.imageWidth, rd.imageHeight)
-        .then((data) => { labelDatas[rd.name] = data; onDone(); })
+      extractLabelData(
+        `${MAP_PATH_PREFIX}${rd.label_filename}`,
+        rd.imageWidth,
+        rd.imageHeight,
+      )
+        .then((data) => {
+          labelDatas[rd.name] = data;
+          onDone();
+        })
         .catch(onDone);
     }
   }, [regionData]);
@@ -308,19 +380,29 @@ function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverC
     if (!imagesLoaded || regionData.length === 0) return;
 
     const buffers: Record<string, OverlayBuffer> = {};
-    const tempCanvases: Record<string, { hover: HTMLCanvasElement; border: HTMLCanvasElement }> = {};
+    const tempCanvases: Record<
+      string,
+      { hover: HTMLCanvasElement; border: HTMLCanvasElement }
+    > = {};
 
     for (const rd of regionData) {
       const labelData = labelDataRef.current[rd.name];
       if (!labelData) continue;
 
-      buffers[rd.name] = buildOverlayBuffer(rd, labelData, conquestTerritories, teams);
+      buffers[rd.name] = buildOverlayBuffer(
+        rd,
+        labelData,
+        conquestTerritories,
+        teams,
+      );
 
       if (!tempCanvasesRef.current[rd.name]) {
         const hc = document.createElement("canvas");
-        hc.width = rd.imageWidth; hc.height = rd.imageHeight;
+        hc.width = rd.imageWidth;
+        hc.height = rd.imageHeight;
         const bc = document.createElement("canvas");
-        bc.width = rd.imageWidth; bc.height = rd.imageHeight;
+        bc.width = rd.imageWidth;
+        bc.height = rd.imageHeight;
         tempCanvases[rd.name] = { hover: hc, border: bc };
       } else {
         tempCanvases[rd.name] = tempCanvasesRef.current[rd.name];
@@ -339,7 +421,8 @@ function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverC
       for (const t of rd.territories) {
         const pixels = buf.territoryPixels[t.index];
         if (!pixels || pixels.length === 0) continue;
-        let sumX = 0, sumY = 0;
+        let sumX = 0,
+          sumY = 0;
         for (const pi of pixels) {
           sumX += pi % rd.imageWidth;
           sumY += Math.floor(pi / rd.imageWidth);
@@ -353,7 +436,14 @@ function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverC
     onCentroidsReady(centroids);
 
     const ctx = canvasRef.current?.getContext("2d");
-    if (ctx) fullRedraw(ctx, regionData, regionImagesRef.current, buffers, tempCanvases);
+    if (ctx)
+      fullRedraw(
+        ctx,
+        regionData,
+        regionImagesRef.current,
+        buffers,
+        tempCanvases,
+      );
   }, [imagesLoaded, regionData, conquestTerritories, teams, onCentroidsReady]);
 
   // Step 4: RAF hover animation loop
@@ -389,19 +479,29 @@ function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverC
             buf.hoverData.data[pi * 4 + 3] = interiorAlpha;
           }
           const borderAlpha = Math.round(
-            (INNER_BORDER_DEFAULT + next * (INNER_BORDER_HOVER - INNER_BORDER_DEFAULT)) * 255
+            (INNER_BORDER_DEFAULT +
+              next * (INNER_BORDER_HOVER - INNER_BORDER_DEFAULT)) *
+              255,
           );
           for (const pi of buf.innerBorderPixels[label] ?? []) {
             buf.borderData.data[pi * 4 + 3] = borderAlpha;
           }
         }
 
-        if (next === 0 && key !== activeKey) delete hoverProgressRef.current[key];
+        if (next === 0 && key !== activeKey)
+          delete hoverProgressRef.current[key];
       }
 
       if (dirty) {
         const ctx = canvasRef.current?.getContext("2d");
-        if (ctx) fullRedraw(ctx, regionData, regionImagesRef.current, overlayBuffersRef.current, tempCanvasesRef.current);
+        if (ctx)
+          fullRedraw(
+            ctx,
+            regionData,
+            regionImagesRef.current,
+            overlayBuffersRef.current,
+            tempCanvasesRef.current,
+          );
       }
 
       rafRef.current = requestAnimationFrame(tick);
@@ -420,7 +520,8 @@ function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverC
       for (const rd of regionData) {
         const lx = x - rd.offsetX;
         const ly = y - rd.offsetY;
-        if (lx < 0 || ly < 0 || lx >= rd.imageWidth || ly >= rd.imageHeight) continue;
+        if (lx < 0 || ly < 0 || lx >= rd.imageWidth || ly >= rd.imageHeight)
+          continue;
 
         const buf = overlayBuffersRef.current[rd.name];
         if (!buf) continue;
@@ -431,8 +532,12 @@ function TerritoryCanvasLayer({ regionData, conquestTerritories, teams, onHoverC
           if (territory) {
             hoverStateRef.current = { regionName: rd.name, label };
             onHoverChange(
-              { regionDisplayName: getGroupDisplayName(rd.name), territoryName: territory.name, territoryId: territory.id },
-              { x: e.originalEvent.clientX, y: e.originalEvent.clientY }
+              {
+                regionDisplayName: getGroupDisplayName(rd.name),
+                territoryName: territory.name,
+                territoryId: territory.id,
+              },
+              { x: e.originalEvent.clientX, y: e.originalEvent.clientY },
             );
             return;
           }
@@ -485,7 +590,7 @@ function TerritoryMarkersLayer({
               interactive={false}
             />
           );
-        })
+        }),
       )}
     </>
   );
@@ -494,13 +599,24 @@ function TerritoryMarkersLayer({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface TerritoryMapProps {
+  event: Event;
   regionData: RegionData[];
   conquestTerritories: ConquestTerritory[];
   teams: Team[];
   regions: ConquestRegion[];
+  hideTitle?: boolean;
+  hideLegend?: boolean;
 }
 
-export function TerritoryMap({ regionData, conquestTerritories, teams, regions }: TerritoryMapProps) {
+export function TerritoryMap({
+  event,
+  regionData,
+  conquestTerritories,
+  teams,
+  regions,
+  hideTitle = false,
+  hideLegend = false,
+}: TerritoryMapProps) {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [centroids, setCentroids] = useState<CentroidMap>({});
@@ -510,15 +626,28 @@ export function TerritoryMap({ regionData, conquestTerritories, teams, regions }
       setHoverInfo(info);
       if (info) setMousePos(pos);
     },
-    []
+    [],
   );
 
   return (
     <div className="flex flex-col items-center w-full">
+      {!hideTitle && (
+        <h1 className="text-center text-3xl font-bold tracking-[0.12em] uppercase text-foreground [font-family:var(--font-cinzel)]">
+          {event?.name}
+        </h1>
+      )}
       <div
-        className="w-full rounded shadow-lg ring-1 ring-amber-900/30 overflow-hidden"
-        style={{ aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}` }}
+        className="relative w-full rounded-[18px] overflow-hidden"
+        style={{
+          aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
+          background:
+            "radial-gradient(circle at 50% 35%, rgba(230,57,70,0.15), rgba(107,100,102,0.6) 70%), #6b6466",
+          border: "3px solid rgba(230,57,70,0.5)",
+          boxShadow:
+            "0 0 0 1px rgba(0,0,0,0.4) inset, 0 30px 80px -30px rgba(0,0,0,0.8), 0 0 60px -10px rgba(74,142,240,0.08)",
+        }}
       >
+        <div className="absolute inset-0">
         <MapContainer
           crs={CRS.Simple}
           bounds={MAP_BOUNDS}
@@ -530,7 +659,7 @@ export function TerritoryMap({ regionData, conquestTerritories, teams, regions }
           zoomSnap={0}
           attributionControl={false}
           zoomControl={false}
-          style={{ background: BACKGROUND_COLOR }}
+          style={{ background: "#6b6466" }}
         >
           <TerritoryCanvasLayer
             regionData={regionData}
@@ -539,10 +668,18 @@ export function TerritoryMap({ regionData, conquestTerritories, teams, regions }
             onHoverChange={handleHoverChange}
             onCentroidsReady={setCentroids}
           />
-          <TerritoryMarkersLayer regionData={regionData} centroids={centroids} conquestTerritories={conquestTerritories} teams={teams} />
+          <TerritoryMarkersLayer
+            regionData={regionData}
+            centroids={centroids}
+            conquestTerritories={conquestTerritories}
+            teams={teams}
+          />
         </MapContainer>
+        </div>
       </div>
-      <MapLegend regionData={regionData} regions={regions} teams={teams} />
+      {!hideLegend && (
+        <MapLegend regionData={regionData} regions={regions} teams={teams} />
+      )}
       {typeof document !== "undefined" &&
         createPortal(
           <TerritoryHoverPanel
@@ -551,7 +688,7 @@ export function TerritoryMap({ regionData, conquestTerritories, teams, regions }
             conquestTerritories={conquestTerritories}
             teams={teams}
           />,
-          document.body
+          document.body,
         )}
     </div>
   );

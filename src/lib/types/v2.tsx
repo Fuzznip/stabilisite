@@ -70,6 +70,7 @@ export type EventLogMeta = {
   previousTeamId?: string | null;  // TERRITORY_CONTROL, REGION_CONTROL
   completionCount?: number;        // CHALLENGE_COMPLETED
   challengeName?: string;          // CHALLENGE_COMPLETED
+  unique?: boolean;                // CHALLENGE_COMPLETED: true = first ever completion by this team
 };
 
 export type EventLog = {

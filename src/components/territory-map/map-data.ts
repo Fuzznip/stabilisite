@@ -1,6 +1,6 @@
 export const CANVAS_WIDTH = 459;
 export const CANVAS_HEIGHT = 211;
-export const BACKGROUND_COLOR = "#b8b0a4";
+export const BACKGROUND_COLOR = "#6b6466";
 export const MAP_PATH_PREFIX = "/map/";
 // Slightly lighter/warmer than the background — used for outer territory borders
 export const BORDER_COLOR: [number, number, number] = [210, 205, 198];
