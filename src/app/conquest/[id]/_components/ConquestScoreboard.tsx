@@ -111,7 +111,7 @@ function TeamList({
         className="flex items-center justify-between px-4.5 py-3.5"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <div className="text-sm font-semibold tracking-[0.22em] uppercase [font-family:var(--font-cinzel)]">
+        <div className="text-sm font-semibold uppercase">
           Standings
         </div>
       </div>
@@ -142,7 +142,7 @@ function TeamList({
               >
                 {/* Rank badge */}
                 <div
-                  className="size-6 rounded-lg grid place-items-center text-sm font-semibold [font-family:var(--font-cinzel)] shrink-0"
+                  className="size-6 rounded-lg grid place-items-center text-sm font-semibold shrink-0"
                   style={{
                     background: rankStyle.bg,
                     color: rankStyle.color,
@@ -174,7 +174,7 @@ function TeamList({
                 {/* Team name + breakdown */}
                 <div className="min-w-0">
                   <div className="font-semibold text-base truncate leading-snug">{team.name}</div>
-                  <div className="flex flex-col text-xs font-mono tracking-[0.04em] text-muted-foreground leading-relaxed mt-0.5">
+                  <div className="flex flex-col text-xs font-mono text-muted-foreground leading-relaxed mt-0.5">
                     {territoriesHeld > 0 && <span>{territoriesHeld} territories</span>}
                     {regionsHeld > 0 && <span>{regionsHeld} regions</span>}
                     {territoriesHeld === 0 && regionsHeld === 0 && (
@@ -186,12 +186,12 @@ function TeamList({
                 {/* Score */}
                 <div className="text-right shrink-0">
                   <div
-                    className="text-2xl font-semibold tabular-nums leading-none [font-family:var(--font-cinzel)]"
+                    className="text-2xl font-semibold tabular-nums leading-none"
                     style={rank === 1 ? { color: "#d4a44a" } : undefined}
                   >
                     {team.points.toLocaleString()}
                   </div>
-                  <div className="text-xs tracking-[0.16em] uppercase text-muted-foreground mt-1 font-mono">
+                  <div className="text-xs uppercase text-muted-foreground mt-1 font-mono">
                     PTS
                   </div>
                 </div>
@@ -274,10 +274,10 @@ function TeamDetail({
         <div className="min-w-0 flex-1">
           <div className="font-semibold text-sm truncate leading-tight">{team.name}</div>
           <div
-            className="text-lg font-semibold tabular-nums leading-tight [font-family:var(--font-cinzel)]"
+            className="text-lg font-semibold tabular-nums leading-tight"
             style={{ color }}
           >
-            {team.points.toLocaleString()} <span className="text-xs text-muted-foreground font-mono tracking-widest">PTS</span>
+            {team.points.toLocaleString()} <span className="text-xs text-muted-foreground font-mono">PTS</span>
           </div>
         </div>
       </div>
@@ -298,12 +298,12 @@ function TeamDetail({
             style={{ borderRight: i < 2 ? "1px solid rgba(255,255,255,0.06)" : undefined }}
           >
             <div
-              className="text-xl font-semibold tabular-nums leading-none [font-family:var(--font-cinzel)]"
+              className="text-xl font-semibold tabular-nums leading-none"
               style={{ color }}
             >
               {value}
             </div>
-            <div className="text-[0.6rem] tracking-[0.12em] uppercase text-muted-foreground font-mono">
+            <div className="text-[0.6rem] uppercase text-muted-foreground font-mono">
               {label}
             </div>
           </div>
@@ -315,7 +315,7 @@ function TeamDetail({
         {/* Players */}
         {members.length > 0 && (
           <div className="px-4 pt-3 pb-2">
-            <div className="text-[0.65rem] tracking-[0.16em] uppercase text-muted-foreground font-mono mb-2">
+            <div className="text-[0.65rem] uppercase text-muted-foreground font-mono mb-2">
               Players
             </div>
             <div className="flex flex-col gap-1">

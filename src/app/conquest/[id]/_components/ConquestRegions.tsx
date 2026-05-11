@@ -28,7 +28,7 @@ export function ConquestRegions({
         className="flex items-end justify-between pb-3.5 mb-4"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <div className="text-sm font-semibold tracking-[0.22em] uppercase [font-family:var(--font-cinzel)]">
+        <div className="text-sm font-semibold uppercase">
           Regions
         </div>
       </div>
@@ -111,7 +111,7 @@ export function ConquestRegions({
                 }}
               />
 
-              <div className="text-base font-semibold tracking-[0.04em] uppercase [font-family:var(--font-cinzel)] pl-2 leading-tight">
+              <div className="text-base font-semibold uppercase pl-2 leading-tight">
                 {group.displayName}
               </div>
 

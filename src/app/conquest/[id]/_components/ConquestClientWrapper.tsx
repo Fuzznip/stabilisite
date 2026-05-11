@@ -147,7 +147,7 @@ function ConquestInner({
           <div className="flex items-center gap-4 mb-2.5">
             {isLive && (
               <span
-                className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold tracking-widest uppercase font-mono"
+                className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold uppercase font-mono"
                 style={{
                   background: "rgba(230,57,70,0.10)",
                   color: "#ff5560",
@@ -162,29 +162,29 @@ function ConquestInner({
               </span>
             )}
             {countdown ? (
-              <span className="text-xs tracking-[0.14em] uppercase text-muted-foreground font-mono">
+              <span className="text-xs uppercase text-muted-foreground font-mono">
                 ENDS IN{" "}
                 <strong className="text-foreground font-semibold">
                   {countdown}
                 </strong>
               </span>
             ) : !isLive ? (
-              <span className="text-xs tracking-[0.14em] uppercase text-muted-foreground font-mono">
+              <span className="text-xs uppercase text-muted-foreground font-mono">
                 ENDED
               </span>
             ) : null}
           </div>
-          <h1 className="text-4xl font-semibold tracking-[0.06em] uppercase leading-none [font-family:var(--font-cinzel)]">
+          <h1 className="text-4xl font-semibold uppercase leading-none">
             {event.name}
           </h1>
         </div>
 
         {playerCount > 0 && (
           <div className="flex flex-col items-end gap-0.5 shrink-0">
-            <div className="text-[28px] font-semibold tabular-nums leading-none [font-family:var(--font-cinzel)]">
+            <div className="text-[28px] font-semibold tabular-nums leading-none">
               {playerCount}
             </div>
-            <div className="text-xs tracking-[0.12em] uppercase text-muted-foreground font-mono">
+            <div className="text-xs uppercase text-muted-foreground font-mono">
               Players
             </div>
           </div>

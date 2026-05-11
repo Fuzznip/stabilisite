@@ -142,7 +142,7 @@ function SectionHeader() {
       className="flex items-center justify-between pb-3.5 mb-4"
       style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
     >
-      <div className="text-sm font-semibold tracking-[0.22em] uppercase [font-family:var(--font-cinzel)]">
+      <div className="text-sm font-semibold uppercase">
         Recent Activity
       </div>
     </div>
@@ -252,7 +252,7 @@ export function ConquestActivity({
 
               <div className="grid items-center gap-4 grid-cols-[80px_170px_1fr]">
                 {/* Time */}
-                <div className="text-xs tracking-[0.06em] uppercase font-mono text-muted-foreground/50">
+                <div className="text-xs uppercase font-mono text-muted-foreground/50">
                   {formatRelativeTime(log.created_at)} ago
                 </div>
 
@@ -284,7 +284,7 @@ export function ConquestActivity({
                 <div className="flex items-center gap-2 flex-wrap text-sm text-muted-foreground min-w-0">
                   <Icon />
                   <span
-                    className="text-xs tracking-[0.12em] uppercase font-mono"
+                    className="text-xs uppercase font-mono"
                     style={
                       isRegion ? { color: "#d4a44a", fontWeight: 600 } : {}
                     }
@@ -296,10 +296,8 @@ export function ConquestActivity({
                     style={
                       isRegion
                         ? {
-                            fontFamily: "var(--font-cinzel)",
                             fontSize: "14px",
                             fontWeight: 600,
-                            letterSpacing: "0.02em",
                           }
                         : {}
                     }
@@ -308,7 +306,7 @@ export function ConquestActivity({
                   </span>
                   {isUniqueTask && (
                     <span
-                      className="text-xs tracking-[0.08em] font-mono px-2 py-0.5 rounded"
+                      className="text-xs font-mono px-2 py-0.5 rounded"
                       style={{
                         color: "#5fcf72",
                         background: "rgba(95,207,114,0.08)",
@@ -320,7 +318,7 @@ export function ConquestActivity({
                   )}
                   {regionName && type === "capture" && (
                     <span
-                      className="text-xs tracking-[0.08em] font-mono px-2 py-0.5 rounded"
+                      className="text-xs font-mono px-2 py-0.5 rounded"
                       style={{
                         color: "rgba(255,255,255,0.3)",
                         background: "rgba(255,255,255,0.04)",
