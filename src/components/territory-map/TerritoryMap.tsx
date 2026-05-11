@@ -220,6 +220,7 @@ interface CanvasLayerProps {
   regionData: RegionData[];
   conquestTerritories: ConquestTerritory[];
   teams: Team[];
+  highlightTeamId?: string | null;
   onHoverChange: (
     info: HoverInfo | null,
     mousePos: { x: number; y: number },
@@ -231,6 +232,7 @@ function TerritoryCanvasLayer({
   regionData,
   conquestTerritories,
   teams,
+  highlightTeamId,
   onHoverChange,
   onCentroidsReady,
 }: CanvasLayerProps) {
@@ -245,6 +247,7 @@ function TerritoryCanvasLayer({
   >({});
   const hoverStateRef = useRef<HoverState | null>(null);
   const hoverProgressRef = useRef<Record<string, number>>({});
+  const highlightedKeysRef = useRef<Set<string>>(new Set());
   const rafRef = useRef<number>(0);
 
   const [imagesLoaded, setImagesLoaded] = useState(false);
@@ -446,6 +449,28 @@ function TerritoryCanvasLayer({
       );
   }, [imagesLoaded, regionData, conquestTerritories, teams, onCentroidsReady]);
 
+  // Step 3b: Sync highlighted territory keys when highlightTeamId changes
+  useEffect(() => {
+    const keys = new Set<string>();
+    if (highlightTeamId) {
+      for (const rd of regionData) {
+        for (const t of rd.territories) {
+          const ct = conquestTerritories.find((c) => c.id === t.id);
+          if (ct?.controlling_team_id === highlightTeamId) {
+            keys.add(`${rd.name}:${t.index}`);
+          }
+        }
+      }
+    }
+    highlightedKeysRef.current = keys;
+    // Seed progress so RAF picks them up immediately
+    for (const key of keys) {
+      if (!(key in hoverProgressRef.current)) {
+        hoverProgressRef.current[key] = 0;
+      }
+    }
+  }, [highlightTeamId, conquestTerritories, regionData]);
+
   // Step 4: RAF hover animation loop
   useEffect(() => {
     function tick() {
@@ -459,7 +484,8 @@ function TerritoryCanvasLayer({
       }
 
       for (const key of Object.keys(hoverProgressRef.current)) {
-        const target = key === activeKey ? 1.0 : 0.0;
+        const isHighlighted = highlightedKeysRef.current.has(key);
+        const target = key === activeKey || isHighlighted ? 1.0 : 0.0;
         const cur = hoverProgressRef.current[key];
         let next = cur + (target - cur) * 0.18;
         if (Math.abs(next - target) < 0.005) next = target;
@@ -488,7 +514,7 @@ function TerritoryCanvasLayer({
           }
         }
 
-        if (next === 0 && key !== activeKey)
+        if (next === 0 && key !== activeKey && !isHighlighted)
           delete hoverProgressRef.current[key];
       }
 
@@ -606,6 +632,7 @@ interface TerritoryMapProps {
   regions: ConquestRegion[];
   hideTitle?: boolean;
   hideLegend?: boolean;
+  highlightTeamId?: string | null;
 }
 
 export function TerritoryMap({
@@ -616,6 +643,7 @@ export function TerritoryMap({
   regions,
   hideTitle = false,
   hideLegend = false,
+  highlightTeamId,
 }: TerritoryMapProps) {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -665,6 +693,7 @@ export function TerritoryMap({
             regionData={regionData}
             conquestTerritories={conquestTerritories}
             teams={teams}
+            highlightTeamId={highlightTeamId}
             onHoverChange={handleHoverChange}
             onCentroidsReady={setCentroids}
           />

@@ -14,5 +14,6 @@ export async function GET(
   }
 
   const json = await res.json();
-  return Response.json(json);
+  console.log("[challenge route] raw response:", JSON.stringify(json).slice(0, 300));
+  return Response.json(json.data ?? json);
 }

@@ -1,55 +1,112 @@
 "use client";
 
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import type { ConquestRegion, ConquestTerritory, Team } from "@/lib/types/v2";
+import type { ConquestRegion, ConquestTerritory, Team, EventLog } from "@/lib/types/v2";
+
+const TOTAL_TASKS = 45;
 
 interface ConquestScoreboardProps {
+  eventId: string;
   teams: Team[];
   territories: ConquestTerritory[];
   regions: ConquestRegion[];
+  membersMap: Record<string, string[]>;
+  selectedTeamId: string | null;
+  onSelectedTeamIdChange: (id: string | null) => void;
 }
 
-const RANK_STYLES: Record<
-  number,
-  { bg: string; color: string; border: string }
-> = {
-  1: {
-    bg: "rgba(212,164,74,0.14)",
-    color: "#d4a44a",
-    border: "rgba(212,164,74,0.4)",
-  },
-  2: {
-    bg: "rgba(169,163,179,0.10)",
-    color: "#a9a3b3",
-    border: "rgba(169,163,179,0.3)",
-  },
-  3: {
-    bg: "rgba(176,116,68,0.12)",
-    color: "#b07444",
-    border: "rgba(176,116,68,0.35)",
-  },
+const RANK_STYLES: Record<number, { bg: string; color: string; border: string }> = {
+  1: { bg: "rgba(212,164,74,0.14)", color: "#d4a44a", border: "rgba(212,164,74,0.4)" },
+  2: { bg: "rgba(169,163,179,0.10)", color: "#a9a3b3", border: "rgba(169,163,179,0.3)" },
+  3: { bg: "rgba(176,116,68,0.12)", color: "#b07444", border: "rgba(176,116,68,0.35)" },
 };
 
 export function ConquestScoreboard({
+  eventId,
   teams,
   territories,
   regions,
+  membersMap,
+  selectedTeamId,
+  onSelectedTeamIdChange,
 }: ConquestScoreboardProps) {
-  const sorted = [...teams].sort((a, b) => b.points - a.points);
+
+  const { data: logs = [] } = useQuery<EventLog[]>({
+    queryKey: ["conquest-logs", eventId],
+    queryFn: async () => {
+      const res = await fetch(`/api/conquest/${eventId}/logs?per_page=1000`);
+      if (!res.ok) return [];
+      const json = await res.json();
+      return Array.isArray(json) ? json : (json.data ?? []);
+    },
+    staleTime: 30_000,
+  });
+
+  const uniqueTasksByTeam = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    for (const log of logs) {
+      if (log.type === "CHALLENGE_COMPLETED" && log.meta?.unique && log.team_id && log.entity_id) {
+        if (!map.has(log.team_id)) map.set(log.team_id, new Set());
+        map.get(log.team_id)!.add(log.entity_id);
+      }
+    }
+    return map;
+  }, [logs]);
+
+  const sorted = useMemo(() => [...teams].sort((a, b) => b.points - a.points), [teams]);
   const maxPts = Math.max(...sorted.map((t) => t.points), 1);
+
+  const selectedTeam = selectedTeamId ? teams.find((t) => t.id === selectedTeamId) ?? null : null;
 
   return (
     <aside
       className="flex flex-col rounded-2xl overflow-hidden h-full"
       style={{
-        background:
-          "linear-gradient(to bottom, hsl(var(--card)), hsl(var(--card)))",
+        background: "linear-gradient(to bottom, hsl(var(--card)), hsl(var(--card)))",
         border: "1px solid rgba(255,255,255,0.10)",
-        boxShadow:
-          "0 0 0 1px rgba(0,0,0,0.4) inset, 0 20px 50px -30px rgba(0,0,0,0.8)",
+        boxShadow: "0 0 0 1px rgba(0,0,0,0.4) inset, 0 20px 50px -30px rgba(0,0,0,0.8)",
       }}
     >
-      {/* Header */}
+      {selectedTeam ? (
+        <TeamDetail
+          team={selectedTeam}
+          territories={territories}
+          regions={regions}
+          members={membersMap[selectedTeam.id] ?? []}
+          uniqueTasks={uniqueTasksByTeam.get(selectedTeam.id)?.size ?? 0}
+          onBack={() => onSelectedTeamIdChange(null)}
+        />
+      ) : (
+        <TeamList
+          sorted={sorted}
+          maxPts={maxPts}
+          territories={territories}
+          regions={regions}
+          onSelect={onSelectedTeamIdChange}
+        />
+      )}
+    </aside>
+  );
+}
+
+function TeamList({
+  sorted,
+  maxPts,
+  territories,
+  regions,
+  uniqueTasksByTeam,
+  onSelect,
+}: {
+  sorted: Team[];
+  maxPts: number;
+  territories: ConquestTerritory[];
+  regions: ConquestRegion[];
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <>
       <div
         className="flex items-center justify-between px-4.5 py-3.5"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
@@ -59,12 +116,9 @@ export function ConquestScoreboard({
         </div>
       </div>
 
-      {/* Team rows */}
-      <div className="py-1.5">
+      <div className="py-1.5 overflow-y-auto">
         {sorted.length === 0 ? (
-          <div className="py-16 text-center text-sm text-muted-foreground/50">
-            No teams yet
-          </div>
+          <div className="py-16 text-center text-sm text-muted-foreground/50">No teams yet</div>
         ) : (
           sorted.map((team, index) => {
             const rank = index + 1;
@@ -73,22 +127,17 @@ export function ConquestScoreboard({
               color: "var(--muted-foreground)",
               border: "rgba(255,255,255,0.06)",
             };
-            const territoriesHeld = territories.filter(
-              (t) => t.controlling_team_id === team.id,
-            ).length;
-            const regionsHeld = regions.filter(
-              (r) => r.controlling_team_id === team.id,
-            ).length;
+            const territoriesHeld = territories.filter((t) => t.controlling_team_id === team.id).length;
+            const regionsHeld = regions.filter((r) => r.controlling_team_id === team.id).length;
             const isLast = index === sorted.length - 1;
 
             return (
-              <div
+              <button
                 key={team.id}
-                className="relative grid items-center gap-3 px-4.5 pt-3 pb-5 transition-colors hover:bg-white/[0.02] grid-cols-[28px_40px_1fr_auto]"
+                onClick={() => onSelect(team.id)}
+                className="relative w-full grid items-center gap-3 px-4.5 pt-3 pb-5 text-left transition-colors hover:bg-white/[0.04] grid-cols-[28px_40px_1fr_auto] cursor-pointer"
                 style={{
-                  borderBottom: isLast
-                    ? undefined
-                    : "1px solid rgba(255,255,255,0.06)",
+                  borderBottom: isLast ? undefined : "1px solid rgba(255,255,255,0.06)",
                 }}
               >
                 {/* Rank badge */}
@@ -118,22 +167,15 @@ export function ConquestScoreboard({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div
-                      className="w-full h-full"
-                      style={{ background: team.color ?? "#888" }}
-                    />
+                    <div className="w-full h-full" style={{ background: team.color ?? "#888" }} />
                   )}
                 </div>
 
                 {/* Team name + breakdown */}
                 <div className="min-w-0">
-                  <div className="font-semibold text-base truncate leading-snug">
-                    {team.name}
-                  </div>
+                  <div className="font-semibold text-base truncate leading-snug">{team.name}</div>
                   <div className="flex flex-col text-xs font-mono tracking-[0.04em] text-muted-foreground leading-relaxed mt-0.5">
-                    {territoriesHeld > 0 && (
-                      <span>{territoriesHeld} territories</span>
-                    )}
+                    {territoriesHeld > 0 && <span>{territoriesHeld} territories</span>}
                     {regionsHeld > 0 && <span>{regionsHeld} regions</span>}
                     {territoriesHeld === 0 && regionsHeld === 0 && (
                       <span className="opacity-50">No territories yet</span>
@@ -169,11 +211,128 @@ export function ConquestScoreboard({
                     }}
                   />
                 </div>
-              </div>
+              </button>
             );
           })
         )}
       </div>
-    </aside>
+    </>
+  );
+}
+
+function TeamDetail({
+  team,
+  territories,
+  regions,
+  members,
+  uniqueTasks,
+  onBack,
+}: {
+  team: Team;
+  territories: ConquestTerritory[];
+  regions: ConquestRegion[];
+  members: string[];
+  uniqueTasks: number;
+  onBack: () => void;
+}) {
+  const territoriesHeld = territories.filter((t) => t.controlling_team_id === team.id).length;
+  const ownedRegions = regions.filter((r) => r.controlling_team_id === team.id);
+
+  const color = team.color ?? "#888";
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Header */}
+      <div
+        className="px-4 py-3 flex items-center gap-3"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+      >
+        <button
+          onClick={onBack}
+          className="text-muted-foreground hover:text-foreground transition-colors shrink-0 text-lg leading-none cursor-pointer"
+          aria-label="Back to standings"
+        >
+          ←
+        </button>
+        <div
+          className="w-9 h-9 rounded-lg overflow-hidden shrink-0"
+          style={{ border: `1px solid ${color}55` }}
+        >
+          {team.image_url ? (
+            <Image
+              src={team.image_url}
+              alt={team.name}
+              width={36}
+              height={36}
+              unoptimized
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full" style={{ background: color }} />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="font-semibold text-sm truncate leading-tight">{team.name}</div>
+          <div
+            className="text-lg font-semibold tabular-nums leading-tight [font-family:var(--font-cinzel)]"
+            style={{ color }}
+          >
+            {team.points.toLocaleString()} <span className="text-xs text-muted-foreground font-mono tracking-widest">PTS</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Score breakdown */}
+      <div
+        className="grid grid-cols-3"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+      >
+        {[
+          { label: "Territories", value: territoriesHeld },
+          { label: "Regions", value: ownedRegions.length },
+          { label: "Tasks", value: `${uniqueTasks}/${TOTAL_TASKS}` },
+        ].map(({ label, value }, i) => (
+          <div
+            key={label}
+            className="flex flex-col items-center py-3 gap-0.5"
+            style={{ borderRight: i < 2 ? "1px solid rgba(255,255,255,0.06)" : undefined }}
+          >
+            <div
+              className="text-xl font-semibold tabular-nums leading-none [font-family:var(--font-cinzel)]"
+              style={{ color }}
+            >
+              {value}
+            </div>
+            <div className="text-[0.6rem] tracking-[0.12em] uppercase text-muted-foreground font-mono">
+              {label}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Players */}
+        {members.length > 0 && (
+          <div className="px-4 pt-3 pb-2">
+            <div className="text-[0.65rem] tracking-[0.16em] uppercase text-muted-foreground font-mono mb-2">
+              Players
+            </div>
+            <div className="flex flex-col gap-1">
+              {members.map((name) => (
+                <div key={name} className="flex items-center gap-2">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ background: color }}
+                  />
+                  <span className="text-sm text-foreground/80 font-mono truncate">{name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
   );
 }

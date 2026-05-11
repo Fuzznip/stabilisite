@@ -14,5 +14,5 @@ export async function GET(
   }
 
   const json = await res.json();
-  return Response.json(json);
+  return Response.json(json.data ?? json);
 }

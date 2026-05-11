@@ -13,20 +13,28 @@ interface TerritoryHoverPanelProps {
 
 async function fetchChallenge(challengeId: string) {
   const res = await fetch(`/api/conquest/challenges/${challengeId}`);
-  if (!res.ok) return null;
-  return res.json();
+  console.log("[fetchChallenge] status:", res.status, "id:", challengeId);
+  if (!res.ok) { console.log("[fetchChallenge] not ok"); return null; }
+  const json = await res.json();
+  console.log("[fetchChallenge] result:", json);
+  return json;
 }
 
 async function fetchTrigger(triggerId: string) {
   const res = await fetch(`/api/conquest/triggers/${triggerId}`);
-  if (!res.ok) return null;
-  return res.json();
+  console.log("[fetchTrigger] status:", res.status, "id:", triggerId);
+  if (!res.ok) { console.log("[fetchTrigger] not ok"); return null; }
+  const json = await res.json();
+  console.log("[fetchTrigger] result:", json);
+  return json;
 }
 
 async function fetchProgress(territoryId: string): Promise<TerritoryProgressEntry[]> {
   const res = await fetch(`/api/conquest/territories/${territoryId}/progress`);
-  if (!res.ok) return [];
+  console.log("[fetchProgress] status:", res.status, "id:", territoryId);
+  if (!res.ok) { console.log("[fetchProgress] not ok"); return []; }
   const json = await res.json();
+  console.log("[fetchProgress] result:", json);
   return Array.isArray(json) ? json : (json.data ?? []);
 }
 
@@ -67,6 +75,11 @@ export function TerritoryHoverPanel({
   });
 
   if (!hover) return null;
+
+  console.log("[hover] territory:", territory?.id, "challenge_id:", challengeId);
+  console.log("[hover] challenge data:", challenge);
+  console.log("[hover] trigger data:", trigger);
+  console.log("[hover] progress:", progress);
 
   const triggerName: string | null =
     challenge?.trigger?.name ?? trigger?.name ?? null;

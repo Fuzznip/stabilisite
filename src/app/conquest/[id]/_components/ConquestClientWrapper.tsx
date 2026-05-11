@@ -119,6 +119,16 @@ function ConquestInner({
     [teams],
   );
 
+  const membersMap = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    for (const team of teams) {
+      map[team.id] = team.members as unknown as string[];
+    }
+    return map;
+  }, [teams]);
+
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 60_000);
@@ -191,11 +201,16 @@ function ConquestInner({
           regions={regions}
           hideTitle
           hideLegend
+          highlightTeamId={selectedTeamId}
         />
         <ConquestScoreboard
+          eventId={event.id}
           teams={flatTeams}
           territories={territories}
           regions={regions}
+          membersMap={membersMap}
+          selectedTeamId={selectedTeamId}
+          onSelectedTeamIdChange={setSelectedTeamId}
         />
       </div>
 
