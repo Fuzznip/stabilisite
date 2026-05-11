@@ -146,7 +146,6 @@ export default function SplitChart({
                 content={
                   <ChartTooltipContent
                     hideLabel
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     formatter={(value, name, item, index, split: any) => {
                       if (split.id === "join")
                         return (

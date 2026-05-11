@@ -8,12 +8,15 @@ import {
 } from "@/components/territory-map/map-data";
 import type { RegionData } from "@/components/territory-map/types";
 import type { ConquestRegion, ConquestTerritory, Team } from "@/lib/types/v2";
+import { ConquestRegionDetail } from "./ConquestRegionDetail";
 
 interface ConquestRegionsProps {
   regions: ConquestRegion[];
   territories: ConquestTerritory[];
   teams: Team[];
   regionData: RegionData[];
+  selectedGroupKey: string | null;
+  onSelectedGroupKeyChange: (key: string | null) => void;
 }
 
 export function ConquestRegions({
@@ -21,16 +24,36 @@ export function ConquestRegions({
   territories,
   teams,
   regionData,
+  selectedGroupKey,
+  onSelectedGroupKeyChange: setSelectedGroupKey,
 }: ConquestRegionsProps) {
+
+  if (selectedGroupKey) {
+    const groupIndex = REGION_GROUPS.findIndex(
+      (g) => g.key === selectedGroupKey,
+    );
+    const group = REGION_GROUPS[groupIndex];
+    const [r, g, b] = REGION_COLORS[groupIndex];
+    const colorHex = `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+    return (
+      <ConquestRegionDetail
+        group={group}
+        regionData={regionData}
+        territories={territories}
+        teams={teams}
+        colorHex={colorHex}
+        onBack={() => setSelectedGroupKey(null)}
+      />
+    );
+  }
+
   return (
     <section>
       <div
         className="flex items-end justify-between pb-3.5 mb-4"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <div className="text-sm font-semibold uppercase">
-          Regions
-        </div>
+        <h3 className="font-semibold uppercase">Regions</h3>
       </div>
 
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -46,12 +69,9 @@ export function ConquestRegions({
             .map((rid) => regions.find((r) => r.id === rid))
             .filter(Boolean) as ConquestRegion[];
 
-
           const nonNullOwnerIds = [
             ...new Set(
-              conquestRegions
-                .map((r) => r.controlling_team_id)
-                .filter(Boolean),
+              conquestRegions.map((r) => r.controlling_team_id).filter(Boolean),
             ),
           ];
           const isContested = nonNullOwnerIds.length > 1;
@@ -93,7 +113,8 @@ export function ConquestRegions({
           return (
             <div
               key={group.key}
-              className="relative flex flex-col gap-2.5 p-3.5 rounded-xl overflow-hidden transition-all hover:-translate-y-px"
+              onClick={() => setSelectedGroupKey(group.key)}
+              className="relative flex flex-col gap-2.5 p-3.5 rounded-xl overflow-hidden transition-all hover:-translate-y-px cursor-pointer"
               style={
                 {
                   background: "hsl(var(--card))",

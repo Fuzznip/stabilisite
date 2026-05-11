@@ -3,7 +3,7 @@
 import { DiaryApplication, ShortDiary } from "@/lib/types";
 import { getScaleDisplay, cn, formatDate } from "@/lib/utils";
 import { Camera } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Card } from "../ui/card";
 import {
   TableCaption,
@@ -38,20 +38,16 @@ export function DiaryTable({
     shorthand: string;
   } | null>(diaries[0].scales[0]);
 
-  const [currentAttempts, setCurrentAttempts] = useState<DiaryApplication[]>(
-    []
-  );
-
-  useEffect(() => {
-    setCurrentAttempts(
+  const currentAttempts = useMemo(
+    () =>
       entries
         .filter((entry) => entry.shorthand === currentScale?.shorthand)
         .sort(
           (attemptA, attemptB) =>
             attemptA.time?.localeCompare(attemptB.time || "") || 1
-        ) || []
-    );
-  }, [currentDiary, currentScale, entries]);
+        ),
+    [currentScale, entries]
+  );
 
   const selectedDiary = diaries.find((diary) => diary.name === currentDiary);
 

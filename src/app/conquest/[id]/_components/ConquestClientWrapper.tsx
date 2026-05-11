@@ -128,6 +128,7 @@ function ConquestInner({
   }, [teams]);
 
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+  const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
 
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -140,7 +141,7 @@ function ConquestInner({
   const countdown = formatCountdown(event.end_date, now);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
       {/* Hero */}
       <header className="flex items-end justify-between gap-8 flex-wrap">
         <div>
@@ -202,6 +203,7 @@ function ConquestInner({
           hideTitle
           hideLegend
           highlightTeamId={selectedTeamId}
+          activeGroupKey={selectedGroupKey}
         />
         <ConquestScoreboard
           eventId={event.id}
@@ -220,6 +222,8 @@ function ConquestInner({
         territories={territories}
         teams={flatTeams}
         regionData={regionData}
+        selectedGroupKey={selectedGroupKey}
+        onSelectedGroupKeyChange={setSelectedGroupKey}
       />
 
       {/* Recent activity */}

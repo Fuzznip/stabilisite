@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import type { HoverInfo } from "./types";
 import type { ConquestTerritory, Team, TerritoryProgressEntry } from "@/lib/types/v2";
@@ -83,6 +84,8 @@ export function TerritoryHoverPanel({
 
   const triggerName: string | null =
     challenge?.trigger?.name ?? trigger?.name ?? null;
+  const triggerImgPath: string | null =
+    challenge?.trigger?.img_path ?? trigger?.img_path ?? null;
   const required: number | null = challenge?.quantity ?? null;
 
   // Sort progress by completions desc, then quantity desc
@@ -96,20 +99,31 @@ export function TerritoryHoverPanel({
       style={{ left: mousePos.x + 16, top: mousePos.y - 10 }}
     >
       <div className="px-3 py-2 border-b border-stone-700/60">
-        <div className="text-stone-400 text-[0.65rem] uppercase tracking-widest">
+        <div className="text-stone-400 text-[0.65rem] uppercase tracking-widest mb-1.5">
           {hover.regionDisplayName}
         </div>
-        <div className="text-amber-400 font-semibold text-[0.82rem] tracking-wide leading-tight">
-          {hover.territoryName}
-        </div>
-        {triggerName && (
-          <div className="text-stone-300 text-[0.7rem] mt-0.5 leading-tight">
-            {triggerName}
+        <div className="flex items-center gap-2">
+          {triggerImgPath && (
+            <div className="size-10 rounded shrink-0 overflow-hidden flex items-center justify-center bg-white/5 border border-white/10">
+              <Image
+                src={triggerImgPath}
+                alt={triggerName ?? hover.territoryName}
+                width={40}
+                height={40}
+                unoptimized
+                className="object-contain p-0.5"
+              />
+            </div>
+          )}
+          <div>
+            <div className="text-amber-400 font-semibold text-sm leading-tight">
+              {triggerName ?? hover.territoryName}
+            </div>
             {required != null && (
-              <span className="text-stone-500 ml-1">× {required}</span>
+              <div className="text-stone-500 text-[0.65rem] mt-0.5">× {required}</div>
             )}
           </div>
-        )}
+        </div>
       </div>
 
       {sorted.length > 0 && (

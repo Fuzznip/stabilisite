@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { CircleHelp } from "lucide-react";
 import { REGION_GROUPS, REGION_COLORS, getGroupKey } from "./map-data";
 import type { RegionData } from "./types";
@@ -36,10 +37,13 @@ export function MapLegend({ regionData, regions, teams }: MapLegendProps) {
               {owner ? (
                 <span className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
                   {owner.image_url ? (
-                    <img
+                    <Image
                       src={owner.image_url}
                       alt={owner.name}
-                      className="w-4 h-4 rounded-full object-cover shrink-0"
+                      width={16}
+                      height={16}
+                      unoptimized
+                      className="rounded-full object-cover shrink-0"
                       style={{ border: `1.5px solid ${owner.color ?? "#6b7280"}` }}
                     />
                   ) : (

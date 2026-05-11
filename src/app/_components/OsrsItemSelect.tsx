@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Popover,
@@ -19,7 +19,6 @@ type Props = {
 // This needs serious refactoring --- I apologize...
 export function OsrsItemSelect({ value, onItemSelect }: Props) {
   const [open, setOpen] = useState(false);
-  const [isDirty, setIsDirty] = useState(false);
   const { results, searchItems, loading } = useOsrsItems();
   const popoverRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLInputElement>(null);
@@ -31,17 +30,11 @@ export function OsrsItemSelect({ value, onItemSelect }: Props) {
     [popoverRef, triggerRef]
   );
 
-  useEffect(() => {
-    if (!open && value && isFocused() && isDirty) {
-      setOpen(true);
-    }
-  }, [open, value, isFocused, isDirty]);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     onItemSelect({ name: newValue, id: undefined, image: undefined });
     searchItems(newValue);
-    setIsDirty(true);
+    setOpen(true);
   };
 
   const handleBlur = () => {
@@ -89,7 +82,6 @@ export function OsrsItemSelect({ value, onItemSelect }: Props) {
                 onClick={() => {
                   onItemSelect(item);
                   setOpen(false);
-                  setIsDirty(false);
                 }}
               >
                 <div className="w-fit h-fit p-1 rounded-lg bg-accent">

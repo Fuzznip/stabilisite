@@ -205,15 +205,13 @@ export function useMapRenderer(
   const hoverProgressRef = useRef<Record<string, number>>({});
   const rafRef = useRef<number>(0);
 
-  const [imagesLoaded, setImagesLoaded] = useState(false);
-  const [overlaysBuilt, setOverlaysBuilt] = useState(false);
+  const [loadedFor, setLoadedFor] = useState<RegionData[] | null>(null);
+  const imagesLoaded = loadedFor === regionData;
   const transformDirtyRef = useRef(false);
 
   // Load region PNGs + label PNGs in parallel
   useEffect(() => {
     if (regionData.length === 0) return;
-    setImagesLoaded(false);
-    setOverlaysBuilt(false);
 
     const images: Record<string, HTMLImageElement> = {};
     const labelDatas: Record<string, Uint8Array> = {};
@@ -224,7 +222,7 @@ export function useMapRenderer(
       if (pending === 0) {
         regionImagesRef.current = images;
         labelDataRef.current = labelDatas;
-        setImagesLoaded(true);
+        setLoadedFor(regionData);
       }
     };
 
@@ -244,7 +242,7 @@ export function useMapRenderer(
     }
   }, [regionData]);
 
-  // Build overlay buffers — rebuilds when images load OR when ownership changes
+  // Build overlay buffers and start animation loop — rebuilds when ownership changes
   useEffect(() => {
     if (!imagesLoaded || regionData.length === 0) return;
 
@@ -289,13 +287,6 @@ export function useMapRenderer(
     if (ctx) {
       fullRedraw(ctx, regionData, regionImagesRef.current, buffers, tempCanvases, transformRef.current);
     }
-
-    setOverlaysBuilt(true);
-  }, [imagesLoaded, regionData, conquestTerritories, teams]);
-
-  // Animation loop
-  useEffect(() => {
-    if (!overlaysBuilt) return;
 
     function tick() {
       let dirty = false;
@@ -346,10 +337,10 @@ export function useMapRenderer(
 
       if (dirty || transformDirtyRef.current) {
         transformDirtyRef.current = false;
-        const ctx = canvasRef.current?.getContext("2d");
-        if (ctx) {
+        const animCtx = canvasRef.current?.getContext("2d");
+        if (animCtx) {
           fullRedraw(
-            ctx,
+            animCtx,
             regionData,
             regionImagesRef.current,
             overlayBuffersRef.current,
@@ -364,7 +355,7 @@ export function useMapRenderer(
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [overlaysBuilt, regionData]);
+  }, [imagesLoaded, regionData, conquestTerritories, teams, transformRef]);
 
   const setHoverState = useCallback((state: HoverState | null) => {
     hoverStateRef.current = state;
@@ -374,5 +365,5 @@ export function useMapRenderer(
     transformDirtyRef.current = true;
   }, []);
 
-  return { canvasRef, overlayBuffersRef, setHoverState, overlaysBuilt, markTransformDirty };
+  return { canvasRef, overlayBuffersRef, setHoverState, markTransformDirty };
 }

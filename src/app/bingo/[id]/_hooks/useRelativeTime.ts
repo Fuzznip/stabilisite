@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 
-function getRelativeTimeString(date: Date): string {
-  const now = new Date();
+function getRelativeTimeString(date: Date, now: Date): string {
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   if (diffInSeconds < 60) {
@@ -29,21 +28,14 @@ function getRelativeTimeString(date: Date): string {
 
 export function useRelativeTime(date: Date | string | number) {
   const pastDate = useMemo(() => new Date(date), [date]);
-
-  const [relativeTime, setRelativeTime] = useState(() =>
-    getRelativeTimeString(pastDate),
-  );
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    // Update immediately in case the date changes
-    setRelativeTime(getRelativeTimeString(pastDate));
-
     const interval = setInterval(() => {
-      setRelativeTime(getRelativeTimeString(pastDate));
-    }, 60_000); // 1 minute
-
+      setNow(new Date());
+    }, 60_000);
     return () => clearInterval(interval);
   }, [pastDate]);
 
-  return relativeTime;
+  return useMemo(() => getRelativeTimeString(pastDate, now), [pastDate, now]);
 }

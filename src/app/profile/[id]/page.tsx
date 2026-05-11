@@ -314,39 +314,9 @@ async function UserStats({
 }: {
   user?: User;
 }): Promise<React.ReactElement> {
+  let details;
   try {
-    const details = await getPlayerDetails(user?.runescapeName || "");
-
-    const combatLevel = details?.combatLevel;
-    const totalLevel = details?.latestSnapshot?.data.skills.overall.level;
-    return (
-      <div className="flex items-center w-full text-4xl">
-        <div className="flex items-center w-1/2 justify-center border-r-2 border-border pr-4 mr-4">
-          <div className="relative size-8 mr-2">
-            <Image
-              src="/combat.png"
-              alt="Combat level"
-              className="absolute object-contain"
-              sizes="100%"
-              fill
-            />
-          </div>
-          {combatLevel}
-        </div>
-        <div className="flex items-center w-1/2 justify-center">
-          <div className="relative size-8 mr-2">
-            <Image
-              src="/level.png"
-              alt="Total level"
-              className="absolute object-contain"
-              sizes="100%"
-              fill
-            />
-          </div>
-          {totalLevel}
-        </div>
-      </div>
-    );
+    details = await getPlayerDetails(user?.runescapeName || "");
   } catch {
     return (
       <Alert
@@ -358,6 +328,37 @@ async function UserStats({
       </Alert>
     );
   }
+
+  const combatLevel = details?.combatLevel;
+  const totalLevel = details?.latestSnapshot?.data.skills.overall.level;
+  return (
+    <div className="flex items-center w-full text-4xl">
+      <div className="flex items-center w-1/2 justify-center border-r-2 border-border pr-4 mr-4">
+        <div className="relative size-8 mr-2">
+          <Image
+            src="/combat.png"
+            alt="Combat level"
+            className="absolute object-contain"
+            sizes="100%"
+            fill
+          />
+        </div>
+        {combatLevel}
+      </div>
+      <div className="flex items-center w-1/2 justify-center">
+        <div className="relative size-8 mr-2">
+          <Image
+            src="/level.png"
+            alt="Total level"
+            className="absolute object-contain"
+            sizes="100%"
+            fill
+          />
+        </div>
+        {totalLevel}
+      </div>
+    </div>
+  );
 }
 
 function UserStatsLoading(): React.ReactElement {

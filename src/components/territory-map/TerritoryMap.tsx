@@ -20,6 +20,7 @@ import {
   BORDER_COLOR,
   MAP_PATH_PREFIX,
   getGroupDisplayName,
+  getGroupKey,
   getRegionColor,
   getTerritoryColor,
   hexToRgb,
@@ -167,6 +168,7 @@ function fullRedraw(
     string,
     { hover: HTMLCanvasElement; border: HTMLCanvasElement }
   >,
+  activeGroupKey?: string | null,
 ) {
   ctx.fillStyle = BACKGROUND_COLOR;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -182,6 +184,7 @@ function fullRedraw(
     ctx.drawImage(tc.hover, buf.offsetX, buf.offsetY);
   }
   for (const rd of regionData) {
+    if (activeGroupKey && getGroupKey(rd.name) !== activeGroupKey) continue;
     const buf = overlayBuffers[rd.name];
     const tc = tempCanvases[rd.name];
     if (!buf || !tc) continue;
@@ -221,6 +224,7 @@ interface CanvasLayerProps {
   conquestTerritories: ConquestTerritory[];
   teams: Team[];
   highlightTeamId?: string | null;
+  activeGroupKey?: string | null;
   onHoverChange: (
     info: HoverInfo | null,
     mousePos: { x: number; y: number },
@@ -233,6 +237,7 @@ function TerritoryCanvasLayer({
   conquestTerritories,
   teams,
   highlightTeamId,
+  activeGroupKey,
   onHoverChange,
   onCentroidsReady,
 }: CanvasLayerProps) {
@@ -248,9 +253,11 @@ function TerritoryCanvasLayer({
   const hoverStateRef = useRef<HoverState | null>(null);
   const hoverProgressRef = useRef<Record<string, number>>({});
   const highlightedKeysRef = useRef<Set<string>>(new Set());
+  const activeGroupKeyRef = useRef<string | null | undefined>(activeGroupKey);
   const rafRef = useRef<number>(0);
 
-  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [loadedFor, setLoadedFor] = useState<RegionData[] | null>(null);
+  const imagesLoaded = loadedFor === regionData;
 
   // Step 1: Set up canvas element in a dedicated Leaflet pane
   useEffect(() => {
@@ -341,8 +348,6 @@ function TerritoryCanvasLayer({
   // Step 2: Load images and label PNGs
   useEffect(() => {
     if (regionData.length === 0) return;
-    setImagesLoaded(false);
-
     const images: Record<string, HTMLImageElement> = {};
     const labelDatas: Record<string, Uint8Array> = {};
     let pending = regionData.length * 2;
@@ -352,7 +357,7 @@ function TerritoryCanvasLayer({
       if (pending === 0) {
         regionImagesRef.current = images;
         labelDataRef.current = labelDatas;
-        setImagesLoaded(true);
+        setLoadedFor(regionData);
       }
     }
 
@@ -446,10 +451,26 @@ function TerritoryCanvasLayer({
         regionImagesRef.current,
         buffers,
         tempCanvases,
+        activeGroupKeyRef.current,
       );
   }, [imagesLoaded, regionData, conquestTerritories, teams, onCentroidsReady]);
 
-  // Step 3b: Sync highlighted territory keys when highlightTeamId changes
+  // Step 3b: Sync activeGroupKey ref and redraw immediately when it changes
+  useEffect(() => {
+    activeGroupKeyRef.current = activeGroupKey;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (ctx)
+      fullRedraw(
+        ctx,
+        regionData,
+        regionImagesRef.current,
+        overlayBuffersRef.current,
+        tempCanvasesRef.current,
+        activeGroupKey,
+      );
+  }, [activeGroupKey, regionData]);
+
+  // Step 3c: Sync highlighted territory keys when highlightTeamId changes
   useEffect(() => {
     const keys = new Set<string>();
     if (highlightTeamId) {
@@ -527,6 +548,7 @@ function TerritoryCanvasLayer({
             regionImagesRef.current,
             overlayBuffersRef.current,
             tempCanvasesRef.current,
+            activeGroupKeyRef.current,
           );
       }
 
@@ -589,16 +611,19 @@ function TerritoryMarkersLayer({
   centroids,
   conquestTerritories,
   teams,
+  activeGroupKey,
 }: {
   regionData: RegionData[];
   centroids: CentroidMap;
   conquestTerritories: ConquestTerritory[];
   teams: Team[];
+  activeGroupKey?: string | null;
 }) {
   return (
     <>
-      {regionData.flatMap((rd) =>
-        rd.territories.map((t) => {
+      {regionData.flatMap((rd) => {
+        if (activeGroupKey && getGroupKey(rd.name) !== activeGroupKey) return [];
+        return rd.territories.map((t) => {
           const c = centroids[`${rd.name}:${t.id}`];
           const pos = c
             ? L.latLng(-c.y, c.x)
@@ -616,8 +641,8 @@ function TerritoryMarkersLayer({
               interactive={false}
             />
           );
-        }),
-      )}
+        });
+      })}
     </>
   );
 }
@@ -633,6 +658,7 @@ interface TerritoryMapProps {
   hideTitle?: boolean;
   hideLegend?: boolean;
   highlightTeamId?: string | null;
+  activeGroupKey?: string | null;
 }
 
 export function TerritoryMap({
@@ -644,6 +670,7 @@ export function TerritoryMap({
   hideTitle = false,
   hideLegend = false,
   highlightTeamId,
+  activeGroupKey,
 }: TerritoryMapProps) {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -694,6 +721,7 @@ export function TerritoryMap({
             conquestTerritories={conquestTerritories}
             teams={teams}
             highlightTeamId={highlightTeamId}
+            activeGroupKey={activeGroupKey}
             onHoverChange={handleHoverChange}
             onCentroidsReady={setCentroids}
           />
@@ -702,6 +730,7 @@ export function TerritoryMap({
             centroids={centroids}
             conquestTerritories={conquestTerritories}
             teams={teams}
+            activeGroupKey={activeGroupKey}
           />
         </MapContainer>
         </div>

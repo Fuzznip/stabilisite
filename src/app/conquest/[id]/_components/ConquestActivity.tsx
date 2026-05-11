@@ -23,10 +23,19 @@ function getActivityInfo(
   log: EventLog,
   territories: ConquestTerritory[],
   regions: ConquestRegion[],
-): { type: ActivityType; target: string; regionName?: string; isUnique?: boolean } {
+): {
+  type: ActivityType;
+  target: string;
+  regionName?: string;
+  isUnique?: boolean;
+} {
   switch (log.type) {
     case "CHALLENGE_COMPLETED":
-      return { type: "task", target: log.meta.challengeName ?? "Challenge", isUnique: log.meta.unique === true };
+      return {
+        type: "task",
+        target: log.meta.challengeName ?? "Challenge",
+        isUnique: log.meta.unique === true,
+      };
     case "TERRITORY_CONTROL": {
       const territory = territories.find((t) => t.id === log.entity_id);
       const region = territory
@@ -122,7 +131,6 @@ function RegionIcon() {
   );
 }
 
-
 interface ConquestActivityProps {
   logs: EventLog[];
   teams: Team[];
@@ -142,9 +150,7 @@ function SectionHeader() {
       className="flex items-center justify-between pb-3.5 mb-4"
       style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
     >
-      <div className="text-sm font-semibold uppercase">
-        Recent Activity
-      </div>
+      <h3 className="font-semibold uppercase">Recent Activity</h3>
     </div>
   );
 }

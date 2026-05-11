@@ -64,6 +64,25 @@ interface TextAnimateProps extends MotionProps {
   animation?: AnimationVariant;
 }
 
+const MOTION_ELEMENTS = {
+  p: motion.p,
+  div: motion.div,
+  span: motion.span,
+  h1: motion.h1,
+  h2: motion.h2,
+  h3: motion.h3,
+  h4: motion.h4,
+  h5: motion.h5,
+  h6: motion.h6,
+  section: motion.section,
+  article: motion.article,
+  ul: motion.ul,
+  ol: motion.ol,
+  li: motion.li,
+  blockquote: motion.blockquote,
+  label: motion.label,
+} as const;
+
 const staggerTimings: Record<AnimationType, number> = {
   text: 0.06,
   word: 0.05,
@@ -311,7 +330,7 @@ export function TextAnimate({
   animation = "fadeIn",
   ...props
 }: TextAnimateProps) {
-  const MotionComponent = motion.create(Component);
+  const MotionComponent = MOTION_ELEMENTS[Component as keyof typeof MOTION_ELEMENTS] ?? motion.p;
 
   let segments: string[] = [];
   switch (by) {

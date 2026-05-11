@@ -145,13 +145,9 @@ function RefreshButton({ toastId }: { toastId: string | number }) {
     return () => clearInterval(interval);
   }, [toastId]);
 
-  useEffect(() => {
-    if (status === "refreshing" && !isPending) {
-      setStatus("done");
-    }
-  }, [isPending, status]);
-
   if (!isNewestToast) return null;
+
+  const effectiveStatus = status === "refreshing" && !isPending ? "done" : status;
 
   async function handleRefresh() {
     setStatus("revalidating");
@@ -160,9 +156,9 @@ function RefreshButton({ toastId }: { toastId: string | number }) {
     startTransition(() => router.refresh());
   }
 
-  const isLoading = status === "revalidating" || status === "refreshing";
+  const isLoading = effectiveStatus === "revalidating" || effectiveStatus === "refreshing";
 
-  if (status === "done") {
+  if (effectiveStatus === "done") {
     return (
       <Button
         variant="outline"

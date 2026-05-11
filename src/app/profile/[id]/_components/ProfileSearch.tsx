@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Popover,
   PopoverContent,
@@ -15,7 +15,6 @@ import { Search } from "lucide-react";
 export function ProfileSearch({ users }: { users: User[] }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
-  const [isDirty, setIsDirty] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const popoverRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLInputElement>(null);
@@ -27,12 +26,6 @@ export function ProfileSearch({ users }: { users: User[] }) {
     [popoverRef, triggerRef]
   );
 
-  useEffect(() => {
-    if (!open && value && isFocused() && isDirty) {
-      setOpen(true);
-    }
-  }, [open, value, isFocused, isDirty]);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setFilteredUsers(
@@ -41,7 +34,7 @@ export function ProfileSearch({ users }: { users: User[] }) {
       )
     );
     setValue(newValue);
-    setIsDirty(true);
+    setOpen(true);
   };
 
   const handleBlur = () => {
