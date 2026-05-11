@@ -96,7 +96,6 @@ function TeamList({
   maxPts,
   territories,
   regions,
-  uniqueTasksByTeam,
   onSelect,
 }: {
   sorted: Team[];
