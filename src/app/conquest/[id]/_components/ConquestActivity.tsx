@@ -291,22 +291,13 @@ export function ConquestActivity({
                   <Icon />
                   <span
                     className="text-xs uppercase font-mono"
-                    style={
-                      isRegion ? { color: "#d4a44a", fontWeight: 600 } : {}
-                    }
+                    style={isRegion ? { color: "#d4a44a", fontWeight: 600 } : {}}
                   >
                     {VERB_LABELS[type]}
                   </span>
                   <span
                     className="font-medium text-foreground"
-                    style={
-                      isRegion
-                        ? {
-                            fontSize: "14px",
-                            fontWeight: 600,
-                          }
-                        : {}
-                    }
+                    style={isRegion ? { fontSize: "14px", fontWeight: 600 } : {}}
                   >
                     {target}
                   </span>

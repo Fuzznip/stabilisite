@@ -95,39 +95,42 @@ export function TerritoryHoverPanel({
 
   return (
     <div
-      className="fixed pointer-events-none z-[9999] bg-stone-900/95 border border-amber-700/60 rounded-md shadow-xl w-56"
-      style={{ left: mousePos.x + 16, top: mousePos.y - 10 }}
+      className="fixed pointer-events-none z-[9999] bg-stone-900/95 border border-amber-700/60 rounded-lg shadow-xl w-80"
+      style={{ left: mousePos.x + 20, top: mousePos.y - 14 }}
     >
-      <div className="px-3 py-2 border-b border-stone-700/60">
-        <div className="text-stone-400 text-[0.65rem] uppercase tracking-widest mb-1.5">
+      <div className="px-4 py-3 border-b border-stone-700/60">
+        <div className="text-stone-400 text-xs uppercase tracking-widest">
           {hover.regionDisplayName}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="text-stone-500 text-xs mb-2">
+          {hover.territoryName}
+        </div>
+        <div className="flex items-center gap-3">
           {triggerImgPath && (
-            <div className="size-10 rounded shrink-0 overflow-hidden flex items-center justify-center bg-white/5 border border-white/10">
+            <div className="size-16 rounded shrink-0 overflow-hidden flex items-center justify-center bg-white/5 border border-white/10">
               <Image
                 src={triggerImgPath}
                 alt={triggerName ?? hover.territoryName}
-                width={40}
-                height={40}
+                width={64}
+                height={64}
                 unoptimized
-                className="object-contain p-0.5"
+                className="object-contain p-1"
               />
             </div>
           )}
           <div>
-            <div className="text-amber-400 font-semibold text-sm leading-tight">
+            <div className="text-amber-400 font-semibold text-base leading-tight">
               {triggerName ?? hover.territoryName}
             </div>
             {required != null && (
-              <div className="text-stone-500 text-[0.65rem] mt-0.5">× {required}</div>
+              <div className="text-stone-500 text-xs mt-1">× {required}</div>
             )}
           </div>
         </div>
       </div>
 
       {sorted.length > 0 && (
-        <div className="px-3 py-2 flex flex-col gap-1.5">
+        <div className="px-4 py-3 flex flex-col gap-2.5">
           {sorted.map((entry) => {
             const team = teams.find((t) => t.id === entry.team_id);
             const color = team?.color ?? "#6b7280";
@@ -140,23 +143,35 @@ export function TerritoryHoverPanel({
 
             return (
               <div key={entry.team_id}>
-                <div className="flex items-center justify-between mb-0.5">
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className="inline-block w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="text-stone-300 text-[0.68rem] leading-none">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="size-6 rounded shrink-0 overflow-hidden relative"
+                      style={{ border: `1px solid ${color}40` }}
+                    >
+                      {team?.image_url ? (
+                        <Image
+                          src={team.image_url}
+                          alt={team.name}
+                          fill
+                          unoptimized
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full" style={{ backgroundColor: color }} />
+                      )}
+                    </div>
+                    <span className="text-stone-200 text-base font-medium leading-none">
                       {team?.name ?? entry.team_name}
                     </span>
                   </div>
-                  <span className="text-stone-400 text-[0.65rem]">
+                  <span className="text-stone-400 text-xs">
                     {required != null
                       ? `${entry.quantity}/${required}`
                       : `${entry.completions}×`}
                   </span>
                 </div>
-                <div className="h-1 rounded-full bg-stone-700 overflow-hidden">
+                <div className="h-1.5 rounded-full bg-stone-700 overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{ width: `${pct * 100}%`, backgroundColor: color }}
