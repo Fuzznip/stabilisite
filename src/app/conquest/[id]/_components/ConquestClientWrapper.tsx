@@ -136,8 +136,6 @@ function ConquestInner({
     return () => clearInterval(id);
   }, []);
 
-  const isLive =
-    new Date(event.start_date) <= now && now < new Date(event.end_date);
   const countdown = formatCountdown(event.end_date, now);
 
   return (
@@ -146,32 +144,12 @@ function ConquestInner({
       <header className="flex items-end justify-between gap-8 flex-wrap">
         <div>
           <div className="flex items-center gap-4 mb-2.5">
-            {isLive && (
-              <span
-                className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold uppercase font-mono"
-                style={{
-                  background: "rgba(230,57,70,0.10)",
-                  color: "#ff5560",
-                  border: "1px solid rgba(230,57,70,0.25)",
-                }}
-              >
-                <span
-                  className="size-2 rounded-full animate-pulse"
-                  style={{ background: "#ff5560" }}
-                />
-                LIVE
-              </span>
-            )}
             {countdown ? (
               <span className="text-xs uppercase text-muted-foreground font-mono">
                 ENDS IN{" "}
                 <strong className="text-foreground font-semibold">
                   {countdown}
                 </strong>
-              </span>
-            ) : !isLive ? (
-              <span className="text-xs uppercase text-muted-foreground font-mono">
-                ENDED
               </span>
             ) : null}
           </div>
