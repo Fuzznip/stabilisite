@@ -17,6 +17,7 @@ import {
 const INTERIOR_TARGET = 0.45;
 const INNER_BORDER_DEFAULT = 0.6;
 const INNER_BORDER_HOVER = 0.8;
+const HOVER_FILL_COLOR: [number, number, number] = [238, 205, 205];
 
 function classifyPixel(
   x: number,
@@ -101,9 +102,9 @@ function buildOverlayBuffer(
         if (!innerBorderPixels[label]) innerBorderPixels[label] = [];
         innerBorderPixels[label].push(pi);
       } else if (type === "interior") {
-        hoverData.data[pi * 4 + 0] = terrColor[0];
-        hoverData.data[pi * 4 + 1] = terrColor[1];
-        hoverData.data[pi * 4 + 2] = terrColor[2];
+        hoverData.data[pi * 4 + 0] = HOVER_FILL_COLOR[0];
+        hoverData.data[pi * 4 + 1] = HOVER_FILL_COLOR[1];
+        hoverData.data[pi * 4 + 2] = HOVER_FILL_COLOR[2];
         hoverData.data[pi * 4 + 3] = 0;
         if (!territoryPixels[label]) territoryPixels[label] = [];
         territoryPixels[label].push(pi);

@@ -22,7 +22,6 @@ import {
   getGroupDisplayName,
   getGroupKey,
   getRegionColor,
-  getTerritoryColor,
   hexToRgb,
 } from "./map-data";
 
@@ -31,6 +30,7 @@ import {
 const INTERIOR_TARGET = 0.45;
 const INNER_BORDER_DEFAULT = 0.6;
 const INNER_BORDER_HOVER = 0.8;
+const HOVER_FILL_COLOR: [number, number, number] = [140, 108, 108];
 
 const MAP_BOUNDS = L.latLngBounds([
   [-CANVAS_HEIGHT, 0],
@@ -85,8 +85,6 @@ function classifyPixel(
 function buildOverlayBuffer(
   rd: RegionData,
   labelData: Uint8Array,
-  conquestTerritories: ConquestTerritory[],
-  teams: Team[],
 ): OverlayBuffer {
   const {
     name,
@@ -108,17 +106,6 @@ function buildOverlayBuffer(
       const territory = territories.find((t) => t.index === label);
       if (!territory) continue;
 
-      const ct = conquestTerritories.find((t) => t.id === territory.id);
-      let terrColor: [number, number, number];
-      if (ct?.controlling_team_id) {
-        const team = teams.find((t) => t.id === ct.controlling_team_id);
-        terrColor = team?.color
-          ? hexToRgb(team.color)
-          : getTerritoryColor(label);
-      } else {
-        terrColor = getTerritoryColor(label);
-      }
-
       const pi = y * w + x;
       const type = classifyPixel(x, y, labelData, w, h);
 
@@ -135,9 +122,9 @@ function buildOverlayBuffer(
         if (!innerBorderPixels[label]) innerBorderPixels[label] = [];
         innerBorderPixels[label].push(pi);
       } else if (type === "interior") {
-        hoverData.data[pi * 4] = terrColor[0];
-        hoverData.data[pi * 4 + 1] = terrColor[1];
-        hoverData.data[pi * 4 + 2] = terrColor[2];
+        hoverData.data[pi * 4] = HOVER_FILL_COLOR[0];
+        hoverData.data[pi * 4 + 1] = HOVER_FILL_COLOR[1];
+        hoverData.data[pi * 4 + 2] = HOVER_FILL_COLOR[2];
         hoverData.data[pi * 4 + 3] = 0;
         if (!territoryPixels[label]) territoryPixels[label] = [];
         territoryPixels[label].push(pi);
@@ -253,6 +240,8 @@ function TerritoryCanvasLayer({
   const hoverStateRef = useRef<HoverState | null>(null);
   const hoverProgressRef = useRef<Record<string, number>>({});
   const highlightedKeysRef = useRef<Set<string>>(new Set());
+  const highlightTeamColorRef = useRef<[number, number, number] | null>(null);
+  const hoverColorsDirtyRef = useRef(false);
   const activeGroupKeyRef = useRef<string | null | undefined>(activeGroupKey);
   const rafRef = useRef<number>(0);
 
@@ -397,12 +386,7 @@ function TerritoryCanvasLayer({
       const labelData = labelDataRef.current[rd.name];
       if (!labelData) continue;
 
-      buffers[rd.name] = buildOverlayBuffer(
-        rd,
-        labelData,
-        conquestTerritories,
-        teams,
-      );
+      buffers[rd.name] = buildOverlayBuffer(rd, labelData);
 
       if (!tempCanvasesRef.current[rd.name]) {
         const hc = document.createElement("canvas");
@@ -484,6 +468,9 @@ function TerritoryCanvasLayer({
       }
     }
     highlightedKeysRef.current = keys;
+    const selectedTeam = highlightTeamId ? teams.find((t) => t.id === highlightTeamId) : null;
+    highlightTeamColorRef.current = selectedTeam?.color ? hexToRgb(selectedTeam.color) : null;
+    hoverColorsDirtyRef.current = true;
     // Seed progress so RAF picks them up immediately
     for (const key of keys) {
       if (!(key in hoverProgressRef.current)) {
@@ -504,6 +491,12 @@ function TerritoryCanvasLayer({
         hoverProgressRef.current[activeKey] = 0;
       }
 
+      const colorsDirty = hoverColorsDirtyRef.current;
+      if (colorsDirty) {
+        hoverColorsDirtyRef.current = false;
+        dirty = true;
+      }
+
       for (const key of Object.keys(hoverProgressRef.current)) {
         const isHighlighted = highlightedKeysRef.current.has(key);
         const target = key === activeKey || isHighlighted ? 1.0 : 0.0;
@@ -511,20 +504,30 @@ function TerritoryCanvasLayer({
         let next = cur + (target - cur) * 0.18;
         if (Math.abs(next - target) < 0.005) next = target;
 
+        const sep = key.indexOf(":");
+        const regionName = key.slice(0, sep);
+        const label = parseInt(key.slice(sep + 1));
+        const buf = overlayBuffersRef.current[regionName];
+        if (!buf) continue;
+
+        // Update fill color when colors are dirty or animation is running
+        if (colorsDirty || next !== cur) {
+          const color =
+            isHighlighted && highlightTeamColorRef.current
+              ? highlightTeamColorRef.current
+              : HOVER_FILL_COLOR;
+          const interiorAlpha = Math.round(next * INTERIOR_TARGET * 255);
+          for (const pi of buf.territoryPixels[label] ?? []) {
+            buf.hoverData.data[pi * 4] = color[0];
+            buf.hoverData.data[pi * 4 + 1] = color[1];
+            buf.hoverData.data[pi * 4 + 2] = color[2];
+            buf.hoverData.data[pi * 4 + 3] = interiorAlpha;
+          }
+        }
+
         if (next !== cur) {
           dirty = true;
           hoverProgressRef.current[key] = next;
-
-          const sep = key.indexOf(":");
-          const regionName = key.slice(0, sep);
-          const label = parseInt(key.slice(sep + 1));
-          const buf = overlayBuffersRef.current[regionName];
-          if (!buf) continue;
-
-          const interiorAlpha = Math.round(next * INTERIOR_TARGET * 255);
-          for (const pi of buf.territoryPixels[label] ?? []) {
-            buf.hoverData.data[pi * 4 + 3] = interiorAlpha;
-          }
           const borderAlpha = Math.round(
             (INNER_BORDER_DEFAULT +
               next * (INNER_BORDER_HOVER - INNER_BORDER_DEFAULT)) *
