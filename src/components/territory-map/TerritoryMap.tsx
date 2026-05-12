@@ -16,7 +16,6 @@ import { MapLegend } from "./MapLegend";
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
-  BACKGROUND_COLOR,
   BORDER_COLOR,
   MAP_PATH_PREFIX,
   getGroupDisplayName,
@@ -157,8 +156,7 @@ function fullRedraw(
   >,
   activeGroupKey?: string | null,
 ) {
-  ctx.fillStyle = BACKGROUND_COLOR;
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   for (const rd of regionData) {
     const img = regionImages[rd.filename];
     if (img) ctx.drawImage(img, rd.offsetX, rd.offsetY);
@@ -698,8 +696,11 @@ export function TerritoryMap({
         className="relative w-full rounded-[18px] overflow-hidden"
         style={{
           aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
-          background:
-            "radial-gradient(circle at 50% 35%, rgba(230,57,70,0.15), rgba(107,100,102,0.6) 70%), #6b6466",
+          backgroundImage:
+            "linear-gradient(rgba(107,100,102,0.6), rgba(107,100,102,0.6)), url(/map_background.png)",
+          backgroundSize: "100% 100%",
+          backgroundRepeat: "no-repeat",
+          backgroundColor: "#6b6466",
           border: "3px solid rgba(230,57,70,0.5)",
           boxShadow:
             "0 0 0 1px rgba(0,0,0,0.4) inset, 0 30px 80px -30px rgba(0,0,0,0.8), 0 0 60px -10px rgba(74,142,240,0.08)",
@@ -717,7 +718,7 @@ export function TerritoryMap({
           zoomSnap={0}
           attributionControl={false}
           zoomControl={false}
-          style={{ background: "#6b6466" }}
+          style={{ background: "transparent" }}
         >
           <TerritoryCanvasLayer
             regionData={regionData}
