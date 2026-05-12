@@ -8,16 +8,12 @@ import { Popover } from "@/components/ui/popover";
 import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
 import { getAuthUser } from "../../lib/fetch/getAuthUser";
-import { Card } from "@/components/ui/card";
 import { ChevronDown } from "lucide-react";
-import { DiaryDialog } from "./DiaryDialog";
 import { getDiaries } from "../../lib/fetch/getDiaries";
-import { SplitDialog } from "./SplitDialog";
 import { getDiaryEntries } from "@/lib/fetch/getDiaryEntries";
-import { RaidTierDialog } from "./RaidTierDialog";
 import { getRaids } from "@/lib/fetch/getRaids";
-import { RankDialog } from "./RankDialog";
 import { getRanks } from "@/lib/fetch/getRanks";
+import { SubmitPopoverClient } from "./SubmitPopoverClient";
 import { getReleasedEvent } from "@/lib/fetch/getBingo";
 import { auth } from "@/auth";
 import { CONQUEST_ADMIN_IDS } from "@/lib/config/conquest";
@@ -99,31 +95,23 @@ export default async function NavBar(): Promise<React.ReactElement> {
 }
 
 async function SubmitPopover(): Promise<React.ReactElement> {
-  const diaries = await getDiaries();
-  const user = await getAuthUser();
+  const [diaries, user, raids, ranks] = await Promise.all([
+    getDiaries(),
+    getAuthUser(),
+    getRaids(),
+    getRanks(),
+  ]);
   const entries = await getDiaryEntries(user);
-  const raids = await getRaids();
-  console.log(raids.flatMap((raid) => raid.tiers));
-  const ranks = await getRanks();
   const userRankIndex = ranks.findIndex((rank) => rank.rankName === user?.rank);
   const filteredRanks = ranks.splice(userRankIndex + 1);
 
   return (
-    <Popover>
-      <PopoverTrigger asChild className="mr-4">
-        <Button className="flex items-center gap-1 bg-stability hover:bg-stability/90 text-white">
-          Submit
-          <ChevronDown className="w-4 h-4 hidden sm:flex" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-fit p-2 !z-50">
-        <Card className="flex flex-col p-2">
-          <RankDialog ranks={filteredRanks} user={user} />
-          <RaidTierDialog raids={raids} />
-          <DiaryDialog user={user} diaries={diaries} entries={entries} />
-          <SplitDialog />
-        </Card>
-      </PopoverContent>
-    </Popover>
+    <SubmitPopoverClient
+      user={user}
+      diaries={diaries}
+      entries={entries}
+      raids={raids}
+      filteredRanks={filteredRanks}
+    />
   );
 }
