@@ -182,6 +182,7 @@ function ConquestInner({
           hideLegend
           highlightTeamId={selectedTeamId}
           activeGroupKey={selectedGroupKey}
+          onGroupKeyChange={setSelectedGroupKey}
         />
         <ConquestScoreboard
           eventId={event.id}

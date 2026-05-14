@@ -87,24 +87,34 @@ function TerritoryDetailRow({
     <div
       className="relative rounded-xl overflow-hidden"
       style={{
-        background: "hsl(var(--card))",
-        border: "1px solid rgba(255,255,255,0.10)",
+        background: controllingTeam
+          ? `linear-gradient(to right, ${controllingTeam.color ?? "#888"}18, hsl(var(--card)) 60%)`
+          : "hsl(var(--card))",
+        border: `1px solid ${controllingTeam ? `${controllingTeam.color ?? "#888"}44` : "rgba(255,255,255,0.10)"}`,
       }}
     >
-      {/* Accent bar */}
+      {/* Accent bar — team color when controlled, region color otherwise */}
       <div
         className="absolute left-0 top-0 bottom-0 w-0.5"
-        style={{ background: colorHex, boxShadow: `0 0 10px ${colorHex}` }}
+        style={{
+          background: controllingTeam?.color ?? colorHex,
+          boxShadow: `0 0 10px ${controllingTeam?.color ?? colorHex}`,
+        }}
       />
+
+      {/* Territory name */}
+      <div className="px-3 pt-2.5 pl-4 text-xs text-muted-foreground/50 font-medium uppercase tracking-wider truncate">
+        {territory.name}
+      </div>
 
       {/* Header */}
       <div
-        className="flex items-center gap-3 px-4 py-3 pl-5"
+        className="flex items-center gap-2 px-3 py-2.5 pl-4"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
         {/* Trigger image */}
         <div
-          className="size-16 rounded-lg shrink-0 overflow-hidden flex items-center justify-center"
+          className="size-16 rounded-md shrink-0 overflow-hidden flex items-center justify-center"
           style={{
             background: "rgba(255,255,255,0.04)",
             border: "1px solid rgba(255,255,255,0.10)",
@@ -121,7 +131,7 @@ function TerritoryDetailRow({
             />
           ) : (
             <div
-              className="size-4 rounded-full opacity-30"
+              className="size-3 rounded-full opacity-30"
               style={{ background: colorHex }}
             />
           )}
@@ -129,134 +139,61 @@ function TerritoryDetailRow({
 
         {/* Territory info */}
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-base leading-tight">
+          <div className="font-semibold text-base leading-tight truncate">
             {triggerName ?? territory.name}
             {required != null && (
-              <span className="text-muted-foreground/50 font-normal ml-2 text-sm">
+              <span className="text-muted-foreground/50 font-normal ml-1.5 text-xs">
                 × {required}
               </span>
             )}
           </div>
         </div>
 
-        {/* Controlling team badge */}
-        {controllingTeam ? (
-          <div
-            className="flex items-center gap-1.5 px-2 py-1 rounded-md shrink-0"
-            style={{
-              background: `${controllingTeam.color ?? "#888"}22`,
-              border: `1px solid ${controllingTeam.color ?? "#888"}55`,
-            }}
-          >
-            <div
-              className="size-5 rounded overflow-hidden shrink-0"
-              style={{ border: "1px solid rgba(255,255,255,0.10)" }}
-            >
-              {controllingTeam.image_url ? (
-                <Image
-                  src={controllingTeam.image_url}
-                  alt={controllingTeam.name}
-                  width={20}
-                  height={20}
-                  unoptimized
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div
-                  className="w-full h-full"
-                  style={{ background: controllingTeam.color ?? "#888" }}
-                />
-              )}
-            </div>
-            <span
-              className="text-xs font-medium"
-              style={{ color: controllingTeam.color ?? "#888" }}
-            >
-              {controllingTeam.name}
-            </span>
-          </div>
-        ) : (
-          <span className="text-xs text-muted-foreground/40 shrink-0">
-            Uncontrolled
-          </span>
-        )}
       </div>
 
-      {/* Team progress rows */}
-      <div className="px-4 py-2.5 pl-5 flex flex-col gap-2">
-        {teams.map((team) => {
+      {/* Team progress */}
+      <div className="pl-4 flex flex-wrap">
+        {teams.map((team, i) => {
           const entry = progressMap.get(team.id);
           const qty = entry?.quantity ?? 0;
           const completions = entry?.completions ?? 0;
           const isController = territory.controlling_team_id === team.id;
-          const pct =
-            required != null && required > 0
-              ? Math.min(1, qty / required)
-              : completions > 0
-                ? 1
-                : 0;
           const label =
             required != null ? `${qty}/${required}` : `${completions}×`;
+          const hasProgress = required != null ? qty > 0 : completions > 0;
           const color = team.color ?? "#888";
 
           return (
-            <div key={team.id} className="flex items-center gap-3">
-              {/* Team icon */}
-              <div
-                className="size-9 rounded-lg overflow-hidden shrink-0"
-                style={{ border: "1px solid rgba(255,255,255,0.10)" }}
-              >
-                {team.image_url ? (
-                  <Image
-                    src={team.image_url}
-                    alt={team.name}
-                    width={36}
-                    height={36}
-                    unoptimized
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
+            <div key={team.id} className="flex items-center">
+              <div className="flex flex-col items-center gap-1.5 px-3 py-2.5">
+                <div className="flex items-center gap-1.5">
                   <div
-                    className="w-full h-full"
-                    style={{ background: color }}
-                  />
-                )}
+                    className="size-12 rounded-lg shrink-0 overflow-hidden relative"
+                    style={{ border: `1px solid ${isController ? `${color}88` : "rgba(255,255,255,0.10)"}` }}
+                  >
+                    {team.image_url ? (
+                      <Image
+                        src={team.image_url}
+                        alt={team.name}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full" style={{ background: color }} />
+                    )}
+                  </div>
+                  <span
+                    className="text-base font-mono tabular-nums leading-none"
+                    style={{ color: isController ? color : "rgba(255,255,255,0.3)" }}
+                  >
+                    {label}
+                  </span>
+                </div>
               </div>
-
-              {/* Team name */}
-              <span
-                className="text-sm font-medium w-36 shrink-0 truncate"
-                style={{
-                  color: isController ? color : "rgba(255,255,255,0.5)",
-                }}
-              >
-                {team.name}
-              </span>
-
-              {/* Progress bar */}
-              <div className="flex-1 h-1.5 rounded-full overflow-hidden bg-white/[0.06]">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${pct * 100}%`,
-                    background: color,
-                    opacity: isController ? 1 : 0.6,
-                  }}
-                />
-              </div>
-
-              {/* Label */}
-              <span
-                className="text-xs font-mono tabular-nums w-12 text-right shrink-0"
-                style={{
-                  color: isController
-                    ? color
-                    : "rgba(255,255,255,0.3)",
-                }}
-              >
-                {required != null || completions > 0 ? label : "—"}
-              </span>
-
+              {i < teams.length - 1 && (
+                <div className="w-px self-stretch bg-white/[0.06]" />
+              )}
             </div>
           );
         })}
@@ -338,7 +275,7 @@ export function ConquestRegionDetail({
       </div>
 
       {/* Territory rows */}
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {groupTerritories.length === 0 ? (
           <div
             className="rounded-xl py-10 text-center text-sm text-muted-foreground/40"

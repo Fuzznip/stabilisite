@@ -215,6 +215,7 @@ interface CanvasLayerProps {
     mousePos: { x: number; y: number },
   ) => void;
   onCentroidsReady: (centroids: CentroidMap) => void;
+  onGroupKeyChange?: (groupKey: string | null) => void;
 }
 
 function TerritoryCanvasLayer({
@@ -225,6 +226,7 @@ function TerritoryCanvasLayer({
   activeGroupKey,
   onHoverChange,
   onCentroidsReady,
+  onGroupKeyChange,
 }: CanvasLayerProps) {
   const map = useMap();
 
@@ -562,6 +564,23 @@ function TerritoryCanvasLayer({
 
   // Step 5: Hover detection via Leaflet events (world coords — no transform math needed)
   useMapEvents({
+    click(e) {
+      const x = Math.floor(e.latlng.lng);
+      const y = Math.floor(-e.latlng.lat);
+      for (const rd of regionData) {
+        const lx = x - rd.offsetX;
+        const ly = y - rd.offsetY;
+        if (lx < 0 || ly < 0 || lx >= rd.imageWidth || ly >= rd.imageHeight) continue;
+        const buf = overlayBuffersRef.current[rd.name];
+        if (!buf) continue;
+        const label = buf.labelData[ly * rd.imageWidth + lx];
+        if (label > 0) {
+          const groupKey = getGroupKey(rd.name);
+          onGroupKeyChange?.(groupKey === activeGroupKey ? null : groupKey);
+          return;
+        }
+      }
+    },
     mousemove(e) {
       const x = Math.floor(e.latlng.lng);
       const y = Math.floor(-e.latlng.lat);
@@ -660,6 +679,7 @@ interface TerritoryMapProps {
   hideLegend?: boolean;
   highlightTeamId?: string | null;
   activeGroupKey?: string | null;
+  onGroupKeyChange?: (groupKey: string | null) => void;
 }
 
 export function TerritoryMap({
@@ -672,6 +692,7 @@ export function TerritoryMap({
   hideLegend = false,
   highlightTeamId,
   activeGroupKey,
+  onGroupKeyChange,
 }: TerritoryMapProps) {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -728,6 +749,7 @@ export function TerritoryMap({
             activeGroupKey={activeGroupKey}
             onHoverChange={handleHoverChange}
             onCentroidsReady={setCentroids}
+            onGroupKeyChange={onGroupKeyChange}
           />
           <TerritoryMarkersLayer
             regionData={regionData}
