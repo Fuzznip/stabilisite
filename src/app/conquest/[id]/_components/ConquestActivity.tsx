@@ -30,12 +30,16 @@ function getActivityInfo(
   isUnique?: boolean;
 } {
   switch (log.type) {
-    case "CHALLENGE_COMPLETED":
+    case "CHALLENGE_COMPLETED": {
+      const territory = territories.find((t) => t.challenge_id === log.entity_id);
+      const region = territory ? regions.find((r) => r.id === territory.region_id) : null;
       return {
         type: "task",
         target: log.meta.challengeName ?? "Challenge",
         isUnique: log.meta.unique === true,
+        regionName: region?.name,
       };
+    }
     case "TERRITORY_CONTROL": {
       const territory = territories.find((t) => t.id === log.entity_id);
       const region = territory
@@ -56,80 +60,6 @@ function getActivityInfo(
   }
 }
 
-function TaskIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 14 14"
-      fill="none"
-      className="shrink-0 text-muted-foreground/60"
-    >
-      <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" />
-      <path
-        d="M4.5 7.2 L6.3 9 L9.5 5.5"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function CaptureIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 14 14"
-      fill="none"
-      className="shrink-0"
-      style={{ color: "rgba(230,57,70,0.9)" }}
-    >
-      <path
-        d="M3 1 V13"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M3 2 L11 2 L9 5 L11 8 L3 8 Z"
-        fill="currentColor"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function RegionIcon() {
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 15 15"
-      fill="none"
-      className="shrink-0"
-      style={{ color: "#d4a44a" }}
-    >
-      <path
-        d="M2 5 L4 10 L11 10 L13 5 L10 7 L7.5 3.5 L5 7 Z"
-        fill="currentColor"
-        stroke="currentColor"
-        strokeWidth="1"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M3.5 12 L11.5 12"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 interface ConquestActivityProps {
   logs: EventLog[];
@@ -202,130 +132,90 @@ export function ConquestActivity({
           const isUniqueTask = type === "task" && isUnique;
           const isLast = i === logs.length - 1;
 
-          const Icon =
-            type === "task"
-              ? TaskIcon
-              : type === "capture"
-                ? CaptureIcon
-                : RegionIcon;
+          const isSpecial = isRegion || isUniqueTask;
 
           return (
             <div
               key={log.id}
-              className="relative py-4"
+              className="relative flex items-center gap-4 py-3.5"
               style={{
-                borderBottom: isLast
-                  ? undefined
-                  : "1px solid rgba(255,255,255,0.06)",
-                ...(isRegion && {
-                  margin: "4px -18px",
-                  padding: "16px 18px",
-                  background:
-                    "linear-gradient(to right, rgba(212,164,74,0.10), rgba(212,164,74,0) 60%)",
-                  borderBottom: isLast
-                    ? undefined
-                    : "1px solid rgba(255,255,255,0.06)",
-                }),
-                ...(isUniqueTask && {
-                  margin: "4px -18px",
-                  padding: "16px 18px",
-                  background:
-                    "linear-gradient(to right, rgba(95,207,114,0.08), rgba(95,207,114,0) 60%)",
-                  borderBottom: isLast
-                    ? undefined
-                    : "1px solid rgba(255,255,255,0.06)",
+                borderBottom: isLast ? undefined : "1px solid rgba(255,255,255,0.06)",
+                ...(isSpecial && team && {
+                  margin: "0 -18px",
+                  padding: "14px 18px",
+                  background: `linear-gradient(to right, ${team.color ?? "#888"}18, transparent 60%)`,
+                  borderBottom: isLast ? undefined : "1px solid rgba(255,255,255,0.06)",
                 }),
               }}
             >
-              {isRegion && (
+              {isSpecial && team && (
                 <div
                   className="absolute left-0 top-0 bottom-0 w-0.5"
                   style={{
-                    background: "#d4a44a",
-                    boxShadow: "0 0 12px rgba(212,164,74,0.6)",
-                  }}
-                />
-              )}
-              {isUniqueTask && (
-                <div
-                  className="absolute left-0 top-0 bottom-0 w-0.5"
-                  style={{
-                    background: "#5fcf72",
-                    boxShadow: "0 0 12px rgba(95,207,114,0.6)",
+                    background: team.color ?? "#888",
+                    boxShadow: `0 0 10px ${team.color ?? "#888"}88`,
                   }}
                 />
               )}
 
-              <div className="grid items-center gap-4 grid-cols-[80px_170px_1fr]">
-                {/* Time */}
-                <div className="text-xs uppercase font-mono text-muted-foreground/50">
-                  {formatRelativeTime(log.created_at)} ago
-                </div>
+              {/* Time */}
+              <div className="text-sm font-mono text-muted-foreground/50 w-[60px] shrink-0">
+                {formatRelativeTime(log.created_at)}
+              </div>
 
-                {/* Team chip */}
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground min-w-0">
-                  <div
-                    className="size-8 rounded-lg overflow-hidden shrink-0 relative"
-                    style={{ border: "1px solid rgba(255,255,255,0.10)" }}
-                  >
-                    {team.image_url ? (
-                      <Image
-                        src={team.image_url}
-                        alt={team.name}
-                        fill
-                        unoptimized
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full"
-                        style={{ background: team.color ?? "#888" }}
-                      />
-                    )}
-                  </div>
-                  <span className="truncate">{team.name}</span>
-                </div>
+              {/* Team */}
+              <div
+                className="size-11 rounded-lg overflow-hidden shrink-0 relative"
+                style={{ border: "1px solid rgba(255,255,255,0.10)" }}
+              >
+                {team.image_url ? (
+                  <Image
+                    src={team.image_url}
+                    alt={team.name}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full" style={{ background: team.color ?? "#888" }} />
+                )}
+              </div>
 
-                {/* Action */}
-                <div className="flex items-center gap-2 flex-wrap text-sm text-muted-foreground min-w-0">
-                  <Icon />
+              {/* Action */}
+              <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                <span className="text-xs uppercase font-mono text-muted-foreground/50 shrink-0">
+                  {VERB_LABELS[type]}
+                </span>
+                <span
+                  className="text-base font-medium"
+                  style={{ color: isSpecial && team ? (team.color ?? "#888") : "rgba(255,255,255,0.85)" }}
+                >
+                  {target}
+                </span>
+                {regionName && (
                   <span
-                    className="text-xs uppercase font-mono"
-                    style={isRegion ? { color: "#d4a44a", fontWeight: 600 } : {}}
+                    className="text-xs font-mono px-1.5 py-0.5 rounded shrink-0"
+                    style={{
+                      color: "rgba(255,255,255,0.35)",
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
                   >
-                    {VERB_LABELS[type]}
+                    {regionName}
                   </span>
+                )}
+                {isUniqueTask && (
                   <span
-                    className="font-medium text-foreground"
-                    style={isRegion ? { fontSize: "14px", fontWeight: 600 } : {}}
+                    className="text-xs font-mono px-1.5 py-0.5 rounded shrink-0"
+                    style={{
+                      color: team?.color ?? "#888",
+                      background: `${team?.color ?? "#888"}18`,
+                      border: `1px solid ${team?.color ?? "#888"}44`,
+                    }}
                   >
-                    {target}
+                    FIRST
                   </span>
-                  {isUniqueTask && (
-                    <span
-                      className="text-xs font-mono px-2 py-0.5 rounded"
-                      style={{
-                        color: "#5fcf72",
-                        background: "rgba(95,207,114,0.08)",
-                        border: "1px solid rgba(95,207,114,0.25)",
-                      }}
-                    >
-                      FIRST
-                    </span>
-                  )}
-                  {regionName && type === "capture" && (
-                    <span
-                      className="text-xs font-mono px-2 py-0.5 rounded"
-                      style={{
-                        color: "rgba(255,255,255,0.3)",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.06)",
-                      }}
-                    >
-                      {regionName}
-                    </span>
-                  )}
-                </div>
+                )}
               </div>
             </div>
           );
