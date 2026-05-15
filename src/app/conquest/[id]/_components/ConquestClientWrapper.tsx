@@ -31,7 +31,6 @@ const TerritoryMap = dynamic(
 import { ConquestScoreboard } from "./ConquestScoreboard";
 import { ConquestRegions } from "./ConquestRegions";
 import { ConquestActivity } from "./ConquestActivity";
-import { useConquestSSE } from "../_hooks/useConquestSSE";
 import type { RegionData } from "@/components/territory-map/types";
 import type {
   ConquestRegion,
@@ -83,8 +82,6 @@ function ConquestInner({
   initialLogs,
   playerCount,
 }: ConquestClientWrapperProps) {
-  useConquestSSE(event?.id);
-
   const { data: territories = initialTerritories } = useQuery({
     queryKey: ["conquest-territories", event?.id],
     queryFn: async () => {
