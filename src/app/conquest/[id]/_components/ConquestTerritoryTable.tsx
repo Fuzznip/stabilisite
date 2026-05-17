@@ -135,13 +135,25 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
         const color = team.color ?? "#888";
 
         return (
-          <td key={team.id} className="py-2.5 text-center">
-            <span
-              className="text-sm font-mono tabular-nums"
-              style={{ color: isController ? color : "rgba(255,255,255,0.35)" }}
-            >
-              {label}
-            </span>
+          <td
+            key={team.id}
+            className="py-2.5 text-center"
+            style={isController ? { background: `${color}0d` } : undefined}
+          >
+            <div className="flex flex-col items-center gap-1">
+              {isController && (
+                <div
+                  className="size-1.5 rounded-full"
+                  style={{ background: color, boxShadow: `0 0 6px ${color}` }}
+                />
+              )}
+              <span
+                className="text-sm font-mono tabular-nums"
+                style={{ color: (required != null ? qty > 0 : completions > 0) ? color : "rgba(255,255,255,0.25)" }}
+              >
+                {label}
+              </span>
+            </div>
           </td>
         );
       })}
