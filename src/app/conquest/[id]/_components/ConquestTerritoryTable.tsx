@@ -119,7 +119,7 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
             )}
           </div>
           <div>
-            <div className="text-sm font-medium text-foreground leading-tight">{triggerName}</div>
+            <div className="text-base font-medium text-foreground leading-tight">{triggerName}</div>
             {required != null && (
               <div className="text-xs text-muted-foreground/40">× {required}</div>
             )}
@@ -148,7 +148,7 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
                 />
               )}
               <span
-                className="text-sm font-mono tabular-nums"
+                className="text-base font-mono tabular-nums"
                 style={{ color: (required != null ? qty > 0 : completions > 0) ? color : "rgba(255,255,255,0.25)" }}
               >
                 {label}
@@ -227,7 +227,7 @@ export function ConquestTerritoryTable({
                     )}
                   </div>
                   <span
-                    className="text-xs font-medium whitespace-nowrap"
+                    className="text-sm font-medium whitespace-nowrap"
                     style={{ color: team.color ?? "rgba(255,255,255,0.6)" }}
                   >
                     {team.name}

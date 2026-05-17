@@ -680,6 +680,7 @@ interface TerritoryMapProps {
   highlightTeamId?: string | null;
   activeGroupKey?: string | null;
   onGroupKeyChange?: (groupKey: string | null) => void;
+  fillHeight?: boolean;
 }
 
 export function TerritoryMap({
@@ -693,6 +694,7 @@ export function TerritoryMap({
   highlightTeamId,
   activeGroupKey,
   onGroupKeyChange,
+  fillHeight = false,
 }: TerritoryMapProps) {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -707,16 +709,16 @@ export function TerritoryMap({
   );
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className={`flex flex-col items-center w-full${fillHeight ? " h-full" : ""}`}>
       {!hideTitle && (
         <h1 className="text-center text-3xl font-bold tracking-[0.12em] uppercase text-foreground [font-family:var(--font-cinzel)]">
           {event?.name}
         </h1>
       )}
       <div
-        className="relative w-full rounded-[18px] overflow-hidden"
+        className={`relative w-full rounded-[18px] overflow-hidden${fillHeight ? " h-full" : ""}`}
         style={{
-          aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
+          aspectRatio: fillHeight ? undefined : `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
           backgroundImage:
             "linear-gradient(rgba(107,100,102,0.6), rgba(107,100,102,0.6)), url(/map_background.png)",
           backgroundSize: "100% 100%",

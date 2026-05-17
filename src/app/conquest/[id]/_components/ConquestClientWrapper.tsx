@@ -1,18 +1,14 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   QueryClient,
   QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { MoreHorizontal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  CANVAS_WIDTH,
-  CANVAS_HEIGHT,
-} from "@/components/territory-map/map-data";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const TerritoryMap = dynamic(
   () =>
@@ -22,10 +18,7 @@ const TerritoryMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Skeleton
-        className="w-full rounded-[18px]"
-        style={{ aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}` }}
-      />
+      <Skeleton className="w-full h-full rounded-[18px]" />
     ),
   },
 );
@@ -128,25 +121,12 @@ function ConquestInner({
 
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"map" | "table">("map");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(id);
   }, []);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    }
-    if (menuOpen) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [menuOpen]);
 
   const countdown = formatCountdown(event.end_date, now);
 
@@ -182,60 +162,22 @@ function ConquestInner({
         )}
       </header>
 
-      {/* Main grid: map/table (flex-1) + standings (fixed 340px) */}
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-[1fr_340px]">
-        <div className="relative">
-          {/* Ellipsis menu — top-right corner of map */}
-          <div className="absolute top-2 right-2 z-[9999]" ref={menuRef}>
-            <button
-              onClick={() => setMenuOpen((o) => !o)}
-              className="flex items-center justify-center size-7 rounded-md text-muted-foreground hover:text-foreground transition-colors"
-              style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }}
-            >
-              <MoreHorizontal size={15} />
-            </button>
-            {menuOpen && (
-              <div
-                className="absolute right-0 top-full mt-1 rounded-lg py-1 z-50 min-w-[140px]"
-                style={{
-                  background: "hsl(var(--card))",
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-                }}
-              >
-                <button
-                  className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
-                  onClick={() => {
-                    setViewMode(viewMode === "map" ? "table" : "map");
-                    setMenuOpen(false);
-                  }}
-                >
-                  {viewMode === "map" ? "View in table" : "View map"}
-                </button>
-              </div>
-            )}
-          </div>
-
-          {viewMode === "map" ? (
-            <TerritoryMap
-              event={event}
-              regionData={regionData}
-              conquestTerritories={territories}
-              teams={flatTeams}
-              regions={regions}
-              hideTitle
-              hideLegend
-              highlightTeamId={selectedTeamId}
-              activeGroupKey={selectedGroupKey}
-              onGroupKeyChange={setSelectedGroupKey}
-            />
-          ) : (
-            <ConquestTerritoryTable
-              territories={territories}
-              teams={flatTeams}
-              regions={regions}
-            />
-          )}
+      {/* Main grid: map (flex-1) + standings (fixed 340px) */}
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-[1fr_340px] items-stretch">
+        <div className="h-full">
+          <TerritoryMap
+            event={event}
+            regionData={regionData}
+            conquestTerritories={territories}
+            teams={flatTeams}
+            regions={regions}
+            hideTitle
+            hideLegend
+            fillHeight
+            highlightTeamId={selectedTeamId}
+            activeGroupKey={selectedGroupKey}
+            onGroupKeyChange={setSelectedGroupKey}
+          />
         </div>
         <ConquestScoreboard
           eventId={event.id}
@@ -248,15 +190,36 @@ function ConquestInner({
         />
       </div>
 
-      {/* Region controllers */}
-      <ConquestRegions
-        regions={regions}
-        territories={territories}
-        teams={flatTeams}
-        regionData={regionData}
-        selectedGroupKey={selectedGroupKey}
-        onSelectedGroupKeyChange={setSelectedGroupKey}
-      />
+      {/* Regions / Table tabs */}
+      <Tabs defaultValue="regions">
+        <div
+          className="flex items-center justify-between pb-3.5 mb-4"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+        >
+          <h3 className="font-semibold uppercase">Regions</h3>
+          <TabsList className="h-8 px-0.5">
+            <TabsTrigger value="regions" className="text-sm h-7 px-5">Regions</TabsTrigger>
+            <TabsTrigger value="table" className="text-sm h-7 px-5">Table</TabsTrigger>
+          </TabsList>
+        </div>
+        <TabsContent value="regions" className="mt-0">
+          <ConquestRegions
+            regions={regions}
+            territories={territories}
+            teams={flatTeams}
+            regionData={regionData}
+            selectedGroupKey={selectedGroupKey}
+            onSelectedGroupKeyChange={setSelectedGroupKey}
+          />
+        </TabsContent>
+        <TabsContent value="table" className="mt-0">
+          <ConquestTerritoryTable
+            territories={territories}
+            teams={flatTeams}
+            regions={regions}
+          />
+        </TabsContent>
+      </Tabs>
 
       {/* Recent activity */}
       <ConquestActivity

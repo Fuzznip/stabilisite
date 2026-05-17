@@ -3,7 +3,12 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import type { ConquestRegion, ConquestTerritory, Team, EventLog } from "@/lib/types/v2";
+import type {
+  ConquestRegion,
+  ConquestTerritory,
+  Team,
+  EventLog,
+} from "@/lib/types/v2";
 
 const TOTAL_TASKS = 45;
 
@@ -17,10 +22,25 @@ interface ConquestScoreboardProps {
   onSelectedTeamIdChange: (id: string | null) => void;
 }
 
-const RANK_STYLES: Record<number, { bg: string; color: string; border: string }> = {
-  1: { bg: "rgba(212,164,74,0.14)", color: "#d4a44a", border: "rgba(212,164,74,0.4)" },
-  2: { bg: "rgba(169,163,179,0.10)", color: "#a9a3b3", border: "rgba(169,163,179,0.3)" },
-  3: { bg: "rgba(176,116,68,0.12)", color: "#b07444", border: "rgba(176,116,68,0.35)" },
+const RANK_STYLES: Record<
+  number,
+  { bg: string; color: string; border: string }
+> = {
+  1: {
+    bg: "rgba(212,164,74,0.14)",
+    color: "#d4a44a",
+    border: "rgba(212,164,74,0.4)",
+  },
+  2: {
+    bg: "rgba(169,163,179,0.10)",
+    color: "#a9a3b3",
+    border: "rgba(169,163,179,0.3)",
+  },
+  3: {
+    bg: "rgba(176,116,68,0.12)",
+    color: "#b07444",
+    border: "rgba(176,116,68,0.35)",
+  },
 };
 
 export function ConquestScoreboard({
@@ -32,7 +52,6 @@ export function ConquestScoreboard({
   selectedTeamId,
   onSelectedTeamIdChange,
 }: ConquestScoreboardProps) {
-
   const { data: logs = [] } = useQuery<EventLog[]>({
     queryKey: ["conquest-logs", eventId],
     queryFn: async () => {
@@ -47,7 +66,12 @@ export function ConquestScoreboard({
   const uniqueTasksByTeam = useMemo(() => {
     const map = new Map<string, Set<string>>();
     for (const log of logs) {
-      if (log.type === "CHALLENGE_COMPLETED" && log.meta?.unique && log.team_id && log.entity_id) {
+      if (
+        log.type === "CHALLENGE_COMPLETED" &&
+        log.meta?.unique &&
+        log.team_id &&
+        log.entity_id
+      ) {
         if (!map.has(log.team_id)) map.set(log.team_id, new Set());
         map.get(log.team_id)!.add(log.entity_id);
       }
@@ -55,18 +79,25 @@ export function ConquestScoreboard({
     return map;
   }, [logs]);
 
-  const sorted = useMemo(() => [...teams].sort((a, b) => b.points - a.points), [teams]);
+  const sorted = useMemo(
+    () => [...teams].sort((a, b) => b.points - a.points),
+    [teams],
+  );
   const maxPts = Math.max(...sorted.map((t) => t.points), 1);
 
-  const selectedTeam = selectedTeamId ? teams.find((t) => t.id === selectedTeamId) ?? null : null;
+  const selectedTeam = selectedTeamId
+    ? (teams.find((t) => t.id === selectedTeamId) ?? null)
+    : null;
 
   return (
     <aside
-      className="flex flex-col rounded-2xl overflow-hidden h-full"
+      className="flex flex-col rounded-2xl overflow-hidden h-120"
       style={{
-        background: "linear-gradient(to bottom, hsl(var(--card)), hsl(var(--card)))",
+        background:
+          "linear-gradient(to bottom, hsl(var(--card)), hsl(var(--card)))",
         border: "1px solid rgba(255,255,255,0.10)",
-        boxShadow: "0 0 0 1px rgba(0,0,0,0.4) inset, 0 20px 50px -30px rgba(0,0,0,0.8)",
+        boxShadow:
+          "0 0 0 1px rgba(0,0,0,0.4) inset, 0 20px 50px -30px rgba(0,0,0,0.8)",
       }}
     >
       {selectedTeam ? (
@@ -110,14 +141,14 @@ function TeamList({
         className="flex items-center justify-between px-4.5 py-3.5"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <div className="text-sm font-semibold uppercase">
-          Standings
-        </div>
+        <div className="text-sm font-semibold uppercase">Standings</div>
       </div>
 
       <div className="py-1.5 overflow-y-auto">
         {sorted.length === 0 ? (
-          <div className="py-16 text-center text-sm text-muted-foreground/50">No teams yet</div>
+          <div className="py-16 text-center text-sm text-muted-foreground/50">
+            No teams yet
+          </div>
         ) : (
           sorted.map((team, index) => {
             const rank = index + 1;
@@ -126,8 +157,12 @@ function TeamList({
               color: "var(--muted-foreground)",
               border: "rgba(255,255,255,0.06)",
             };
-            const territoriesHeld = territories.filter((t) => t.controlling_team_id === team.id).length;
-            const regionsHeld = regions.filter((r) => r.controlling_team_id === team.id).length;
+            const territoriesHeld = territories.filter(
+              (t) => t.controlling_team_id === team.id,
+            ).length;
+            const regionsHeld = regions.filter(
+              (r) => r.controlling_team_id === team.id,
+            ).length;
             const isLast = index === sorted.length - 1;
 
             return (
@@ -136,7 +171,9 @@ function TeamList({
                 onClick={() => onSelect(team.id)}
                 className="relative w-full grid items-center gap-3 px-4.5 pt-3 pb-5 text-left transition-colors hover:bg-white/[0.04] grid-cols-[28px_40px_1fr_auto] cursor-pointer"
                 style={{
-                  borderBottom: isLast ? undefined : "1px solid rgba(255,255,255,0.06)",
+                  borderBottom: isLast
+                    ? undefined
+                    : "1px solid rgba(255,255,255,0.06)",
                 }}
               >
                 {/* Rank badge */}
@@ -166,15 +203,22 @@ function TeamList({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full" style={{ background: team.color ?? "#888" }} />
+                    <div
+                      className="w-full h-full"
+                      style={{ background: team.color ?? "#888" }}
+                    />
                   )}
                 </div>
 
                 {/* Team name + breakdown */}
                 <div className="min-w-0">
-                  <div className="font-semibold text-base truncate leading-snug">{team.name}</div>
+                  <div className="font-semibold text-base truncate leading-snug">
+                    {team.name}
+                  </div>
                   <div className="flex flex-col text-xs font-mono text-muted-foreground leading-relaxed mt-0.5">
-                    {territoriesHeld > 0 && <span>{territoriesHeld} territories</span>}
+                    {territoriesHeld > 0 && (
+                      <span>{territoriesHeld} territories</span>
+                    )}
                     {regionsHeld > 0 && <span>{regionsHeld} regions</span>}
                     {territoriesHeld === 0 && regionsHeld === 0 && (
                       <span className="opacity-50">No territories yet</span>
@@ -196,10 +240,7 @@ function TeamList({
                 </div>
 
                 {/* Score bar */}
-                <div
-                  className="absolute bottom-1.5 left-4.5 right-4.5 h-0.5 rounded-full overflow-hidden"
-                  style={{ background: "rgba(255,255,255,0.04)" }}
-                >
+                <div className="absolute bottom-1.5 left-4.5 right-4.5 h-0.5 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -234,7 +275,9 @@ function TeamDetail({
   uniqueTasks: number;
   onBack: () => void;
 }) {
-  const territoriesHeld = territories.filter((t) => t.controlling_team_id === team.id).length;
+  const territoriesHeld = territories.filter(
+    (t) => t.controlling_team_id === team.id,
+  ).length;
   const ownedRegions = regions.filter((r) => r.controlling_team_id === team.id);
 
   const color = team.color ?? "#888";
@@ -271,12 +314,15 @@ function TeamDetail({
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-semibold text-sm truncate leading-tight">{team.name}</div>
+          <div className="font-semibold text-sm truncate leading-tight">
+            {team.name}
+          </div>
           <div
             className="text-lg font-semibold tabular-nums leading-tight"
             style={{ color }}
           >
-            {team.points.toLocaleString()} <span className="text-xs text-muted-foreground font-mono">PTS</span>
+            {team.points.toLocaleString()}{" "}
+            <span className="text-xs text-muted-foreground font-mono">PTS</span>
           </div>
         </div>
       </div>
@@ -294,7 +340,10 @@ function TeamDetail({
           <div
             key={label}
             className="flex flex-col items-center py-3 gap-0.5"
-            style={{ borderRight: i < 2 ? "1px solid rgba(255,255,255,0.06)" : undefined }}
+            style={{
+              borderRight:
+                i < 2 ? "1px solid rgba(255,255,255,0.06)" : undefined,
+            }}
           >
             <div
               className="text-xl font-semibold tabular-nums leading-none"
@@ -324,13 +373,14 @@ function TeamDetail({
                     className="w-1.5 h-1.5 rounded-full shrink-0"
                     style={{ background: color }}
                   />
-                  <span className="text-sm text-foreground/80 font-mono truncate">{name}</span>
+                  <span className="text-sm text-foreground/80 font-mono truncate">
+                    {name}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
