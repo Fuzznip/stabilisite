@@ -92,9 +92,7 @@ export function SplitDialog(): React.ReactElement {
       })
       .catch((e) => {
         toast.error(
-          `There was an error submitting your ${form.getValues(
-            "item",
-          )} split. Ask Funzip y it no work.`,
+          `There was an error submitting your ${form.getValues("item")} split.`,
         );
         console.error(e);
         form.reset();
@@ -234,6 +232,43 @@ export function SplitDialog(): React.ReactElement {
   );
 }
 
+async function compressImage(file: File): Promise<File> {
+  const MAX_DIMENSION = 1920;
+  const QUALITY = 0.85;
+
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width <= MAX_DIMENSION && height <= MAX_DIMENSION) {
+        resolve(file);
+        return;
+      }
+      if (width > height) {
+        height = Math.round((height * MAX_DIMENSION) / width);
+        width = MAX_DIMENSION;
+      } else {
+        width = Math.round((width * MAX_DIMENSION) / height);
+        height = MAX_DIMENSION;
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          resolve(new File([blob!], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        QUALITY,
+      );
+    };
+    img.src = url;
+  });
+}
+
 function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -241,8 +276,10 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
     (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
       if (file) {
-        setPreview(URL.createObjectURL(file));
-        onFileSelect(file);
+        compressImage(file).then((compressed) => {
+          setPreview(URL.createObjectURL(compressed));
+          onFileSelect(compressed);
+        });
       }
     },
     [onFileSelect],
