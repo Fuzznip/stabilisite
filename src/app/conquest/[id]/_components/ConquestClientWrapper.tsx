@@ -77,25 +77,25 @@ function ConquestInner({
   initialLogs,
   playerCount,
 }: ConquestClientWrapperProps) {
-  const { data: territories = initialTerritories } = useQuery({
+  const { data: territories = initialTerritories ?? [] } = useQuery({
     queryKey: ["conquest-territories", event?.id],
     queryFn: async () => {
       const res = await fetch(`/api/conquest/${event.id}/territories`);
       const json = await res.json();
-      return json.data as ConquestTerritory[];
+      return (json.data ?? []) as ConquestTerritory[];
     },
-    initialData: initialTerritories,
+    initialData: initialTerritories ?? [],
     staleTime: 30_000,
   });
 
-  const { data: regions = initialRegions } = useQuery({
+  const { data: regions = initialRegions ?? [] } = useQuery({
     queryKey: ["conquest-regions", event?.id],
     queryFn: async () => {
       const res = await fetch(`/api/conquest/${event.id}/regions`);
       const json = await res.json();
-      return json.data as ConquestRegion[];
+      return (json.data ?? []) as ConquestRegion[];
     },
-    initialData: initialRegions,
+    initialData: initialRegions ?? [],
     staleTime: 30_000,
   });
 

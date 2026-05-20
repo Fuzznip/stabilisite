@@ -66,7 +66,7 @@ async function ConquestContent({ id }: { id: string }) {
       regionData={regionData}
       initialTerritories={initialTerritories}
       initialRegions={initialRegions}
-      teams={event.teams}
+      teams={event.teams ?? []}
       initialLogs={logsResponse.data}
       playerCount={playerCount}
     />

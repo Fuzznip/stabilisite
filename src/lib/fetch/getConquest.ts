@@ -15,7 +15,7 @@ export async function getConquestRegions(
     { next: { tags: [`conquest-regions-${eventId}`] } }
   );
   const json = await safeJson(res);
-  return json.data;
+  return json.data ?? [];
 }
 
 export async function getConquestTerritories(
@@ -26,7 +26,7 @@ export async function getConquestTerritories(
     { next: { tags: [`conquest-territories-${eventId}`] } }
   );
   const json = await safeJson(res);
-  return json.data;
+  return json.data ?? [];
 }
 
 export async function getEventLogs(
