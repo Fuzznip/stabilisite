@@ -10,6 +10,7 @@ import type {
   Team,
   TerritoryProgressEntry,
 } from "@/lib/types/v2";
+import { TerritoryProofDialog } from "./TerritoryProofDialog";
 
 // ── data fetchers ────────────────────────────────────────────────────────────
 
@@ -163,34 +164,46 @@ function TerritoryDetailRow({
           const hasProgress = required != null ? qty > 0 : completions > 0;
           const color = team.color ?? "#888";
 
+          const inner = (
+            <div className={`flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg transition-colors${hasProgress ? " cursor-pointer hover:bg-white/[0.06]" : ""}`}>
+              <div className="flex items-center gap-1.5">
+                <div
+                  className="size-12 rounded-lg shrink-0 overflow-hidden relative"
+                  style={{ border: `1px solid ${isController ? `${color}88` : "rgba(255,255,255,0.10)"}` }}
+                >
+                  {team.image_url ? (
+                    <Image
+                      src={team.image_url}
+                      alt={team.name}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full" style={{ background: color }} />
+                  )}
+                </div>
+                <span
+                  className="text-base font-mono tabular-nums leading-none"
+                  style={{ color: isController ? color : "rgba(255,255,255,0.3)" }}
+                >
+                  {label}
+                </span>
+              </div>
+            </div>
+          );
+
           return (
             <div key={team.id} className="flex items-center">
-              <div className="flex flex-col items-center gap-1.5 px-3 py-2.5">
-                <div className="flex items-center gap-1.5">
-                  <div
-                    className="size-12 rounded-lg shrink-0 overflow-hidden relative"
-                    style={{ border: `1px solid ${isController ? `${color}88` : "rgba(255,255,255,0.10)"}` }}
-                  >
-                    {team.image_url ? (
-                      <Image
-                        src={team.image_url}
-                        alt={team.name}
-                        fill
-                        unoptimized
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full" style={{ background: color }} />
-                    )}
-                  </div>
-                  <span
-                    className="text-base font-mono tabular-nums leading-none"
-                    style={{ color: isController ? color : "rgba(255,255,255,0.3)" }}
-                  >
-                    {label}
-                  </span>
-                </div>
-              </div>
+              {hasProgress ? (
+                <TerritoryProofDialog
+                  territoryId={territory.id}
+                  teamId={team.id}
+                  triggerName={triggerName}
+                >
+                  {inner}
+                </TerritoryProofDialog>
+              ) : inner}
               {i < teams.length - 1 && (
                 <div className="w-px self-stretch bg-white/[0.06]" />
               )}

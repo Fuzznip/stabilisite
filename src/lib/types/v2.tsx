@@ -70,6 +70,7 @@ export type EventLogMeta = {
   completionCount?: number;        // CHALLENGE_COMPLETED
   challengeName?: string;          // CHALLENGE_COMPLETED
   unique?: boolean;                // CHALLENGE_COMPLETED: true = first ever completion by this team
+  playerName?: string;             // all log types
 };
 
 export type EventLog = {
@@ -406,6 +407,23 @@ export type TerritoryProgressEntry = {
   quantity: number;       // current progress toward the challenge
   required: number | null; // quantity needed; null = repeatable
   completions: number;    // total times completed
+};
+
+export type TerritoryProofEntry = {
+  id: string;
+  img_path: string | null;
+  created_at: string;
+  team_id: string;
+  action?: {
+    id: string;
+    name: string;
+    source: string | null;
+    type: string;
+    quantity: number;
+    value: number | null;
+    date: string | null;
+    player?: { id: string; runescape_name: string };
+  };
 };
 
 // ===========================================

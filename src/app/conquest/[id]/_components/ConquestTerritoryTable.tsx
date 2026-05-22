@@ -10,6 +10,7 @@ import type {
   Team,
   TerritoryProgressEntry,
 } from "@/lib/types/v2";
+import { TerritoryProofDialog } from "./TerritoryProofDialog";
 
 async function fetchChallenge(challengeId: string) {
   const res = await fetch(`/api/conquest/challenges/${challengeId}`);
@@ -134,26 +135,50 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
         const label = required != null ? `${qty}/${required}` : `${completions}×`;
         const color = team.color ?? "#888";
 
+        const hasProgress = required != null ? qty > 0 : completions > 0;
+
+        const tdContent = (
+          <div className="flex flex-col items-center gap-1">
+            {isController && (
+              <div
+                className="size-1.5 rounded-full"
+                style={{ background: color, boxShadow: `0 0 6px ${color}` }}
+              />
+            )}
+            <span
+              className="text-base font-mono tabular-nums"
+              style={{ color: hasProgress ? color : "rgba(255,255,255,0.25)" }}
+            >
+              {label}
+            </span>
+          </div>
+        );
+
+        if (hasProgress) {
+          return (
+            <TerritoryProofDialog
+              key={team.id}
+              territoryId={territory.id}
+              teamId={team.id}
+              triggerName={triggerName}
+            >
+              <td
+                className="py-2.5 text-center cursor-pointer transition-colors hover:bg-white/[0.06]"
+                style={isController ? { background: `${color}0d` } : undefined}
+              >
+                {tdContent}
+              </td>
+            </TerritoryProofDialog>
+          );
+        }
+
         return (
           <td
             key={team.id}
             className="py-2.5 text-center"
             style={isController ? { background: `${color}0d` } : undefined}
           >
-            <div className="flex flex-col items-center gap-1">
-              {isController && (
-                <div
-                  className="size-1.5 rounded-full"
-                  style={{ background: color, boxShadow: `0 0 6px ${color}` }}
-                />
-              )}
-              <span
-                className="text-base font-mono tabular-nums"
-                style={{ color: (required != null ? qty > 0 : completions > 0) ? color : "rgba(255,255,255,0.25)" }}
-              >
-                {label}
-              </span>
-            </div>
+            {tdContent}
           </td>
         );
       })}

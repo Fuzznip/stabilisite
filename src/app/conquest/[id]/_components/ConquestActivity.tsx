@@ -183,6 +183,11 @@ export function ConquestActivity({
 
               {/* Action */}
               <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                {log.meta?.playerName && (
+                  <span className="text-xs font-mono text-muted-foreground/70 shrink-0">
+                    {log.meta.playerName}
+                  </span>
+                )}
                 <span className="text-xs uppercase font-mono text-muted-foreground/50 shrink-0">
                   {VERB_LABELS[type]}
                 </span>
