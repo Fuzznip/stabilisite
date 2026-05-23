@@ -111,14 +111,6 @@ function ConquestInner({
     [teams],
   );
 
-  const membersMap = useMemo(() => {
-    const map: Record<string, string[]> = {};
-    for (const team of teams) {
-      map[team.id] = team.members as unknown as string[];
-    }
-    return map;
-  }, [teams]);
-
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
 
@@ -184,7 +176,6 @@ function ConquestInner({
           teams={flatTeams}
           territories={territories}
           regions={regions}
-          membersMap={membersMap}
           selectedTeamId={selectedTeamId}
           onSelectedTeamIdChange={setSelectedTeamId}
         />

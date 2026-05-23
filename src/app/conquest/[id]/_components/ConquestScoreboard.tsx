@@ -8,6 +8,7 @@ import type {
   ConquestTerritory,
   Team,
   EventLog,
+  TeamPlayerBreakdown,
 } from "@/lib/types/v2";
 
 const TOTAL_TASKS = 45;
@@ -17,7 +18,6 @@ interface ConquestScoreboardProps {
   teams: Team[];
   territories: ConquestTerritory[];
   regions: ConquestRegion[];
-  membersMap: Record<string, string[]>;
   selectedTeamId: string | null;
   onSelectedTeamIdChange: (id: string | null) => void;
 }
@@ -48,7 +48,6 @@ export function ConquestScoreboard({
   teams,
   territories,
   regions,
-  membersMap,
   selectedTeamId,
   onSelectedTeamIdChange,
 }: ConquestScoreboardProps) {
@@ -102,10 +101,10 @@ export function ConquestScoreboard({
     >
       {selectedTeam ? (
         <TeamDetail
+          eventId={eventId}
           team={selectedTeam}
           territories={territories}
           regions={regions}
-          members={membersMap[selectedTeam.id] ?? []}
           uniqueTasks={uniqueTasksByTeam.get(selectedTeam.id)?.size ?? 0}
           onBack={() => onSelectedTeamIdChange(null)}
         />
@@ -261,17 +260,17 @@ function TeamList({
 }
 
 function TeamDetail({
+  eventId,
   team,
   territories,
   regions,
-  members,
   uniqueTasks,
   onBack,
 }: {
+  eventId: string;
   team: Team;
   territories: ConquestTerritory[];
   regions: ConquestRegion[];
-  members: string[];
   uniqueTasks: number;
   onBack: () => void;
 }) {
@@ -279,8 +278,20 @@ function TeamDetail({
     (t) => t.controlling_team_id === team.id,
   ).length;
   const ownedRegions = regions.filter((r) => r.controlling_team_id === team.id);
-
   const color = team.color ?? "#888";
+
+  const { data: allTeamActions = [] } = useQuery<TeamPlayerBreakdown[]>({
+    queryKey: ["conquest-player-actions", eventId],
+    queryFn: async () => {
+      const res = await fetch(`/api/conquest/${eventId}/player-actions`);
+      if (!res.ok) return [];
+      const json = await res.json();
+      return Array.isArray(json) ? json : (json.data ?? []);
+    },
+    staleTime: 60_000,
+  });
+
+  const teamData = allTeamActions.find((t) => t.team_id === team.id);
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -358,27 +369,68 @@ function TeamDetail({
         ))}
       </div>
 
-      {/* Scrollable content */}
+      {/* Scrollable players + actions */}
       <div className="flex-1 overflow-y-auto">
-        {/* Players */}
-        {members.length > 0 && (
-          <div className="px-4 pt-3 pb-2">
-            <div className="text-[0.65rem] uppercase text-muted-foreground font-mono mb-2">
-              Players
-            </div>
-            <div className="flex flex-col gap-1">
-              {members.map((name) => (
-                <div key={name} className="flex items-center gap-2">
+        {teamData && teamData.players.length > 0 ? (
+          <div className="divide-y divide-white/[0.04]">
+            {teamData.players.map((player) => (
+              <div key={player.player_name} className="pt-2.5 pb-1.5">
+                <div className="flex items-center gap-1.5 px-4 mb-1.5">
                   <span
                     className="w-1.5 h-1.5 rounded-full shrink-0"
                     style={{ background: color }}
                   />
-                  <span className="text-sm text-foreground/80 font-mono truncate">
-                    {name}
+                  <span className="text-base font-semibold">
+                    {player.player_name}
                   </span>
                 </div>
-              ))}
-            </div>
+                {player.actions.map((action, i) => (
+                  <div
+                    key={action.name}
+                    className="flex items-center gap-2 px-4 pl-8 py-1"
+                    style={
+                      i % 2 === 1
+                        ? { background: "rgba(255,255,255,0.025)" }
+                        : undefined
+                    }
+                  >
+                    <div
+                      className="size-7 rounded shrink-0 overflow-hidden flex items-center justify-center"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                      }}
+                    >
+                      {action.img_path ? (
+                        <Image
+                          src={action.img_path}
+                          alt={action.name}
+                          width={28}
+                          height={28}
+                          unoptimized
+                          className="object-contain p-0.5"
+                        />
+                      ) : (
+                        <div className="size-1.5 rounded-full bg-white/20" />
+                      )}
+                    </div>
+                    <span className="text-sm text-muted-foreground flex-1 truncate">
+                      {action.name}
+                    </span>
+                    <span
+                      className="text-sm font-mono tabular-nums shrink-0"
+                      style={{ color }}
+                    >
+                      {action.quantity.toLocaleString()}×
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-8 text-center text-xs text-muted-foreground/40">
+            No activity yet
           </div>
         )}
       </div>

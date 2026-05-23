@@ -409,6 +409,24 @@ export type TerritoryProgressEntry = {
   completions: number;    // total times completed
 };
 
+export type PlayerActionEntry = {
+  name: string;
+  source: string | null;
+  img_path: string | null;
+  quantity: number;
+};
+
+export type TeamPlayerBreakdown = {
+  team_id: string;
+  team_name: string;
+  team_color: string | null;
+  team_image_url: string | null;
+  players: {
+    player_name: string;
+    actions: PlayerActionEntry[];
+  }[];
+};
+
 export type TerritoryProofEntry = {
   id: string;
   img_path: string | null;
