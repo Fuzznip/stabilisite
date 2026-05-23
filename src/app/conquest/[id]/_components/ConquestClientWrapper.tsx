@@ -164,7 +164,7 @@ function ConquestInner({
 
       {/* Main grid: map (flex-1) + standings (fixed 340px) */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-[1fr_340px] items-stretch">
-        <div className="h-full">
+        <div className="aspect-[459/211] lg:aspect-auto lg:h-full">
           <TerritoryMap
             event={event}
             regionData={regionData}
