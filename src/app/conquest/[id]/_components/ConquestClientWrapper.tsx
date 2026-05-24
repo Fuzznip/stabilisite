@@ -85,7 +85,8 @@ function ConquestInner({
       return (json.data ?? []) as ConquestTerritory[];
     },
     initialData: initialTerritories ?? [],
-    staleTime: 5_000,
+    staleTime: 10_000,
+    refetchInterval: 10_000,
   });
 
   const { data: regions = initialRegions ?? [] } = useQuery({
@@ -96,7 +97,8 @@ function ConquestInner({
       return (json.data ?? []) as ConquestRegion[];
     },
     initialData: initialRegions ?? [],
-    staleTime: 5_000,
+    staleTime: 10_000,
+    refetchInterval: 10_000,
   });
 
   const { data: liveTeams = teams } = useQuery({
@@ -107,7 +109,8 @@ function ConquestInner({
       return (json.data ?? []) as TeamWithMembers[];
     },
     initialData: teams,
-    staleTime: 5_000,
+    staleTime: 10_000,
+    refetchInterval: 10_000,
   });
 
   const { data: logs = initialLogs } = useQuery({
@@ -118,7 +121,8 @@ function ConquestInner({
       return (json.data ?? []) as EventLog[];
     },
     initialData: initialLogs,
-    staleTime: 5_000,
+    staleTime: 10_000,
+    refetchInterval: 10_000,
   });
 
   const flatTeams = useMemo(

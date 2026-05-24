@@ -59,7 +59,8 @@ export function ConquestScoreboard({
       const json = await res.json();
       return Array.isArray(json) ? json : (json.data ?? []);
     },
-    staleTime: 5_000,
+    staleTime: 10_000,
+    refetchInterval: 10_000,
   });
 
   const uniqueTasksByTeam = useMemo(() => {
@@ -281,7 +282,8 @@ function TeamDetail({
       const json = await res.json();
       return Array.isArray(json) ? json : (json.data ?? []);
     },
-    staleTime: 5_000,
+    staleTime: 10_000,
+    refetchInterval: 10_000,
   });
 
   const teamData = allTeamActions.find((t) => t.team_id === team.id);

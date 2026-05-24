@@ -11,10 +11,11 @@ import type {
 function formatRelativeTime(isoDate: string): string {
   const diffMs = Date.now() - new Date(isoDate).getTime();
   const minutes = Math.floor(diffMs / 60_000);
-  if (minutes < 60) return `${minutes}m`;
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h`;
-  return `${Math.floor(hours / 24)}d`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
 type ActivityType = "task" | "capture" | "region";
@@ -31,8 +32,12 @@ function getActivityInfo(
 } {
   switch (log.type) {
     case "CHALLENGE_COMPLETED": {
-      const territory = territories.find((t) => t.challenge_id === log.entity_id);
-      const region = territory ? regions.find((r) => r.id === territory.region_id) : null;
+      const territory = territories.find(
+        (t) => t.challenge_id === log.entity_id,
+      );
+      const region = territory
+        ? regions.find((r) => r.id === territory.region_id)
+        : null;
       return {
         type: "task",
         target: log.meta.challengeName ?? "Challenge",
@@ -59,7 +64,6 @@ function getActivityInfo(
       return { type: "task", target: "Activity" };
   }
 }
-
 
 interface ConquestActivityProps {
   logs: EventLog[];
@@ -139,13 +143,18 @@ export function ConquestActivity({
               key={log.id}
               className="relative flex items-center gap-4 py-3.5"
               style={{
-                borderBottom: isLast ? undefined : "1px solid rgba(255,255,255,0.06)",
-                ...(isSpecial && team && {
-                  margin: "0 -18px",
-                  padding: "14px 18px",
-                  background: `linear-gradient(to right, ${team.color ?? "#888"}18, transparent 60%)`,
-                  borderBottom: isLast ? undefined : "1px solid rgba(255,255,255,0.06)",
-                }),
+                borderBottom: isLast
+                  ? undefined
+                  : "1px solid rgba(255,255,255,0.06)",
+                ...(isSpecial &&
+                  team && {
+                    margin: "0 -18px",
+                    padding: "14px 18px",
+                    background: `linear-gradient(to right, ${team.color ?? "#888"}18, transparent 60%)`,
+                    borderBottom: isLast
+                      ? undefined
+                      : "1px solid rgba(255,255,255,0.06)",
+                  }),
               }}
             >
               {isSpecial && team && (
@@ -159,7 +168,7 @@ export function ConquestActivity({
               )}
 
               {/* Time */}
-              <div className="text-sm font-mono text-muted-foreground/50 w-[60px] shrink-0">
+              <div className="text-sm font-mono text-muted-foreground/50 w-17 shrink-0">
                 {formatRelativeTime(log.created_at)}
               </div>
 
@@ -177,23 +186,34 @@ export function ConquestActivity({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full" style={{ background: team.color ?? "#888" }} />
+                  <div
+                    className="w-full h-full"
+                    style={{ background: team.color ?? "#888" }}
+                  />
                 )}
               </div>
 
               {/* Action */}
-              <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+              <div className="flex items-baseline gap-1.5 min-w-0 flex-wrap">
                 {log.meta?.playerName && (
-                  <span className="text-xs font-mono text-muted-foreground/70 shrink-0">
+                  <span
+                    className="text-base font-mono shrink-0"
+                    style={{ color: team?.color ?? "#888" }}
+                  >
                     {log.meta.playerName}
                   </span>
                 )}
-                <span className="text-xs uppercase font-mono text-muted-foreground/50 shrink-0">
+                <span className="text-base uppercase font-mono text-muted-foreground/50 shrink-0">
                   {VERB_LABELS[type]}
                 </span>
                 <span
                   className="text-base font-medium"
-                  style={{ color: isRegion && team ? (team.color ?? "#888") : "rgba(255,255,255,0.85)" }}
+                  style={{
+                    color:
+                      isRegion && team
+                        ? (team.color ?? "#888")
+                        : "rgba(255,255,255,0.85)",
+                  }}
                 >
                   {target}
                 </span>
