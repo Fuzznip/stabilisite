@@ -90,14 +90,7 @@ export function ConquestScoreboard({
 
   return (
     <aside
-      className="flex flex-col rounded-2xl overflow-hidden h-120"
-      style={{
-        background:
-          "linear-gradient(to bottom, hsl(var(--card)), hsl(var(--card)))",
-        border: "1px solid rgba(255,255,255,0.10)",
-        boxShadow:
-          "0 0 0 1px rgba(0,0,0,0.4) inset, 0 20px 50px -30px rgba(0,0,0,0.8)",
-      }}
+      className="flex flex-col rounded-2xl overflow-hidden h-120 bg-card border border-white/10 shadow-[0_0_0_1px_rgba(0,0,0,0.4)_inset,0_20px_50px_-30px_rgba(0,0,0,0.8)]"
     >
       {selectedTeam ? (
         <TeamDetail
@@ -384,29 +377,20 @@ function TeamDetail({
                     {player.player_name}
                   </span>
                 </div>
-                {player.actions.map((action, i) => (
+                {player.actions.map((action) => (
                   <div
                     key={action.name}
                     className="flex items-center gap-2 px-4 pl-8 py-1"
-                    style={
-                      i % 2 === 1
-                        ? { background: "rgba(255,255,255,0.025)" }
-                        : undefined
-                    }
                   >
                     <div
-                      className="size-7 rounded shrink-0 overflow-hidden flex items-center justify-center"
-                      style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                      }}
+                      className="size-10 rounded shrink-0 overflow-hidden flex items-center justify-center bg-white/[0.04] border border-white/[0.08]"
                     >
                       {action.img_path ? (
                         <Image
                           src={action.img_path}
                           alt={action.name}
-                          width={28}
-                          height={28}
+                          width={40}
+                          height={40}
                           unoptimized
                           className="object-contain p-0.5"
                         />
