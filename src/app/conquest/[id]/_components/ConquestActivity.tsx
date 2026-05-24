@@ -193,7 +193,7 @@ export function ConquestActivity({
                 </span>
                 <span
                   className="text-base font-medium"
-                  style={{ color: isSpecial && team ? (team.color ?? "#888") : "rgba(255,255,255,0.85)" }}
+                  style={{ color: isRegion && team ? (team.color ?? "#888") : "rgba(255,255,255,0.85)" }}
                 >
                   {target}
                 </span>
