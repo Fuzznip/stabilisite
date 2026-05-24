@@ -85,7 +85,7 @@ function ConquestInner({
       return (json.data ?? []) as ConquestTerritory[];
     },
     initialData: initialTerritories ?? [],
-    staleTime: 30_000,
+    staleTime: 5_000,
   });
 
   const { data: regions = initialRegions ?? [] } = useQuery({
@@ -96,19 +96,41 @@ function ConquestInner({
       return (json.data ?? []) as ConquestRegion[];
     },
     initialData: initialRegions ?? [],
-    staleTime: 30_000,
+    staleTime: 5_000,
+  });
+
+  const { data: liveTeams = teams } = useQuery({
+    queryKey: ["conquest-teams", event?.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/conquest/${event.id}/teams`);
+      const json = await res.json();
+      return (json.data ?? []) as TeamWithMembers[];
+    },
+    initialData: teams,
+    staleTime: 5_000,
+  });
+
+  const { data: logs = initialLogs } = useQuery({
+    queryKey: ["conquest-activity", event?.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/conquest/${event.id}/logs?per_page=20`);
+      const json = await res.json();
+      return (json.data ?? []) as EventLog[];
+    },
+    initialData: initialLogs,
+    staleTime: 5_000,
   });
 
   const flatTeams = useMemo(
     () =>
-      teams.map(({ members: _m, ...t }) => ({
+      liveTeams.map(({ members: _m, ...t }) => ({
         ...t,
         members: [] as string[],
         image_url:
           t.image_url ??
           `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(t.name)}&backgroundColor=${encodeURIComponent(t.color?.replace("#", "") ?? "888888")}&textColor=ffffff&fontSize=40`,
       })),
-    [teams],
+    [liveTeams],
   );
 
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
@@ -214,7 +236,7 @@ function ConquestInner({
 
       {/* Recent activity */}
       <ConquestActivity
-        logs={initialLogs}
+        logs={logs}
         teams={flatTeams}
         territories={territories}
         regions={regions}
