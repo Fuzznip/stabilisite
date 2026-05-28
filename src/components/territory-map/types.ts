@@ -30,6 +30,8 @@ export interface OverlayBuffer {
   territoryPixels: Record<number, number[]>;   // keyed by territory index (1-based)
   innerBorderPixels: Record<number, number[]>; // keyed by territory index (1-based)
   labelData: Uint8Array; // red channel of label PNG: labelData[pi] = territory index (0=sea)
+  ownedLabels: Set<number>; // territory indices that have a controlling team
+  ownedColors: Map<number, [number, number, number]>; // label → team RGB for owned territories
 }
 
 export interface HoverState {

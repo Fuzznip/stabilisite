@@ -27,6 +27,7 @@ import {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const INTERIOR_TARGET = 0.45;
+const INTERIOR_HOVER = 0.65;
 const INNER_BORDER_DEFAULT = 0.6;
 const INNER_BORDER_HOVER = 0.8;
 const HOVER_FILL_COLOR: [number, number, number] = [140, 108, 108];
@@ -84,6 +85,8 @@ function classifyPixel(
 function buildOverlayBuffer(
   rd: RegionData,
   labelData: Uint8Array,
+  conquestTerritories: ConquestTerritory[],
+  teams: Team[],
 ): OverlayBuffer {
   const {
     name,
@@ -98,6 +101,21 @@ function buildOverlayBuffer(
   const borderData = new ImageData(w, h);
   const territoryPixels: Record<number, number[]> = {};
   const innerBorderPixels: Record<number, number[]> = {};
+  const ownedLabels = new Set<number>();
+  const ownedColors = new Map<number, [number, number, number]>();
+
+  // Pre-compute ownership per label to avoid per-pixel lookups
+  for (const t of territories) {
+    const ct = conquestTerritories.find((c) => c.id === t.id);
+    if (ct?.controlling_team_id) {
+      const team = teams.find((tm) => tm.id === ct.controlling_team_id);
+      if (team?.color) {
+        ownedLabels.add(t.index);
+        ownedColors.set(t.index, hexToRgb(team.color));
+      }
+    }
+  }
+
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const label = labelData[y * w + x];
@@ -121,10 +139,18 @@ function buildOverlayBuffer(
         if (!innerBorderPixels[label]) innerBorderPixels[label] = [];
         innerBorderPixels[label].push(pi);
       } else if (type === "interior") {
-        hoverData.data[pi * 4] = HOVER_FILL_COLOR[0];
-        hoverData.data[pi * 4 + 1] = HOVER_FILL_COLOR[1];
-        hoverData.data[pi * 4 + 2] = HOVER_FILL_COLOR[2];
-        hoverData.data[pi * 4 + 3] = 0;
+        const teamColor = ownedColors.get(label);
+        if (teamColor) {
+          hoverData.data[pi * 4] = teamColor[0];
+          hoverData.data[pi * 4 + 1] = teamColor[1];
+          hoverData.data[pi * 4 + 2] = teamColor[2];
+          hoverData.data[pi * 4 + 3] = Math.round(INTERIOR_TARGET * 255);
+        } else {
+          hoverData.data[pi * 4] = HOVER_FILL_COLOR[0];
+          hoverData.data[pi * 4 + 1] = HOVER_FILL_COLOR[1];
+          hoverData.data[pi * 4 + 2] = HOVER_FILL_COLOR[2];
+          hoverData.data[pi * 4 + 3] = 0;
+        }
         if (!territoryPixels[label]) territoryPixels[label] = [];
         territoryPixels[label].push(pi);
       }
@@ -141,6 +167,8 @@ function buildOverlayBuffer(
     borderData,
     territoryPixels,
     innerBorderPixels,
+    ownedLabels,
+    ownedColors,
     labelData,
   };
 }
@@ -386,7 +414,7 @@ function TerritoryCanvasLayer({
       const labelData = labelDataRef.current[rd.name];
       if (!labelData) continue;
 
-      buffers[rd.name] = buildOverlayBuffer(rd, labelData);
+      buffers[rd.name] = buildOverlayBuffer(rd, labelData, conquestTerritories, teams);
 
       if (!tempCanvasesRef.current[rd.name]) {
         const hc = document.createElement("canvas");
@@ -512,11 +540,16 @@ function TerritoryCanvasLayer({
 
         // Update fill color when colors are dirty or animation is running
         if (colorsDirty || next !== cur) {
+          const isOwned = buf.ownedLabels.has(label);
           const color =
             isHighlighted && highlightTeamColorRef.current
               ? highlightTeamColorRef.current
+              : isOwned
+              ? (buf.ownedColors.get(label) ?? HOVER_FILL_COLOR)
               : HOVER_FILL_COLOR;
-          const interiorAlpha = Math.round(next * INTERIOR_TARGET * 255);
+          const baseAlpha = isOwned ? INTERIOR_TARGET : 0;
+          const maxAlpha = isOwned ? INTERIOR_HOVER : INTERIOR_TARGET;
+          const interiorAlpha = Math.round((baseAlpha + next * (maxAlpha - baseAlpha)) * 255);
           for (const pi of buf.territoryPixels[label] ?? []) {
             buf.hoverData.data[pi * 4] = color[0];
             buf.hoverData.data[pi * 4 + 1] = color[1];
