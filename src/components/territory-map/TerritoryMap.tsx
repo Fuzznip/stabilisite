@@ -27,7 +27,6 @@ import {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const INTERIOR_TARGET = 0.45;
-const INTERIOR_HOVER = 0.65;
 const INNER_BORDER_DEFAULT = 0.6;
 const INNER_BORDER_HOVER = 0.8;
 const HOVER_FILL_COLOR: [number, number, number] = [140, 108, 108];
@@ -470,6 +469,18 @@ function TerritoryCanvasLayer({
   // Step 3b: Sync activeGroupKey ref and redraw immediately when it changes
   useEffect(() => {
     activeGroupKeyRef.current = activeGroupKey;
+    hoverColorsDirtyRef.current = true;
+    // Seed all owned territories so out-of-region ones animate out
+    for (const rd of regionData) {
+      const buf = overlayBuffersRef.current[rd.name];
+      if (!buf) continue;
+      for (const label of buf.ownedLabels) {
+        const key = `${rd.name}:${label}`;
+        if (!(key in hoverProgressRef.current)) {
+          hoverProgressRef.current[key] = 0;
+        }
+      }
+    }
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx)
       fullRedraw(
@@ -499,13 +510,18 @@ function TerritoryCanvasLayer({
     const selectedTeam = highlightTeamId ? teams.find((t) => t.id === highlightTeamId) : null;
     highlightTeamColorRef.current = selectedTeam?.color ? hexToRgb(selectedTeam.color) : null;
     hoverColorsDirtyRef.current = true;
-    // Seed progress so RAF picks them up immediately
-    for (const key of keys) {
-      if (!(key in hoverProgressRef.current)) {
-        hoverProgressRef.current[key] = 0;
+    // Seed ALL owned territories so non-selected ones animate out and back in
+    for (const rd of regionData) {
+      const buf = overlayBuffersRef.current[rd.name];
+      if (!buf) continue;
+      for (const label of buf.ownedLabels) {
+        const key = `${rd.name}:${label}`;
+        if (!(key in hoverProgressRef.current)) {
+          hoverProgressRef.current[key] = 0;
+        }
       }
     }
-  }, [highlightTeamId, conquestTerritories, regionData]);
+  }, [highlightTeamId, conquestTerritories, regionData, teams]);
 
   // Step 4: RAF hover animation loop
   useEffect(() => {
@@ -541,15 +557,18 @@ function TerritoryCanvasLayer({
         // Update fill color when colors are dirty or animation is running
         if (colorsDirty || next !== cur) {
           const isOwned = buf.ownedLabels.has(label);
+          const hasSelection = highlightedKeysRef.current.size > 0;
+          const inActiveGroup = !activeGroupKeyRef.current || getGroupKey(regionName) === activeGroupKeyRef.current;
+          // Show at base: owned, in active group (or no group filter), and not filtered out by team selection
+          const showsAtBase = isOwned && inActiveGroup && (!hasSelection || isHighlighted);
           const color =
             isHighlighted && highlightTeamColorRef.current
               ? highlightTeamColorRef.current
               : isOwned
               ? (buf.ownedColors.get(label) ?? HOVER_FILL_COLOR)
               : HOVER_FILL_COLOR;
-          const baseAlpha = isOwned ? INTERIOR_TARGET : 0;
-          const maxAlpha = isOwned ? INTERIOR_HOVER : INTERIOR_TARGET;
-          const interiorAlpha = Math.round((baseAlpha + next * (maxAlpha - baseAlpha)) * 255);
+          const baseAlpha = showsAtBase ? INTERIOR_TARGET : 0;
+          const interiorAlpha = Math.round((baseAlpha + next * (INTERIOR_TARGET - baseAlpha)) * 255);
           for (const pi of buf.territoryPixels[label] ?? []) {
             buf.hoverData.data[pi * 4] = color[0];
             buf.hoverData.data[pi * 4 + 1] = color[1];
@@ -665,23 +684,26 @@ function TerritoryMarkersLayer({
   conquestTerritories,
   teams,
   activeGroupKey,
+  highlightTeamId,
 }: {
   regionData: RegionData[];
   centroids: CentroidMap;
   conquestTerritories: ConquestTerritory[];
   teams: Team[];
   activeGroupKey?: string | null;
+  highlightTeamId?: string | null;
 }) {
   return (
     <>
       {regionData.flatMap((rd) => {
         if (activeGroupKey && getGroupKey(rd.name) !== activeGroupKey) return [];
-        return rd.territories.map((t) => {
+        return rd.territories.flatMap((t) => {
+          const ct = conquestTerritories.find((ct) => ct.id === t.id);
+          if (highlightTeamId && ct?.controlling_team_id !== highlightTeamId) return [];
           const c = centroids[`${rd.name}:${t.id}`];
           const pos = c
             ? L.latLng(-c.y, c.x)
             : L.latLng(-(rd.offsetY + t.cy), rd.offsetX + t.cx);
-          const ct = conquestTerritories.find((ct) => ct.id === t.id);
           const team = ct?.controlling_team_id
             ? teams.find((tm) => tm.id === ct.controlling_team_id)
             : null;
@@ -792,6 +814,7 @@ export function TerritoryMap({
             conquestTerritories={conquestTerritories}
             teams={teams}
             activeGroupKey={activeGroupKey}
+            highlightTeamId={highlightTeamId}
           />
         </MapContainer>
         </div>
