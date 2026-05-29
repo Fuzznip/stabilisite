@@ -84,6 +84,8 @@ function classifyPixel(
 function buildOverlayBuffer(
   rd: RegionData,
   labelData: Uint8Array,
+  conquestTerritories: ConquestTerritory[],
+  teams: Team[],
 ): OverlayBuffer {
   const {
     name,
@@ -98,6 +100,21 @@ function buildOverlayBuffer(
   const borderData = new ImageData(w, h);
   const territoryPixels: Record<number, number[]> = {};
   const innerBorderPixels: Record<number, number[]> = {};
+  const ownedLabels = new Set<number>();
+  const ownedColors = new Map<number, [number, number, number]>();
+
+  // Pre-compute ownership per label to avoid per-pixel lookups
+  for (const t of territories) {
+    const ct = conquestTerritories.find((c) => c.id === t.id);
+    if (ct?.controlling_team_id) {
+      const team = teams.find((tm) => tm.id === ct.controlling_team_id);
+      if (team?.color) {
+        ownedLabels.add(t.index);
+        ownedColors.set(t.index, hexToRgb(team.color));
+      }
+    }
+  }
+
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const label = labelData[y * w + x];
@@ -121,10 +138,18 @@ function buildOverlayBuffer(
         if (!innerBorderPixels[label]) innerBorderPixels[label] = [];
         innerBorderPixels[label].push(pi);
       } else if (type === "interior") {
-        hoverData.data[pi * 4] = HOVER_FILL_COLOR[0];
-        hoverData.data[pi * 4 + 1] = HOVER_FILL_COLOR[1];
-        hoverData.data[pi * 4 + 2] = HOVER_FILL_COLOR[2];
-        hoverData.data[pi * 4 + 3] = 0;
+        const teamColor = ownedColors.get(label);
+        if (teamColor) {
+          hoverData.data[pi * 4] = teamColor[0];
+          hoverData.data[pi * 4 + 1] = teamColor[1];
+          hoverData.data[pi * 4 + 2] = teamColor[2];
+          hoverData.data[pi * 4 + 3] = Math.round(INTERIOR_TARGET * 255);
+        } else {
+          hoverData.data[pi * 4] = HOVER_FILL_COLOR[0];
+          hoverData.data[pi * 4 + 1] = HOVER_FILL_COLOR[1];
+          hoverData.data[pi * 4 + 2] = HOVER_FILL_COLOR[2];
+          hoverData.data[pi * 4 + 3] = 0;
+        }
         if (!territoryPixels[label]) territoryPixels[label] = [];
         territoryPixels[label].push(pi);
       }
@@ -141,6 +166,8 @@ function buildOverlayBuffer(
     borderData,
     territoryPixels,
     innerBorderPixels,
+    ownedLabels,
+    ownedColors,
     labelData,
   };
 }
@@ -386,7 +413,7 @@ function TerritoryCanvasLayer({
       const labelData = labelDataRef.current[rd.name];
       if (!labelData) continue;
 
-      buffers[rd.name] = buildOverlayBuffer(rd, labelData);
+      buffers[rd.name] = buildOverlayBuffer(rd, labelData, conquestTerritories, teams);
 
       if (!tempCanvasesRef.current[rd.name]) {
         const hc = document.createElement("canvas");
@@ -442,6 +469,18 @@ function TerritoryCanvasLayer({
   // Step 3b: Sync activeGroupKey ref and redraw immediately when it changes
   useEffect(() => {
     activeGroupKeyRef.current = activeGroupKey;
+    hoverColorsDirtyRef.current = true;
+    // Seed all owned territories so out-of-region ones animate out
+    for (const rd of regionData) {
+      const buf = overlayBuffersRef.current[rd.name];
+      if (!buf) continue;
+      for (const label of buf.ownedLabels) {
+        const key = `${rd.name}:${label}`;
+        if (!(key in hoverProgressRef.current)) {
+          hoverProgressRef.current[key] = 0;
+        }
+      }
+    }
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx)
       fullRedraw(
@@ -471,13 +510,18 @@ function TerritoryCanvasLayer({
     const selectedTeam = highlightTeamId ? teams.find((t) => t.id === highlightTeamId) : null;
     highlightTeamColorRef.current = selectedTeam?.color ? hexToRgb(selectedTeam.color) : null;
     hoverColorsDirtyRef.current = true;
-    // Seed progress so RAF picks them up immediately
-    for (const key of keys) {
-      if (!(key in hoverProgressRef.current)) {
-        hoverProgressRef.current[key] = 0;
+    // Seed ALL owned territories so non-selected ones animate out and back in
+    for (const rd of regionData) {
+      const buf = overlayBuffersRef.current[rd.name];
+      if (!buf) continue;
+      for (const label of buf.ownedLabels) {
+        const key = `${rd.name}:${label}`;
+        if (!(key in hoverProgressRef.current)) {
+          hoverProgressRef.current[key] = 0;
+        }
       }
     }
-  }, [highlightTeamId, conquestTerritories, regionData]);
+  }, [highlightTeamId, conquestTerritories, regionData, teams]);
 
   // Step 4: RAF hover animation loop
   useEffect(() => {
@@ -512,11 +556,19 @@ function TerritoryCanvasLayer({
 
         // Update fill color when colors are dirty or animation is running
         if (colorsDirty || next !== cur) {
+          const isOwned = buf.ownedLabels.has(label);
+          const hasSelection = highlightedKeysRef.current.size > 0;
+          const inActiveGroup = !activeGroupKeyRef.current || getGroupKey(regionName) === activeGroupKeyRef.current;
+          // Show at base: owned, in active group (or no group filter), and not filtered out by team selection
+          const showsAtBase = isOwned && inActiveGroup && (!hasSelection || isHighlighted);
           const color =
             isHighlighted && highlightTeamColorRef.current
               ? highlightTeamColorRef.current
+              : isOwned
+              ? (buf.ownedColors.get(label) ?? HOVER_FILL_COLOR)
               : HOVER_FILL_COLOR;
-          const interiorAlpha = Math.round(next * INTERIOR_TARGET * 255);
+          const baseAlpha = showsAtBase ? INTERIOR_TARGET : 0;
+          const interiorAlpha = Math.round((baseAlpha + next * (INTERIOR_TARGET - baseAlpha)) * 255);
           for (const pi of buf.territoryPixels[label] ?? []) {
             buf.hoverData.data[pi * 4] = color[0];
             buf.hoverData.data[pi * 4 + 1] = color[1];
@@ -632,23 +684,26 @@ function TerritoryMarkersLayer({
   conquestTerritories,
   teams,
   activeGroupKey,
+  highlightTeamId,
 }: {
   regionData: RegionData[];
   centroids: CentroidMap;
   conquestTerritories: ConquestTerritory[];
   teams: Team[];
   activeGroupKey?: string | null;
+  highlightTeamId?: string | null;
 }) {
   return (
     <>
       {regionData.flatMap((rd) => {
         if (activeGroupKey && getGroupKey(rd.name) !== activeGroupKey) return [];
-        return rd.territories.map((t) => {
+        return rd.territories.flatMap((t) => {
+          const ct = conquestTerritories.find((ct) => ct.id === t.id);
+          if (highlightTeamId && ct?.controlling_team_id !== highlightTeamId) return [];
           const c = centroids[`${rd.name}:${t.id}`];
           const pos = c
             ? L.latLng(-c.y, c.x)
             : L.latLng(-(rd.offsetY + t.cy), rd.offsetX + t.cx);
-          const ct = conquestTerritories.find((ct) => ct.id === t.id);
           const team = ct?.controlling_team_id
             ? teams.find((tm) => tm.id === ct.controlling_team_id)
             : null;
@@ -759,6 +814,7 @@ export function TerritoryMap({
             conquestTerritories={conquestTerritories}
             teams={teams}
             activeGroupKey={activeGroupKey}
+            highlightTeamId={highlightTeamId}
           />
         </MapContainer>
         </div>

@@ -15,6 +15,7 @@ import {
 } from "./map-data";
 
 const INTERIOR_TARGET = 0.45;
+const INTERIOR_HOVER = 0.65;
 const INNER_BORDER_DEFAULT = 0.6;
 const INNER_BORDER_HOVER = 0.8;
 const HOVER_FILL_COLOR: [number, number, number] = [238, 205, 205];
@@ -70,7 +71,16 @@ function buildOverlayBuffer(
   const borderData = new ImageData(w, h);
   const territoryPixels: Record<number, number[]> = {};
   const innerBorderPixels: Record<number, number[]> = {};
+  const ownedLabels = new Set<number>();
+  const ownedColors = new Map<number, [number, number, number]>();
   const regionColor = getRegionColor(name);
+
+  // Pre-compute per-territory ownership so we don't re-lookup inside the pixel loop
+  const territoryOwned = new Map<number, boolean>();
+  for (const t of territories) {
+    const ct = conquestTerritories.find((c) => c.id === t.id);
+    territoryOwned.set(t.index, !!ct?.controlling_team_id);
+  }
 
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
@@ -102,10 +112,20 @@ function buildOverlayBuffer(
         if (!innerBorderPixels[label]) innerBorderPixels[label] = [];
         innerBorderPixels[label].push(pi);
       } else if (type === "interior") {
-        hoverData.data[pi * 4 + 0] = HOVER_FILL_COLOR[0];
-        hoverData.data[pi * 4 + 1] = HOVER_FILL_COLOR[1];
-        hoverData.data[pi * 4 + 2] = HOVER_FILL_COLOR[2];
-        hoverData.data[pi * 4 + 3] = 0;
+        const isOwned = territoryOwned.get(label) ?? false;
+        if (isOwned) {
+          ownedLabels.add(label);
+          ownedColors.set(label, terrColor);
+          hoverData.data[pi * 4 + 0] = terrColor[0];
+          hoverData.data[pi * 4 + 1] = terrColor[1];
+          hoverData.data[pi * 4 + 2] = terrColor[2];
+          hoverData.data[pi * 4 + 3] = Math.round(INTERIOR_TARGET * 255);
+        } else {
+          hoverData.data[pi * 4 + 0] = HOVER_FILL_COLOR[0];
+          hoverData.data[pi * 4 + 1] = HOVER_FILL_COLOR[1];
+          hoverData.data[pi * 4 + 2] = HOVER_FILL_COLOR[2];
+          hoverData.data[pi * 4 + 3] = 0;
+        }
         if (!territoryPixels[label]) territoryPixels[label] = [];
         territoryPixels[label].push(pi);
       }
@@ -122,6 +142,8 @@ function buildOverlayBuffer(
     borderData,
     territoryPixels,
     innerBorderPixels,
+    ownedLabels,
+    ownedColors,
     labelData,
   };
 }
@@ -316,7 +338,9 @@ export function useMapRenderer(
           const buf = overlayBuffersRef.current[regionName];
           if (!buf) continue;
 
-          const interiorAlpha = Math.round(next * INTERIOR_TARGET * 255);
+          const baseAlpha = buf.ownedLabels.has(label) ? INTERIOR_TARGET : 0;
+          const maxAlpha = buf.ownedLabels.has(label) ? INTERIOR_HOVER : INTERIOR_TARGET;
+          const interiorAlpha = Math.round((baseAlpha + next * (maxAlpha - baseAlpha)) * 255);
           for (const pi of buf.territoryPixels[label] ?? []) {
             buf.hoverData.data[pi * 4 + 3] = interiorAlpha;
           }
