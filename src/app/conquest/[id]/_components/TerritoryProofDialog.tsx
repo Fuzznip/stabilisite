@@ -46,6 +46,7 @@ interface TerritoryProofDialogProps {
   territoryId: string;
   teamId: string;
   triggerName: string | null;
+  createdAt?: string;
   children: React.ReactNode;
 }
 
@@ -53,6 +54,7 @@ export function TerritoryProofDialog({
   territoryId,
   teamId,
   triggerName,
+  createdAt,
   children,
 }: TerritoryProofDialogProps) {
   const [open, setOpen] = useState(false);
@@ -68,7 +70,7 @@ export function TerritoryProofDialog({
     staleTime: 30_000,
   });
 
-  const images: ProofImage[] = proofs
+  const allImages: ProofImage[] = proofs
     .filter(
       (p): p is TerritoryProofEntry & { img_path: string } =>
         typeof p.img_path === "string" && p.img_path.length > 0
@@ -83,6 +85,20 @@ export function TerritoryProofDialog({
       itemName: p.action?.name ?? triggerName ?? undefined,
       playerName: p.action?.player?.runescape_name ?? undefined,
     }));
+
+  // If a specific log timestamp is provided, show only the closest-matching proof
+  const images: ProofImage[] = createdAt
+    ? (() => {
+        const logTime = new Date(createdAt).getTime();
+        const closest = allImages.reduce<ProofImage | null>((best, img) => {
+          if (!best) return img;
+          const diff = Math.abs((img.timestamp?.getTime() ?? 0) - logTime);
+          const bestDiff = Math.abs((best.timestamp?.getTime() ?? 0) - logTime);
+          return diff < bestDiff ? img : best;
+        }, null);
+        return closest ? [closest] : allImages;
+      })()
+    : allImages;
 
   const goToImage = useCallback(
     (index: number) => {

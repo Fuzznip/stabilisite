@@ -7,6 +7,7 @@ import type {
   EventLog,
   Team,
 } from "@/lib/types/v2";
+import { TerritoryProofDialog } from "./TerritoryProofDialog";
 
 function formatRelativeTime(isoDate: string): string {
   const diffMs = Date.now() - new Date(isoDate).getTime();
@@ -135,13 +136,21 @@ export function ConquestActivity({
           const isRegion = type === "region";
           const isUniqueTask = type === "task" && isUnique;
           const isLast = i === logs.length - 1;
-
           const isSpecial = isRegion || isUniqueTask;
 
-          return (
+          // Resolve the territory ID for the proof dialog
+          let proofTerritoryId: string | null = null;
+          if (log.type === "TERRITORY_CONTROL" && log.entity_id) {
+            proofTerritoryId = log.entity_id;
+          } else if (log.type === "CHALLENGE_COMPLETED" && log.entity_id) {
+            proofTerritoryId =
+              territories.find((t) => t.challenge_id === log.entity_id)?.id ??
+              null;
+          }
+
+          const rowContent = (
             <div
-              key={log.id}
-              className="relative flex items-center gap-4 py-3.5"
+              className={`relative flex items-center gap-4 py-3.5${proofTerritoryId ? " cursor-pointer hover:brightness-125 transition-[filter]" : ""}`}
               style={{
                 borderBottom: isLast
                   ? undefined
@@ -243,6 +252,20 @@ export function ConquestActivity({
                 )}
               </div>
             </div>
+          );
+
+          return proofTerritoryId ? (
+            <TerritoryProofDialog
+              key={log.id}
+              territoryId={proofTerritoryId}
+              teamId={log.team_id}
+              triggerName={log.meta.challengeName ?? target}
+              createdAt={log.created_at}
+            >
+              {rowContent}
+            </TerritoryProofDialog>
+          ) : (
+            <div key={log.id}>{rowContent}</div>
           );
         })}
       </div>
