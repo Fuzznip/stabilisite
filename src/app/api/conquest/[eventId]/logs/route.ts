@@ -5,9 +5,10 @@ export async function GET(
   const { eventId } = await params;
   const { searchParams } = new URL(request.url);
   const perPage = searchParams.get("per_page") ?? "100";
+  const page = searchParams.get("page") ?? "1";
 
   const res = await fetch(
-    `${process.env.API_URL}/v2/events/${eventId}/event-logs?per_page=${perPage}`,
+    `${process.env.API_URL}/v2/events/${eventId}/event-logs?per_page=${perPage}&page=${page}`,
     { cache: "no-store" }
   );
 

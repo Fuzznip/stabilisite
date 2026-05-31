@@ -43,7 +43,7 @@ export default function RootLayout({
         >
           <ThemedBackground />
           <NavBar />
-          <div className="flex flex-col w-full px-2 lg:px-0 lg:max-w-10/12 min-w-96 mx-auto mt-4 gap-12 pb-20 md:pb-0">
+          <div className="flex flex-col w-full px-2 lg:px-0 lg:max-w-10/12 min-w-96 mx-auto mt-4 gap-12 pb-20 md:pb-0 overflow-x-hidden">
             {children}
           </div>
           <Toaster richColors />

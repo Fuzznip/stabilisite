@@ -9,6 +9,7 @@ import {
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 
 const TerritoryMap = dynamic(
   () =>
@@ -113,10 +114,12 @@ function ConquestInner({
     refetchInterval: 10_000,
   });
 
+  const PER_PAGE = 20;
+
   const { data: logs = initialLogs } = useQuery({
     queryKey: ["conquest-activity", event?.id],
     queryFn: async () => {
-      const res = await fetch(`/api/conquest/${event.id}/logs?per_page=20`);
+      const res = await fetch(`/api/conquest/${event.id}/logs?per_page=${PER_PAGE}`);
       const json = await res.json();
       return (json.data ?? []) as EventLog[];
     },
@@ -124,6 +127,30 @@ function ConquestInner({
     staleTime: 10_000,
     refetchInterval: 10_000,
   });
+
+  const [extraLogs, setExtraLogs] = useState<EventLog[]>([]);
+  const [nextPage, setNextPage] = useState(2);
+  const [loadingMore, setLoadingMore] = useState(false);
+  // Assume there may be more until we get back a partial page
+  const [hasMore, setHasMore] = useState(true);
+
+  async function loadMore() {
+    setLoadingMore(true);
+    try {
+      const res = await fetch(`/api/conquest/${event.id}/logs?per_page=${PER_PAGE}&page=${nextPage}`);
+      const json = await res.json();
+      const page = (json.data ?? []) as EventLog[];
+      const existingIds = new Set([...logs, ...extraLogs].map((l) => l.id));
+      const newLogs = page.filter((l) => !existingIds.has(l.id));
+      setExtraLogs((prev) => [...prev, ...newLogs]);
+      setNextPage((p) => p + 1);
+      setHasMore(page.length >= PER_PAGE);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  const allLogs = [...logs, ...extraLogs.filter((l) => !logs.some((ll) => ll.id === l.id))];
 
   const flatTeams = useMemo(
     () =>
@@ -240,11 +267,20 @@ function ConquestInner({
 
       {/* Recent activity */}
       <ConquestActivity
-        logs={logs}
+        logs={allLogs}
         teams={flatTeams}
         territories={territories}
         regions={regions}
+        loadingMore={loadingMore}
       />
+      {hasMore && !loadingMore && (
+        <Button
+          onClick={loadMore}
+          className="w-fit mx-auto px-8 cursor-pointer bg-stability text-white hover:bg-stability/90"
+        >
+          Load more
+        </Button>
+      )}
     </div>
   );
 }
