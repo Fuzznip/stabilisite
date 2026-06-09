@@ -66,6 +66,14 @@ function TerritoryDetailRow({
     staleTime: Infinity,
   });
 
+  // For parent OR challenges: collect triggers from children (trigger_id is null on the parent)
+  const childTriggers: Array<{ name: string; img_path: string | null; quantity: number | null }> =
+    !triggerId && challenge?.children?.length > 0
+      ? (challenge.children as Array<{ trigger?: { name: string; img_path: string | null }; quantity?: number | null }>)
+          .map((c) => c.trigger ? { name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null } : null)
+          .filter((t): t is { name: string; img_path: string | null; quantity: number | null } => t !== null)
+      : [];
+
   const { data: progress = [] } = useQuery<TerritoryProgressEntry[]>({
     queryKey: ["territory-progress", territory.id],
     queryFn: () => fetchProgress(territory.id),
@@ -73,10 +81,11 @@ function TerritoryDetailRow({
   });
 
   const triggerName: string | null =
-    challenge?.trigger?.name ?? trigger?.name ?? null;
+    challenge?.trigger?.name ?? trigger?.name ?? childTriggers[0]?.name ?? null;
   const triggerImgPath: string | null =
-    challenge?.trigger?.img_path ?? trigger?.img_path ?? null;
+    challenge?.trigger?.img_path ?? trigger?.img_path ?? childTriggers[0]?.img_path ?? null;
   const required: number | null = challenge?.quantity ?? null;
+  const isOrChallenge = childTriggers.length > 1;
 
   const progressMap = new Map(progress.map((p) => [p.team_id, p]));
 
@@ -113,43 +122,71 @@ function TerritoryDetailRow({
         className="flex items-center gap-2 px-3 py-2.5 pl-4"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        {/* Trigger image */}
-        <div
-          className="size-16 rounded-md shrink-0 overflow-hidden flex items-center justify-center"
-          style={{
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.10)",
-          }}
-        >
-          {triggerImgPath ? (
-            <Image
-              src={triggerImgPath}
-              alt={triggerName ?? territory.name}
-              width={64}
-              height={64}
-              unoptimized
-              className="object-contain p-1.5"
-            />
-          ) : (
-            <div
-              className="size-3 rounded-full opacity-30"
-              style={{ background: colorHex }}
-            />
-          )}
-        </div>
-
-        {/* Territory info */}
-        <div className="flex-1 min-w-0">
-          <div className="font-semibold text-base leading-tight truncate">
-            {triggerName ?? territory.name}
-            {required != null && (
-              <span className="text-muted-foreground/50 font-normal ml-1.5 text-xs">
-                × {required}
-              </span>
-            )}
+        {isOrChallenge ? (
+          <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+            <div className="text-xs text-muted-foreground/50 uppercase tracking-widest">Any 1 of</div>
+            <div className="flex items-center gap-1.5">
+              {childTriggers.map((ct, i) => (
+                ct.img_path ? (
+                  <div
+                    key={i}
+                    className="size-10 rounded shrink-0 overflow-hidden flex items-center justify-center"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
+                    title={ct.name}
+                  >
+                    <Image
+                      src={ct.img_path}
+                      alt={ct.name}
+                      width={40}
+                      height={40}
+                      unoptimized
+                      className="object-contain p-0.5"
+                    />
+                  </div>
+                ) : null
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Trigger image */}
+            <div
+              className="size-16 rounded-md shrink-0 overflow-hidden flex items-center justify-center"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.10)",
+              }}
+            >
+              {triggerImgPath ? (
+                <Image
+                  src={triggerImgPath}
+                  alt={triggerName ?? territory.name}
+                  width={64}
+                  height={64}
+                  unoptimized
+                  className="object-contain p-1.5"
+                />
+              ) : (
+                <div
+                  className="size-3 rounded-full opacity-30"
+                  style={{ background: colorHex }}
+                />
+              )}
+            </div>
 
+            {/* Territory info */}
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-base leading-tight truncate">
+                {triggerName ?? territory.name}
+                {required != null && (
+                  <span className="text-muted-foreground/50 font-normal ml-1.5 text-xs">
+                    × {required}
+                  </span>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Team progress */}

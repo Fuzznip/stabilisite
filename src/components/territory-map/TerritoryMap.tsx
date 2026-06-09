@@ -722,6 +722,48 @@ function TerritoryMarkersLayer({
   );
 }
 
+// ─── Fly-to-region component ──────────────────────────────────────────────────
+
+function FlyToRegion({
+  regionData,
+  activeGroupKey,
+}: {
+  regionData: RegionData[];
+  activeGroupKey?: string | null;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!activeGroupKey) {
+      map.stop();
+      map.flyToBounds(MAP_BOUNDS, { padding: [5, 5], duration: 0.4 });
+      return;
+    }
+
+    const matching = regionData.filter(
+      (rd) => getGroupKey(rd.name) === activeGroupKey,
+    );
+    if (matching.length === 0) return;
+
+    let minX = Infinity,
+      maxX = -Infinity,
+      minY = Infinity,
+      maxY = -Infinity;
+    for (const rd of matching) {
+      minX = Math.min(minX, rd.offsetX);
+      maxX = Math.max(maxX, rd.offsetX + rd.imageWidth);
+      minY = Math.min(minY, rd.offsetY);
+      maxY = Math.max(maxY, rd.offsetY + rd.imageHeight);
+    }
+
+    const bounds = L.latLngBounds([-maxY, minX], [-minY, maxX]);
+    map.stop();
+    map.flyToBounds(bounds, { padding: [30, 30], duration: 0.6 });
+  }, [activeGroupKey, regionData, map]);
+
+  return null;
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface TerritoryMapProps {
@@ -798,6 +840,7 @@ export function TerritoryMap({
           zoomControl={false}
           style={{ background: "transparent" }}
         >
+          <FlyToRegion regionData={regionData} activeGroupKey={activeGroupKey} />
           <TerritoryCanvasLayer
             regionData={regionData}
             conquestTerritories={conquestTerritories}

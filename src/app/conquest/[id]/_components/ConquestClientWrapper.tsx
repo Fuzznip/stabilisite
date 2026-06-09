@@ -18,9 +18,7 @@ const TerritoryMap = dynamic(
     ),
   {
     ssr: false,
-    loading: () => (
-      <Skeleton className="w-full h-full rounded-[18px]" />
-    ),
+    loading: () => <Skeleton className="w-full h-full rounded-[18px]" />,
   },
 );
 import { ConquestScoreboard } from "./ConquestScoreboard";
@@ -119,7 +117,9 @@ function ConquestInner({
   const { data: logs = initialLogs } = useQuery({
     queryKey: ["conquest-activity", event?.id],
     queryFn: async () => {
-      const res = await fetch(`/api/conquest/${event.id}/logs?per_page=${PER_PAGE}`);
+      const res = await fetch(
+        `/api/conquest/${event.id}/logs?per_page=${PER_PAGE}`,
+      );
       const json = await res.json();
       return (json.data ?? []) as EventLog[];
     },
@@ -137,7 +137,9 @@ function ConquestInner({
   async function loadMore() {
     setLoadingMore(true);
     try {
-      const res = await fetch(`/api/conquest/${event.id}/logs?per_page=${PER_PAGE}&page=${nextPage}`);
+      const res = await fetch(
+        `/api/conquest/${event.id}/logs?per_page=${PER_PAGE}&page=${nextPage}`,
+      );
       const json = await res.json();
       const page = (json.data ?? []) as EventLog[];
       const existingIds = new Set([...logs, ...extraLogs].map((l) => l.id));
@@ -150,7 +152,10 @@ function ConquestInner({
     }
   }
 
-  const allLogs = [...logs, ...extraLogs.filter((l) => !logs.some((ll) => ll.id === l.id))];
+  const allLogs = [
+    ...logs,
+    ...extraLogs.filter((l) => !logs.some((ll) => ll.id === l.id)),
+  ];
 
   const flatTeams = useMemo(
     () =>
@@ -242,8 +247,12 @@ function ConquestInner({
         >
           <h3 className="font-semibold uppercase">Regions</h3>
           <TabsList className="h-8 px-0.5">
-            <TabsTrigger value="regions" className="text-sm h-7 px-5">Regions</TabsTrigger>
-            <TabsTrigger value="table" className="text-sm h-7 px-5">Table</TabsTrigger>
+            <TabsTrigger value="regions" className="text-sm h-7 px-5">
+              Regions
+            </TabsTrigger>
+            <TabsTrigger value="table" className="text-sm h-7 px-5">
+              Table
+            </TabsTrigger>
           </TabsList>
         </div>
         <TabsContent value="regions" className="mt-0">
