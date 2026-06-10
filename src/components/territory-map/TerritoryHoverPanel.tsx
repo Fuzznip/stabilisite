@@ -118,17 +118,17 @@ export function TerritoryHoverPanel({
         {isOrChallenge ? (
           <div className="flex flex-col gap-1.5">
             <div className="text-stone-500 text-xs uppercase tracking-widest">Any 1 of</div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap gap-2">
               {childTriggers.map((ct, i) => (
                 ct.img_path ? (
-                  <div key={i} className="size-10 rounded shrink-0 overflow-hidden flex items-center justify-center bg-white/5 border border-white/10" title={ct.name}>
+                  <div key={i} className="size-16 rounded shrink-0 overflow-hidden flex items-center justify-center bg-white/5 border border-white/10" title={ct.name}>
                     <Image
                       src={ct.img_path}
                       alt={ct.name}
-                      width={40}
-                      height={40}
+                      width={64}
+                      height={64}
                       unoptimized
-                      className="object-contain p-0.5"
+                      className="object-contain p-1"
                     />
                   </div>
                 ) : null

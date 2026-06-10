@@ -86,6 +86,7 @@ function TerritoryDetailRow({
     challenge?.trigger?.img_path ?? trigger?.img_path ?? childTriggers[0]?.img_path ?? null;
   const required: number | null = challenge?.quantity ?? null;
   const isOrChallenge = childTriggers.length > 1;
+  const taskName: string | null = challenge?.task?.name ?? null;
 
   const progressMap = new Map(progress.map((p) => [p.team_id, p]));
 
@@ -112,9 +113,9 @@ function TerritoryDetailRow({
         }}
       />
 
-      {/* Territory name */}
-      <div className="px-3 pt-2.5 pl-4 text-xs text-muted-foreground/50 font-medium uppercase tracking-wider truncate">
-        {territory.name}
+      {/* Territory label */}
+      <div className="px-3 pt-2.5 pl-4 text-sm text-foreground font-medium truncate">
+        {taskName ?? territory.name}
       </div>
 
       {/* Header */}
@@ -124,23 +125,23 @@ function TerritoryDetailRow({
       >
         {isOrChallenge ? (
           <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-            <div className="text-xs text-muted-foreground/50 uppercase tracking-widest">Any 1 of</div>
-            <div className="flex items-center gap-1.5">
+            <div className="text-xs text-muted-foreground uppercase tracking-widest">Any 1 of</div>
+            <div className="flex flex-wrap gap-1.5">
               {childTriggers.map((ct, i) => (
                 ct.img_path ? (
                   <div
                     key={i}
-                    className="size-10 rounded shrink-0 overflow-hidden flex items-center justify-center"
+                    className="size-16 rounded-md shrink-0 overflow-hidden flex items-center justify-center"
                     style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
                     title={ct.name}
                   >
                     <Image
                       src={ct.img_path}
                       alt={ct.name}
-                      width={40}
-                      height={40}
+                      width={64}
+                      height={64}
                       unoptimized
-                      className="object-contain p-0.5"
+                      className="object-contain p-1.5"
                     />
                   </div>
                 ) : null
@@ -178,8 +179,8 @@ function TerritoryDetailRow({
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-base leading-tight truncate">
                 {triggerName ?? territory.name}
-                {required != null && (
-                  <span className="text-muted-foreground/50 font-normal ml-1.5 text-xs">
+                {required != null && required !== 1 && (
+                  <span className="text-muted-foreground font-normal ml-1.5 text-xs">
                     × {required}
                   </span>
                 )}
@@ -222,7 +223,7 @@ function TerritoryDetailRow({
                 </div>
                 <span
                   className="text-base font-mono tabular-nums leading-none"
-                  style={{ color: isController ? color : "rgba(255,255,255,0.3)" }}
+                  style={{ color: isController ? color : "rgba(255,255,255,0.55)" }}
                 >
                   {label}
                 </span>

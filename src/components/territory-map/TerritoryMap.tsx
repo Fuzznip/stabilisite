@@ -734,6 +734,11 @@ function FlyToRegion({
   const map = useMap();
 
   useEffect(() => {
+    // Lift maxBounds during the animation so it doesn't snap at the end,
+    // then restore it once the map settles.
+    map.setMaxBounds(null as unknown as L.LatLngBoundsExpression);
+    map.once("moveend", () => map.setMaxBounds(MAP_BOUNDS));
+
     if (!activeGroupKey) {
       map.stop();
       map.flyToBounds(MAP_BOUNDS, { padding: [5, 5], duration: 0.4 });
