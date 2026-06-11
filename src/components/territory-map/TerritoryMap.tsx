@@ -36,6 +36,13 @@ const MAP_BOUNDS = L.latLngBounds([
   [0, CANVAS_WIDTH],
 ]);
 
+// One canvas-width of padding on each side — prevents panning too far off the
+// edge without causing a snap (viscosity=1 hard-stops instead of rubber-banding).
+const MAP_MAX_BOUNDS = L.latLngBounds(
+  [-CANVAS_HEIGHT * 2, -CANVAS_WIDTH],
+  [CANVAS_HEIGHT, CANVAS_WIDTH * 2],
+);
+
 // ─── Pure rendering functions ─────────────────────────────────────────────────
 
 async function extractLabelData(
@@ -734,11 +741,6 @@ function FlyToRegion({
   const map = useMap();
 
   useEffect(() => {
-    // Lift maxBounds during the animation so it doesn't snap at the end,
-    // then restore it once the map settles.
-    map.setMaxBounds(null as unknown as L.LatLngBoundsExpression);
-    map.once("moveend", () => map.setMaxBounds(MAP_BOUNDS));
-
     if (!activeGroupKey) {
       map.stop();
       map.flyToBounds(MAP_BOUNDS, { padding: [5, 5], duration: 0.4 });
@@ -835,8 +837,8 @@ export function TerritoryMap({
         <MapContainer
           crs={CRS.Simple}
           bounds={MAP_BOUNDS}
-          maxBounds={MAP_BOUNDS}
-          maxBoundsViscosity={0.8}
+          maxBounds={MAP_MAX_BOUNDS}
+          maxBoundsViscosity={1.0}
           className="w-full h-full"
           scrollWheelZoom={false}
           doubleClickZoom

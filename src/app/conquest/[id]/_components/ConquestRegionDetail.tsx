@@ -66,12 +66,19 @@ function TerritoryDetailRow({
     staleTime: Infinity,
   });
 
-  // For parent OR challenges: collect triggers from children (trigger_id is null on the parent)
-  const childTriggers: Array<{ name: string; img_path: string | null; quantity: number | null }> =
+  // For parent OR challenges, build slots from children.
+  // Each slot is { items } — one item = standalone trigger, multiple = grouped grandchildren.
+  type TriggerItem = { name: string; img_path: string | null; quantity: number | null };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function childToItems(c: any): TriggerItem[] {
+    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null }];
+    if (c.children?.length) return (c.children as any[]).flatMap(childToItems);
+    return [];
+  }
+  const triggerSlots: Array<{ items: TriggerItem[] }> =
     !triggerId && challenge?.children?.length > 0
-      ? (challenge.children as Array<{ trigger?: { name: string; img_path: string | null }; quantity?: number | null }>)
-          .map((c) => c.trigger ? { name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null } : null)
-          .filter((t): t is { name: string; img_path: string | null; quantity: number | null } => t !== null)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? (challenge.children as any[]).map((c) => ({ items: childToItems(c) })).filter((s) => s.items.length > 0)
       : [];
 
   const { data: progress = [] } = useQuery<TerritoryProgressEntry[]>({
@@ -81,11 +88,11 @@ function TerritoryDetailRow({
   });
 
   const triggerName: string | null =
-    challenge?.trigger?.name ?? trigger?.name ?? childTriggers[0]?.name ?? null;
+    challenge?.trigger?.name ?? trigger?.name ?? triggerSlots[0]?.items[0]?.name ?? null;
   const triggerImgPath: string | null =
-    challenge?.trigger?.img_path ?? trigger?.img_path ?? childTriggers[0]?.img_path ?? null;
+    challenge?.trigger?.img_path ?? trigger?.img_path ?? triggerSlots[0]?.items[0]?.img_path ?? null;
   const required: number | null = challenge?.quantity ?? null;
-  const isOrChallenge = childTriggers.length > 1;
+  const isOrChallenge = triggerSlots.length > 0;
   const taskName: string | null = challenge?.task?.name ?? null;
 
   const progressMap = new Map(progress.map((p) => [p.team_id, p]));
@@ -126,33 +133,43 @@ function TerritoryDetailRow({
         {isOrChallenge ? (
           <div className="flex-1 min-w-0 flex flex-col gap-1.5">
             <div className="text-xs text-muted-foreground uppercase tracking-widest">Any 1 of</div>
-            <div className="flex flex-wrap gap-1.5">
-              {childTriggers.map((ct, i) => (
-                ct.img_path ? (
-                  <div
-                    key={i}
-                    className="size-16 rounded-md shrink-0 overflow-hidden flex items-center justify-center"
-                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
-                    title={ct.name}
-                  >
-                    <Image
-                      src={ct.img_path}
-                      alt={ct.name}
-                      width={64}
-                      height={64}
-                      unoptimized
-                      className="object-contain p-1.5"
-                    />
+            <div className="flex flex-wrap gap-3">
+              {triggerSlots.map((slot, i) =>
+                slot.items.length === 1 ? (
+                  slot.items[0].img_path ? (
+                    <div
+                      key={i}
+                      className="relative size-16 rounded-md shrink-0 overflow-hidden"
+                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
+                      title={slot.items[0].name}
+                    >
+                      <Image src={slot.items[0].img_path} alt={slot.items[0].name} fill unoptimized className="object-contain p-1.5" />
+                    </div>
+                  ) : null
+                ) : (
+                  <div key={i} className="flex gap-1 p-1 rounded-lg" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.18)" }}>
+                    {slot.items.map((item, j) =>
+                      item.img_path ? (
+                        <div
+                          key={j}
+                          className="relative size-16 rounded shrink-0 overflow-hidden"
+                          style={{ background: "rgba(255,255,255,0.04)" }}
+                          title={item.name}
+                        >
+                          <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1.5" />
+                        </div>
+                      ) : null
+                    )}
                   </div>
-                ) : null
-              ))}
+                )
+              )}
             </div>
           </div>
         ) : (
           <>
             {/* Trigger image */}
             <div
-              className="size-16 rounded-md shrink-0 overflow-hidden flex items-center justify-center"
+              className="relative size-16 rounded-md shrink-0 overflow-hidden"
               style={{
                 background: "rgba(255,255,255,0.04)",
                 border: "1px solid rgba(255,255,255,0.10)",
@@ -162,8 +179,7 @@ function TerritoryDetailRow({
                 <Image
                   src={triggerImgPath}
                   alt={triggerName ?? territory.name}
-                  width={64}
-                  height={64}
+                  fill
                   unoptimized
                   className="object-contain p-1.5"
                 />

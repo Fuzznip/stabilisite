@@ -68,13 +68,20 @@ export function TerritoryHoverPanel({
     staleTime: Infinity,
   });
 
-  // For parent OR challenges: collect triggers from children (trigger_id is null on the parent)
+  // For parent OR challenges, build slots from children.
+  // Each slot is { items } — one item = standalone trigger, multiple = grouped grandchildren.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const childTriggers: Array<{ name: string; img_path: string | null; quantity: number | null }> =
+  type TriggerItem = { name: string; img_path: string | null; quantity: number | null };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function childToItems(c: any): TriggerItem[] {
+    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null }];
+    if (c.children?.length) return (c.children as any[]).flatMap(childToItems);
+    return [];
+  }
+  const triggerSlots: Array<{ items: TriggerItem[] }> =
     !triggerId && challenge?.children?.length > 0
-      ? (challenge.children as Array<{ trigger?: { name: string; img_path: string | null }; quantity?: number | null }>)
-          .map((c) => c.trigger ? { name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null } : null)
-          .filter((t): t is { name: string; img_path: string | null; quantity: number | null } => t !== null)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? (challenge.children as any[]).map((c) => ({ items: childToItems(c) })).filter((s) => s.items.length > 0)
       : [];
 
   const { data: progress = [] } = useQuery({
@@ -92,11 +99,11 @@ export function TerritoryHoverPanel({
   console.log("[hover] progress:", progress);
 
   const triggerName: string | null =
-    challenge?.trigger?.name ?? trigger?.name ?? childTriggers[0]?.name ?? null;
+    challenge?.trigger?.name ?? trigger?.name ?? triggerSlots[0]?.items[0]?.name ?? null;
   const triggerImgPath: string | null =
-    challenge?.trigger?.img_path ?? trigger?.img_path ?? childTriggers[0]?.img_path ?? null;
+    challenge?.trigger?.img_path ?? trigger?.img_path ?? triggerSlots[0]?.items[0]?.img_path ?? null;
   const required: number | null = challenge?.quantity ?? null;
-  const isOrChallenge = childTriggers.length > 1;
+  const isOrChallenge = triggerSlots.length > 0;
 
   // Sort progress by completions desc, then quantity desc
   const sorted = [...progress].sort(
@@ -118,32 +125,36 @@ export function TerritoryHoverPanel({
         {isOrChallenge ? (
           <div className="flex flex-col gap-1.5">
             <div className="text-stone-500 text-xs uppercase tracking-widest">Any 1 of</div>
-            <div className="flex flex-wrap gap-2">
-              {childTriggers.map((ct, i) => (
-                ct.img_path ? (
-                  <div key={i} className="size-16 rounded shrink-0 overflow-hidden flex items-center justify-center bg-white/5 border border-white/10" title={ct.name}>
-                    <Image
-                      src={ct.img_path}
-                      alt={ct.name}
-                      width={64}
-                      height={64}
-                      unoptimized
-                      className="object-contain p-1"
-                    />
+            <div className="flex flex-wrap gap-3">
+              {triggerSlots.map((slot, i) =>
+                slot.items.length === 1 ? (
+                  slot.items[0].img_path ? (
+                    <div key={i} className="relative size-16 rounded shrink-0 overflow-hidden bg-white/5 border border-white/10" title={slot.items[0].name}>
+                      <Image src={slot.items[0].img_path} alt={slot.items[0].name} fill unoptimized className="object-contain p-1" />
+                    </div>
+                  ) : null
+                ) : (
+                  <div key={i} className="flex gap-1 p-1 rounded-lg bg-white/[0.06] border border-white/20 ring-1 ring-white/10">
+                    {slot.items.map((item, j) =>
+                      item.img_path ? (
+                        <div key={j} className="relative size-16 rounded shrink-0 overflow-hidden bg-white/5" title={item.name}>
+                          <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1" />
+                        </div>
+                      ) : null
+                    )}
                   </div>
-                ) : null
-              ))}
+                )
+              )}
             </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
             {triggerImgPath && (
-              <div className="size-16 rounded shrink-0 overflow-hidden flex items-center justify-center bg-white/5 border border-white/10">
+              <div className="relative size-16 rounded shrink-0 overflow-hidden bg-white/5 border border-white/10">
                 <Image
                   src={triggerImgPath}
                   alt={triggerName ?? hover.territoryName}
-                  width={64}
-                  height={64}
+                  fill
                   unoptimized
                   className="object-contain p-1"
                 />
