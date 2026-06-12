@@ -103,7 +103,7 @@ function TerritoryDetailRow({
 
   return (
     <div
-      className="relative rounded-xl overflow-hidden"
+      className="relative rounded-xl overflow-hidden flex flex-col"
       style={{
         background: controllingTeam
           ? `linear-gradient(to right, ${controllingTeam.color ?? "#888"}18, hsl(var(--card)) 60%)`
@@ -121,19 +121,18 @@ function TerritoryDetailRow({
       />
 
       {/* Territory label */}
-      <div className="px-3 pt-2.5 pl-4 text-sm text-foreground font-medium truncate">
+      <div className="px-3 pt-2.5 pl-4 text-base text-foreground font-bold truncate">
         {taskName ?? territory.name}
       </div>
 
       {/* Header */}
       <div
-        className="flex items-center gap-2 px-3 py-2.5 pl-4"
+        className="flex items-start gap-2 px-3 py-2.5 pl-4 flex-1"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
         {isOrChallenge ? (
           <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-            <div className="text-xs text-muted-foreground uppercase tracking-widest">Any 1 of</div>
-            <div className="flex flex-wrap gap-3">
+<div className="flex flex-wrap gap-3">
               {triggerSlots.map((slot, i) =>
                 slot.items.length === 1 ? (
                   slot.items[0].img_path ? (
@@ -147,13 +146,13 @@ function TerritoryDetailRow({
                     </div>
                   ) : null
                 ) : (
-                  <div key={i} className="flex gap-1 p-1 rounded-lg" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.18)" }}>
+                  <div key={i} className="flex gap-1">
                     {slot.items.map((item, j) =>
                       item.img_path ? (
                         <div
                           key={j}
                           className="relative size-16 rounded shrink-0 overflow-hidden"
-                          style={{ background: "rgba(255,255,255,0.04)" }}
+                          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
                           title={item.name}
                         >
                           <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1.5" />
@@ -191,17 +190,9 @@ function TerritoryDetailRow({
               )}
             </div>
 
-            {/* Territory info */}
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-base leading-tight truncate">
-                {triggerName ?? territory.name}
-                {required != null && required !== 1 && (
-                  <span className="text-muted-foreground font-normal ml-1.5 text-xs">
-                    × {required}
-                  </span>
-                )}
-              </div>
-            </div>
+            {required != null && required !== 1 && (
+              <div className="text-muted-foreground text-xs">× {required}</div>
+            )}
           </>
         )}
       </div>
@@ -213,13 +204,11 @@ function TerritoryDetailRow({
           const qty = entry?.quantity ?? 0;
           const completions = entry?.completions ?? 0;
           const isController = territory.controlling_team_id === team.id;
-          const label =
-            required != null ? `${qty}/${required}` : `${completions}×`;
-          const hasProgress = required != null ? qty > 0 : completions > 0;
+          const label = required != null ? `${qty}/${required}` : `${completions}×`;
           const color = team.color ?? "#888";
 
           const inner = (
-            <div className={`flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg transition-colors${hasProgress ? " cursor-pointer hover:bg-white/[0.06]" : ""}`}>
+            <div className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.06]">
               <div className="flex items-center gap-1.5">
                 <div
                   className="size-12 rounded-lg shrink-0 overflow-hidden relative"
@@ -249,15 +238,13 @@ function TerritoryDetailRow({
 
           return (
             <div key={team.id} className="flex items-center">
-              {hasProgress ? (
-                <TerritoryProofDialog
-                  territoryId={territory.id}
-                  teamId={team.id}
-                  triggerName={triggerName}
-                >
-                  {inner}
-                </TerritoryProofDialog>
-              ) : inner}
+              <TerritoryProofDialog
+                territoryId={territory.id}
+                teamId={team.id}
+                triggerName={triggerName}
+              >
+                {inner}
+              </TerritoryProofDialog>
               {i < teams.length - 1 && (
                 <div className="w-px self-stretch bg-white/[0.06]" />
               )}

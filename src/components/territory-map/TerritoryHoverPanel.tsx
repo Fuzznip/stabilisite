@@ -134,10 +134,10 @@ export function TerritoryHoverPanel({
                     </div>
                   ) : null
                 ) : (
-                  <div key={i} className="flex gap-1 p-1 rounded-lg bg-white/[0.06] border border-white/20 ring-1 ring-white/10">
+                  <div key={i} className="flex gap-1">
                     {slot.items.map((item, j) =>
                       item.img_path ? (
-                        <div key={j} className="relative size-16 rounded shrink-0 overflow-hidden bg-white/5" title={item.name}>
+                        <div key={j} className="relative size-16 rounded shrink-0 overflow-hidden bg-white/5 border border-white/10" title={item.name}>
                           <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1" />
                         </div>
                       ) : null
@@ -160,14 +160,9 @@ export function TerritoryHoverPanel({
                 />
               </div>
             )}
-            <div>
-              <div className="text-amber-400 font-semibold text-base leading-tight">
-                {triggerName ?? hover.territoryName}
-              </div>
-              {required != null && (
-                <div className="text-stone-500 text-xs mt-1">× {required}</div>
-              )}
-            </div>
+            {required != null && required !== 1 && (
+              <div className="text-stone-500 text-xs">× {required}</div>
+            )}
           </div>
         )}
       </div>
