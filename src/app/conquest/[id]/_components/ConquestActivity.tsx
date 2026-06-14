@@ -172,7 +172,6 @@ function getProofTerritoryId(
   log: EventLog,
   territories: ConquestTerritory[],
 ): string | null {
-  if (log.type === "TERRITORY_CONTROL" && log.entity_id) return log.entity_id;
   if (log.type === "CHALLENGE_COMPLETED" && log.entity_id)
     return territories.find((t) => t.challenge_id === log.entity_id)?.id ?? null;
   return null;
@@ -236,7 +235,7 @@ function ActivityRow({
       className={[
         "relative flex items-center gap-4",
         compact ? "py-2 pl-36" : "py-3.5",
-        proofTerritoryId && !compact
+        proofTerritoryId
           ? "cursor-pointer hover:brightness-125 transition-[filter]"
           : "",
       ]
@@ -356,7 +355,7 @@ function ActivityRow({
 </div>
   );
 
-  if (proofTerritoryId && !compact) {
+  if (proofTerritoryId) {
     return (
       <TerritoryProofDialog
         territoryId={proofTerritoryId}
