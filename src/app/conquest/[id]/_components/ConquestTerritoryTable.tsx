@@ -70,9 +70,9 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
     staleTime: Infinity,
   });
 
-  type TriggerItem = { name: string; img_path: string | null; quantity: number | null };
+  type TriggerItem = { name: string; img_path: string | null; quantity: number | null; value: number | null };
   function childToItems(c: TriggerItem & { trigger?: TriggerItem; children?: unknown[] }): TriggerItem[] {
-    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null }];
+    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null, value: (c as { value?: number | null }).value ?? null }];
     if (c.children?.length) return (c.children as typeof c[]).flatMap(childToItems);
     return [];
   }
@@ -129,16 +129,30 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
               {triggerSlots.map((slot, i) =>
                 slot.items.length === 1 ? (
                   slot.items[0].img_path ? (
-                    <div key={i} className="relative size-16 rounded shrink-0 overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }} title={slot.items[0].name}>
-                      <ImageWithLoader src={slot.items[0].img_path} alt={slot.items[0].name} />
+                    <div key={i} className="relative shrink-0" title={slot.items[0].name}>
+                      <div className="size-16 rounded overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                        <ImageWithLoader src={slot.items[0].img_path} alt={slot.items[0].name} />
+                      </div>
+                      {required != null && required > 1 && (
+                        <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                          {slot.items[0].value}
+                        </div>
+                      )}
                     </div>
                   ) : null
                 ) : (
                   <div key={i} className="flex gap-1">
                     {slot.items.map((item, j) =>
                       item.img_path ? (
-                        <div key={j} className="relative size-16 rounded shrink-0 overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }} title={item.name}>
-                          <ImageWithLoader src={item.img_path} alt={item.name} />
+                        <div key={j} className="relative shrink-0" title={item.name}>
+                          <div className="size-16 rounded overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                            <ImageWithLoader src={item.img_path} alt={item.name} />
+                          </div>
+                          {required != null && required > 1 && (
+                            <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                              {item.value}
+                            </div>
+                          )}
                         </div>
                       ) : null
                     )}
@@ -151,17 +165,24 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
           <div className="flex flex-col gap-1">
             <div className="text-sm font-medium text-foreground">{taskName ?? territory.name}</div>
             <div className="flex items-center gap-2">
-              <div
-                className="relative size-16 rounded shrink-0 overflow-hidden"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                {triggerImgPath ? (
-                  <ImageWithLoader src={triggerImgPath} alt={triggerName} />
-                ) : (
-                  <div className="size-2 rounded-full bg-white/20 absolute inset-0 m-auto" />
+              <div className="relative shrink-0">
+                <div
+                  className="size-16 rounded overflow-hidden"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }}
+                >
+                  {triggerImgPath ? (
+                    <ImageWithLoader src={triggerImgPath} alt={triggerName} />
+                  ) : (
+                    <div className="size-2 rounded-full bg-white/20 absolute inset-0 m-auto" />
+                  )}
+                </div>
+                {required != null && required > 1 && (
+                  <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                    {challenge?.value}
+                  </div>
                 )}
               </div>
               {required != null && required !== 1 && (

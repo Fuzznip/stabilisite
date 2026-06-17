@@ -9,8 +9,7 @@ export const BORDER_COLOR: [number, number, number] = [210, 205, 198];
 export const GROUPS: Record<string, string> = {
   misthalin: "misthalin_wilderness",
   wilderness: "misthalin_wilderness",
-  karamja: "karamja_asgarnia",
-  asgarnia: "karamja_asgarnia",
+  karamja: "kandarin",
 };
 
 export interface RegionGroup {
@@ -20,10 +19,10 @@ export interface RegionGroup {
 
 // 9 unique groups, ordered to match REGION_COLORS
 export const REGION_GROUPS: RegionGroup[] = [
-  { key: "karamja_asgarnia", displayName: "Karamja & Asgarnia" },
+  { key: "asgarnia", displayName: "Asgarnia" },
   { key: "fremennik", displayName: "Fremennik" },
   { key: "misthalin_wilderness", displayName: "Misthalin & Wilderness" },
-  { key: "kandarin", displayName: "Kandarin" },
+  { key: "kandarin", displayName: "Kandarin & Karamja" },
   { key: "desert", displayName: "Desert" },
   { key: "tirannwn", displayName: "Tirannwn" },
   { key: "morytania", displayName: "Morytania" },

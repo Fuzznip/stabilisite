@@ -68,10 +68,10 @@ function TerritoryDetailRow({
 
   // For parent OR challenges, build slots from children.
   // Each slot is { items } — one item = standalone trigger, multiple = grouped grandchildren.
-  type TriggerItem = { name: string; img_path: string | null; quantity: number | null };
+  type TriggerItem = { name: string; img_path: string | null; quantity: number | null; value: number | null };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function childToItems(c: any): TriggerItem[] {
-    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null }];
+    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null, value: c.value ?? null }];
     if (c.children?.length) return (c.children as any[]).flatMap(childToItems);
     return [];
   }
@@ -121,8 +121,11 @@ function TerritoryDetailRow({
       />
 
       {/* Territory label */}
-      <div className="px-3 pt-2.5 pl-4 text-base text-foreground font-bold truncate">
-        {taskName ?? territory.name}
+      <div className="px-3 pt-2.5 pl-4 text-base text-foreground font-bold truncate flex items-baseline gap-1.5">
+        <span className="truncate">{taskName ?? territory.name}</span>
+        {required != null && required > 1 && (
+          <span className="text-sm text-muted-foreground font-normal shrink-0">×{required}</span>
+        )}
       </div>
 
       {/* Header */}
@@ -136,26 +139,36 @@ function TerritoryDetailRow({
               {triggerSlots.map((slot, i) =>
                 slot.items.length === 1 ? (
                   slot.items[0].img_path ? (
-                    <div
-                      key={i}
-                      className="relative size-16 rounded-md shrink-0 overflow-hidden"
-                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
-                      title={slot.items[0].name}
-                    >
-                      <Image src={slot.items[0].img_path} alt={slot.items[0].name} fill unoptimized className="object-contain p-1.5" />
+                    <div key={i} className="relative shrink-0" title={slot.items[0].name}>
+                      <div
+                        className="size-16 rounded-md overflow-hidden"
+                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
+                      >
+                        <Image src={slot.items[0].img_path} alt={slot.items[0].name} fill unoptimized className="object-contain p-1.5" />
+                      </div>
+                      {required != null && required > 1 && (
+                        <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                          {slot.items[0].value}
+                        </div>
+                      )}
                     </div>
                   ) : null
                 ) : (
                   <div key={i} className="flex gap-1">
                     {slot.items.map((item, j) =>
                       item.img_path ? (
-                        <div
-                          key={j}
-                          className="relative size-16 rounded shrink-0 overflow-hidden"
-                          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
-                          title={item.name}
-                        >
-                          <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1.5" />
+                        <div key={j} className="relative shrink-0" title={item.name}>
+                          <div
+                            className="size-16 rounded overflow-hidden"
+                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
+                          >
+                            <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1.5" />
+                          </div>
+                          {required != null && required > 1 && (
+                            <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                              {item.value}
+                            </div>
+                          )}
                         </div>
                       ) : null
                     )}
@@ -167,26 +180,33 @@ function TerritoryDetailRow({
         ) : (
           <>
             {/* Trigger image */}
-            <div
-              className="relative size-16 rounded-md shrink-0 overflow-hidden"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.10)",
-              }}
-            >
-              {triggerImgPath ? (
-                <Image
-                  src={triggerImgPath}
-                  alt={triggerName ?? territory.name}
-                  fill
-                  unoptimized
-                  className="object-contain p-1.5"
-                />
-              ) : (
-                <div
-                  className="size-3 rounded-full opacity-30"
-                  style={{ background: colorHex }}
-                />
+            <div className="relative shrink-0">
+              <div
+                className="size-16 rounded-md overflow-hidden"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                }}
+              >
+                {triggerImgPath ? (
+                  <Image
+                    src={triggerImgPath}
+                    alt={triggerName ?? territory.name}
+                    fill
+                    unoptimized
+                    className="object-contain p-1.5"
+                  />
+                ) : (
+                  <div
+                    className="size-3 rounded-full opacity-30"
+                    style={{ background: colorHex }}
+                  />
+                )}
+              </div>
+              {required != null && required > 1 && (
+                <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                  {challenge?.value}
+                </div>
               )}
             </div>
 

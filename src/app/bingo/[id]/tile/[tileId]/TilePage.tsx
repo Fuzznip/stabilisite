@@ -129,6 +129,9 @@ function ItemGrid({ items }: { items: ChallengeDisplayItem[] }) {
         const hasNoRequirement = item.required == null;
         const isCompleted =
           item.completed || (hasNoRequirement && item.quantity >= 1);
+        const hasProgressBadge =
+          (item.required != null && item.required > 1) ||
+          (hasNoRequirement && item.quantity >= 1);
 
         return (
           <Tooltip key={item.id}>
@@ -163,6 +166,11 @@ function ItemGrid({ items }: { items: ChallengeDisplayItem[] }) {
                   {hasNoRequirement && item.quantity >= 1 && (
                     <div className="absolute bottom-0 right-0 bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded-tl-lg rounded-br-md">
                       {item.quantity}
+                    </div>
+                  )}
+                  {item.value > 1 && !hasProgressBadge && (
+                    <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                      {item.value}
                     </div>
                   )}
                 </div>
@@ -398,6 +406,11 @@ function ChallengeDisplay({
             {hasNoRequirement && challenge.quantity >= 1 && (
               <div className="absolute bottom-0 left-0 bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded-tr-lg rounded-bl-md">
                 {challenge.quantity}
+              </div>
+            )}
+            {challenge.value > 1 && (
+              <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                {challenge.value}
               </div>
             )}
           </div>
