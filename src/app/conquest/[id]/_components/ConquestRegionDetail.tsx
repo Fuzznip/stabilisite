@@ -209,10 +209,6 @@ function TerritoryDetailRow({
                 </div>
               )}
             </div>
-
-            {required != null && required !== 1 && (
-              <div className="text-muted-foreground text-xs">× {required}</div>
-            )}
           </>
         )}
       </div>
