@@ -119,7 +119,7 @@ export function TerritoryHoverPanel({
         <div className="text-stone-400 text-xs uppercase tracking-widest">
           {hover.regionDisplayName}
         </div>
-        <div className="text-stone-500 text-xs mb-2">
+        <div className="text-foreground text-xs mb-2">
           {hover.territoryName}
         </div>
         {isOrChallenge ? (

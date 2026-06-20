@@ -658,10 +658,11 @@ function TerritoryCanvasLayer({
           const territory = rd.territories.find((t) => t.index === label);
           if (territory) {
             hoverStateRef.current = { regionName: rd.name, label };
+            const ct = conquestTerritories.find((ct) => ct.id === territory.id);
             onHoverChange(
               {
                 regionDisplayName: getGroupDisplayName(rd.name),
-                territoryName: territory.name,
+                territoryName: ct?.name ?? territory.name,
                 territoryId: territory.id,
               },
               { x: e.originalEvent.clientX, y: e.originalEvent.clientY },
