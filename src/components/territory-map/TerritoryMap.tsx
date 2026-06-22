@@ -340,27 +340,12 @@ function TerritoryCanvasLayer({
       // visual sizing during the transition. viewreset will sync them after.
     }
 
-    // Custom smooth scroll zoom — bypasses Leaflet's Math.round/_getDelta which
-    // drops small trackpad deltas. Zoom is applied directly, proportional to
-    // raw wheel pixels, centered on the cursor position.
-    function onWheel(e: WheelEvent) {
-      e.preventDefault();
-      const delta = -e.deltaY / 150; // tune: higher divisor = slower zoom
-      const containerPoint = map.mouseEventToContainerPoint(e);
-      map.setZoomAround(containerPoint, map.getZoom() + delta, {
-        animate: false,
-      });
-    }
-    const container = map.getContainer();
-    container.addEventListener("wheel", onWheel, { passive: false });
-
     map.on("move viewreset zoomend", updatePosition);
     map.on("zoomanim", onZoomAnim as L.LeafletEventHandlerFn);
     updatePosition();
 
     return () => {
       cancelAnimationFrame(rafRef.current);
-      container.removeEventListener("wheel", onWheel);
       map.off("move viewreset zoomend", updatePosition);
       map.off("zoomanim", onZoomAnim as L.LeafletEventHandlerFn);
       canvas.remove();
@@ -658,6 +643,7 @@ function TerritoryCanvasLayer({
           const territory = rd.territories.find((t) => t.index === label);
           if (territory) {
             hoverStateRef.current = { regionName: rd.name, label };
+            map.getContainer().style.cursor = "pointer";
             const ct = conquestTerritories.find((ct) => ct.id === territory.id);
             onHoverChange(
               {
@@ -673,10 +659,12 @@ function TerritoryCanvasLayer({
       }
 
       hoverStateRef.current = null;
+      map.getContainer().style.cursor = "";
       onHoverChange(null, { x: 0, y: 0 });
     },
     mouseout() {
       hoverStateRef.current = null;
+      map.getContainer().style.cursor = "";
       onHoverChange(null, { x: 0, y: 0 });
     },
   });
@@ -834,6 +822,16 @@ export function TerritoryMap({
             "0 0 0 1px rgba(0,0,0,0.4) inset, 0 30px 80px -30px rgba(0,0,0,0.8), 0 0 60px -10px rgba(74,142,240,0.08)",
         }}
       >
+        {activeGroupKey && onGroupKeyChange && (
+          <button
+            onClick={() => onGroupKeyChange(null)}
+            className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors"
+            style={{ background: "rgba(20,18,19,0.7)", backdropFilter: "blur(6px)", border: "1px solid rgba(230,57,70,0.35)" }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            Reset view
+          </button>
+        )}
         <div className="absolute inset-0">
         <MapContainer
           crs={CRS.Simple}
@@ -841,6 +839,7 @@ export function TerritoryMap({
           maxBounds={MAP_MAX_BOUNDS}
           maxBoundsViscosity={1.0}
           className="w-full h-full"
+          dragging={false}
           scrollWheelZoom={false}
           doubleClickZoom
           zoomSnap={0}
