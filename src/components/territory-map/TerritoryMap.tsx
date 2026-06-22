@@ -825,7 +825,7 @@ export function TerritoryMap({
         {activeGroupKey && onGroupKeyChange && (
           <button
             onClick={() => onGroupKeyChange(null)}
-            className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors"
+            className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors cursor-pointer"
             style={{ background: "rgba(20,18,19,0.7)", backdropFilter: "blur(6px)", border: "1px solid rgba(230,57,70,0.35)" }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
