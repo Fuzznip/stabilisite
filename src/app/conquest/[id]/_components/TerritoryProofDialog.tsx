@@ -47,7 +47,12 @@ interface TerritoryProofDialogProps {
   teamId: string;
   triggerName: string | null;
   createdAt?: string;
-  children: React.ReactNode;
+  /** When set, only shows proofs whose action name matches this value */
+  filterByActionName?: string;
+  /** Controlled open state — when provided, no children trigger is needed */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children?: React.ReactNode;
 }
 
 export function TerritoryProofDialog({
@@ -55,10 +60,29 @@ export function TerritoryProofDialog({
   teamId,
   triggerName,
   createdAt,
+  filterByActionName,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
   children,
 }: TerritoryProofDialogProps) {
-  const [open, setOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const [internalOpen, setInternalOpen] = useState(false);
   const [enabled, setEnabled] = useState(false);
+
+  const dialogOpen = isControlled ? controlledOpen! : internalOpen;
+
+  useEffect(() => {
+    if (dialogOpen) setEnabled(true);
+  }, [dialogOpen]);
+
+  function handleOpenChange(v: boolean) {
+    if (isControlled) {
+      controlledOnOpenChange?.(v);
+    } else {
+      setInternalOpen(v);
+      if (v) setEnabled(true);
+    }
+  }
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -86,19 +110,23 @@ export function TerritoryProofDialog({
       playerName: p.action?.player?.runescape_name ?? undefined,
     }));
 
+  const filteredImages = filterByActionName
+    ? allImages.filter((img) => img.itemName === filterByActionName)
+    : allImages;
+
   // If a specific log timestamp is provided, show only the closest-matching proof
   const images: ProofImage[] = createdAt
     ? (() => {
         const logTime = new Date(createdAt).getTime();
-        const closest = allImages.reduce<ProofImage | null>((best, img) => {
+        const closest = filteredImages.reduce<ProofImage | null>((best, img) => {
           if (!best) return img;
           const diff = Math.abs((img.timestamp?.getTime() ?? 0) - logTime);
           const bestDiff = Math.abs((best.timestamp?.getTime() ?? 0) - logTime);
           return diff < bestDiff ? img : best;
         }, null);
-        return closest ? [closest] : allImages;
+        return closest ? [closest] : filteredImages;
       })()
-    : allImages;
+    : filteredImages;
 
   const goToImage = useCallback(
     (index: number) => {
@@ -118,7 +146,7 @@ export function TerritoryProofDialog({
   }, [carouselApi]);
 
   useEffect(() => {
-    if (!open && !isExpanded) return;
+    if (!dialogOpen && !isExpanded) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft" && selectedIndex > 0) {
         e.preventDefault();
@@ -148,14 +176,8 @@ export function TerritoryProofDialog({
 
   return (
     <>
-      <Dialog
-        open={open}
-        onOpenChange={(v) => {
-          setOpen(v);
-          if (v) setEnabled(true);
-        }}
-      >
-        <DialogTrigger asChild>{children}</DialogTrigger>
+      <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+        {children && <DialogTrigger asChild>{children}</DialogTrigger>}
 
         <DialogContent className="fixed inset-0 translate-x-0 translate-y-0 top-0 left-0 w-full h-full max-w-none rounded-none sm:inset-auto sm:top-[50%] sm:left-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:min-w-[75vw] sm:max-w-[95vw] sm:h-[90vh] sm:max-h-[90vh] sm:rounded-lg p-0 overflow-hidden gap-0 flex flex-col">
           <DialogHeader className="px-4 pt-4 pb-3 sm:px-8 sm:pt-6 sm:pb-4 border-b border-foreground/10 shrink-0">
@@ -202,7 +224,7 @@ export function TerritoryProofDialog({
                 <div
                   className="relative w-full h-full bg-black/5 rounded-xl overflow-hidden cursor-pointer group"
                   onClick={() => {
-                    setOpen(false);
+                    handleOpenChange(false);
                     setIsExpanded(true);
                   }}
                 >

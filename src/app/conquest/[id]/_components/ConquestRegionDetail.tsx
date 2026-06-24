@@ -10,7 +10,7 @@ import type {
   Team,
   TerritoryProgressEntry,
 } from "@/lib/types/v2";
-import { TerritoryProofDialog } from "./TerritoryProofDialog";
+import { TerritoryBreakdownDialog } from "./TerritoryBreakdownDialog";
 
 // ── data fetchers ────────────────────────────────────────────────────────────
 
@@ -93,6 +93,7 @@ function TerritoryDetailRow({
     challenge?.trigger?.img_path ?? trigger?.img_path ?? triggerSlots[0]?.items[0]?.img_path ?? null;
   const required: number | null = challenge?.quantity ?? null;
   const isOrChallenge = triggerSlots.length > 0;
+  const isPointWeighted = triggerSlots.some((slot) => slot.items.some((item) => (item.value ?? 1) > 1));
   const taskName: string | null = challenge?.task?.name ?? null;
 
   const progressMap = new Map(progress.map((p) => [p.team_id, p]));
@@ -141,14 +142,19 @@ function TerritoryDetailRow({
                   slot.items[0].img_path ? (
                     <div key={i} className="relative shrink-0" title={slot.items[0].name}>
                       <div
-                        className="size-16 rounded-md overflow-hidden"
+                        className="size-16 relative rounded-md overflow-hidden"
                         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
                       >
                         <Image src={slot.items[0].img_path} alt={slot.items[0].name} fill unoptimized className="object-contain p-1.5" />
+                        {slot.items[0].quantity != null && slot.items[0].quantity > 1 && (
+                          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
+                            req: {slot.items[0].quantity}
+                          </div>
+                        )}
                       </div>
-                      {required != null && required > 1 && (
+                      {isPointWeighted && (
                         <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
-                          {slot.items[0].value}
+                          {slot.items[0].value ?? 1}
                         </div>
                       )}
                     </div>
@@ -159,14 +165,19 @@ function TerritoryDetailRow({
                       item.img_path ? (
                         <div key={j} className="relative shrink-0" title={item.name}>
                           <div
-                            className="size-16 rounded overflow-hidden"
+                            className="size-16 relative rounded overflow-hidden"
                             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
                           >
                             <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1.5" />
+                            {item.quantity != null && item.quantity > 1 && (
+                              <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
+                                req: {item.quantity}
+                              </div>
+                            )}
                           </div>
-                          {required != null && required > 1 && (
+                          {isPointWeighted && (
                             <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
-                              {item.value}
+                              {item.value ?? 1}
                             </div>
                           )}
                         </div>
@@ -220,7 +231,9 @@ function TerritoryDetailRow({
           const qty = entry?.quantity ?? 0;
           const completions = entry?.completions ?? 0;
           const isController = territory.controlling_team_id === team.id;
-          const label = required != null ? `${qty}/${required}` : `${completions}×`;
+          // For multi-leaf challenges the backend score lives in `completions`; `quantity` is raw aggregate
+          const displayQty = isOrChallenge ? completions : qty;
+          const label = required != null ? `${displayQty}/${required}` : `${completions}×`;
           const color = team.color ?? "#888";
 
           const inner = (
@@ -254,13 +267,15 @@ function TerritoryDetailRow({
 
           return (
             <div key={team.id} className="flex items-center">
-              <TerritoryProofDialog
+              <TerritoryBreakdownDialog
                 territoryId={territory.id}
                 teamId={team.id}
-                triggerName={triggerName}
+                challenge={challenge}
+                trigger={trigger}
+                teamProgress={progressMap.get(team.id)}
               >
                 {inner}
-              </TerritoryProofDialog>
+              </TerritoryBreakdownDialog>
               {i < teams.length - 1 && (
                 <div className="w-px self-stretch bg-white/[0.06]" />
               )}
