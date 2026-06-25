@@ -75,13 +75,15 @@ export function ConquestRegions({
 
           // Use regionData territories as the source of truth for pip count/order,
           // then join to conquest territories by ID to get ownership.
+          // Only emit a pip if a matching DB territory actually exists.
           const groupTerritories = groupRegionData.flatMap((rd) =>
-            rd.territories.map((t) => {
+            rd.territories.flatMap((t) => {
               const ct = territories.find((ct) => ct.id === t.id);
-              const ctrl = ct?.controlling_team_id
+              if (!ct) return [];
+              const ctrl = ct.controlling_team_id
                 ? teams.find((tm) => tm.id === ct.controlling_team_id)
                 : null;
-              return { id: t.id, ctrl: ctrl ?? null };
+              return [{ id: t.id, ctrl: ctrl ?? null }];
             }),
           );
 
