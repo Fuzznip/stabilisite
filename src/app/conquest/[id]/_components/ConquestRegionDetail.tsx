@@ -107,7 +107,7 @@ function TerritoryDetailRow({
       className="relative rounded-xl overflow-hidden flex flex-col"
       style={{
         background: controllingTeam
-          ? `linear-gradient(to right, ${controllingTeam.color ?? "#888"}18, hsl(var(--card)) 60%)`
+          ? `linear-gradient(to right, ${controllingTeam.color ?? "#888"}33, hsl(var(--card)) 70%)`
           : "hsl(var(--card))",
         border: `1px solid ${controllingTeam ? `${controllingTeam.color ?? "#888"}44` : "rgba(255,255,255,0.10)"}`,
       }}

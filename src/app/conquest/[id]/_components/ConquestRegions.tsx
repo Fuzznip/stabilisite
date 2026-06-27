@@ -123,23 +123,31 @@ export function ConquestRegions({
               className="relative flex flex-col gap-2.5 p-3.5 rounded-xl overflow-hidden transition-all hover:-translate-y-px cursor-pointer"
               style={
                 {
-                  background: "hsl(var(--card))",
-                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: owner
+                    ? `linear-gradient(to right, ${owner.color ?? "#888"}33, hsl(var(--card)) 70%)`
+                    : "hsl(var(--card))",
+                  border: `1px solid ${owner ? `${owner.color ?? "#888"}44` : "rgba(255,255,255,0.10)"}`,
                   "--region-color": colorHex,
                 } as React.CSSProperties
               }
             >
-              {/* Accent bar */}
+              {/* Accent bar — controlling team's color, gray if none */}
               <div
                 className="absolute left-0 top-0 bottom-0 w-0.5 rounded-l-xl"
                 style={{
-                  background: colorHex,
-                  boxShadow: `0 0 12px ${colorHex}`,
+                  background: owner?.color ?? "#6b7280",
+                  boxShadow: owner?.color ? `0 0 12px ${owner.color}` : "none",
                 }}
               />
 
-              <div className="text-base font-semibold uppercase pl-2 leading-tight">
-                {group.displayName}
+              <div className="flex items-center gap-2 pl-2">
+                <span
+                  className="size-2.5 rounded-full shrink-0"
+                  style={{ background: colorHex }}
+                />
+                <span className="text-base font-semibold uppercase leading-tight">
+                  {group.displayName}
+                </span>
               </div>
 
               <div className="flex items-center gap-2 pl-2">
