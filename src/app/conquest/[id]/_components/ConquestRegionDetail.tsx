@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Crown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { RegionData } from "@/components/territory-map/types";
 import type { RegionGroup } from "@/components/territory-map/map-data";
@@ -233,31 +234,47 @@ function TerritoryDetailRow({
           const isController = territory.controlling_team_id === team.id;
           // For multi-leaf challenges the backend score lives in `completions`; `quantity` is raw aggregate
           const displayQty = isOrChallenge ? completions : qty;
-          const label = required != null ? `${displayQty}/${required}` : `${completions}×`;
+          const label =
+            required == null
+              ? `${completions}×`
+              : required === 1
+                ? `${displayQty}`
+                : `${displayQty}/${required}`;
           const color = team.color ?? "#888";
+          const hasProgress = displayQty > 0;
 
           const inner = (
             <div className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.06]">
               <div className="flex items-center gap-1.5">
-                <div
-                  className="size-12 rounded-lg shrink-0 overflow-hidden relative"
-                  style={{ border: `1px solid ${isController ? `${color}88` : "rgba(255,255,255,0.10)"}` }}
-                >
-                  {team.image_url ? (
-                    <Image
-                      src={team.image_url}
-                      alt={team.name}
-                      fill
-                      unoptimized
-                      className="object-cover"
+                <div className="relative shrink-0">
+                  <div
+                    className="size-12 rounded-lg overflow-hidden relative"
+                    style={{ border: `1px solid ${isController ? `${color}88` : "rgba(255,255,255,0.10)"}` }}
+                  >
+                    {team.image_url ? (
+                      <Image
+                        src={team.image_url}
+                        alt={team.name}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full" style={{ background: color }} />
+                    )}
+                  </div>
+                  {isController && (
+                    <Crown
+                      className="absolute -top-2.5 left-1/2 -translate-x-1/2 size-5 drop-shadow-md"
+                      style={{ color: "#fbbf24" }}
+                      fill="currentColor"
+                      aria-label="Controlling team"
                     />
-                  ) : (
-                    <div className="w-full h-full" style={{ background: color }} />
                   )}
                 </div>
                 <span
                   className="text-base font-mono tabular-nums leading-none"
-                  style={{ color: isController ? color : "rgba(255,255,255,0.55)" }}
+                  style={{ color: hasProgress ? color : "rgba(255,255,255,0.55)" }}
                 >
                   {label}
                 </span>
