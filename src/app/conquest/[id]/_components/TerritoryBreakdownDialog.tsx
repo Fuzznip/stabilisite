@@ -304,6 +304,7 @@ export function TerritoryBreakdownDialog({
           territoryId={territoryId}
           teamId={teamId}
           triggerName={selectedSlot.name}
+          requiredQuantity={selectedSlot.required}
           filterByActionName={isOrChallenge ? selectedSlot.name : undefined}
           open={proofOpen}
           onOpenChange={(v) => {

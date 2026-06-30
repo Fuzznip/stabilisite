@@ -49,6 +49,8 @@ interface TerritoryProofDialogProps {
   createdAt?: string;
   /** When set, only shows proofs whose action name matches this value */
   filterByActionName?: string;
+  /** Required quantity for the trigger — shown in the per-player table footer */
+  requiredQuantity?: number | null;
   /** Controlled open state — when provided, no children trigger is needed */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -61,6 +63,7 @@ export function TerritoryProofDialog({
   triggerName,
   createdAt,
   filterByActionName,
+  requiredQuantity,
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
   children,
@@ -127,6 +130,20 @@ export function TerritoryProofDialog({
         return closest ? [closest] : filteredImages;
       })()
     : filteredImages;
+
+  // Per-player completions table — fallback for count/chat-based triggers with no screenshots
+  const proofRows = filterByActionName
+    ? proofs.filter((p) => p.action?.name === filterByActionName)
+    : proofs;
+  const playerRows = (() => {
+    const byPlayer = new Map<string, number>();
+    for (const p of proofRows) {
+      const name = p.action?.player?.runescape_name ?? "Unknown";
+      byPlayer.set(name, (byPlayer.get(name) ?? 0) + (p.action?.quantity ?? 0));
+    }
+    return [...byPlayer.entries()].sort((a, b) => b[1] - a[1]);
+  })();
+  const playerTotal = playerRows.reduce((sum, [, qty]) => sum + qty, 0);
 
   const goToImage = useCallback(
     (index: number) => {
@@ -215,9 +232,55 @@ export function TerritoryProofDialog({
               Loading...
             </div>
           ) : images.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center text-muted-foreground">
-              No proof images found
-            </div>
+            playerRows.length > 0 ? (
+              <div className="flex-1 min-h-0 overflow-y-auto p-6 sm:p-8">
+                <div className="mx-auto max-w-md">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-xs uppercase tracking-wider text-muted-foreground border-b border-foreground/10">
+                        <th className="py-2 text-left font-medium">Player</th>
+                        <th className="py-2 text-right font-medium">
+                          Completions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {playerRows.map(([name, qty]) => (
+                        <tr
+                          key={name}
+                          className="border-b border-foreground/5"
+                        >
+                          <td className="py-2.5">
+                            <div className="flex items-center gap-2">
+                              <User className="size-4 text-muted-foreground shrink-0" />
+                              <span className="font-medium">{name}</span>
+                            </div>
+                          </td>
+                          <td className="py-2.5 text-right font-mono tabular-nums">
+                            {qty}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="text-sm font-semibold">
+                        <td className="pt-3">Total</td>
+                        <td className="pt-3 text-right font-mono tabular-nums">
+                          {playerTotal}
+                          {requiredQuantity != null
+                            ? ` / ${requiredQuantity}`
+                            : ""}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                No proofs found
+              </div>
+            )
           ) : (
             <>
               <div className="flex-1 min-h-0 p-6">
