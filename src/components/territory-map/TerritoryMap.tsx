@@ -818,14 +818,14 @@ export function TerritoryMap({
   );
 
   return (
-    <div className={`flex flex-col items-center w-full${fillHeight ? " h-full" : ""}`}>
+    <div className={`flex flex-col items-center w-full${fillHeight ? " lg:h-full" : ""}`}>
       {!hideTitle && (
         <h1 className="text-center text-3xl font-bold tracking-[0.12em] uppercase text-foreground [font-family:var(--font-cinzel)]">
           {event?.name}
         </h1>
       )}
       <div
-        className={`relative w-full rounded-[18px] overflow-hidden${fillHeight ? " h-full" : ""}`}
+        className={`relative w-full rounded-[18px] overflow-hidden${fillHeight ? " aspect-[459/211] lg:aspect-auto lg:h-full" : ""}`}
         style={{
           aspectRatio: fillHeight ? undefined : `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
           backgroundImage:

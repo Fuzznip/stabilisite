@@ -18,7 +18,9 @@ const TerritoryMap = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <Skeleton className="w-full h-full rounded-[18px]" />,
+    loading: () => (
+      <Skeleton className="w-full aspect-[459/211] lg:aspect-auto lg:h-full rounded-[18px]" />
+    ),
   },
 );
 import { ConquestScoreboard } from "./ConquestScoreboard";
