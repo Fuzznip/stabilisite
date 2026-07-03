@@ -244,11 +244,11 @@ function TerritoryDetailRow({
           const hasProgress = displayQty > 0;
 
           const inner = (
-            <div className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.06]">
+            <div className="flex flex-col items-center gap-1.5 px-2 sm:px-3 py-2.5 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.06]">
               <div className="flex items-center gap-1.5">
                 <div className="relative shrink-0">
                   <div
-                    className="size-12 rounded-lg overflow-hidden relative"
+                    className="size-11 sm:size-12 rounded-lg overflow-hidden relative"
                     style={{ border: `1px solid ${isController ? `${color}88` : "rgba(255,255,255,0.10)"}` }}
                   >
                     {team.image_url ? (
@@ -377,7 +377,7 @@ export function ConquestRegionDetail({
       </div>
 
       {/* Territory rows */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {groupTerritories.length === 0 ? (
           <div
             className="rounded-xl py-10 text-center text-sm text-muted-foreground/40"

@@ -181,9 +181,9 @@ function ConquestInner({
   const countdown = formatCountdown(event.end_date, now);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 sm:gap-8">
       {/* Hero */}
-      <header className="flex items-end justify-between gap-8 flex-wrap">
+      <header className="flex items-end justify-between gap-4 sm:gap-8 flex-wrap">
         <div>
           <div className="flex items-center gap-4 mb-2.5">
             {countdown ? (
@@ -195,14 +195,14 @@ function ConquestInner({
               </span>
             ) : null}
           </div>
-          <h1 className="text-4xl font-semibold uppercase leading-none">
+          <h1 className="text-2xl sm:text-4xl font-semibold uppercase leading-none">
             {event.name}
           </h1>
         </div>
 
         {playerCount > 0 && (
           <div className="flex flex-col items-end gap-0.5 shrink-0">
-            <div className="text-[28px] font-semibold tabular-nums leading-none">
+            <div className="text-2xl sm:text-[28px] font-semibold tabular-nums leading-none">
               {playerCount}
             </div>
             <div className="text-xs uppercase text-muted-foreground font-mono">

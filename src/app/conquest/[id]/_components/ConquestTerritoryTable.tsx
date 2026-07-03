@@ -284,7 +284,7 @@ export function ConquestTerritoryTable({
         border: "1px solid rgba(255,255,255,0.10)",
       }}
     >
-      <table className="w-full border-collapse" style={{ tableLayout: "fixed" }}>
+      <table className="w-full min-w-[560px] border-collapse" style={{ tableLayout: "fixed" }}>
         <colgroup>
           <col style={{ width: "35%" }} />
           {sortedTeams.map((team) => (

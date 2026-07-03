@@ -48,7 +48,7 @@ export function ConquestRegions({
 
   return (
     <section>
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         {REGION_GROUPS.map((group, i) => {
           const groupRegionData = regionData.filter(
             (rd) => getGroupKey(rd.name) === group.key,
@@ -145,7 +145,7 @@ export function ConquestRegions({
                   className="size-2.5 rounded-full shrink-0"
                   style={{ background: colorHex }}
                 />
-                <span className="text-base font-semibold uppercase leading-tight">
+                <span className="text-sm sm:text-base font-semibold uppercase leading-tight">
                   {group.displayName}
                 </span>
               </div>

@@ -730,31 +730,47 @@ function FlyToRegion({
   const map = useMap();
 
   useEffect(() => {
-    if (!activeGroupKey) {
-      map.stop();
-      map.flyToBounds(MAP_BOUNDS, { padding: [5, 5], duration: 0.4 });
-      return;
-    }
+    const targetBounds = (() => {
+      if (!activeGroupKey) return MAP_BOUNDS;
+      const matching = regionData.filter(
+        (rd) => getGroupKey(rd.name) === activeGroupKey,
+      );
+      if (matching.length === 0) return null;
+      let minX = Infinity,
+        maxX = -Infinity,
+        minY = Infinity,
+        maxY = -Infinity;
+      for (const rd of matching) {
+        minX = Math.min(minX, rd.offsetX);
+        maxX = Math.max(maxX, rd.offsetX + rd.imageWidth);
+        minY = Math.min(minY, rd.offsetY);
+        maxY = Math.max(maxY, rd.offsetY + rd.imageHeight);
+      }
+      return L.latLngBounds([-maxY, minX], [-minY, maxX]);
+    })();
+    if (!targetBounds) return;
 
-    const matching = regionData.filter(
-      (rd) => getGroupKey(rd.name) === activeGroupKey,
-    );
-    if (matching.length === 0) return;
+    const padding: [number, number] = activeGroupKey ? [30, 30] : [5, 5];
+    const duration = activeGroupKey ? 0.6 : 0.4;
 
-    let minX = Infinity,
-      maxX = -Infinity,
-      minY = Infinity,
-      maxY = -Infinity;
-    for (const rd of matching) {
-      minX = Math.min(minX, rd.offsetX);
-      maxX = Math.max(maxX, rd.offsetX + rd.imageWidth);
-      minY = Math.min(minY, rd.offsetY);
-      maxY = Math.max(maxY, rd.offsetY + rd.imageHeight);
-    }
-
-    const bounds = L.latLngBounds([-maxY, minX], [-minY, maxX]);
-    map.stop();
-    map.flyToBounds(bounds, { padding: [30, 30], duration: 0.6 });
+    let raf = 0;
+    let tries = 0;
+    const attempt = () => {
+      // On mobile's first paint the map container can be 0×0. flyToBounds on a
+      // zero-size map yields NaN center/zoom, and Leaflet throws
+      // "Invalid LatLng object (NaN, NaN)". Re-measure and wait for a real size.
+      map.invalidateSize(false);
+      const size = map.getSize();
+      if (size.x > 0 && size.y > 0) {
+        map.stop();
+        map.flyToBounds(targetBounds, { padding, duration });
+        return;
+      }
+      if (tries++ > 60) return; // ~1s cap — bail rather than loop forever
+      raf = requestAnimationFrame(attempt);
+    };
+    attempt();
+    return () => cancelAnimationFrame(raf);
   }, [activeGroupKey, regionData, map]);
 
   return null;
@@ -835,7 +851,8 @@ export function TerritoryMap({
         <div className="absolute inset-0">
         <MapContainer
           crs={CRS.Simple}
-          bounds={MAP_BOUNDS}
+          center={[-CANVAS_HEIGHT / 2, CANVAS_WIDTH / 2]}
+          zoom={0}
           maxBounds={MAP_MAX_BOUNDS}
           maxBoundsViscosity={1.0}
           className="w-full h-full"
