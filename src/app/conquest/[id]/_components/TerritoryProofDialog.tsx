@@ -177,7 +177,7 @@ export function TerritoryProofDialog({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, isExpanded, selectedIndex, images.length, goToImage]);
+  }, [dialogOpen, isExpanded, selectedIndex, images.length, goToImage]);
 
   const currentImage = images[selectedIndex];
   const hasMultiple = images.length > 1;
