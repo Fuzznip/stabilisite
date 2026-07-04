@@ -100,7 +100,7 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
       <tr style={rowStyle}>
         <td className="px-4 py-2.5 sticky left-0" style={{ background: "hsl(var(--card))" }}>
           <Skeleton className="h-4 w-24 mb-1" />
-          <div className="flex items-center gap-2.5">
+          <div className="hidden sm:flex items-center gap-2.5">
             <Skeleton className="size-16 rounded shrink-0" />
             <Skeleton className="h-4 w-32" />
           </div>
@@ -124,7 +124,7 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
           <div className="text-sm font-medium text-foreground mb-1">{taskName ?? territory.name}</div>
         ) : null}
         {isOrChallenge ? (
-          <div className="flex flex-col gap-1">
+          <div className="hidden sm:flex flex-col gap-1">
             <div className="text-xs text-muted-foreground/50 uppercase tracking-widest leading-none">Any 1 of</div>
             <div className="flex flex-wrap gap-2">
               {triggerSlots.map((slot, i) =>
@@ -175,7 +175,7 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
         ) : (
           <div className="flex flex-col gap-1">
             <div className="text-sm font-medium text-foreground">{taskName ?? territory.name}</div>
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <div className="relative shrink-0">
                 <div
                   className="size-16 rounded overflow-hidden"
@@ -284,7 +284,7 @@ export function ConquestTerritoryTable({
         border: "1px solid rgba(255,255,255,0.10)",
       }}
     >
-      <table className="w-full min-w-[560px] border-collapse" style={{ tableLayout: "fixed" }}>
+      <table className="w-full sm:min-w-[560px] border-collapse" style={{ tableLayout: "fixed" }}>
         <colgroup>
           <col style={{ width: "35%" }} />
           {sortedTeams.map((team) => (
