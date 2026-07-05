@@ -235,7 +235,7 @@ export function TerritoryProofDialog({
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
               Loading...
             </div>
-          ) : showPlayerTable ? (
+          ) : showPlayerTable || images.length === 0 ? (
             playerRows.length > 0 ? (
               <div className="flex-1 min-h-0 overflow-y-auto p-6 sm:p-8">
                 <div className="mx-auto max-w-md">
@@ -285,10 +285,6 @@ export function TerritoryProofDialog({
                 No proofs found
               </div>
             )
-          ) : images.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center text-muted-foreground">
-              No proofs found
-            </div>
           ) : (
             <>
               <div className="flex-1 min-h-0 p-6">

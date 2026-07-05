@@ -185,9 +185,9 @@ export function TerritoryHoverPanel({
                     />
                   )}
                 </div>
-                <span className="flex flex-col items-start gap-0.5 leading-none">
+                <span className="relative leading-none">
                   <span
-                    className="text-2xl font-mono font-semibold tabular-nums leading-none"
+                    className="block text-2xl font-mono font-semibold tabular-nums leading-none"
                     style={{
                       color: hasProgress ? color : "rgba(255,255,255,0.55)",
                     }}
@@ -195,7 +195,7 @@ export function TerritoryHoverPanel({
                     {label}
                   </span>
                   {fullCompletions != null && displayQty > 0 && (
-                    <span className="text-sm font-normal text-stone-400 leading-none">
+                    <span className="absolute left-0 top-full mt-1 text-sm font-normal text-stone-400 leading-none whitespace-nowrap">
                       {displayQty}
                     </span>
                   )}
