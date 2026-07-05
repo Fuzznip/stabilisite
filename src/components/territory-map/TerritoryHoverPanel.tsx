@@ -1,9 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import type { HoverInfo } from "./types";
-import type { ConquestTerritory, Team, TerritoryProgressEntry } from "@/lib/types/v2";
+import type {
+  ConquestTerritory,
+  Team,
+  TerritoryProgressEntry,
+  TerritoryProofEntry,
+} from "@/lib/types/v2";
 
 interface TerritoryHoverPanelProps {
   hover: HoverInfo | null;
@@ -26,6 +31,18 @@ async function fetchTrigger(triggerId: string) {
 
 async function fetchProgress(territoryId: string): Promise<TerritoryProgressEntry[]> {
   const res = await fetch(`/api/conquest/territories/${territoryId}/progress`);
+  if (!res.ok) return [];
+  const json = await res.json();
+  return Array.isArray(json) ? json : (json.data ?? []);
+}
+
+async function fetchProofs(
+  territoryId: string,
+  teamId: string
+): Promise<TerritoryProofEntry[]> {
+  const res = await fetch(
+    `/api/conquest/territories/${territoryId}/proofs?team_id=${teamId}`
+  );
   if (!res.ok) return [];
   const json = await res.json();
   return Array.isArray(json) ? json : (json.data ?? []);
@@ -83,6 +100,18 @@ export function TerritoryHoverPanel({
     staleTime: 15_000,
   });
 
+  // Per-team proofs — only needed for the multi-trigger matrix, where we show
+  // each team's progress against every individual trigger.
+  const isMultiTrigger = triggerSlots.length > 0;
+  const teamProofQueries = useQueries({
+    queries: teams.map((team) => ({
+      queryKey: ["territory-proofs", hover?.territoryId, team.id],
+      queryFn: () => fetchProofs(hover!.territoryId, team.id),
+      enabled: !!hover?.territoryId && isMultiTrigger,
+      staleTime: 30_000,
+    })),
+  });
+
   if (!hover) return null;
 
   const triggerName: string | null =
@@ -103,9 +132,30 @@ export function TerritoryHoverPanel({
     return bQty - aQty || b.completions - a.completions;
   });
 
+  // ── Matrix data (multi-trigger OR challenges) ──────────────────────────────
+  const progressMap = new Map(progress.map((p) => [p.team_id, p]));
+  // Flat list of individual triggers, one per matrix row.
+  const matrixTriggers = triggerSlots.flatMap((s) => s.items);
+  // Team columns, ordered by score so the leader sits leftmost.
+  const columnTeams = [...teams].sort(
+    (a, b) =>
+      (progressMap.get(b.id)?.completions ?? 0) -
+      (progressMap.get(a.id)?.completions ?? 0)
+  );
+  const teamProofs = new Map<string, TerritoryProofEntry[]>(
+    teams.map((team, i) => [team.id, teamProofQueries[i]?.data ?? []])
+  );
+  // A trigger's proof actions record per-event deltas — sum them for the total.
+  const triggerQtyForTeam = (teamId: string, triggerName: string): number =>
+    (teamProofs.get(teamId) ?? [])
+      .filter((p) => p.action?.name === triggerName)
+      .reduce((sum, p) => sum + (p.action?.quantity ?? 0), 0);
+
   return (
     <div
-      className="fixed pointer-events-none z-[9999] bg-stone-900/95 border border-amber-700/60 rounded-lg shadow-xl w-80"
+      className={`fixed pointer-events-none z-[9999] bg-stone-900/95 border border-amber-700/60 rounded-lg shadow-xl ${
+        isOrChallenge ? "w-96" : "w-80"
+      }`}
       style={{ left: mousePos.x + 20, top: mousePos.y - 14 }}
     >
       <div className="px-4 py-3 border-b border-stone-700/60">
@@ -115,56 +165,7 @@ export function TerritoryHoverPanel({
         <div className="text-foreground text-xs mb-2">
           {hover.territoryName}
         </div>
-        {isOrChallenge ? (
-          <div className="flex flex-col gap-1.5">
-            <div className="text-stone-500 text-xs uppercase tracking-widest">Any 1 of</div>
-            <div className="flex flex-wrap gap-3">
-              {triggerSlots.map((slot, i) =>
-                slot.items.length === 1 ? (
-                  slot.items[0].img_path ? (
-                    <div key={i} className="relative shrink-0" title={slot.items[0].name}>
-                      <div className="size-16 relative rounded overflow-hidden bg-white/5 border border-white/10">
-                        <Image src={slot.items[0].img_path} alt={slot.items[0].name} fill unoptimized className="object-contain p-1" />
-                        {slot.items[0].quantity != null && slot.items[0].quantity > 1 && (
-                          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
-                            req: {slot.items[0].quantity}
-                          </div>
-                        )}
-                      </div>
-                      {isPointWeighted && (
-                        <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
-                          {slot.items[0].value ?? 1}
-                        </div>
-                      )}
-                    </div>
-                  ) : null
-                ) : (
-                  <div key={i} className="flex gap-1">
-                    {slot.items.map((item, j) =>
-                      item.img_path ? (
-                        <div key={j} className="relative shrink-0" title={item.name}>
-                          <div className="size-16 relative rounded overflow-hidden bg-white/5 border border-white/10">
-                            <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1" />
-                            {item.quantity != null && item.quantity > 1 && (
-                              <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
-                                req: {item.quantity}
-                              </div>
-                            )}
-                          </div>
-                          {isPointWeighted && (
-                            <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
-                              {item.value ?? 1}
-                            </div>
-                          )}
-                        </div>
-                      ) : null
-                    )}
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-        ) : (
+        {!isOrChallenge && (
           <div className="flex items-center gap-3">
             {triggerImgPath && (
               <div className="relative shrink-0">
@@ -191,7 +192,124 @@ export function TerritoryHoverPanel({
         )}
       </div>
 
-      {sorted.length > 0 && (
+      {isOrChallenge ? (
+        <div className="px-3 py-3">
+          <div className="text-stone-500 text-[10px] uppercase tracking-widest mb-2 px-1">
+            Any 1 of
+          </div>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr>
+                <th className="p-0" />
+                {columnTeams.map((team) => {
+                  const color = team.color ?? "#6b7280";
+                  return (
+                    <th key={team.id} className="p-0 pb-2 w-9 align-bottom">
+                      <div className="flex justify-center">
+                        <div
+                          className="size-6 rounded overflow-hidden relative"
+                          style={{ border: `1px solid ${color}66` }}
+                        >
+                          {team.image_url ? (
+                            <Image
+                              src={team.image_url}
+                              alt={team.name}
+                              fill
+                              unoptimized
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div
+                              className="w-full h-full"
+                              style={{ backgroundColor: color }}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {matrixTriggers.map((trig, ti) => (
+                <tr key={ti} className="border-t border-white/[0.06]">
+                  <td className="py-1.5 pr-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {trig.img_path && (
+                        <div className="relative size-7 shrink-0 rounded overflow-hidden bg-white/5 border border-white/10">
+                          <Image
+                            src={trig.img_path}
+                            alt={trig.name}
+                            fill
+                            unoptimized
+                            className="object-contain p-0.5"
+                          />
+                          {isPointWeighted && (
+                            <div className="absolute -top-1 -left-1 size-3.5 rounded-full flex items-center justify-center bg-stability text-white text-[8px] font-bold shadow-md">
+                              {trig.value ?? 1}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="text-stone-200 text-xs leading-tight truncate">
+                          {trig.name}
+                        </div>
+                        {trig.quantity != null && trig.quantity > 1 && (
+                          <div className="text-stone-500 text-[10px] leading-tight">
+                            req {trig.quantity}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  {columnTeams.map((team) => {
+                    const qty = triggerQtyForTeam(team.id, trig.name);
+                    const color = team.color ?? "#6b7280";
+                    return (
+                      <td key={team.id} className="text-center align-middle w-9">
+                        <span
+                          className="text-xs font-mono tabular-nums"
+                          style={{
+                            color: qty > 0 ? color : "rgba(255,255,255,0.28)",
+                          }}
+                        >
+                          {qty > 0 ? qty : "·"}
+                        </span>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-white/10">
+                <td className="pt-2 text-stone-500 text-[10px] uppercase tracking-widest">
+                  {isPointWeighted ? "Points" : "Done"}
+                </td>
+                {columnTeams.map((team) => {
+                  const total = progressMap.get(team.id)?.completions ?? 0;
+                  const color = team.color ?? "#6b7280";
+                  return (
+                    <td key={team.id} className="pt-2 text-center w-9">
+                      <span
+                        className="text-xs font-mono font-bold tabular-nums"
+                        style={{
+                          color: total > 0 ? color : "rgba(255,255,255,0.4)",
+                        }}
+                      >
+                        {total}
+                      </span>
+                    </td>
+                  );
+                })}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      ) : (
+        sorted.length > 0 && (
         <div className="px-4 py-3 flex flex-col gap-2.5">
           {sorted.map((entry) => {
             const team = teams.find((t) => t.id === entry.team_id);
@@ -248,6 +366,7 @@ export function TerritoryHoverPanel({
             );
           })}
         </div>
+        )
       )}
     </div>
   );

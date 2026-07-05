@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { Crown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { RegionData } from "@/components/territory-map/types";
 import type { RegionGroup } from "@/components/territory-map/map-data";
@@ -30,9 +29,7 @@ async function fetchTrigger(triggerId: string) {
 async function fetchProgress(
   territoryId: string,
 ): Promise<TerritoryProgressEntry[]> {
-  const res = await fetch(
-    `/api/conquest/territories/${territoryId}/progress`,
-  );
+  const res = await fetch(`/api/conquest/territories/${territoryId}/progress`);
   if (!res.ok) return [];
   const json = await res.json();
   return Array.isArray(json) ? json : (json.data ?? []);
@@ -69,17 +66,32 @@ function TerritoryDetailRow({
 
   // For parent OR challenges, build slots from children.
   // Each slot is { items } — one item = standalone trigger, multiple = grouped grandchildren.
-  type TriggerItem = { name: string; img_path: string | null; quantity: number | null; value: number | null };
+  type TriggerItem = {
+    name: string;
+    img_path: string | null;
+    quantity: number | null;
+    value: number | null;
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function childToItems(c: any): TriggerItem[] {
-    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null, value: c.value ?? null }];
+    if (c.trigger)
+      return [
+        {
+          name: c.trigger.name,
+          img_path: c.trigger.img_path ?? null,
+          quantity: c.quantity ?? null,
+          value: c.value ?? null,
+        },
+      ];
     if (c.children?.length) return (c.children as any[]).flatMap(childToItems);
     return [];
   }
   const triggerSlots: Array<{ items: TriggerItem[] }> =
     !triggerId && challenge?.children?.length > 0
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ? (challenge.children as any[]).map((c) => ({ items: childToItems(c) })).filter((s) => s.items.length > 0)
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (challenge.children as any[])
+          .map((c) => ({ items: childToItems(c) }))
+          .filter((s) => s.items.length > 0)
       : [];
 
   const { data: progress = [] } = useQuery<TerritoryProgressEntry[]>({
@@ -89,12 +101,20 @@ function TerritoryDetailRow({
   });
 
   const triggerName: string | null =
-    challenge?.trigger?.name ?? trigger?.name ?? triggerSlots[0]?.items[0]?.name ?? null;
+    challenge?.trigger?.name ??
+    trigger?.name ??
+    triggerSlots[0]?.items[0]?.name ??
+    null;
   const triggerImgPath: string | null =
-    challenge?.trigger?.img_path ?? trigger?.img_path ?? triggerSlots[0]?.items[0]?.img_path ?? null;
+    challenge?.trigger?.img_path ??
+    trigger?.img_path ??
+    triggerSlots[0]?.items[0]?.img_path ??
+    null;
   const required: number | null = challenge?.quantity ?? null;
   const isOrChallenge = triggerSlots.length > 0;
-  const isPointWeighted = triggerSlots.some((slot) => slot.items.some((item) => (item.value ?? 1) > 1));
+  const isPointWeighted = triggerSlots.some((slot) =>
+    slot.items.some((item) => (item.value ?? 1) > 1),
+  );
   const taskName: string | null = challenge?.task?.name ?? null;
 
   const progressMap = new Map(progress.map((p) => [p.team_id, p]));
@@ -126,7 +146,9 @@ function TerritoryDetailRow({
       <div className="px-3 pt-2.5 pl-4 text-base text-foreground font-bold truncate flex items-baseline gap-1.5">
         <span className="truncate">{taskName ?? territory.name}</span>
         {required != null && required > 1 && (
-          <span className="text-sm text-muted-foreground font-normal shrink-0">×{required}</span>
+          <span className="text-sm text-muted-foreground font-normal shrink-0">
+            ×{required}
+          </span>
         )}
       </div>
 
@@ -137,21 +159,35 @@ function TerritoryDetailRow({
       >
         {isOrChallenge ? (
           <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-<div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3">
               {triggerSlots.map((slot, i) =>
                 slot.items.length === 1 ? (
                   slot.items[0].img_path ? (
-                    <div key={i} className="relative shrink-0" title={slot.items[0].name}>
+                    <div
+                      key={i}
+                      className="relative shrink-0"
+                      title={slot.items[0].name}
+                    >
                       <div
                         className="size-16 relative rounded-md overflow-hidden"
-                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
+                        style={{
+                          background: "rgba(255,255,255,0.04)",
+                          border: "1px solid rgba(255,255,255,0.10)",
+                        }}
                       >
-                        <Image src={slot.items[0].img_path} alt={slot.items[0].name} fill unoptimized className="object-contain p-1.5" />
-                        {slot.items[0].quantity != null && slot.items[0].quantity > 1 && (
-                          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
-                            req: {slot.items[0].quantity}
-                          </div>
-                        )}
+                        <Image
+                          src={slot.items[0].img_path}
+                          alt={slot.items[0].name}
+                          fill
+                          unoptimized
+                          className="object-contain p-1.5"
+                        />
+                        {slot.items[0].quantity != null &&
+                          slot.items[0].quantity > 1 && (
+                            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
+                              req: {slot.items[0].quantity}
+                            </div>
+                          )}
                       </div>
                       {isPointWeighted && (
                         <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
@@ -164,12 +200,25 @@ function TerritoryDetailRow({
                   <div key={i} className="flex gap-1">
                     {slot.items.map((item, j) =>
                       item.img_path ? (
-                        <div key={j} className="relative shrink-0" title={item.name}>
+                        <div
+                          key={j}
+                          className="relative shrink-0"
+                          title={item.name}
+                        >
                           <div
                             className="size-16 relative rounded overflow-hidden"
-                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
+                            style={{
+                              background: "rgba(255,255,255,0.04)",
+                              border: "1px solid rgba(255,255,255,0.10)",
+                            }}
                           >
-                            <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1.5" />
+                            <Image
+                              src={item.img_path}
+                              alt={item.name}
+                              fill
+                              unoptimized
+                              className="object-contain p-1.5"
+                            />
                             {item.quantity != null && item.quantity > 1 && (
                               <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
                                 req: {item.quantity}
@@ -182,10 +231,10 @@ function TerritoryDetailRow({
                             </div>
                           )}
                         </div>
-                      ) : null
+                      ) : null,
                     )}
                   </div>
-                )
+                ),
               )}
             </div>
           </div>
@@ -235,46 +284,39 @@ function TerritoryDetailRow({
           // For multi-leaf challenges the backend score lives in `completions`; `quantity` is raw aggregate
           const displayQty = isOrChallenge ? completions : qty;
           const label =
-            required == null
-              ? `${completions}×`
-              : required === 1
-                ? `${displayQty}`
-                : `${displayQty}/${required}`;
+            required != null ? `${displayQty}/${required}` : `${completions}×`;
           const color = team.color ?? "#888";
           const hasProgress = displayQty > 0;
 
           const inner = (
-            <div className="flex flex-col items-center gap-1.5 px-2 sm:px-3 py-2.5 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.06]">
+            <div className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.06]">
               <div className="flex items-center gap-1.5">
-                <div className="relative shrink-0">
-                  <div
-                    className="size-11 sm:size-12 rounded-lg overflow-hidden relative"
-                    style={{ border: `1px solid ${isController ? `${color}88` : "rgba(255,255,255,0.10)"}` }}
-                  >
-                    {team.image_url ? (
-                      <Image
-                        src={team.image_url}
-                        alt={team.name}
-                        fill
-                        unoptimized
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full" style={{ background: color }} />
-                    )}
-                  </div>
-                  {isController && (
-                    <Crown
-                      className="absolute -top-2.5 left-1/2 -translate-x-1/2 size-5 drop-shadow-md"
-                      style={{ color: "#fbbf24" }}
-                      fill="currentColor"
-                      aria-label="Controlling team"
+                <div
+                  className="size-12 rounded-lg shrink-0 overflow-hidden relative"
+                  style={{
+                    border: `1px solid ${isController ? `${color}88` : "rgba(255,255,255,0.10)"}`,
+                  }}
+                >
+                  {team.image_url ? (
+                    <Image
+                      src={team.image_url}
+                      alt={team.name}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full"
+                      style={{ background: color }}
                     />
                   )}
                 </div>
                 <span
                   className="text-base font-mono tabular-nums leading-none"
-                  style={{ color: hasProgress ? color : "rgba(255,255,255,0.55)" }}
+                  style={{
+                    color: isController ? color : "rgba(255,255,255,0.55)",
+                  }}
                 >
                   {label}
                 </span>
@@ -331,13 +373,9 @@ export function ConquestRegionDetail({
   );
   const groupTerritories = territories
     .filter((t) => groupTerritoryIds.has(t.id))
-    .sort(
-      (a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999),
-    );
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999));
 
-  const sortedTeams = [...teams].sort((a, b) =>
-    a.name.localeCompare(b.name),
-  );
+  const sortedTeams = [...teams].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <section>
@@ -368,16 +406,13 @@ export function ConquestRegionDetail({
           All Regions
         </button>
         <span className="text-muted-foreground/30">/</span>
-        <h3
-          className="font-semibold uppercase"
-          style={{ color: colorHex }}
-        >
+        <h3 className="font-semibold uppercase" style={{ color: colorHex }}>
           {group.displayName}
         </h3>
       </div>
 
       {/* Territory rows */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3">
         {groupTerritories.length === 0 ? (
           <div
             className="rounded-xl py-10 text-center text-sm text-muted-foreground/40"
