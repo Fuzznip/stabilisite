@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import type { RegionData } from "@/components/territory-map/types";
@@ -9,8 +10,9 @@ import type {
   ConquestTerritory,
   Team,
   TerritoryProgressEntry,
+  TerritoryProofEntry,
 } from "@/lib/types/v2";
-import { TerritoryBreakdownDialog } from "./TerritoryBreakdownDialog";
+import { TerritoryProofDialog } from "./TerritoryProofDialog";
 
 // ── data fetchers ────────────────────────────────────────────────────────────
 
@@ -30,6 +32,17 @@ async function fetchProgress(
   territoryId: string,
 ): Promise<TerritoryProgressEntry[]> {
   const res = await fetch(`/api/conquest/territories/${territoryId}/progress`);
+  if (!res.ok) return [];
+  const json = await res.json();
+  return Array.isArray(json) ? json : (json.data ?? []);
+}
+
+// All teams' proofs for a territory in one call (team_id omitted); each entry
+// carries its own team_id so we can tally per-team, per-trigger client-side.
+async function fetchProofs(
+  territoryId: string,
+): Promise<TerritoryProofEntry[]> {
+  const res = await fetch(`/api/conquest/territories/${territoryId}/proofs`);
   if (!res.ok) return [];
   const json = await res.json();
   return Array.isArray(json) ? json : (json.data ?? []);
@@ -100,6 +113,18 @@ function TerritoryDetailRow({
     staleTime: 15_000,
   });
 
+  // Selecting a team reveals its per-trigger tallies (fetched lazily on select).
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+  const [proofTrigger, setProofTrigger] = useState<TriggerItem | null>(null);
+  const [proofOpen, setProofOpen] = useState(false);
+
+  const { data: allProofs = [] } = useQuery<TerritoryProofEntry[]>({
+    queryKey: ["territory-proofs", territory.id],
+    queryFn: () => fetchProofs(territory.id),
+    enabled: selectedTeamId != null,
+    staleTime: 30_000,
+  });
+
   const triggerName: string | null =
     challenge?.trigger?.name ??
     trigger?.name ??
@@ -123,7 +148,32 @@ function TerritoryDetailRow({
     ? teams.find((t) => t.id === territory.controlling_team_id)
     : null;
 
+  // Unified trigger list — the OR slots flattened, or the single trigger.
+  const triggers: TriggerItem[] = isOrChallenge
+    ? triggerSlots.flatMap((s) => s.items)
+    : triggerName || triggerImgPath
+      ? [
+          {
+            name: triggerName ?? territory.name,
+            img_path: triggerImgPath,
+            quantity: required,
+            value: challenge?.value ?? 1,
+          },
+        ]
+      : [];
+
+  const selectedTeam = selectedTeamId
+    ? (teams.find((t) => t.id === selectedTeamId) ?? null)
+    : null;
+
+  // How many of a given trigger a team has logged (proof deltas summed).
+  const triggerQtyForTeam = (teamId: string, name: string): number =>
+    allProofs
+      .filter((p) => p.team_id === teamId && p.action?.name === name)
+      .reduce((sum, p) => sum + (p.action?.quantity ?? 0), 0);
+
   return (
+    <>
     <div
       className="relative rounded-xl overflow-hidden flex flex-col"
       style={{
@@ -142,9 +192,11 @@ function TerritoryDetailRow({
         }}
       />
 
-      {/* Territory label */}
-      <div className="px-3 pt-2.5 pl-4 text-base text-foreground font-bold truncate flex items-baseline gap-1.5">
-        <span className="truncate">{taskName ?? territory.name}</span>
+      {/* Territory name */}
+      <div className="px-4 pt-3 pb-2 flex items-baseline gap-2">
+        <span className="text-lg font-bold text-foreground truncate leading-tight">
+          {taskName ?? territory.name}
+        </span>
         {required != null && required > 1 && (
           <span className="text-sm text-muted-foreground font-normal shrink-0">
             ×{required}
@@ -152,197 +204,173 @@ function TerritoryDetailRow({
         )}
       </div>
 
-      {/* Header */}
-      <div
-        className="flex items-start gap-2 px-3 py-2.5 pl-4 flex-1"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        {isOrChallenge ? (
-          <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-            <div className="flex flex-wrap gap-3">
-              {triggerSlots.map((slot, i) =>
-                slot.items.length === 1 ? (
-                  slot.items[0].img_path ? (
+      {/* Team progress — click a team to reveal its per-trigger tally below */}
+      <div className="px-2 pb-2 flex flex-wrap">
+        {teams.map((team) => {
+          const entry = progressMap.get(team.id);
+          const qty = entry?.quantity ?? 0;
+          const completions = entry?.completions ?? 0;
+          const displayQty = isOrChallenge ? completions : qty;
+          const label =
+            required == null
+              ? `${completions}×`
+              : required === 1
+                ? `${displayQty}`
+                : `${displayQty}/${required}`;
+          const color = team.color ?? "#888";
+          const hasProgress = displayQty > 0;
+          const isController = territory.controlling_team_id === team.id;
+          const isSelected = selectedTeamId === team.id;
+          return (
+            <button
+              key={team.id}
+              onClick={() => setSelectedTeamId(isSelected ? null : team.id)}
+              aria-pressed={isSelected}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.06]"
+              style={isSelected ? { background: `${color}1f` } : undefined}
+            >
+              <div
+                className="size-11 rounded-lg shrink-0 overflow-hidden relative"
+                style={{
+                  border: `1px solid ${
+                    isSelected
+                      ? color
+                      : isController
+                        ? `${color}88`
+                        : "rgba(255,255,255,0.10)"
+                  }`,
+                  boxShadow: isSelected ? `0 0 0 1px ${color}` : undefined,
+                }}
+              >
+                {team.image_url ? (
+                  <Image
+                    src={team.image_url}
+                    alt={team.name}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full" style={{ background: color }} />
+                )}
+              </div>
+              <span
+                className="text-base font-mono tabular-nums leading-none"
+                style={{
+                  color: hasProgress ? color : "rgba(255,255,255,0.55)",
+                }}
+              >
+                {label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Triggers — reveal the selected team's amount on each */}
+      {triggers.length > 0 && (
+        <div
+          className="px-4 pt-2.5 pb-3"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+        >
+          <div className="flex flex-wrap gap-3">
+            {triggers.map((trig, ti) => {
+              const count = selectedTeam
+                ? triggerQtyForTeam(selectedTeam.id, trig.name)
+                : 0;
+              const color = selectedTeam?.color ?? "#888";
+              const tile = (
+                <>
+                  <div className="relative shrink-0">
                     <div
-                      key={i}
-                      className="relative shrink-0"
-                      title={slot.items[0].name}
+                      className="size-14 relative rounded-md overflow-hidden"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: `1px solid ${count > 0 ? color : "rgba(255,255,255,0.10)"}`,
+                      }}
                     >
-                      <div
-                        className="size-16 relative rounded-md overflow-hidden"
-                        style={{
-                          background: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(255,255,255,0.10)",
-                        }}
-                      >
+                      {trig.img_path ? (
                         <Image
-                          src={slot.items[0].img_path}
-                          alt={slot.items[0].name}
+                          src={trig.img_path}
+                          alt={trig.name}
                           fill
                           unoptimized
                           className="object-contain p-1.5"
                         />
-                        {slot.items[0].quantity != null &&
-                          slot.items[0].quantity > 1 && (
-                            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
-                              req: {slot.items[0].quantity}
-                            </div>
-                          )}
-                      </div>
-                      {isPointWeighted && (
-                        <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
-                          {slot.items[0].value ?? 1}
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div
+                            className="size-3 rounded-full opacity-30"
+                            style={{ background: colorHex }}
+                          />
+                        </div>
+                      )}
+                      {trig.quantity != null && trig.quantity > 1 && (
+                        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
+                          req: {trig.quantity}
                         </div>
                       )}
                     </div>
-                  ) : null
-                ) : (
-                  <div key={i} className="flex gap-1">
-                    {slot.items.map((item, j) =>
-                      item.img_path ? (
-                        <div
-                          key={j}
-                          className="relative shrink-0"
-                          title={item.name}
-                        >
-                          <div
-                            className="size-16 relative rounded overflow-hidden"
-                            style={{
-                              background: "rgba(255,255,255,0.04)",
-                              border: "1px solid rgba(255,255,255,0.10)",
-                            }}
-                          >
-                            <Image
-                              src={item.img_path}
-                              alt={item.name}
-                              fill
-                              unoptimized
-                              className="object-contain p-1.5"
-                            />
-                            {item.quantity != null && item.quantity > 1 && (
-                              <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
-                                req: {item.quantity}
-                              </div>
-                            )}
-                          </div>
-                          {isPointWeighted && (
-                            <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
-                              {item.value ?? 1}
-                            </div>
-                          )}
-                        </div>
-                      ) : null,
+                    {isPointWeighted && (
+                      <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                        {trig.value ?? 1}
+                      </div>
                     )}
                   </div>
-                ),
-              )}
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Trigger image */}
-            <div className="relative shrink-0">
-              <div
-                className="size-16 rounded-md overflow-hidden"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.10)",
-                }}
-              >
-                {triggerImgPath ? (
-                  <Image
-                    src={triggerImgPath}
-                    alt={triggerName ?? territory.name}
-                    fill
-                    unoptimized
-                    className="object-contain p-1.5"
-                  />
-                ) : (
-                  <div
-                    className="size-3 rounded-full opacity-30"
-                    style={{ background: colorHex }}
-                  />
-                )}
-              </div>
-              {required != null && required > 1 && (
-                <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
-                  {challenge?.value}
-                </div>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Team progress */}
-      <div className="pl-4 flex flex-wrap">
-        {teams.map((team, i) => {
-          const entry = progressMap.get(team.id);
-          const qty = entry?.quantity ?? 0;
-          const completions = entry?.completions ?? 0;
-          const isController = territory.controlling_team_id === team.id;
-          // For multi-leaf challenges the backend score lives in `completions`; `quantity` is raw aggregate
-          const displayQty = isOrChallenge ? completions : qty;
-          const label =
-            required != null ? `${displayQty}/${required}` : `${completions}×`;
-          const color = team.color ?? "#888";
-          const hasProgress = displayQty > 0;
-
-          const inner = (
-            <div className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.06]">
-              <div className="flex items-center gap-1.5">
+                  <span
+                    className="text-sm font-mono font-bold tabular-nums leading-none"
+                    style={{
+                      color: count > 0 ? color : "rgba(255,255,255,0.3)",
+                      visibility: selectedTeam ? "visible" : "hidden",
+                    }}
+                  >
+                    {count}
+                  </span>
+                </>
+              );
+              return selectedTeam ? (
+                <button
+                  key={ti}
+                  title={trig.name}
+                  onClick={() => {
+                    setProofTrigger(trig);
+                    setProofOpen(true);
+                  }}
+                  className="flex flex-col items-center gap-1 cursor-pointer"
+                >
+                  {tile}
+                </button>
+              ) : (
                 <div
-                  className="size-12 rounded-lg shrink-0 overflow-hidden relative"
-                  style={{
-                    border: `1px solid ${isController ? `${color}88` : "rgba(255,255,255,0.10)"}`,
-                  }}
+                  key={ti}
+                  title={trig.name}
+                  className="flex flex-col items-center gap-1"
                 >
-                  {team.image_url ? (
-                    <Image
-                      src={team.image_url}
-                      alt={team.name}
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div
-                      className="w-full h-full"
-                      style={{ background: color }}
-                    />
-                  )}
+                  {tile}
                 </div>
-                <span
-                  className="text-base font-mono tabular-nums leading-none"
-                  style={{
-                    color: isController ? color : "rgba(255,255,255,0.55)",
-                  }}
-                >
-                  {label}
-                </span>
-              </div>
-            </div>
-          );
+              );
+            })}
+          </div>
+        </div>
+      )}
 
-          return (
-            <div key={team.id} className="flex items-center">
-              <TerritoryBreakdownDialog
-                territoryId={territory.id}
-                teamId={team.id}
-                challenge={challenge}
-                trigger={trigger}
-                teamProgress={progressMap.get(team.id)}
-              >
-                {inner}
-              </TerritoryBreakdownDialog>
-              {i < teams.length - 1 && (
-                <div className="w-px self-stretch bg-white/[0.06]" />
-              )}
-            </div>
-          );
-        })}
-      </div>
     </div>
+
+    {selectedTeam && proofTrigger && (
+      <TerritoryProofDialog
+        territoryId={territory.id}
+        teamId={selectedTeam.id}
+        triggerName={proofTrigger.name}
+        requiredQuantity={proofTrigger.quantity}
+        filterByActionName={proofTrigger.name}
+        open={proofOpen}
+        onOpenChange={(v) => {
+          setProofOpen(v);
+          if (!v) setProofTrigger(null);
+        }}
+      />
+    )}
+    </>
   );
 }
 
