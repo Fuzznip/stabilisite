@@ -211,12 +211,18 @@ function TerritoryDetailRow({
           const qty = entry?.quantity ?? 0;
           const completions = entry?.completions ?? 0;
           const displayQty = isOrChallenge ? completions : qty;
+          // For multi-quantity challenges, lead with full completions and keep
+          // the raw total as a secondary detail (e.g. "2 (5 total)").
+          const fullCompletions =
+            required != null && required > 1
+              ? Math.floor(displayQty / required)
+              : null;
           const label =
             required == null
               ? `${completions}×`
               : required === 1
                 ? `${displayQty}`
-                : `${displayQty}/${required}`;
+                : `${fullCompletions}`;
           const color = team.color ?? "#888";
           const hasProgress = displayQty > 0;
           const isController = territory.controlling_team_id === team.id;
@@ -254,13 +260,20 @@ function TerritoryDetailRow({
                   <div className="w-full h-full" style={{ background: color }} />
                 )}
               </div>
-              <span
-                className="text-base font-mono tabular-nums leading-none"
-                style={{
-                  color: hasProgress ? color : "rgba(255,255,255,0.55)",
-                }}
-              >
-                {label}
+              <span className="flex flex-col items-start gap-0.5 leading-none">
+                <span
+                  className="text-2xl font-mono font-semibold tabular-nums leading-none"
+                  style={{
+                    color: hasProgress ? color : "rgba(255,255,255,0.55)",
+                  }}
+                >
+                  {label}
+                </span>
+                {fullCompletions != null && displayQty > 0 && (
+                  <span className="text-sm font-normal text-muted-foreground leading-none">
+                    {displayQty}
+                  </span>
+                )}
               </span>
             </button>
           );
@@ -306,13 +319,13 @@ function TerritoryDetailRow({
                         </div>
                       )}
                       {trig.quantity != null && trig.quantity > 1 && (
-                        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
+                        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-xs font-bold py-0.5 leading-none">
                           req: {trig.quantity}
                         </div>
                       )}
                     </div>
                     {isPointWeighted && (
-                      <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                      <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-xs font-bold shadow-md">
                         {trig.value ?? 1}
                       </div>
                     )}
