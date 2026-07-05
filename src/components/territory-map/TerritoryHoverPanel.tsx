@@ -14,28 +14,20 @@ interface TerritoryHoverPanelProps {
 
 async function fetchChallenge(challengeId: string) {
   const res = await fetch(`/api/conquest/challenges/${challengeId}`);
-  console.log("[fetchChallenge] status:", res.status, "id:", challengeId);
-  if (!res.ok) { console.log("[fetchChallenge] not ok"); return null; }
-  const json = await res.json();
-  console.log("[fetchChallenge] result:", json);
-  return json;
+  if (!res.ok) return null;
+  return res.json();
 }
 
 async function fetchTrigger(triggerId: string) {
   const res = await fetch(`/api/conquest/triggers/${triggerId}`);
-  console.log("[fetchTrigger] status:", res.status, "id:", triggerId);
-  if (!res.ok) { console.log("[fetchTrigger] not ok"); return null; }
-  const json = await res.json();
-  console.log("[fetchTrigger] result:", json);
-  return json;
+  if (!res.ok) return null;
+  return res.json();
 }
 
 async function fetchProgress(territoryId: string): Promise<TerritoryProgressEntry[]> {
   const res = await fetch(`/api/conquest/territories/${territoryId}/progress`);
-  console.log("[fetchProgress] status:", res.status, "id:", territoryId);
-  if (!res.ok) { console.log("[fetchProgress] not ok"); return []; }
+  if (!res.ok) return [];
   const json = await res.json();
-  console.log("[fetchProgress] result:", json);
   return Array.isArray(json) ? json : (json.data ?? []);
 }
 
@@ -71,10 +63,10 @@ export function TerritoryHoverPanel({
   // For parent OR challenges, build slots from children.
   // Each slot is { items } — one item = standalone trigger, multiple = grouped grandchildren.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  type TriggerItem = { name: string; img_path: string | null; quantity: number | null };
+  type TriggerItem = { name: string; img_path: string | null; quantity: number | null; value: number | null };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function childToItems(c: any): TriggerItem[] {
-    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null }];
+    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null, value: c.value ?? null }];
     if (c.children?.length) return (c.children as any[]).flatMap(childToItems);
     return [];
   }
@@ -93,22 +85,23 @@ export function TerritoryHoverPanel({
 
   if (!hover) return null;
 
-  console.log("[hover] territory:", territory?.id, "challenge_id:", challengeId);
-  console.log("[hover] challenge data:", challenge);
-  console.log("[hover] trigger data:", trigger);
-  console.log("[hover] progress:", progress);
-
   const triggerName: string | null =
     challenge?.trigger?.name ?? trigger?.name ?? triggerSlots[0]?.items[0]?.name ?? null;
   const triggerImgPath: string | null =
     challenge?.trigger?.img_path ?? trigger?.img_path ?? triggerSlots[0]?.items[0]?.img_path ?? null;
   const required: number | null = challenge?.quantity ?? null;
   const isOrChallenge = triggerSlots.length > 0;
-
-  // Sort progress by completions desc, then quantity desc
-  const sorted = [...progress].sort(
-    (a, b) => b.completions - a.completions || b.quantity - a.quantity
+  const isPointWeighted = triggerSlots.some((slot) =>
+    slot.items.some((item) => (item.value ?? 1) > 1)
   );
+
+  // Sort by displayed progress desc (completions for OR challenges, else
+  // raw quantity), falling back to completions as a tiebreaker.
+  const sorted = [...progress].sort((a, b) => {
+    const aQty = isOrChallenge ? a.completions : a.quantity;
+    const bQty = isOrChallenge ? b.completions : b.quantity;
+    return bQty - aQty || b.completions - a.completions;
+  });
 
   return (
     <div
@@ -129,16 +122,40 @@ export function TerritoryHoverPanel({
               {triggerSlots.map((slot, i) =>
                 slot.items.length === 1 ? (
                   slot.items[0].img_path ? (
-                    <div key={i} className="relative size-16 rounded shrink-0 overflow-hidden bg-white/5 border border-white/10" title={slot.items[0].name}>
-                      <Image src={slot.items[0].img_path} alt={slot.items[0].name} fill unoptimized className="object-contain p-1" />
+                    <div key={i} className="relative shrink-0" title={slot.items[0].name}>
+                      <div className="size-16 relative rounded overflow-hidden bg-white/5 border border-white/10">
+                        <Image src={slot.items[0].img_path} alt={slot.items[0].name} fill unoptimized className="object-contain p-1" />
+                        {slot.items[0].quantity != null && slot.items[0].quantity > 1 && (
+                          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
+                            req: {slot.items[0].quantity}
+                          </div>
+                        )}
+                      </div>
+                      {isPointWeighted && (
+                        <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                          {slot.items[0].value ?? 1}
+                        </div>
+                      )}
                     </div>
                   ) : null
                 ) : (
                   <div key={i} className="flex gap-1">
                     {slot.items.map((item, j) =>
                       item.img_path ? (
-                        <div key={j} className="relative size-16 rounded shrink-0 overflow-hidden bg-white/5 border border-white/10" title={item.name}>
-                          <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1" />
+                        <div key={j} className="relative shrink-0" title={item.name}>
+                          <div className="size-16 relative rounded overflow-hidden bg-white/5 border border-white/10">
+                            <Image src={item.img_path} alt={item.name} fill unoptimized className="object-contain p-1" />
+                            {item.quantity != null && item.quantity > 1 && (
+                              <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-[10px] font-bold py-0.5 leading-none">
+                                req: {item.quantity}
+                              </div>
+                            )}
+                          </div>
+                          {isPointWeighted && (
+                            <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                              {item.value ?? 1}
+                            </div>
+                          )}
                         </div>
                       ) : null
                     )}
@@ -150,14 +167,21 @@ export function TerritoryHoverPanel({
         ) : (
           <div className="flex items-center gap-3">
             {triggerImgPath && (
-              <div className="relative size-16 rounded shrink-0 overflow-hidden bg-white/5 border border-white/10">
-                <Image
-                  src={triggerImgPath}
-                  alt={triggerName ?? hover.territoryName}
-                  fill
-                  unoptimized
-                  className="object-contain p-1"
-                />
+              <div className="relative shrink-0">
+                <div className="size-16 relative rounded overflow-hidden bg-white/5 border border-white/10">
+                  <Image
+                    src={triggerImgPath}
+                    alt={triggerName ?? hover.territoryName}
+                    fill
+                    unoptimized
+                    className="object-contain p-1"
+                  />
+                </div>
+                {required != null && required > 1 && (
+                  <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-[10px] font-bold shadow-md">
+                    {challenge?.value}
+                  </div>
+                )}
               </div>
             )}
             {required != null && required !== 1 && (
@@ -172,12 +196,21 @@ export function TerritoryHoverPanel({
           {sorted.map((entry) => {
             const team = teams.find((t) => t.id === entry.team_id);
             const color = team?.color ?? "#6b7280";
+            // For multi-leaf OR challenges the backend score lives in
+            // `completions`; `quantity` is the raw aggregate.
+            const displayQty = isOrChallenge ? entry.completions : entry.quantity;
             const pct =
               required != null && required > 0
-                ? Math.min(1, entry.quantity / required)
-                : entry.completions > 0
+                ? Math.min(1, displayQty / required)
+                : displayQty > 0
                 ? 1
                 : 0;
+            const label =
+              required == null
+                ? `${entry.completions}×`
+                : required === 1
+                ? `${displayQty}`
+                : `${displayQty}/${required}`;
 
             return (
               <div key={entry.team_id}>
@@ -203,11 +236,7 @@ export function TerritoryHoverPanel({
                       {team?.name ?? entry.team_name}
                     </span>
                   </div>
-                  <span className="text-stone-400 text-xs">
-                    {required != null
-                      ? `${entry.quantity}/${required}`
-                      : `${entry.completions}×`}
-                  </span>
+                  <span className="text-stone-400 text-xs">{label}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-stone-700 overflow-hidden">
                   <div
