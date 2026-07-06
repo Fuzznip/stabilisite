@@ -490,5 +490,25 @@
       }
     ],
     "region_id": "a1f0fc29-0c53-4e96-9c2d-e250531ca9d0"
+  },
+  {
+    "name": "vampyrium",
+    "filename": "vampyrium.png",
+    "label_filename": "vampyrium_labels.png",
+    "imageWidth": 38,
+    "imageHeight": 41,
+    "offsetX": 384,
+    "offsetY": 172,
+    "territories": [
+      {
+        "id": "6b9ac076-7326-4e17-b2fe-4b4b37374d20",
+        "index": 1,
+        "name": "Vampyrium",
+        "size": 930,
+        "cx": 18.7,
+        "cy": 19.1
+      }
+    ],
+    "region_id": "b04439da-9197-4137-946a-a5e2a034c171"
   }
 ]

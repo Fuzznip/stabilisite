@@ -17,7 +17,7 @@ export interface RegionGroup {
   displayName: string;
 }
 
-// 9 unique groups, ordered to match REGION_COLORS
+// 10 unique groups, ordered to match REGION_COLORS
 export const REGION_GROUPS: RegionGroup[] = [
   { key: "asgarnia", displayName: "Asgarnia" },
   { key: "fremennik", displayName: "Fremennik" },
@@ -28,6 +28,7 @@ export const REGION_GROUPS: RegionGroup[] = [
   { key: "morytania", displayName: "Morytania" },
   { key: "kourend", displayName: "Kourend" },
   { key: "varlamore", displayName: "Varlamore" },
+  { key: "vampyrium", displayName: "Vampyrium" },
 ];
 
 export const REGION_COLORS: [number, number, number][] = [
@@ -40,6 +41,7 @@ export const REGION_COLORS: [number, number, number][] = [
   [66, 212, 244],  // morytania — cyan
   [240, 50, 230],  // kourend — magenta
   [191, 239, 69],  // varlamore — lime
+  [157, 2, 8],     // vampyrium — blood red
 ];
 
 // Fallback fill colors cycled by territory index when no team owns the territory
