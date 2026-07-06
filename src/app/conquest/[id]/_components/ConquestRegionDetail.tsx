@@ -84,6 +84,7 @@ function TerritoryDetailRow({
     img_path: string | null;
     quantity: number | null;
     value: number | null;
+    minPerAction: number | null;
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function childToItems(c: any): TriggerItem[] {
@@ -94,6 +95,7 @@ function TerritoryDetailRow({
           img_path: c.trigger.img_path ?? null,
           quantity: c.quantity ?? null,
           value: c.value ?? null,
+          minPerAction: c.min_quantity_per_action ?? null,
         },
       ];
     if (c.children?.length) return (c.children as any[]).flatMap(childToItems);
@@ -158,6 +160,7 @@ function TerritoryDetailRow({
             img_path: triggerImgPath,
             quantity: required,
             value: challenge?.value ?? 1,
+            minPerAction: challenge?.min_quantity_per_action ?? null,
           },
         ]
       : [];
@@ -316,6 +319,14 @@ function TerritoryDetailRow({
                             className="size-3 rounded-full opacity-30"
                             style={{ background: colorHex }}
                           />
+                        </div>
+                      )}
+                      {trig.minPerAction != null && trig.minPerAction > 1 && (
+                        <div
+                          className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-amber-600/70 border-t border-amber-400 text-white text-xs font-bold py-0.5 leading-none"
+                          title={`Only a drop of ${trig.minPerAction} of this item will count`}
+                        >
+                          {trig.minPerAction}
                         </div>
                       )}
                       {trig.quantity != null && trig.quantity > 1 && (

@@ -143,6 +143,9 @@ export type Challenge = {
   quantity: number | null; // null = repeatable challenge
   value: number;
   count_per_action: number | null;
+  // If set, a single action only counts when its quantity >= this value
+  // (sub-threshold submissions are ignored and never recorded as proofs).
+  min_quantity_per_action: number | null;
   created_at: string;
   updated_at: string;
 };

@@ -67,10 +67,10 @@ export function TerritoryHoverPanel({
   // For parent OR challenges, build slots from children.
   // Each slot is { items } — one item = standalone trigger, multiple = grouped grandchildren.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  type TriggerItem = { name: string; img_path: string | null; quantity: number | null; value: number | null };
+  type TriggerItem = { name: string; img_path: string | null; quantity: number | null; value: number | null; minPerAction: number | null };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function childToItems(c: any): TriggerItem[] {
-    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null, value: c.value ?? null }];
+    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null, value: c.value ?? null, minPerAction: c.min_quantity_per_action ?? null }];
     if (c.children?.length) return (c.children as any[]).flatMap(childToItems);
     return [];
   }
@@ -117,6 +117,7 @@ export function TerritoryHoverPanel({
             img_path: triggerImgPath,
             quantity: required,
             value: challenge?.value ?? 1,
+            minPerAction: challenge?.min_quantity_per_action ?? null,
           },
         ]
       : [];
@@ -231,6 +232,11 @@ export function TerritoryHoverPanel({
                       className="object-contain p-1.5"
                     />
                   ) : null}
+                  {trig.minPerAction != null && trig.minPerAction > 1 && (
+                    <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-amber-600/70 border-t border-amber-400 text-white text-xs font-bold py-0.5 leading-none">
+                      {trig.minPerAction}
+                    </div>
+                  )}
                   {trig.quantity != null && trig.quantity > 1 && (
                     <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-xs font-bold py-0.5 leading-none">
                       req: {trig.quantity}
