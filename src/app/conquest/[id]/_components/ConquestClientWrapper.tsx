@@ -272,6 +272,7 @@ function ConquestInner({
             territories={territories}
             teams={flatTeams}
             regions={regions}
+            regionData={regionData}
           />
         </TabsContent>
       </Tabs>
