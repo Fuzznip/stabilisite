@@ -364,8 +364,8 @@ export function ConquestTerritoryTable({
               Territory
             </th>
             {sortedTeams.map((team) => (
-              <th key={team.id} className="px-3 py-2 text-center">
-                <div className="flex flex-col items-center gap-1">
+              <th key={team.id} className="px-1 sm:px-3 py-2 text-center">
+                <div className="flex flex-col items-center gap-1 min-w-0">
                   <div
                     className="size-7 rounded overflow-hidden shrink-0 relative"
                     style={{ border: "1px solid rgba(255,255,255,0.10)" }}
@@ -383,7 +383,7 @@ export function ConquestTerritoryTable({
                     )}
                   </div>
                   <span
-                    className="text-sm font-medium whitespace-nowrap"
+                    className="hidden sm:block text-sm font-medium leading-tight break-words text-center w-full min-w-0"
                     style={{ color: team.color ?? "rgba(255,255,255,0.6)" }}
                   >
                     {team.name}

@@ -156,9 +156,10 @@ function fullRedraw(
   tempCanvases: Record<string, { hover: HTMLCanvasElement; border: HTMLCanvasElement }>,
   transform: ViewTransform
 ) {
-  // Fill background at identity (covers the whole canvas regardless of zoom)
+  // Fill background at identity (covers the whole canvas regardless of zoom
+  // or backing-store resolution)
   ctx.fillStyle = BACKGROUND_COLOR;
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   ctx.save();
   ctx.setTransform(transform.scale, 0, 0, transform.scale, transform.x, transform.y);

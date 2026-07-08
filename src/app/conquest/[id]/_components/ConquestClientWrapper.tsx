@@ -23,6 +23,7 @@ const TerritoryMap = dynamic(
     ),
   },
 );
+import { StaticTerritoryMap } from "@/components/territory-map/StaticTerritoryMap";
 import { ConquestScoreboard } from "./ConquestScoreboard";
 import { ConquestRegions } from "./ConquestRegions";
 import { ConquestActivity } from "./ConquestActivity";
@@ -214,9 +215,12 @@ function ConquestInner({
         )}
       </header>
 
-      {/* Main grid: map (flex-1) + standings (fixed 340px) */}
+      {/* Main grid: map (flex-1) + standings (fixed 340px).
+          The interactive Leaflet map doesn't size/interact reliably on mobile,
+          so below lg we swap it for a non-interactive static canvas render. */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-[1fr_340px] items-stretch">
-        <div className="aspect-[459/211] lg:aspect-auto lg:h-full">
+        {/* Interactive map — large screens */}
+        <div className="hidden lg:block lg:h-full">
           <TerritoryMap
             event={event}
             regionData={regionData}
@@ -229,6 +233,14 @@ function ConquestInner({
             highlightTeamId={selectedTeamId}
             activeGroupKey={selectedGroupKey}
             onGroupKeyChange={setSelectedGroupKey}
+          />
+        </div>
+        {/* Static map — mobile / tablet */}
+        <div className="lg:hidden">
+          <StaticTerritoryMap
+            regionData={regionData}
+            conquestTerritories={territories}
+            teams={flatTeams}
           />
         </div>
         <ConquestScoreboard
