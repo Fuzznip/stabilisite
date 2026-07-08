@@ -6,6 +6,7 @@ import Image from "next/image";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -18,14 +19,14 @@ import type {
 
 async function fetchProofs(
   territoryId: string,
-  teamId: string
+  teamId: string,
 ): Promise<TerritoryProofEntry[]> {
   const res = await fetch(
-    `/api/conquest/territories/${territoryId}/proofs?team_id=${teamId}`
+    `/api/conquest/territories/${territoryId}/proofs?team_id=${teamId}`,
   );
   if (!res.ok) return [];
   const json = await res.json();
-  return Array.isArray(json) ? json : json.data ?? [];
+  return Array.isArray(json) ? json : (json.data ?? []);
 }
 
 type TriggerSlot = {
@@ -47,7 +48,7 @@ type SlotGroup = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildLeafSlot(
   c: any,
-  proofs: TerritoryProofEntry[]
+  proofs: TerritoryProofEntry[],
 ): TriggerSlot | null {
   if (!c.trigger) return null;
   const name = c.trigger.name as string;
@@ -70,7 +71,7 @@ function buildLeafSlot(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function collectLeaves(
   node: any,
-  proofs: TerritoryProofEntry[]
+  proofs: TerritoryProofEntry[],
 ): TriggerSlot[] {
   if (node.trigger) {
     const slot = buildLeafSlot(node, proofs);
@@ -88,7 +89,7 @@ function buildGroups(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   trigger: any | null,
   teamProgress: TerritoryProgressEntry | undefined,
-  proofs: TerritoryProofEntry[]
+  proofs: TerritoryProofEntry[],
 ): SlotGroup[] {
   // Type 1 — single leaf: the root challenge IS the leaf
   if (challenge.trigger_id) {
@@ -118,7 +119,7 @@ function buildGroups(
 
   // Type 3 — grouped: children have no trigger but have their own children (pure grouping level)
   const isGroupLevel = children.some(
-    (c) => !c.trigger && c.children?.length > 0
+    (c) => !c.trigger && c.children?.length > 0,
   );
 
   if (isGroupLevel) {
@@ -209,20 +210,23 @@ export function TerritoryBreakdownDialog({
         }}
       >
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="sm:max-w-xs p-0 overflow-hidden gap-0">
-          <DialogHeader className="px-4 pt-4 pb-3 border-b border-foreground/10">
-            <DialogTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <DialogContent className="sm:max-w-sm p-0 overflow-hidden gap-0">
+          <DialogHeader className="gap-1 px-6 pt-6 pb-4 border-b border-foreground/10">
+            <DialogTitle className="text-lg font-semibold uppercase tracking-wider text-muted-foreground">
               Progress Breakdown
             </DialogTitle>
+            <DialogDescription className="text-base text-muted-foreground/60">
+              Select a trigger to view its proof
+            </DialogDescription>
           </DialogHeader>
 
-          <div className="py-1 max-h-[60vh] overflow-y-auto">
+          <div className="py-1 max-h-[80vh] overflow-y-auto">
             {groups.map((group, gi) => (
               <div key={gi}>
                 {/* Group header for Type 3 challenges */}
                 {hasMultipleGroups && (
                   <div
-                    className="px-4 pt-3 pb-1 text-xs font-mono uppercase tracking-widest text-muted-foreground/40"
+                    className="px-6 pt-4 pb-1 text-base font-mono uppercase tracking-widest text-muted-foreground/40"
                     style={
                       gi > 0
                         ? {
@@ -239,18 +243,20 @@ export function TerritoryBreakdownDialog({
                 {group.slots.map((slot, si) => {
                   const hasSlotProgress = slot.qty > 0;
                   const label =
-                    slot.required != null
-                      ? `${slot.qty} / ${slot.required}`
-                      : `${slot.qty}×`;
+                    slot.required == null
+                      ? `${slot.qty}×`
+                      : slot.required === 1
+                        ? `${slot.qty}`
+                        : `${slot.qty} / ${slot.required}`;
                   return (
                     <button
                       key={si}
                       onClick={() => handleSlotClick(slot)}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.04] transition-colors text-left cursor-pointer"
+                      className="w-full flex items-center gap-3.5 px-6 py-2.5 hover:bg-white/[0.04] transition-colors text-left cursor-pointer"
                     >
                       {slot.imgPath ? (
                         <div
-                          className="relative size-9 shrink-0 rounded overflow-hidden"
+                          className="relative size-11 shrink-0 rounded overflow-hidden"
                           style={{
                             background: "rgba(255,255,255,0.06)",
                             border: "1px solid rgba(255,255,255,0.10)",
@@ -264,24 +270,24 @@ export function TerritoryBreakdownDialog({
                             className="object-contain p-0.5"
                           />
                           {isPointWeighted && (
-                            <div className="absolute -top-1.5 -left-1.5 size-4 rounded-full flex items-center justify-center bg-stability text-white text-[8px] font-bold shadow-md z-10">
+                            <div className="absolute -top-1.5 -left-1.5 size-6 rounded-full flex items-center justify-center bg-stability text-white text-xs font-bold shadow-md z-10">
                               {slot.value}
                             </div>
                           )}
                           {slot.required != null && slot.required > 1 && (
-                            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/10 border-t border-stability text-white text-[9px] font-bold py-0.5 leading-none z-10">
+                            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/10 border-t border-stability text-white text-xs font-bold py-0.5 leading-none z-10">
                               req: {slot.required}
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="size-9 shrink-0 rounded bg-white/[0.06] border border-white/10" />
+                        <div className="size-11 shrink-0 rounded bg-white/[0.06] border border-white/10" />
                       )}
-                      <span className="flex-1 text-sm font-medium text-foreground/80 truncate min-w-0">
+                      <span className="flex-1 text-lg font-medium text-foreground/80 truncate min-w-0">
                         {slot.name}
                       </span>
                       <span
-                        className="text-sm font-mono tabular-nums shrink-0"
+                        className="text-lg font-mono tabular-nums shrink-0"
                         style={{
                           color: hasSlotProgress
                             ? "rgba(255,255,255,0.9)"

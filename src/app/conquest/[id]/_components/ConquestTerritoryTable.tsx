@@ -251,26 +251,27 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
         const hasProgress = displayQty > 0;
 
         const tdContent = (
-          <div className="flex flex-col items-center gap-1">
+          <div className="flex flex-col items-center gap-0.5 leading-none">
             {isController && (
               <div
-                className="size-1.5 rounded-full"
+                className="size-1.5 rounded-full mb-0.5"
                 style={{ background: color, boxShadow: `0 0 6px ${color}` }}
               />
             )}
-            <span className="relative leading-none">
-              <span
-                className="block text-2xl font-mono font-semibold tabular-nums leading-none"
-                style={{ color: hasProgress ? color : "rgba(255,255,255,0.25)" }}
-              >
-                {label}
-              </span>
-              {fullCompletions != null && displayQty > 0 && (
-                <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 text-sm font-normal text-muted-foreground leading-none">
-                  {displayQty}
-                </span>
-              )}
+            <span
+              className="text-2xl font-mono font-semibold tabular-nums leading-none"
+              style={{ color: hasProgress ? color : "rgba(255,255,255,0.25)" }}
+            >
+              {label}
             </span>
+            {fullCompletions != null && (
+              <span
+                className="text-sm font-normal text-muted-foreground leading-none"
+                style={{ visibility: displayQty > 0 ? "visible" : "hidden" }}
+              >
+                {displayQty}
+              </span>
+            )}
           </div>
         );
 
