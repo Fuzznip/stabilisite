@@ -1,8 +1,14 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import type {
   ConquestRegion,
   ConquestTerritory,
@@ -10,6 +16,8 @@ import type {
   EventLog,
   TeamPlayerBreakdown,
 } from "@/lib/types/v2";
+import { PointsBadge } from "./PointsBadge";
+import { cn } from "@/lib/utils";
 
 const TOTAL_TASKS = 45;
 
@@ -268,11 +276,38 @@ function TeamDetail({
   uniqueTasks: number;
   onBack: () => void;
 }) {
-  const territoriesHeld = territories.filter(
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+
+  const heldTerritories = territories.filter(
     (t) => t.controlling_team_id === team.id,
-  ).length;
+  );
+  const territoriesHeld = heldTerritories.length;
   const ownedRegions = regions.filter((r) => r.controlling_team_id === team.id);
   const color = team.color ?? "#888";
+
+  // Point breakdown: every region the team holds territory in (or controls),
+  // with its controlled territories grouped underneath.
+  const breakdownRegionIds = new Set<string>([
+    ...heldTerritories.map((t) => t.region_id),
+    ...ownedRegions.map((r) => r.id),
+  ]);
+  const breakdown = [...breakdownRegionIds]
+    .map((rid) => {
+      const region = regions.find((r) => r.id === rid) ?? null;
+      const controlsRegion = region?.controlling_team_id === team.id;
+      const terrs = heldTerritories
+        .filter((t) => t.region_id === rid)
+        .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999));
+      return { region, controlsRegion, terrs };
+    })
+    .sort((a, b) => {
+      // Controlled regions first, then by region value, then name.
+      if (a.controlsRegion !== b.controlsRegion) return a.controlsRegion ? -1 : 1;
+      const ap = a.region?.points ?? 0;
+      const bp = b.region?.points ?? 0;
+      if (ap !== bp) return bp - ap;
+      return (a.region?.name ?? "").localeCompare(b.region?.name ?? "");
+    });
 
   const { data: allTeamActions = [] } = useQuery<TeamPlayerBreakdown[]>({
     queryKey: ["conquest-player-actions", eventId],
@@ -290,48 +325,118 @@ function TeamDetail({
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <div
-        className="px-4 py-3 flex items-center gap-3"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        <button
-          onClick={onBack}
-          className="text-muted-foreground hover:text-foreground transition-colors shrink-0 text-lg leading-none cursor-pointer"
-          aria-label="Back to standings"
-        >
-          ←
-        </button>
+      <Collapsible open={breakdownOpen} onOpenChange={setBreakdownOpen}>
+        {/* Header */}
         <div
-          className="w-9 h-9 rounded-lg overflow-hidden shrink-0"
-          style={{ border: `1px solid ${color}55` }}
+          className="px-4 py-3 flex items-center gap-3"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
         >
-          {team.image_url ? (
-            <Image
-              src={team.image_url}
-              alt={team.name}
-              width={36}
-              height={36}
-              unoptimized
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full" style={{ background: color }} />
+          <button
+            onClick={onBack}
+            className="text-muted-foreground hover:text-foreground transition-colors shrink-0 text-lg leading-none cursor-pointer"
+            aria-label="Back to standings"
+          >
+            ←
+          </button>
+          <div
+            className="w-9 h-9 rounded-lg overflow-hidden shrink-0"
+            style={{ border: `1px solid ${color}55` }}
+          >
+            {team.image_url ? (
+              <Image
+                src={team.image_url}
+                alt={team.name}
+                width={36}
+                height={36}
+                unoptimized
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full" style={{ background: color }} />
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="font-semibold text-sm truncate leading-tight">
+              {team.name}
+            </div>
+            <div
+              className="text-lg font-semibold tabular-nums leading-tight"
+              style={{ color }}
+            >
+              {team.points.toLocaleString()}{" "}
+              <span className="text-xs text-muted-foreground font-mono">PTS</span>
+            </div>
+          </div>
+          {breakdown.length > 0 && (
+            <CollapsibleTrigger asChild>
+              <button
+                className="shrink-0 grid place-items-center size-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/[0.06] transition-colors cursor-pointer"
+                aria-label={
+                  breakdownOpen ? "Hide point breakdown" : "Show point breakdown"
+                }
+              >
+                {breakdownOpen ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </button>
+            </CollapsibleTrigger>
           )}
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="font-semibold text-sm truncate leading-tight">
-            {team.name}
-          </div>
+
+        {/* Point breakdown — regions and their territories with point values */}
+        <CollapsibleContent>
           <div
-            className="text-lg font-semibold tabular-nums leading-tight"
-            style={{ color }}
+            className="max-h-56 overflow-y-auto"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
           >
-            {team.points.toLocaleString()}{" "}
-            <span className="text-xs text-muted-foreground font-mono">PTS</span>
+            <div className="px-4 pt-3 pb-1 text-[0.6rem] uppercase font-mono tracking-widest text-muted-foreground/50">
+              Point Breakdown
+            </div>
+            {breakdown.map(({ region, controlsRegion, terrs }) => (
+              <div key={region?.id ?? "unknown"} className="pb-2">
+                <div className="flex items-center gap-2 px-4 py-1">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{
+                      background: controlsRegion
+                        ? color
+                        : "rgba(255,255,255,0.15)",
+                    }}
+                  />
+                  <span
+                    className={cn(
+                      "text-sm font-semibold truncate",
+                      !controlsRegion && "text-muted-foreground",
+                    )}
+                  >
+                    {region?.name ?? "Unknown region"}
+                  </span>
+                  {region && (
+                    <PointsBadge
+                      points={region.points}
+                      size="xs"
+                      muted={!controlsRegion}
+                    />
+                  )}
+                </div>
+                {terrs.map((t) => (
+                  <div
+                    key={t.id}
+                    className="flex items-center gap-2 px-4 pl-8 py-0.5"
+                  >
+                    <span className="text-xs text-muted-foreground flex-1 truncate">
+                      {t.name}
+                    </span>
+                    <PointsBadge points={t.points} size="xs" />
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       {/* Score breakdown */}
       <div
