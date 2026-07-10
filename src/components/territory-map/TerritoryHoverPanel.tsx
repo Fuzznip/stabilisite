@@ -137,6 +137,16 @@ export function TerritoryHoverPanel({
           {required != null && required > 1 && (
             <span className="text-stone-500 text-xs shrink-0">×{required}</span>
           )}
+          {territory != null && (
+            <span
+              className="shrink-0 self-center inline-flex items-baseline gap-0.5 rounded font-mono font-semibold tabular-nums leading-none text-white px-1 py-0.5 text-[10px]"
+              style={{ background: "hsl(var(--stability) / 0.08)", border: "1px solid hsl(var(--stability))" }}
+              title={`Worth ${territory.points} ${territory.points === 1 ? "point" : "points"}`}
+            >
+              {territory.points}
+              <span className="font-normal opacity-70">pts</span>
+            </span>
+          )}
         </div>
       </div>
 

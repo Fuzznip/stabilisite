@@ -41,6 +41,7 @@ export type ConquestRegion = {
   image_url: string | null;
   offset_x: number | null;
   offset_y: number | null;
+  points: number;
   created_at: string;
 };
 
@@ -55,6 +56,7 @@ export type ConquestTerritory = {
   offset_x: number | null;
   offset_y: number | null;
   polygon_points: unknown | null;
+  points: number;
   created_at: string;
 };
 

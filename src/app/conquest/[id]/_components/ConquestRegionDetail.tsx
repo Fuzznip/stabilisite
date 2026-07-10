@@ -7,12 +7,14 @@ import type { RegionData } from "@/components/territory-map/types";
 import type { RegionGroup } from "@/components/territory-map/map-data";
 import { getGroupKey } from "@/components/territory-map/map-data";
 import type {
+  ConquestRegion,
   ConquestTerritory,
   Team,
   TerritoryProgressEntry,
   TerritoryProofEntry,
 } from "@/lib/types/v2";
 import { TerritoryProofDialog } from "./TerritoryProofDialog";
+import { PointsBadge } from "./PointsBadge";
 
 // ── data fetchers ────────────────────────────────────────────────────────────
 
@@ -205,6 +207,7 @@ function TerritoryDetailRow({
             ×{required}
           </span>
         )}
+        <PointsBadge points={territory.points} className="ml-auto self-center" />
       </div>
 
       {/* Team progress — click a team to reveal its per-trigger tally below */}
@@ -402,6 +405,7 @@ function TerritoryDetailRow({
 
 interface ConquestRegionDetailProps {
   group: RegionGroup;
+  regions: ConquestRegion[];
   regionData: RegionData[];
   territories: ConquestTerritory[];
   teams: Team[];
@@ -411,6 +415,7 @@ interface ConquestRegionDetailProps {
 
 export function ConquestRegionDetail({
   group,
+  regions,
   regionData,
   territories,
   teams,
@@ -420,6 +425,12 @@ export function ConquestRegionDetail({
   const groupRegionData = regionData.filter(
     (rd) => getGroupKey(rd.name) === group.key,
   );
+  const regionPoints = groupRegionData
+    .map((rd) => rd.region_id)
+    .filter((rid): rid is string => Boolean(rid))
+    .map((rid) => regions.find((r) => r.id === rid))
+    .filter((r): r is ConquestRegion => Boolean(r))
+    .reduce((sum, r) => sum + (r.points ?? 0), 0);
   const groupTerritoryIds = new Set(
     groupRegionData.flatMap((rd) => rd.territories.map((t) => t.id)),
   );
@@ -461,6 +472,7 @@ export function ConquestRegionDetail({
         <h3 className="font-semibold uppercase" style={{ color: colorHex }}>
           {group.displayName}
         </h3>
+        {regionPoints > 0 && <PointsBadge points={regionPoints} />}
       </div>
 
       {/* Territory rows */}

@@ -13,6 +13,7 @@ import type {
 import type { RegionData } from "@/components/territory-map/types";
 import { REGION_GROUPS, getGroupKey } from "@/components/territory-map/map-data";
 import { TerritoryBreakdownDialog } from "./TerritoryBreakdownDialog";
+import { PointsBadge } from "./PointsBadge";
 
 async function fetchChallenge(challengeId: string) {
   const res = await fetch(`/api/conquest/challenges/${challengeId}`);
@@ -132,6 +133,7 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
               ×{required}
             </span>
           )}
+          <PointsBadge points={territory.points} size="xs" className="self-center" />
         </div>
         {isOrChallenge ? (
           <div className="hidden sm:flex flex-wrap gap-2">
@@ -410,8 +412,11 @@ export function ConquestTerritoryTable({
                   className="px-4 py-2 sticky left-0"
                   style={{ background: "rgba(255,255,255,0.02)" }}
                 >
-                  <span className="text-sm uppercase font-mono font-medium text-muted-foreground/40 tracking-wider">
-                    {region.name}
+                  <span className="inline-flex items-center gap-2">
+                    <span className="text-sm uppercase font-mono font-medium text-muted-foreground/40 tracking-wider">
+                      {region.name}
+                    </span>
+                    <PointsBadge points={region.points} size="xs" />
                   </span>
                 </td>
               </tr>

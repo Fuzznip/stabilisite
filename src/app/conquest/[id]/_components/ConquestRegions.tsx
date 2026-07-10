@@ -9,6 +9,7 @@ import {
 import type { RegionData } from "@/components/territory-map/types";
 import type { ConquestRegion, ConquestTerritory, Team } from "@/lib/types/v2";
 import { ConquestRegionDetail } from "./ConquestRegionDetail";
+import { PointsBadge } from "./PointsBadge";
 
 interface ConquestRegionsProps {
   regions: ConquestRegion[];
@@ -37,6 +38,7 @@ export function ConquestRegions({
     return (
       <ConquestRegionDetail
         group={group}
+        regions={regions}
         regionData={regionData}
         territories={territories}
         teams={teams}
@@ -113,6 +115,11 @@ export function ConquestRegions({
             return (teamRanks.get(aKey) ?? 999) - (teamRanks.get(bKey) ?? 999);
           });
 
+          const regionPoints = conquestRegions.reduce(
+            (sum, r) => sum + (r.points ?? 0),
+            0,
+          );
+
           const [r, g, b] = REGION_COLORS[i];
           const colorHex = `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 
@@ -148,6 +155,9 @@ export function ConquestRegions({
                 <span className="text-sm sm:text-base font-semibold uppercase leading-tight">
                   {group.displayName}
                 </span>
+                {regionPoints > 0 && (
+                  <PointsBadge points={regionPoints} size="xs" className="ml-auto" />
+                )}
               </div>
 
               <div className="flex items-center gap-2 pl-2">
