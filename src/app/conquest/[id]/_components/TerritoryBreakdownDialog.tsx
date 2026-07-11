@@ -33,7 +33,6 @@ type TriggerSlot = {
   name: string;
   imgPath: string | null;
   required: number | null;
-  countPerAction: number | null;
   qty: number;
   triggerType: string | null;
   value: number;
@@ -54,14 +53,18 @@ function buildLeafSlot(
   if (!c.trigger) return null;
   const name = c.trigger.name as string;
   const triggerType = (c.trigger.type as string | null) ?? null;
-  // Each proof action records the quantity for that event (delta, not cumulative)
+  const countPerAction = (c.count_per_action as number | null) ?? null;
+  // Each proof action records the quantity for that event (delta, not cumulative).
+  // When count_per_action is set, each action contributes at most that much.
   const matching = proofs.filter((p) => p.action?.name === name);
-  const qty = matching.reduce((sum, p) => sum + (p.action?.quantity ?? 0), 0);
+  const qty = matching.reduce((sum, p) => {
+    const q = p.action?.quantity ?? 0;
+    return sum + (countPerAction != null ? Math.min(q, countPerAction) : q);
+  }, 0);
   return {
     name,
     imgPath: c.trigger.img_path ?? null,
     required: c.quantity ?? null,
-    countPerAction: c.count_per_action ?? null,
     qty,
     triggerType,
     value: c.value ?? 1,
@@ -104,7 +107,6 @@ function buildGroups(
             name: resolvedTrigger?.name ?? "Unknown",
             imgPath: resolvedTrigger?.img_path ?? null,
             required: challenge.quantity ?? null,
-            countPerAction: challenge.count_per_action ?? null,
             qty: teamProgress?.quantity ?? 0,
             triggerType: resolvedTrigger?.type ?? null,
             value: challenge.value ?? 1,
@@ -245,17 +247,12 @@ export function TerritoryBreakdownDialog({
 
                 {group.slots.map((slot, si) => {
                   const hasSlotProgress = slot.qty > 0;
-                  const reqDisplay = slot.required == null
-                    ? null
-                    : slot.countPerAction != null
-                      ? Math.ceil(slot.required / slot.countPerAction)
-                      : slot.required;
                   const label =
-                    reqDisplay == null
+                    slot.required == null
                       ? `${slot.qty}×`
-                      : reqDisplay === 1
+                      : slot.required === 1
                         ? `${slot.qty}`
-                        : `${slot.qty} / ${reqDisplay}`;
+                        : `${slot.qty} / ${slot.required}`;
                   return (
                     <button
                       key={si}
@@ -282,9 +279,9 @@ export function TerritoryBreakdownDialog({
                               {slot.value}
                             </div>
                           )}
-                          {reqDisplay != null && reqDisplay > 1 && (
+                          {slot.required != null && slot.required > 1 && (
                             <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/10 border-t border-stability text-white text-xs font-bold py-0.5 leading-none z-10">
-                              req: {reqDisplay}
+                              req: {slot.required}
                             </div>
                           )}
                         </div>

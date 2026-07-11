@@ -175,10 +175,19 @@ function TerritoryDetailRow({
     : null;
 
   // How many of a given trigger a team has logged (proof deltas summed).
-  const triggerQtyForTeam = (teamId: string, name: string): number =>
+  // When count_per_action is set, each individual action contributes at most
+  // that much (e.g. a drop of 2 with count_per_action=1 still only counts as 1).
+  const triggerQtyForTeam = (
+    teamId: string,
+    name: string,
+    countPerAction: number | null,
+  ): number =>
     allProofs
       .filter((p) => p.team_id === teamId && p.action?.name === name)
-      .reduce((sum, p) => sum + (p.action?.quantity ?? 0), 0);
+      .reduce((sum, p) => {
+        const q = p.action?.quantity ?? 0;
+        return sum + (countPerAction != null ? Math.min(q, countPerAction) : q);
+      }, 0);
 
   return (
     <>
@@ -304,7 +313,7 @@ function TerritoryDetailRow({
             <div className="flex flex-wrap gap-3">
               {triggers.map((trig, ti) => {
                 const count = selectedTeam
-                  ? triggerQtyForTeam(selectedTeam.id, trig.name)
+                  ? triggerQtyForTeam(selectedTeam.id, trig.name, trig.countPerAction)
                   : 0;
                 const color = selectedTeam?.color ?? "#888";
                 const tile = (
@@ -341,16 +350,11 @@ function TerritoryDetailRow({
                             {trig.minPerAction}
                           </div>
                         )}
-                        {trig.quantity != null && (() => {
-                          const reqDisplay = trig.countPerAction != null
-                            ? Math.ceil(trig.quantity / trig.countPerAction)
-                            : trig.quantity;
-                          return reqDisplay > 1 ? (
-                            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-sm font-bold py-0.5 leading-none">
-                              req: {reqDisplay}
-                            </div>
-                          ) : null;
-                        })()}
+                        {trig.quantity != null && trig.quantity > 1 && (
+                          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-sm font-bold py-0.5 leading-none">
+                            req: {trig.quantity}
+                          </div>
+                        )}
                       </div>
                       {isPointWeighted && (
                         <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-sm font-bold shadow-md">

@@ -73,9 +73,9 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
     staleTime: Infinity,
   });
 
-  type TriggerItem = { name: string; img_path: string | null; quantity: number | null; value: number | null; minPerAction: number | null; countPerAction: number | null };
+  type TriggerItem = { name: string; img_path: string | null; quantity: number | null; value: number | null; minPerAction: number | null };
   function childToItems(c: TriggerItem & { trigger?: TriggerItem; children?: unknown[] }): TriggerItem[] {
-    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null, value: (c as { value?: number | null }).value ?? null, minPerAction: (c as { min_quantity_per_action?: number | null }).min_quantity_per_action ?? null, countPerAction: (c as { count_per_action?: number | null }).count_per_action ?? null }];
+    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null, value: (c as { value?: number | null }).value ?? null, minPerAction: (c as { min_quantity_per_action?: number | null }).min_quantity_per_action ?? null }];
     if (c.children?.length) return (c.children as typeof c[]).flatMap(childToItems);
     return [];
   }
@@ -151,17 +151,11 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
                             {slot.items[0].minPerAction}
                           </div>
                         )}
-                        {slot.items[0].quantity != null && (() => {
-                          const item = slot.items[0];
-                          const reqDisplay = item.countPerAction != null
-                            ? Math.ceil(item.quantity! / item.countPerAction)
-                            : item.quantity!;
-                          return reqDisplay > 1 ? (
-                            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-xs font-bold py-0.5 leading-none">
-                              req: {reqDisplay}
-                            </div>
-                          ) : null;
-                        })()}
+                        {slot.items[0].quantity != null && slot.items[0].quantity > 1 && (
+                          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-xs font-bold py-0.5 leading-none">
+                            req: {slot.items[0].quantity}
+                          </div>
+                        )}
                       </div>
                       {isPointWeighted && (
                         <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-xs font-bold shadow-md">
@@ -185,16 +179,11 @@ function TerritoryTableRow({ territory, teams, isLast }: TerritoryTableRowProps)
                                 {item.minPerAction}
                               </div>
                             )}
-                            {item.quantity != null && (() => {
-                              const reqDisplay = item.countPerAction != null
-                                ? Math.ceil(item.quantity! / item.countPerAction)
-                                : item.quantity!;
-                              return reqDisplay > 1 ? (
-                                <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-xs font-bold py-0.5 leading-none">
-                                  req: {reqDisplay}
-                                </div>
-                              ) : null;
-                            })()}
+                            {item.quantity != null && item.quantity > 1 && (
+                              <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-xs font-bold py-0.5 leading-none">
+                                req: {item.quantity}
+                              </div>
+                            )}
                           </div>
                           {isPointWeighted && (
                             <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-xs font-bold shadow-md">
