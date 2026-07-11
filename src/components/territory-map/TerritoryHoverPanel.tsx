@@ -28,7 +28,9 @@ async function fetchTrigger(triggerId: string) {
   return res.json();
 }
 
-async function fetchProgress(territoryId: string): Promise<TerritoryProgressEntry[]> {
+async function fetchProgress(
+  territoryId: string,
+): Promise<TerritoryProgressEntry[]> {
   const res = await fetch(`/api/conquest/territories/${territoryId}/progress`);
   if (!res.ok) return [];
   const json = await res.json();
@@ -55,7 +57,8 @@ export function TerritoryHoverPanel({
   });
 
   // If the challenge endpoint doesn't embed the trigger, fetch it separately
-  const triggerId: string | null = challenge?.trigger?.id ?? challenge?.trigger_id ?? null;
+  const triggerId: string | null =
+    challenge?.trigger?.id ?? challenge?.trigger_id ?? null;
 
   const { data: trigger } = useQuery({
     queryKey: ["conquest-trigger", triggerId],
@@ -67,17 +70,34 @@ export function TerritoryHoverPanel({
   // For parent OR challenges, build slots from children.
   // Each slot is { items } — one item = standalone trigger, multiple = grouped grandchildren.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  type TriggerItem = { name: string; img_path: string | null; quantity: number | null; value: number | null; minPerAction: number | null };
+  type TriggerItem = {
+    name: string;
+    img_path: string | null;
+    quantity: number | null;
+    value: number | null;
+    minPerAction: number | null;
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function childToItems(c: any): TriggerItem[] {
-    if (c.trigger) return [{ name: c.trigger.name, img_path: c.trigger.img_path ?? null, quantity: c.quantity ?? null, value: c.value ?? null, minPerAction: c.min_quantity_per_action ?? null }];
+    if (c.trigger)
+      return [
+        {
+          name: c.trigger.name,
+          img_path: c.trigger.img_path ?? null,
+          quantity: c.quantity ?? null,
+          value: c.value ?? null,
+          minPerAction: c.min_quantity_per_action ?? null,
+        },
+      ];
     if (c.children?.length) return (c.children as any[]).flatMap(childToItems);
     return [];
   }
   const triggerSlots: Array<{ items: TriggerItem[] }> =
     !triggerId && challenge?.children?.length > 0
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ? (challenge.children as any[]).map((c) => ({ items: childToItems(c) })).filter((s) => s.items.length > 0)
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (challenge.children as any[])
+          .map((c) => ({ items: childToItems(c) }))
+          .filter((s) => s.items.length > 0)
       : [];
 
   const { data: progress = [] } = useQuery({
@@ -90,13 +110,19 @@ export function TerritoryHoverPanel({
   if (!hover) return null;
 
   const triggerName: string | null =
-    challenge?.trigger?.name ?? trigger?.name ?? triggerSlots[0]?.items[0]?.name ?? null;
+    challenge?.trigger?.name ??
+    trigger?.name ??
+    triggerSlots[0]?.items[0]?.name ??
+    null;
   const triggerImgPath: string | null =
-    challenge?.trigger?.img_path ?? trigger?.img_path ?? triggerSlots[0]?.items[0]?.img_path ?? null;
+    challenge?.trigger?.img_path ??
+    trigger?.img_path ??
+    triggerSlots[0]?.items[0]?.img_path ??
+    null;
   const required: number | null = challenge?.quantity ?? null;
   const isOrChallenge = triggerSlots.length > 0;
   const isPointWeighted = triggerSlots.some((slot) =>
-    slot.items.some((item) => (item.value ?? 1) > 1)
+    slot.items.some((item) => (item.value ?? 1) > 1),
   );
 
   // Sort by displayed progress desc (completions for OR challenges, else
@@ -139,8 +165,11 @@ export function TerritoryHoverPanel({
           )}
           {territory != null && (
             <span
-              className="shrink-0 self-center inline-flex items-baseline gap-0.5 rounded font-mono font-semibold tabular-nums leading-none text-white px-1 py-0.5 text-[10px]"
-              style={{ background: "hsl(var(--stability) / 0.08)", border: "1px solid hsl(var(--stability))" }}
+              className="shrink-0 self-center inline-flex items-baseline gap-0.5 rounded font-mono font-semibold tabular-nums leading-none text-white px-1 py-0.5 text-sm"
+              style={{
+                background: "hsl(var(--stability) / 0.08)",
+                border: "1px solid hsl(var(--stability))",
+              }}
               title={`Worth ${territory.points} ${territory.points === 1 ? "point" : "points"}`}
             >
               {territory.points}
@@ -227,11 +256,7 @@ export function TerritoryHoverPanel({
           )}
           <div className="flex flex-wrap gap-3">
             {triggers.map((trig, ti) => (
-              <div
-                key={ti}
-                title={trig.name}
-                className="relative shrink-0"
-              >
+              <div key={ti} title={trig.name} className="relative shrink-0">
                 <div className="size-14 relative rounded-md overflow-hidden bg-white/5 border border-white/10">
                   {trig.img_path ? (
                     <Image
