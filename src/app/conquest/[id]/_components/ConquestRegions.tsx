@@ -154,14 +154,12 @@ export function ConquestRegions({
                   className="size-2.5 rounded-full shrink-0"
                   style={{ background: colorHex }}
                 />
-                <div className="flex flex-col sm:flex-row sm:items-center flex-1 min-w-0 gap-1 sm:gap-2">
-                  <span className="text-sm sm:text-base font-semibold uppercase leading-tight">
-                    {group.displayName}
-                  </span>
-                  {regionPoints > 0 && (
-                    <PointsBadge points={regionPoints} size="xs" className="sm:ml-auto w-fit" />
-                  )}
-                </div>
+                <span className="text-sm sm:text-base font-semibold uppercase leading-tight">
+                  {group.displayName}
+                </span>
+                {regionPoints > 0 && (
+                  <PointsBadge points={regionPoints} size="xs" className="ml-auto" />
+                )}
               </div>
 
               <div className="flex items-center gap-2 pl-2">

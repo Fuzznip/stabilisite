@@ -33,6 +33,7 @@ type TriggerSlot = {
   name: string;
   imgPath: string | null;
   required: number | null;
+  countPerAction: number | null;
   qty: number;
   triggerType: string | null;
   value: number;
@@ -60,6 +61,7 @@ function buildLeafSlot(
     name,
     imgPath: c.trigger.img_path ?? null,
     required: c.quantity ?? null,
+    countPerAction: c.count_per_action ?? null,
     qty,
     triggerType,
     value: c.value ?? 1,
@@ -102,6 +104,7 @@ function buildGroups(
             name: resolvedTrigger?.name ?? "Unknown",
             imgPath: resolvedTrigger?.img_path ?? null,
             required: challenge.quantity ?? null,
+            countPerAction: challenge.count_per_action ?? null,
             qty: teamProgress?.quantity ?? 0,
             triggerType: resolvedTrigger?.type ?? null,
             value: challenge.value ?? 1,
@@ -242,12 +245,17 @@ export function TerritoryBreakdownDialog({
 
                 {group.slots.map((slot, si) => {
                   const hasSlotProgress = slot.qty > 0;
+                  const reqDisplay = slot.required == null
+                    ? null
+                    : slot.countPerAction != null
+                      ? Math.ceil(slot.required / slot.countPerAction)
+                      : slot.required;
                   const label =
-                    slot.required == null
+                    reqDisplay == null
                       ? `${slot.qty}×`
-                      : slot.required === 1
+                      : reqDisplay === 1
                         ? `${slot.qty}`
-                        : `${slot.qty} / ${slot.required}`;
+                        : `${slot.qty} / ${reqDisplay}`;
                   return (
                     <button
                       key={si}
@@ -274,9 +282,9 @@ export function TerritoryBreakdownDialog({
                               {slot.value}
                             </div>
                           )}
-                          {slot.required != null && slot.required > 1 && (
+                          {reqDisplay != null && reqDisplay > 1 && (
                             <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/10 border-t border-stability text-white text-xs font-bold py-0.5 leading-none z-10">
-                              req: {slot.required}
+                              req: {reqDisplay}
                             </div>
                           )}
                         </div>

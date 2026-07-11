@@ -87,6 +87,7 @@ function TerritoryDetailRow({
     quantity: number | null;
     value: number | null;
     minPerAction: number | null;
+    countPerAction: number | null;
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function childToItems(c: any): TriggerItem[] {
@@ -98,6 +99,7 @@ function TerritoryDetailRow({
           quantity: c.quantity ?? null,
           value: c.value ?? null,
           minPerAction: c.min_quantity_per_action ?? null,
+          countPerAction: c.count_per_action ?? null,
         },
       ];
     if (c.children?.length) return (c.children as any[]).flatMap(childToItems);
@@ -163,6 +165,7 @@ function TerritoryDetailRow({
             quantity: required,
             value: challenge?.value ?? 1,
             minPerAction: challenge?.min_quantity_per_action ?? null,
+            countPerAction: challenge?.count_per_action ?? null,
           },
         ]
       : [];
@@ -198,20 +201,18 @@ function TerritoryDetailRow({
         />
 
         {/* Territory name */}
-        <div className="px-4 pt-3 pb-2 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
-          <div className="flex items-baseline gap-2 min-w-0">
-            <span className="text-lg font-bold text-foreground truncate leading-tight">
-              {taskName ?? territory.name}
+        <div className="px-4 pt-3 pb-2 flex items-baseline gap-2">
+          <span className="text-lg font-bold text-foreground truncate leading-tight">
+            {taskName ?? territory.name}
+          </span>
+          {required != null && required > 1 && (
+            <span className="text-sm text-muted-foreground font-normal shrink-0">
+              ×{required}
             </span>
-            {required != null && required > 1 && (
-              <span className="text-sm text-muted-foreground font-normal shrink-0">
-                ×{required}
-              </span>
-            )}
-          </div>
+          )}
           <PointsBadge
             points={territory.points}
-            className="sm:ml-auto self-center w-fit"
+            className="ml-auto self-center"
           />
         </div>
 
@@ -340,11 +341,16 @@ function TerritoryDetailRow({
                             {trig.minPerAction}
                           </div>
                         )}
-                        {trig.quantity != null && trig.quantity > 1 && (
-                          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-sm font-bold py-0.5 leading-none">
-                            req: {trig.quantity}
-                          </div>
-                        )}
+                        {trig.quantity != null && (() => {
+                          const reqDisplay = trig.countPerAction != null
+                            ? Math.ceil(trig.quantity / trig.countPerAction)
+                            : trig.quantity;
+                          return reqDisplay > 1 ? (
+                            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-stability/50 border-t border-stability text-white text-sm font-bold py-0.5 leading-none">
+                              req: {reqDisplay}
+                            </div>
+                          ) : null;
+                        })()}
                       </div>
                       {isPointWeighted && (
                         <div className="absolute -top-1.5 -left-1.5 size-5 rounded-full flex items-center justify-center bg-stability text-white text-sm font-bold shadow-md">
