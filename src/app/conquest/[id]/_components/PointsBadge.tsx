@@ -25,7 +25,7 @@ export function PointsBadge({
       className={cn(
         "inline-flex items-baseline gap-0.5 shrink-0 rounded-md font-mono font-semibold tabular-nums leading-none",
         muted ? "text-white/40" : "text-white",
-        size === "xs" ? "px-1 py-0.5 text-[10px]" : "px-1.5 py-0.5 text-xs",
+        size === "xs" ? "px-1.5 py-0.5 text-xs" : "px-2 py-1 text-base",
         className,
       )}
       style={
