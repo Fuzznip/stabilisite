@@ -425,9 +425,13 @@ export function ConquestRegionDetail({
   const groupRegionData = regionData.filter(
     (rd) => getGroupKey(rd.name) === group.key,
   );
-  const regionPoints = groupRegionData
-    .map((rd) => rd.region_id)
-    .filter((rid): rid is string => Boolean(rid))
+  const regionPoints = [
+    ...new Set(
+      groupRegionData
+        .map((rd) => rd.region_id)
+        .filter((rid): rid is string => Boolean(rid)),
+    ),
+  ]
     .map((rid) => regions.find((r) => r.id === rid))
     .filter((r): r is ConquestRegion => Boolean(r))
     .reduce((sum, r) => sum + (r.points ?? 0), 0);

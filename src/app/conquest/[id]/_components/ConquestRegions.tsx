@@ -55,9 +55,11 @@ export function ConquestRegions({
           const groupRegionData = regionData.filter(
             (rd) => getGroupKey(rd.name) === group.key,
           );
-          const groupRegionIds = groupRegionData
-            .map((rd) => rd.region_id)
-            .filter(Boolean);
+          const groupRegionIds = [
+            ...new Set(
+              groupRegionData.map((rd) => rd.region_id).filter(Boolean),
+            ),
+          ];
 
           const conquestRegions = groupRegionIds
             .map((rid) => regions.find((r) => r.id === rid))
