@@ -202,7 +202,7 @@ function TerritoryDetailRow({
 
         {/* Territory name */}
         <div className="px-4 pt-3 pb-2 flex items-baseline gap-2">
-          <span className="text-lg font-bold text-foreground truncate leading-tight">
+          <span className="text-base sm:text-lg font-bold text-foreground leading-tight">
             {taskName ?? territory.name}
           </span>
           {required != null && required > 1 && (
