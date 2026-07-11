@@ -26,7 +26,10 @@ export function SubmitPopoverClient({ user, diaries, entries, raids, filteredRan
           <ChevronDown className="w-4 h-4 hidden sm:flex" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-fit p-2">
+      {/* Pin below the dialog overlay (z-10000): these menu items open modal
+          dialogs, and a popover stacked above the dialog would intercept clicks
+          on the dialog's Submit button. */}
+      <PopoverContent className="w-fit p-2 !z-50">
         <div className="flex flex-col">
           <RankDialog ranks={filteredRanks} user={user} />
           <RaidTierDialog raids={raids} />
