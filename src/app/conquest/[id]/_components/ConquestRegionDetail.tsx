@@ -198,18 +198,20 @@ function TerritoryDetailRow({
         />
 
         {/* Territory name */}
-        <div className="px-4 pt-3 pb-2 flex items-baseline gap-2">
-          <span className="text-lg font-bold text-foreground truncate leading-tight">
-            {taskName ?? territory.name}
-          </span>
-          {required != null && required > 1 && (
-            <span className="text-sm text-muted-foreground font-normal shrink-0">
-              ×{required}
+        <div className="px-4 pt-3 pb-2 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+          <div className="flex items-baseline gap-2 min-w-0">
+            <span className="text-lg font-bold text-foreground truncate leading-tight">
+              {taskName ?? territory.name}
             </span>
-          )}
+            {required != null && required > 1 && (
+              <span className="text-sm text-muted-foreground font-normal shrink-0">
+                ×{required}
+              </span>
+            )}
+          </div>
           <PointsBadge
             points={territory.points}
-            className="ml-auto self-center"
+            className="sm:ml-auto self-center w-fit"
           />
         </div>
 
