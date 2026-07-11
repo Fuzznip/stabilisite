@@ -56,7 +56,9 @@ function buildLeafSlot(
   const countPerAction = (c.count_per_action as number | null) ?? null;
   // Each proof action records the quantity for that event (delta, not cumulative).
   // When count_per_action is set, each action contributes at most that much.
-  const matching = proofs.filter((p) => p.action?.name === name);
+  const matching = proofs.filter(
+    (p) => p.action?.name?.toLowerCase() === name.toLowerCase(),
+  );
   const qty = matching.reduce((sum, p) => {
     const q = p.action?.quantity ?? 0;
     return sum + (countPerAction != null ? Math.min(q, countPerAction) : q);

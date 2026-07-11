@@ -133,7 +133,10 @@ export function TerritoryProofDialog({
 
   // Per-player completions table — fallback for count/chat-based triggers with no screenshots
   const proofRows = filterByActionName
-    ? proofs.filter((p) => p.action?.name === filterByActionName)
+    ? proofs.filter(
+        (p) =>
+          p.action?.name?.toLowerCase() === filterByActionName.toLowerCase(),
+      )
     : proofs;
   const playerRows = (() => {
     const byPlayer = new Map<string, number>();

@@ -183,7 +183,11 @@ function TerritoryDetailRow({
     countPerAction: number | null,
   ): number =>
     allProofs
-      .filter((p) => p.team_id === teamId && p.action?.name === name)
+      .filter(
+        (p) =>
+          p.team_id === teamId &&
+          p.action?.name?.toLowerCase() === name.toLowerCase(),
+      )
       .reduce((sum, p) => {
         const q = p.action?.quantity ?? 0;
         return sum + (countPerAction != null ? Math.min(q, countPerAction) : q);
