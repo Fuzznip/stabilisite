@@ -6,7 +6,7 @@ import { cn, getScaleDisplay } from "@/lib/utils";
 import getUser from "@/lib/fetch/getUser";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
-// import { UpcomingEvents } from "./_components/UpcomingEvents";
+import { UpcomingEvents } from "./_components/UpcomingEvents";
 
 export default async function HomePage(): Promise<React.ReactElement> {
   const [splitsData, diariesData] = await Promise.all([
@@ -19,7 +19,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
 
   return (
     <div className="flex flex-col gap-12 mb-12">
-      {/* <UpcomingEvents /> */}
+      <UpcomingEvents />
       <div className="flex flex-col lg:flex-row gap-18 sm:gap-12">
         <div className="flex flex-col gap-4 w-full lg:w-1/2">
           <h2 className="text-3xl text-foreground">Recent Splits</h2>

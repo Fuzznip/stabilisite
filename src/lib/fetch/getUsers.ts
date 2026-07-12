@@ -14,7 +14,7 @@ export default async function getUsers(): Promise<User[] | undefined> {
       rankPoints: user.rank_points,
       joinDate: new Date(user.join_date || ""),
       progressionData: JSON.parse(JSON.stringify(user.progression_data)),
-      previousNames: user.previous_names.filter((name: string) => name),
+      previousNames: user.previous_names?.filter((name: string) => name) || [],
       altNames: user.alt_names,
       isAdmin: user.is_admin,
       isMember: user.is_member,
@@ -25,6 +25,6 @@ export default async function getUsers(): Promise<User[] | undefined> {
       splitPoints: user.split_points,
     }))
     .sort((userA: User, userB: User) =>
-      userA.runescapeName?.localeCompare(userB.runescapeName || "")
+      userA.runescapeName?.localeCompare(userB.runescapeName || ""),
     );
 }

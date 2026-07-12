@@ -297,7 +297,7 @@ function ConquestInner({
         regions={regions}
         loadingMore={loadingMore}
       />
-      {hasMore && !loadingMore && (
+      {hasMore && !loadingMore && allLogs.length > 0 && (
         <Button
           onClick={loadMore}
           className="w-fit mx-auto px-8 cursor-pointer bg-stability text-white hover:bg-stability/90"

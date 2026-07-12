@@ -1,9 +1,7 @@
 import { Suspense } from "react";
 import { readFile } from "fs/promises";
 import path from "path";
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { auth } from "@/auth";
 import { getEvent } from "@/lib/fetch/getBingo";
 import {
   getConquestTerritories,
@@ -13,7 +11,6 @@ import {
 import { ConquestClientWrapper } from "./_components/ConquestClientWrapper";
 import type { RegionData } from "@/components/territory-map/types";
 import Loading from "./loading";
-import { CONQUEST_ADMIN_IDS } from "@/lib/config/conquest";
 
 export async function generateMetadata({
   params,
@@ -33,10 +30,7 @@ export default async function ConquestPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const [{ id }, session] = await Promise.all([params, auth()]);
-  if (!session?.user?.id || !CONQUEST_ADMIN_IDS.includes(session.user.id)) {
-    notFound();
-  }
+  const { id } = await params;
   return (
     <Suspense fallback={<Loading />}>
       <ConquestContent id={id} />

@@ -26,11 +26,9 @@ const iconMap: Record<string, React.ElementType> = {
 export default function NavBarLinks({
   user,
   event,
-  isConquestAdmin = false,
 }: {
   user: User | null;
   event?: Event;
-  isConquestAdmin?: boolean;
 }): React.ReactElement {
   const pathname = usePathname();
   const tabs = [
@@ -45,9 +43,7 @@ export default function NavBarLinks({
 
   if (event) {
     if (event.type === "conquest") {
-      if (isConquestAdmin) {
-        tabs.push({ href: `/conquest/${event.id}`, title: "Conquest" });
-      }
+      tabs.push({ href: `/conquest/${event.id}`, title: "Conquest" });
     } else {
       tabs.push({ href: `/bingo/${event.id}`, title: "Bingo" });
     }

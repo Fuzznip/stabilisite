@@ -52,10 +52,14 @@ export function EventCountdown({ event }: { event: Event }) {
 
   return (
     <>
-      {<p className="text-lg text-foreground">{countdown}</p>}
+      {<p className="text-lg text-foreground/60">{countdown}</p>}
       {isReleased ? (
-        <Button asChild className="absolute bottom-4 right-4" size="sm">
-          <Link href={`/bingo/${event.id}`}>
+        <Button
+          asChild
+          className="absolute bottom-4 right-4 bg-stability text-white hover:bg-stability/60"
+          size="sm"
+        >
+          <Link href={`/conquest/${event.id}`}>
             View Event <ArrowRight className="ml-2 size-4" />
           </Link>
         </Button>
