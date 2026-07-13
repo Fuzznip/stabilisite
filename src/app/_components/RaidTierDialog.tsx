@@ -79,23 +79,41 @@ export function RaidTierDialog({
   });
 
   const onSubmit = async (data: RaidTierSchema) => {
-    const result = await submitRaidTier({
-      targetRaidTierId: data.tier,
-      proof: data.proof,
-    });
+    try {
+      const result = await submitRaidTier({
+        targetRaidTierId: data.tier,
+        proof: data.proof,
+      });
 
-    if (result.success) {
-      toast.success(
-        `Your ${selectedRaid.raidName} Tier ${selectedTier.order} application was submitted!`,
-      );
-      setDialogOpen(false);
-    } else {
+      if (result.success) {
+        toast.success(
+          `Your ${selectedRaid.raidName} Tier ${selectedTier.order} application was submitted!`,
+        );
+        setDialogOpen(false);
+        form.reset(defaultForm);
+      } else {
+        toast.error(
+          result.error ??
+            "Something went wrong submitting your raid tier application. Please try again.",
+          { duration: 10000 },
+        );
+      }
+    } catch (err) {
+      // Errors thrown by the server action itself (transport/serialization,
+      // oversized upload, network) land here — surface them instead of failing
+      // silently, which reads to users as "the button does nothing".
+      console.error("[RaidTierDialog] Submission error:", err);
       toast.error(
         "Something went wrong submitting your raid tier application. Please try again.",
         { duration: 10000 },
       );
     }
-    form.reset(defaultForm);
+  };
+
+  const onInvalid = () => {
+    toast.error(
+      "Please select a raid and tier and upload proof before submitting.",
+    );
   };
 
   return (
@@ -118,7 +136,7 @@ export function RaidTierDialog({
         </DialogHeader>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(onSubmit, onInvalid)}
             className="flex flex-col gap-4 text-base"
           >
             <div className="flex items-center gap-8">
@@ -223,9 +241,10 @@ export function RaidTierDialog({
             <DialogFooter>
               <Button
                 type="submit"
+                disabled={form.formState.isSubmitting}
                 className="w-fit ml-auto bg-stability hover:bg-stability/90 text-white"
               >
-                Submit
+                {form.formState.isSubmitting ? "Submitting…" : "Submit"}
               </Button>
             </DialogFooter>
           </form>

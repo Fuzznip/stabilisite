@@ -216,13 +216,20 @@ export function getFileUrlsForProof(files: File[]): Promise<string[]> {
     files.map(async (file: File) => {
       const [fileUrl, signedUrl] = await getS3SignedUrl(file.name, file.type);
 
-      await fetch(signedUrl, {
+      const res = await fetch(signedUrl, {
         method: "PUT",
         body: file,
         headers: {
           "Content-Type": file.type,
         },
       });
+
+      // A failed PUT (CORS/403/expired URL) previously returned a broken URL
+      // silently; throw so the caller surfaces an error instead of appearing
+      // to do nothing.
+      if (!res.ok) {
+        throw new Error(`Failed to upload proof "${file.name}" (${res.status})`);
+      }
 
       return fileUrl;
     }),

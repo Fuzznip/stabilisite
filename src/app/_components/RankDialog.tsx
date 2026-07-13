@@ -114,6 +114,10 @@ export function RankDialog({
     }
   };
 
+  const onInvalid = () => {
+    toast.error("Please select a rank and upload proof before submitting.");
+  };
+
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
@@ -133,7 +137,7 @@ export function RankDialog({
         {ranks.length > 0 ? (
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit(onSubmit, onInvalid)}
               className="flex flex-col gap-4 text-base"
             >
               <div className="flex items-center gap-8 justify-between">
@@ -248,11 +252,12 @@ export function RankDialog({
                   type="submit"
                   className="w-fit ml-auto bg-stability hover:bg-stability/90 text-white"
                   disabled={
+                    form.formState.isSubmitting ||
                     clanPoints < selectedRank.rankMinimumPoints ||
                     daysInClan < selectedRank.rankMinimumDays
                   }
                 >
-                  Submit
+                  {form.formState.isSubmitting ? "Submitting…" : "Submit"}
                 </Button>
               </DialogFooter>
             </form>

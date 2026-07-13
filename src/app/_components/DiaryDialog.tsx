@@ -196,29 +196,41 @@ function SpeedRunForm({
   });
 
   const onSubmit = async (data: SpeedRunZodForm) => {
-    const result = await submitDiary({
-      ...data,
-      shorthand:
-        selectedDiary.scales.find((scale) => scale.scale === selectedScale)
-          ?.shorthand || "",
-      scale: Number(selectedScale),
-    });
+    try {
+      const result = await submitDiary({
+        ...data,
+        shorthand:
+          selectedDiary.scales.find((scale) => scale.scale === selectedScale)
+            ?.shorthand || "",
+        scale: Number(selectedScale),
+      });
 
-    if (result.success) {
-      toast.success(
-        `Your ${selectedDiary.name} (${getScaleDisplay(
-          selectedScale
-        )}) diary was submitted and is under review.`
-      );
-      setDialogOpen(false);
-    } else {
+      if (result.success) {
+        toast.success(
+          `Your ${selectedDiary.name} (${getScaleDisplay(
+            selectedScale
+          )}) diary was submitted and is under review.`
+        );
+        setDialogOpen(false);
+        form.reset(defaultForm);
+        setTeamMembers([user?.runescapeName || ""]);
+      } else {
+        toast.error(
+          "Something went wrong submitting your diary entry. Please try again.",
+          { duration: 10000 }
+        );
+      }
+    } catch (err) {
+      console.error("[DiaryDialog] Submission error:", err);
       toast.error(
         "Something went wrong submitting your diary entry. Please try again.",
         { duration: 10000 }
       );
     }
-    form.reset(defaultForm);
-    setTeamMembers([user?.runescapeName || ""]);
+  };
+
+  const onInvalid = () => {
+    toast.error("Please complete all fields and upload proof before submitting.");
   };
 
   const handleTeamAdd = () => {
@@ -240,7 +252,7 @@ function SpeedRunForm({
     <div className="h-full flex flex-col">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(onSubmit, onInvalid)}
           className="flex flex-col flex-1 gap-4 text-base"
         >
           <div className="flex gap-4">
@@ -540,31 +552,43 @@ function AchievementForm({
   });
 
   const onSubmit = async (data: SpeedRunZodForm) => {
-    const result = await submitDiary({
-      ...data,
-      shorthand: selectedShorthand,
-      scale: 1,
-    });
+    try {
+      const result = await submitDiary({
+        ...data,
+        shorthand: selectedShorthand,
+        scale: 1,
+      });
 
-    if (result.success) {
-      toast.success(
-        `Your ${selectedDiary.name} diary was submitted and is under review.`
-      );
-      setDialogOpen(false);
-    } else {
+      if (result.success) {
+        toast.success(
+          `Your ${selectedDiary.name} diary was submitted and is under review.`
+        );
+        setDialogOpen(false);
+        form.reset(defaultForm);
+      } else {
+        toast.error(
+          "Something went wrong submitting your diary entry. Please try again.",
+          { duration: 10000 }
+        );
+      }
+    } catch (err) {
+      console.error("[DiaryDialog] Submission error:", err);
       toast.error(
         "Something went wrong submitting your diary entry. Please try again.",
         { duration: 10000 }
       );
     }
-    form.reset(defaultForm);
+  };
+
+  const onInvalid = () => {
+    toast.error("Please complete all fields and upload proof before submitting.");
   };
 
   return (
     <div className="h-full flex flex-col">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(onSubmit, onInvalid)}
           className="flex flex-col flex-1 overflow-auto gap-4 text-base"
         >
           <div className="flex gap-4">
