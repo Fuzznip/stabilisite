@@ -170,7 +170,7 @@ function TeamList({
               <button
                 key={team.id}
                 onClick={() => onSelect(team.id)}
-                className="relative w-full grid items-center gap-3 px-4.5 pt-3 pb-5 text-left transition-colors hover:bg-white/[0.04] grid-cols-[28px_40px_1fr_auto] cursor-pointer"
+                className="relative w-full grid items-center gap-2.5 sm:gap-3 px-4 sm:px-4.5 pt-3 pb-5 text-left transition-colors hover:bg-white/[0.04] grid-cols-[24px_44px_1fr_auto] sm:grid-cols-[28px_48px_1fr_auto] cursor-pointer"
                 style={{
                   borderBottom: isLast
                     ? undefined
@@ -191,15 +191,15 @@ function TeamList({
 
                 {/* Team avatar */}
                 <div
-                  className="w-10 h-10 rounded-lg overflow-hidden shrink-0"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg overflow-hidden shrink-0"
                   style={{ border: "1px solid rgba(255,255,255,0.10)" }}
                 >
                   {team.image_url ? (
                     <Image
                       src={team.image_url}
                       alt={team.name}
-                      width={40}
-                      height={40}
+                      width={48}
+                      height={48}
                       unoptimized
                       className="w-full h-full object-cover"
                     />
@@ -213,7 +213,7 @@ function TeamList({
 
                 {/* Team name + breakdown */}
                 <div className="min-w-0">
-                  <div className="font-semibold text-base truncate leading-snug">
+                  <div className="font-semibold text-base sm:text-lg leading-snug break-words">
                     {team.name}
                   </div>
                   <div className="flex flex-col text-xs font-mono text-muted-foreground leading-relaxed mt-0.5">
@@ -230,7 +230,7 @@ function TeamList({
                 {/* Score */}
                 <div className="text-right shrink-0">
                   <div
-                    className="text-2xl font-semibold tabular-nums leading-none"
+                    className="text-xl sm:text-2xl font-semibold tabular-nums leading-none"
                     style={rank === 1 ? { color: "#d4a44a" } : undefined}
                   >
                     {team.points.toLocaleString()}
@@ -241,7 +241,7 @@ function TeamList({
                 </div>
 
                 {/* Score bar */}
-                <div className="absolute bottom-1.5 left-4.5 right-4.5 h-0.5 rounded-full overflow-hidden">
+                <div className="absolute bottom-1.5 left-4 right-4 sm:left-4.5 sm:right-4.5 h-0.5 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -339,15 +339,15 @@ function TeamDetail({
             ←
           </button>
           <div
-            className="w-9 h-9 rounded-lg overflow-hidden shrink-0"
+            className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
             style={{ border: `1px solid ${color}55` }}
           >
             {team.image_url ? (
               <Image
                 src={team.image_url}
                 alt={team.name}
-                width={36}
-                height={36}
+                width={48}
+                height={48}
                 unoptimized
                 className="w-full h-full object-cover"
               />

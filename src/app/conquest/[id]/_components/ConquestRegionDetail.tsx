@@ -261,7 +261,7 @@ function TerritoryDetailRow({
                 style={isSelected ? { background: `${color}1f` } : undefined}
               >
                 <div
-                  className="size-11 rounded-lg shrink-0 overflow-hidden relative"
+                  className="size-14 rounded-lg shrink-0 overflow-hidden relative"
                   style={{
                     border: `1px solid ${
                       isSelected

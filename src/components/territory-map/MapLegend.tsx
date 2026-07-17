@@ -40,8 +40,8 @@ export function MapLegend({ regionData, regions, teams }: MapLegendProps) {
                     <Image
                       src={owner.image_url}
                       alt={owner.name}
-                      width={16}
-                      height={16}
+                      width={24}
+                      height={24}
                       unoptimized
                       className="rounded-full object-cover shrink-0"
                       style={{ border: `1.5px solid ${owner.color ?? "#6b7280"}` }}

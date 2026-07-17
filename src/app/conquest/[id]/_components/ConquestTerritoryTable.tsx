@@ -370,7 +370,7 @@ export function ConquestTerritoryTable({
               <th key={team.id} className="px-1 sm:px-3 py-2 text-center">
                 <div className="flex flex-col items-center gap-1 min-w-0">
                   <div
-                    className="size-7 rounded overflow-hidden shrink-0 relative"
+                    className="size-10 rounded overflow-hidden shrink-0 relative"
                     style={{ border: "1px solid rgba(255,255,255,0.10)" }}
                   >
                     {team.image_url ? (

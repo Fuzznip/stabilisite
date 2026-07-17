@@ -207,7 +207,7 @@ export function TerritoryHoverPanel({
                 className="flex-1 flex items-center justify-center gap-1.5 px-1 py-2 min-w-0"
               >
                 <div
-                  className="size-11 rounded-lg shrink-0 overflow-hidden relative"
+                  className="size-14 rounded-lg shrink-0 overflow-hidden relative"
                   style={{ border: `1px solid ${color}66` }}
                 >
                   {team?.image_url ? (

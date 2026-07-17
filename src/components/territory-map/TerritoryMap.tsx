@@ -215,10 +215,10 @@ function fullRedraw(
 // ─── Marker icons ─────────────────────────────────────────────────────────────
 
 const UNCONTROLLED_ICON = L.divIcon({
-  html: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" opacity="0.8" style="filter:drop-shadow(0 1px 3px rgba(0,0,0,0.7))"><circle cx="12" cy="12" r="10" style="fill:hsl(var(--background));stroke:hsl(var(--foreground))" stroke-width="1.5"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none" style="stroke:hsl(var(--foreground))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 17h.01" fill="none" style="stroke:hsl(var(--foreground))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  html: `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" opacity="0.8" style="filter:drop-shadow(0 1px 3px rgba(0,0,0,0.7))"><circle cx="12" cy="12" r="10" style="fill:hsl(var(--background));stroke:hsl(var(--foreground))" stroke-width="1.5"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none" style="stroke:hsl(var(--foreground))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 17h.01" fill="none" style="stroke:hsl(var(--foreground))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   className: "",
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
+  iconSize: [44, 44],
+  iconAnchor: [22, 22],
 });
 
 function makeTeamIcon(team: Team): L.DivIcon {
@@ -226,10 +226,10 @@ function makeTeamIcon(team: Team): L.DivIcon {
     ? `<img src="${team.image_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
     : `<div style="width:100%;height:100%;border-radius:50%;background:${team.color ?? "#888"}"></div>`;
   return L.divIcon({
-    html: `<div style="width:32px;height:32px;border-radius:50%;overflow:hidden;opacity:0.9;box-sizing:border-box;border:2px solid ${team.color ?? "#888"};filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5))">${inner}</div>`,
+    html: `<div style="width:44px;height:44px;border-radius:50%;overflow:hidden;opacity:0.9;box-sizing:border-box;border:2px solid ${team.color ?? "#888"};filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5))">${inner}</div>`,
     className: "",
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
   });
 }
 

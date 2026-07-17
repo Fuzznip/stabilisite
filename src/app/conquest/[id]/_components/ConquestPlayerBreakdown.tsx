@@ -75,15 +75,15 @@ function TeamCard({ team }: { team: TeamPlayerBreakdown }) {
           style={{ background: color, boxShadow: `0 0 10px ${color}` }}
         />
         <div
-          className="size-8 rounded-lg overflow-hidden shrink-0"
+          className="size-11 rounded-lg overflow-hidden shrink-0"
           style={{ border: `1px solid ${color}55` }}
         >
           {team.team_image_url ? (
             <Image
               src={team.team_image_url}
               alt={team.team_name}
-              width={32}
-              height={32}
+              width={44}
+              height={44}
               unoptimized
               className="w-full h-full object-cover"
             />

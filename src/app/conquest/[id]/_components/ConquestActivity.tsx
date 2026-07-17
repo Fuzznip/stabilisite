@@ -273,7 +273,7 @@ function ActivityRow({
       {/* Team icon — only on primary rows */}
       {!compact && (
         <div
-          className="size-11 rounded-lg overflow-hidden shrink-0 relative"
+          className="size-14 rounded-lg overflow-hidden shrink-0 relative"
           style={{ border: "1px solid rgba(255,255,255,0.10)" }}
         >
           {team.image_url ? (

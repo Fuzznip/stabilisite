@@ -166,15 +166,15 @@ export function ConquestRegions({
                 {owner ? (
                   <>
                     <div
-                      className="size-6 rounded-md overflow-hidden shrink-0"
+                      className="size-9 rounded-md overflow-hidden shrink-0"
                       style={{ border: "1px solid rgba(255,255,255,0.10)" }}
                     >
                       {owner.image_url ? (
                         <Image
                           src={owner.image_url}
                           alt={owner.name}
-                          width={24}
-                          height={24}
+                          width={36}
+                          height={36}
                           unoptimized
                           className="w-full h-full object-cover"
                         />
