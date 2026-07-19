@@ -13,7 +13,6 @@ import type {
   ConquestRegion,
   ConquestTerritory,
   Team,
-  EventLog,
   TeamPlayerBreakdown,
 } from "@/lib/types/v2";
 import { PointsBadge } from "./PointsBadge";
@@ -59,34 +58,6 @@ export function ConquestScoreboard({
   selectedTeamId,
   onSelectedTeamIdChange,
 }: ConquestScoreboardProps) {
-  const { data: logs = [] } = useQuery<EventLog[]>({
-    queryKey: ["conquest-logs", eventId],
-    queryFn: async () => {
-      const res = await fetch(`/api/conquest/${eventId}/logs?per_page=1000`);
-      if (!res.ok) return [];
-      const json = await res.json();
-      return Array.isArray(json) ? json : (json.data ?? []);
-    },
-    staleTime: 10_000,
-    refetchInterval: 10_000,
-  });
-
-  const uniqueTasksByTeam = useMemo(() => {
-    const map = new Map<string, Set<string>>();
-    for (const log of logs) {
-      if (
-        log.type === "CHALLENGE_COMPLETED" &&
-        log.meta?.unique &&
-        log.team_id &&
-        log.entity_id
-      ) {
-        if (!map.has(log.team_id)) map.set(log.team_id, new Set());
-        map.get(log.team_id)!.add(log.entity_id);
-      }
-    }
-    return map;
-  }, [logs]);
-
   const sorted = useMemo(
     () => [...teams].sort((a, b) => b.points - a.points),
     [teams],
@@ -99,7 +70,7 @@ export function ConquestScoreboard({
 
   return (
     <aside
-      className="flex flex-col rounded-2xl overflow-hidden h-120 bg-card border border-white/10 shadow-[0_0_0_1px_rgba(0,0,0,0.4)_inset,0_20px_50px_-30px_rgba(0,0,0,0.8)]"
+      className="flex flex-col rounded-2xl overflow-hidden h-132 bg-card border border-white/10 shadow-[0_0_0_1px_rgba(0,0,0,0.4)_inset,0_20px_50px_-30px_rgba(0,0,0,0.8)]"
     >
       {selectedTeam ? (
         <TeamDetail
@@ -107,7 +78,7 @@ export function ConquestScoreboard({
           team={selectedTeam}
           territories={territories}
           regions={regions}
-          uniqueTasks={uniqueTasksByTeam.get(selectedTeam.id)?.size ?? 0}
+          uniqueTasks={selectedTeam.unique_tasks ?? 0}
           onBack={() => onSelectedTeamIdChange(null)}
         />
       ) : (

@@ -215,7 +215,7 @@ function ConquestInner({
         )}
       </header>
 
-      {/* Main grid: map (flex-1) + standings (fixed 340px).
+      {/* Main grid: map (flex-1) + standings (fixed 380px).
           The interactive Leaflet map doesn't size/interact reliably on mobile,
           so below lg we swap it for a non-interactive static canvas render. */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-[1fr_380px] items-stretch">

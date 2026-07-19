@@ -6,7 +6,8 @@ export async function GET(
 
   const res = await fetch(
     `${process.env.API_URL}/v2/events/${eventId}/regions`,
-    { cache: "no-store" }
+    // Shared across all viewers; at most one upstream fetch per 10s.
+    { next: { revalidate: 10 } }
   );
 
   if (!res.ok) {

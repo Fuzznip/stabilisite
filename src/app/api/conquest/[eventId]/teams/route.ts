@@ -5,8 +5,9 @@ export async function GET(
   const { eventId } = await params;
 
   const res = await fetch(
-    `${process.env.API_URL}/v2/events/${eventId}`,
-    { cache: "no-store" }
+    `${process.env.API_URL}/v2/events/${eventId}/scoreboard`,
+    // Shared across all viewers; at most one upstream fetch per 10s.
+    { next: { revalidate: 10 } }
   );
 
   if (!res.ok) {
@@ -14,5 +15,5 @@ export async function GET(
   }
 
   const json = await res.json();
-  return Response.json({ data: json.teams ?? [] });
+  return Response.json({ data: json.data ?? [] });
 }

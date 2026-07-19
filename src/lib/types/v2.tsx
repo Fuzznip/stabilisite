@@ -26,6 +26,7 @@ export type Team = {
   created_at: string;
   updated_at: string;
   members: string[]; // Array of RuneScape usernames (bingo events)
+  unique_tasks?: number; // Conquest: distinct territory challenges completed (from scoreboard endpoint)
 };
 
 // ===========================================

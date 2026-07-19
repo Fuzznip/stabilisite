@@ -9,7 +9,8 @@ export async function GET(
 
   const res = await fetch(
     `${process.env.API_URL}/v2/events/${eventId}/event-logs?per_page=${perPage}&page=${page}`,
-    { cache: "no-store" }
+    // Shared across all viewers; at most one upstream fetch per 10s per page.
+    { next: { revalidate: 10 } }
   );
 
   if (!res.ok) {
