@@ -8,12 +8,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Coins } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -55,8 +53,13 @@ const splitSchema = z.object({
 
 type SplitSchema = z.infer<typeof splitSchema>;
 
-export function SplitDialog(): React.ReactElement {
-  const [dialogOpen, setDialogOpen] = useState(false);
+export function SplitDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}): React.ReactElement {
   const form = useForm<SplitSchema>({
     resolver: zodResolver(splitSchema),
     defaultValues: {
@@ -97,17 +100,11 @@ export function SplitDialog(): React.ReactElement {
         console.error(e);
         form.reset();
       });
-    setDialogOpen(false);
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className="w-full justify-start px-6">
-          <Coins className="size-4 mr-1" />
-          <span>Split</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="mb-24 w-[40rem] sm:max-h-4/5 overflow-auto">
         <DialogHeader className="mb-2 flex flex-col gap-1 text-left">
           <DialogTitle className="text-xl mb-0">Submit Split</DialogTitle>

@@ -11,7 +11,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -30,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ChartBarIncreasing, CircleCheck, CircleX, Info } from "lucide-react";
+import { CircleCheck, CircleX, Info } from "lucide-react";
 import { Rank, User } from "@/lib/types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import ProofField from "./ProofField";
@@ -61,11 +60,14 @@ type RaidTierSchema = z.infer<typeof rankSchema>;
 export function RankDialog({
   ranks,
   user,
+  open,
+  onOpenChange,
 }: {
   ranks: Rank[];
   user: User | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }): React.ReactElement {
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedRank, setSelectedRank] = useState<Rank>(ranks[0]);
   const daysInClan = differenceInCalendarDays(
     new Date(),
@@ -96,7 +98,7 @@ export function RankDialog({
         toast.success(
           `Your ${selectedRank.rankName} rank application was submitted!`,
         );
-        setDialogOpen(false);
+        onOpenChange(false);
       } else {
         toast.error(
           `Something went wrong submitting your rank application. Please try again.`,
@@ -119,13 +121,7 @@ export function RankDialog({
   };
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className="w-full justify-start px-6">
-          <ChartBarIncreasing className="size-4 mr-1" />
-          <span>Rank</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="mb-24 w-[30rem] sm:w-1/2 max-w-full lg:max-w-2xl sm:max-h-4/5 overflow-auto">
         <DialogHeader className="mb-2 text-left">
           <DialogTitle className="text-xl">Submit Rank Application</DialogTitle>

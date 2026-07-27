@@ -11,7 +11,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -30,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Info, Swords } from "lucide-react";
+import { Info } from "lucide-react";
 import { Raid } from "@/lib/types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { submitRaidTier } from "../_actions/submitRaidTier";
@@ -60,11 +59,14 @@ type RaidTierSchema = z.infer<typeof raidTierSchema>;
 
 export function RaidTierDialog({
   raids,
+  open,
+  onOpenChange,
 }: {
   raids: Raid[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }): React.ReactElement {
   const hasRaids = raids.length > 0;
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedRaid, setSelectedRaid] = useState(raids[0]);
   const [selectedTier, setSelectedTier] = useState(raids[0]?.tiers[0]);
 
@@ -90,7 +92,7 @@ export function RaidTierDialog({
         toast.success(
           `Your ${selectedRaid.raidName} Tier ${selectedTier.order} application was submitted!`,
         );
-        setDialogOpen(false);
+        onOpenChange(false);
         form.reset(defaultForm);
       } else {
         toast.error(
@@ -118,13 +120,7 @@ export function RaidTierDialog({
   };
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className="w-full justify-start px-6">
-          <Swords className="size-4 mr-1" />
-          <span>Raid Tier</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="mb-24 w-[30rem] max-w-full sm:max-h-4/5 overflow-auto">
         <DialogHeader className="mb-2 text-left">
           <DialogTitle className="text-xl">

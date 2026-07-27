@@ -8,7 +8,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { NotebookPen, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -83,12 +82,15 @@ export function DiaryDialog({
   user,
   diaries,
   entries,
+  open,
+  onOpenChange,
 }: {
   user?: User | null;
   diaries: ShortDiary[];
   entries: DiaryApplication[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }): React.ReactElement {
-  const [dialogOpen, setDialogOpen] = useState(false);
   const acceptedDiaryNames = entries
     .filter((entry) => entry.status === "Accepted")
     .map((entry) => entry.name);
@@ -105,13 +107,7 @@ export function DiaryDialog({
     )
     .filter((diary) => !!diary);
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className="w-full justify-start px-6">
-          <NotebookPen className="size-4 mr-1" />
-          <span>Diary</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="mb-24 w-[40rem] h-fit overflow-auto items-start flex-col">
         <DialogHeader className="mb-2 flex flex-col gap-1 text-left">
           <DialogTitle className="text-xl mb-0">Submit Diary Entry</DialogTitle>
@@ -141,7 +137,7 @@ export function DiaryDialog({
                 (diary) =>
                   diary.scales.filter((scale) => scale.diaryTime).length > 0
               )}
-              setDialogOpen={setDialogOpen}
+              setDialogOpen={onOpenChange}
             />
           </TabsContent>
           <TabsContent value="achievement" className="h-full flex flex-col">
@@ -149,7 +145,7 @@ export function DiaryDialog({
               <AchievementForm
                 user={user}
                 diaries={achievementDiaries}
-                setDialogOpen={setDialogOpen}
+                setDialogOpen={onOpenChange}
               />
             ) : (
               <div className=" text-lg w-fit mx-auto mt-36 text-center">
