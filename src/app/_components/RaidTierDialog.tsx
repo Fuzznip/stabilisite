@@ -63,13 +63,14 @@ export function RaidTierDialog({
 }: {
   raids: Raid[];
 }): React.ReactElement {
+  const hasRaids = raids.length > 0;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedRaid, setSelectedRaid] = useState(raids[0]);
-  const [selectedTier, setSelectedTier] = useState(raids[0].tiers[0]);
+  const [selectedTier, setSelectedTier] = useState(raids[0]?.tiers[0]);
 
   const defaultForm = {
-    raid: selectedRaid.raidName,
-    tier: selectedTier.id,
+    raid: selectedRaid?.raidName,
+    tier: selectedTier?.id,
     proof: [],
   };
 
@@ -134,6 +135,11 @@ export function RaidTierDialog({
             ranked!
           </DialogDescription>
         </DialogHeader>
+        {!hasRaids ? (
+          <div className="flex w-fit mx-auto my-4 text-center">
+            You have already achieved the highest tier in every raid.
+          </div>
+        ) : (
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit, onInvalid)}
@@ -249,6 +255,7 @@ export function RaidTierDialog({
             </DialogFooter>
           </form>
         </Form>
+        )}
       </DialogContent>
     </Dialog>
   );

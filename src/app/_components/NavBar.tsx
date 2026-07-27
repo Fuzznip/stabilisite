@@ -15,6 +15,9 @@ import { getRaids } from "@/lib/fetch/getRaids";
 import { getRanks } from "@/lib/fetch/getRanks";
 import { SubmitPopoverClient } from "./SubmitPopoverClient";
 import { getReleasedEvent } from "@/lib/fetch/getBingo";
+import { getRaidTierApplications } from "@/lib/db/raidTier";
+import { getMaxRaidTiers } from "@/lib/utils";
+import type { RaidName } from "@/lib/types";
 
 export default async function NavBar(): Promise<React.ReactElement> {
   const [user, event] = await Promise.all([getAuthUser(), getReleasedEvent()]);
@@ -94,16 +97,31 @@ async function SubmitPopover(): Promise<React.ReactElement> {
     getRaids(),
     getRanks(),
   ]);
-  const entries = await getDiaryEntries(user);
+  const [entries, raidTierApplications] = await Promise.all([
+    getDiaryEntries(user),
+    getRaidTierApplications(user ?? undefined),
+  ]);
   const userRankIndex = ranks.findIndex((rank) => rank.rankName === user?.rank);
   const filteredRanks = ranks.splice(userRankIndex + 1);
+
+  // Hide raid tiers the user has already achieved, mirroring the rank filter
+  // above so the submit dialog only offers tiers they can still progress to.
+  const maxRaidTiers = getMaxRaidTiers(raidTierApplications, raids);
+  const filteredRaids = raids
+    .map((raid) => ({
+      ...raid,
+      tiers: raid.tiers.filter(
+        (tier) => tier.order > (maxRaidTiers[raid.raidName as RaidName] ?? 0),
+      ),
+    }))
+    .filter((raid) => raid.tiers.length > 0);
 
   return (
     <SubmitPopoverClient
       user={user}
       diaries={diaries}
       entries={entries}
-      raids={raids}
+      raids={filteredRaids}
       filteredRanks={filteredRanks}
     />
   );
