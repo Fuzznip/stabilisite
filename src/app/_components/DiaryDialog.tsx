@@ -51,7 +51,7 @@ import {
 } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Check } from "lucide-react";
+import { DiaryTargetLadder } from "@/components/diary/DiaryTargetLadder";
 
 const speedRunSchema = z
   .object({
@@ -730,8 +730,6 @@ function DiaryTimeTargets({
 }): React.ReactElement | null {
   if (!times.length) return null;
 
-  const bestSeconds = parseDiaryTimeToSeconds(bestTime);
-
   return (
     <div className="flex flex-col gap-2">
       <span className="text-sm text-muted-foreground">
@@ -742,45 +740,7 @@ function DiaryTimeTargets({
       </span>
       <div className="flex flex-col gap-2 rounded-lg border p-3 dark:bg-input/30">
         <span className="text-sm text-muted-foreground">Clan point targets</span>
-        <ul className="flex flex-col gap-1">
-        {times.map((target) => {
-          const targetSeconds = parseDiaryTimeToSeconds(target.diaryTime);
-          const achieved =
-            bestSeconds != null &&
-            targetSeconds != null &&
-            bestSeconds <= targetSeconds;
-          return (
-            <li
-              key={target.diaryTime}
-              className={cn(
-                "flex items-center justify-between text-sm",
-                achieved && "text-muted-foreground"
-              )}
-            >
-              <span className="flex items-center gap-2">
-                {achieved ? (
-                  <Check className="size-4 text-green-600 dark:text-green-500" />
-                ) : (
-                  <span className="size-4" />
-                )}
-                <span className="font-mono">
-                  {formatDiaryTime(target.diaryTime)}
-                </span>
-              </span>
-              <span
-                className={cn(
-                  "font-semibold",
-                  achieved
-                    ? "text-green-600 dark:text-green-500"
-                    : "text-stability"
-                )}
-              >
-                +{target.diaryPoints.toLocaleString()} clan points
-              </span>
-            </li>
-          );
-        })}
-        </ul>
+        <DiaryTargetLadder targets={times} bestTime={bestTime} />
       </div>
     </div>
   );

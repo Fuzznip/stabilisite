@@ -8,7 +8,7 @@ import {
   formatDiaryTime,
   parseDiaryTimeToSeconds,
 } from "@/lib/utils";
-import { Camera, Check, Info } from "lucide-react";
+import { Camera, Info } from "lucide-react";
 import { useState } from "react";
 import { Card } from "../ui/card";
 import Link from "next/link";
@@ -22,16 +22,9 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { DiaryTargetLadder } from "./DiaryTargetLadder";
 
 type Scale = ShortDiary["scales"][number];
-
-// Renders "2:10" from a raw number of seconds (used for the gap to the next tier).
-function formatGap(seconds: number): string {
-  const total = Math.max(0, Math.round(seconds));
-  const minutes = Math.floor(total / 60);
-  const secs = total % 60;
-  return `${minutes}:${String(secs).padStart(2, "0")}`;
-}
 
 export function DiaryTable({
   diaries,
@@ -60,24 +53,7 @@ export function DiaryTable({
         (parseDiaryTimeToSeconds(b.time) ?? Infinity)
     );
   const bestAttempt = attempts[0];
-  const bestSeconds = parseDiaryTimeToSeconds(bestAttempt?.time);
-
   const targets = selectedScale?.times ?? [];
-  // Tiers arrive slowest -> fastest. Achieved tiers are the slowest ones, so the
-  // fastest achieved tier is the user's current standing and the first locked
-  // tier is their next target.
-  const fastestAchievedTime = targets
-    .filter(
-      (target) =>
-        bestSeconds != null &&
-        (parseDiaryTimeToSeconds(target.diaryTime) ?? Infinity) >= bestSeconds
-    )
-    .at(-1)?.diaryTime;
-  const nextTargetTime = targets.find(
-    (target) =>
-      bestSeconds == null ||
-      (parseDiaryTimeToSeconds(target.diaryTime) ?? Infinity) < bestSeconds
-  )?.diaryTime;
 
   return (
     <section className="flex flex-col w-full h-full">
@@ -155,57 +131,11 @@ export function DiaryTable({
         </div>
 
         {targets.length ? (
-          <ul className="flex flex-col gap-1 overflow-auto">
-            {targets.map((target) => {
-              const targetSeconds = parseDiaryTimeToSeconds(target.diaryTime);
-              const achieved =
-                bestSeconds != null &&
-                targetSeconds != null &&
-                bestSeconds <= targetSeconds;
-              const isCurrent = target.diaryTime === fastestAchievedTime;
-              const isNext = target.diaryTime === nextTargetTime;
-              const gap =
-                isNext && bestSeconds != null && targetSeconds != null
-                  ? bestSeconds - targetSeconds
-                  : null;
-              return (
-                <li
-                  key={target.diaryTime}
-                  className={cn(
-                    "flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm",
-                    isCurrent && "bg-green-600/10 dark:bg-green-500/10",
-                    isNext && "bg-stability/10",
-                    !achieved && !isNext && "text-muted-foreground"
-                  )}
-                >
-                  <span className="flex items-center gap-2">
-                    {achieved ? (
-                      <Check className="size-4 text-green-600 dark:text-green-500" />
-                    ) : (
-                      <span className="size-4" />
-                    )}
-                    <span className="font-mono">
-                      {formatDiaryTime(target.diaryTime)}
-                    </span>
-                    {isNext && gap != null && (
-                      <span className="text-xs text-stability">
-                        (-{formatGap(gap)})
-                      </span>
-                    )}
-                  </span>
-                  <span
-                    className={cn(
-                      "font-semibold",
-                      achieved && "text-green-600 dark:text-green-500",
-                      isNext && "text-stability"
-                    )}
-                  >
-                    +{target.diaryPoints.toLocaleString()} pts
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+          <DiaryTargetLadder
+            targets={targets}
+            bestTime={bestAttempt?.time}
+            className="overflow-auto"
+          />
         ) : (
           <div className="text-muted-foreground text-sm mt-2">
             {`No clan point targets for ${currentDiary} (${getScaleDisplay(
