@@ -105,6 +105,42 @@ export const rank_colors = [
   },
 ] as const;
 
+// Diary times come in a few shapes: "MM:SS", "MM:SS.T", "H:MM:SS.T" — the
+// stored targets include an hours segment (e.g. "0:26:30.0") while submitted
+// application times often omit it ("26:25"). Parse the colon segments from the
+// right (…hours:minutes:seconds) so both compare correctly. Returns total
+// seconds, or null when the value can't be parsed.
+export function parseDiaryTimeToSeconds(
+  time?: string | null,
+): number | null {
+  if (!time) return null;
+  const [main, fraction = "0"] = time.trim().split(".");
+  const segments = main.split(":").map(Number);
+  const fractional = Number(`0.${fraction}`);
+  if (segments.some((part) => Number.isNaN(part)) || Number.isNaN(fractional))
+    return null;
+  const whole = segments.reduce((acc, segment) => acc * 60 + segment, 0);
+  return whole + fractional;
+}
+
+// Normalizes a diary time to a compact display ("0:26:30.0" -> "26:30",
+// "0:24:15.5" -> "24:15.5"), dropping a zero hours segment and trailing tenths.
+export function formatDiaryTime(time?: string | null): string {
+  const totalSeconds = parseDiaryTimeToSeconds(time);
+  if (totalSeconds == null) return time ?? "";
+  const whole = Math.floor(totalSeconds);
+  const tenths = Math.round((totalSeconds - whole) * 10);
+  const hours = Math.floor(whole / 3600);
+  const minutes = Math.floor((whole % 3600) / 60);
+  const seconds = whole % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const base =
+    hours > 0
+      ? `${hours}:${pad(minutes)}:${pad(seconds)}`
+      : `${minutes}:${pad(seconds)}`;
+  return tenths > 0 ? `${base}.${tenths}` : base;
+}
+
 export function getScaleDisplay(scale: string): string | undefined {
   switch (scale) {
     case "1":

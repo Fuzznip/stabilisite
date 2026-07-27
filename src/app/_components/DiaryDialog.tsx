@@ -35,15 +35,23 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { submitDiary } from "../_actions/submitDiary";
-import { DiaryApplication, ShortDiary, User } from "@/lib/types";
+import {
+  DiaryApplication,
+  DiaryTimeTarget,
+  ShortDiary,
+  User,
+} from "@/lib/types";
 import {
   cn,
+  formatDiaryTime,
   getCAForShorthand,
   getScaleDisplay,
   mapDiariesForComabtAchievements,
+  parseDiaryTimeToSeconds,
 } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Check } from "lucide-react";
 
 const speedRunSchema = z
   .object({
@@ -119,13 +127,13 @@ export function DiaryDialog({
           <TabsList className="py-1 h-auto mb-4 w-full">
             <TabsTrigger
               value="speedRun"
-              className="flex items-center text-lg w-1/2"
+              className="flex items-center text-base w-1/2"
             >
               Speed Run
             </TabsTrigger>
             <TabsTrigger
               value="achievement"
-              className="flex items-center text-lg w-1/2"
+              className="flex items-center text-base w-1/2"
             >
               Achievement
             </TabsTrigger>
@@ -137,6 +145,7 @@ export function DiaryDialog({
                 (diary) =>
                   diary.scales.filter((scale) => scale.diaryTime).length > 0
               )}
+              entries={entries}
               setDialogOpen={onOpenChange}
             />
           </TabsContent>
@@ -163,10 +172,12 @@ export function DiaryDialog({
 function SpeedRunForm({
   user,
   diaries,
+  entries,
   setDialogOpen,
 }: {
   user?: User | null;
   diaries: ShortDiary[];
+  entries: DiaryApplication[];
   setDialogOpen: (value: boolean) => void;
 }): React.ReactElement {
   const [selectedDiary, setSelectedDiary] = useState(diaries[0]);
@@ -243,6 +254,20 @@ function SpeedRunForm({
     setTeamMembers(updated);
     form.setValue("teamMembers", updated);
   };
+
+  const selectedScaleData = selectedDiary.scales.find(
+    (scale) => scale.scale === selectedScale
+  );
+  const bestTime = entries
+    .filter(
+      (entry) => entry.shorthand === selectedScaleData?.shorthand && entry.time
+    )
+    .map((entry) => entry.time as string)
+    .sort(
+      (a, b) =>
+        (parseDiaryTimeToSeconds(a) ?? Infinity) -
+        (parseDiaryTimeToSeconds(b) ?? Infinity)
+    )[0];
 
   return (
     <div className="h-full flex flex-col">
@@ -338,6 +363,10 @@ function SpeedRunForm({
               )}
             />
           </div>
+          <DiaryTimeTargets
+            times={selectedScaleData?.times ?? []}
+            bestTime={bestTime}
+          />
           <div className="flex flex-col">
             <FormField
               control={form.control}
@@ -688,6 +717,71 @@ function AchievementForm({
           </DialogFooter>
         </form>
       </Form>
+    </div>
+  );
+}
+
+function DiaryTimeTargets({
+  times,
+  bestTime,
+}: {
+  times: DiaryTimeTarget[];
+  bestTime?: string;
+}): React.ReactElement | null {
+  if (!times.length) return null;
+
+  const bestSeconds = parseDiaryTimeToSeconds(bestTime);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-sm text-muted-foreground">
+        Your best time:{" "}
+        <span className="font-semibold text-foreground">
+          {bestTime ? formatDiaryTime(bestTime) : "No time yet"}
+        </span>
+      </span>
+      <div className="flex flex-col gap-2 rounded-lg border p-3 dark:bg-input/30">
+        <span className="text-sm text-muted-foreground">Clan point targets</span>
+        <ul className="flex flex-col gap-1">
+        {times.map((target) => {
+          const targetSeconds = parseDiaryTimeToSeconds(target.diaryTime);
+          const achieved =
+            bestSeconds != null &&
+            targetSeconds != null &&
+            bestSeconds <= targetSeconds;
+          return (
+            <li
+              key={target.diaryTime}
+              className={cn(
+                "flex items-center justify-between text-sm",
+                achieved && "text-muted-foreground"
+              )}
+            >
+              <span className="flex items-center gap-2">
+                {achieved ? (
+                  <Check className="size-4 text-green-600 dark:text-green-500" />
+                ) : (
+                  <span className="size-4" />
+                )}
+                <span className="font-mono">
+                  {formatDiaryTime(target.diaryTime)}
+                </span>
+              </span>
+              <span
+                className={cn(
+                  "font-semibold",
+                  achieved
+                    ? "text-green-600 dark:text-green-500"
+                    : "text-stability"
+                )}
+              >
+                +{target.diaryPoints.toLocaleString()} clan points
+              </span>
+            </li>
+          );
+        })}
+        </ul>
+      </div>
     </div>
   );
 }

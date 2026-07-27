@@ -154,9 +154,19 @@ export type Diary = {
   diaryPoints: number;
 };
 
+export type DiaryTimeTarget = {
+  diaryTime: string;
+  diaryPoints: number;
+};
+
 export type ShortDiary = {
   name: string;
-  scales: { scale: string; shorthand: string; diaryTime?: string | null }[];
+  scales: {
+    scale: string;
+    shorthand: string;
+    diaryTime?: string | null;
+    times?: DiaryTimeTarget[];
+  }[];
 };
 
 export type SplitForm = {
