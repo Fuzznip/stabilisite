@@ -14,7 +14,7 @@ import {
   rank_colors,
 } from "@/lib/utils";
 import { DiaryApplication, RaidName, User } from "@/lib/types";
-import Diaries from "../../../components/diary/Diaries";
+import ProfileDiaries from "../../../components/diary/ProfileDiaries";
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -118,8 +118,8 @@ async function ProfileStats({
       </div>
       <div className="flex justify-between flex-col xl:flex-row gap-8">
         <UserAchievements user={user} />
-        <div className="xl:h-80 w-full xl:w-1/2">
-          <Diaries user={user} />
+        <div className="xl:min-h-80 xl:max-h-160 w-full xl:w-1/2">
+          <ProfileDiaries user={user} />
         </div>
       </div>
 

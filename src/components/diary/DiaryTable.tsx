@@ -1,16 +1,19 @@
 "use client";
 
 import { DiaryApplication, ShortDiary } from "@/lib/types";
-import {
-  getScaleDisplay,
-  cn,
-  formatDate,
-  formatDiaryTime,
-  parseDiaryTimeToSeconds,
-} from "@/lib/utils";
-import { Camera, Info } from "lucide-react";
-import { useState } from "react";
+import { getScaleDisplay, cn, formatDate } from "@/lib/utils";
+import { Camera } from "lucide-react";
+import { useState, useMemo } from "react";
 import { Card } from "../ui/card";
+import {
+  TableCaption,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+  Table,
+} from "../ui/table";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
@@ -21,10 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { DiaryTargetLadder } from "./DiaryTargetLadder";
-
-type Scale = ShortDiary["scales"][number];
 
 export function DiaryTable({
   diaries,
@@ -34,26 +33,23 @@ export function DiaryTable({
   entries: DiaryApplication[];
 }): React.ReactElement {
   const [currentDiary, setCurrentDiary] = useState(diaries[0].name);
-  const [currentScale, setCurrentScale] = useState<Scale | null>(
-    diaries[0].scales[0]
+  const [currentScale, setCurrentScale] = useState<{
+    scale: string;
+    shorthand: string;
+  } | null>(diaries[0].scales[0]);
+
+  const currentAttempts = useMemo(
+    () =>
+      entries
+        .filter((entry) => entry.shorthand === currentScale?.shorthand)
+        .sort(
+          (attemptA, attemptB) =>
+            attemptA.time?.localeCompare(attemptB.time || "") || 1
+        ),
+    [currentScale, entries]
   );
 
   const selectedDiary = diaries.find((diary) => diary.name === currentDiary);
-  const selectedScale =
-    selectedDiary?.scales.find(
-      (scale) => scale.scale === currentScale?.scale
-    ) ?? null;
-
-  // The user's accepted attempts for this diary + scale, fastest first.
-  const attempts = entries
-    .filter((entry) => entry.shorthand === selectedScale?.shorthand)
-    .sort(
-      (a, b) =>
-        (parseDiaryTimeToSeconds(a.time) ?? Infinity) -
-        (parseDiaryTimeToSeconds(b.time) ?? Infinity)
-    );
-  const bestAttempt = attempts[0];
-  const targets = selectedScale?.times ?? [];
 
   return (
     <section className="flex flex-col w-full h-full">
@@ -120,93 +116,69 @@ export function DiaryTable({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>
-            Best time:{" "}
-            <span className="font-semibold text-foreground">
-              {bestAttempt ? formatDiaryTime(bestAttempt.time) : "No time yet"}
-            </span>
-          </span>
-          {attempts.length > 0 && <AttemptsInfo attempts={attempts} />}
-        </div>
-
-        {targets.length ? (
-          <DiaryTargetLadder
-            targets={targets}
-            bestTime={bestAttempt?.time}
-            className="overflow-auto"
-          />
-        ) : (
-          <div className="text-muted-foreground text-sm mt-2">
-            {`No clan point targets for ${currentDiary} (${getScaleDisplay(
-              currentScale?.scale || ""
-            )})`}
-          </div>
-        )}
+        <Table>
+          {!currentAttempts.length && (
+            <TableCaption className="w-full w-max-24 text-lg mt-6 mb-4">
+              {`There are no entries submitted for ${currentDiary} (${getScaleDisplay(
+                currentScale?.scale || ""
+              )})`}
+            </TableCaption>
+          )}
+          <TableHeader>
+            <TableRow className="text-lg">
+              <TableHead className="text-muted-foreground">Rank</TableHead>
+              <TableHead className="text-muted-foreground">Time</TableHead>
+              <TableHead className="text-muted-foreground">Date</TableHead>
+              <TableHead className="text-muted-foreground">Team</TableHead>
+              <TableHead className="text-muted-foreground">Proof</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="text-xl">
+            {currentAttempts.map((attempt, index) => (
+              <TableRow key={`${attempt.shorthand}-${index}`}>
+                <TableCell
+                  className={cn(
+                    "font-extrabold",
+                    index === 0 && "text-yellow-500 text-3xl",
+                    index === 1 && "text-gray-500 text-3xl",
+                    index === 2 && "text-yellow-800 text-3xl",
+                    index > 2 && "text-muted-foreground"
+                  )}
+                >
+                  {index + 1}
+                </TableCell>
+                <TableCell>{attempt.time}</TableCell>
+                <TableCell>{formatDate(attempt.date || new Date())}</TableCell>
+                <TableCell
+                  className={cn(
+                    attempt.party?.length && "flex flex-col items-start"
+                  )}
+                >
+                  {attempt.party?.map((teammate) => (
+                    <span
+                      key={`${teammate}-${attempt.date?.getTime()}`}
+                      className="mt-1 capitalize"
+                    >
+                      {teammate}
+                    </span>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  <Button variant="ghost" asChild className="text-3xl">
+                    <Link
+                      href={attempt.proof || ""}
+                      className="w-auto h-auto"
+                      target="_blank"
+                    >
+                      <Camera className="!size-6" />
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Card>
     </section>
-  );
-}
-
-function AttemptsInfo({
-  attempts,
-}: {
-  attempts: DiaryApplication[];
-}): React.ReactElement {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-6 text-muted-foreground"
-        >
-          <Info className="size-4" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80 max-h-72 overflow-auto p-0">
-        <table className="w-full text-sm">
-          <thead className="sticky top-0 bg-popover">
-            <tr className="text-muted-foreground text-xs text-left">
-              <th className="font-normal px-3 py-2">Time</th>
-              <th className="font-normal px-3 py-2">Date</th>
-              <th className="font-normal px-3 py-2">Team</th>
-              <th className="font-normal px-3 py-2">Proof</th>
-            </tr>
-          </thead>
-          <tbody>
-            {attempts.map((attempt, index) => (
-              <tr
-                key={`${attempt.id ?? attempt.time}-${index}`}
-                className="border-t"
-              >
-                <td className="px-3 py-2 font-mono whitespace-nowrap">
-                  {formatDiaryTime(attempt.time)}
-                </td>
-                <td className="px-3 py-2 whitespace-nowrap">
-                  {formatDate(attempt.date || new Date())}
-                </td>
-                <td className="px-3 py-2 capitalize">
-                  {attempt.party?.length ? attempt.party.join(", ") : "—"}
-                </td>
-                <td className="px-3 py-2">
-                  {attempt.proof ? (
-                    <Link
-                      href={attempt.proof}
-                      target="_blank"
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <Camera className="size-4" />
-                    </Link>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </PopoverContent>
-    </Popover>
   );
 }
