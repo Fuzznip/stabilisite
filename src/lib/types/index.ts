@@ -192,6 +192,46 @@ export type OsrsItem = {
   image?: string;
 };
 
+export type CollectionLogItemEntry = {
+  itemId: number;
+  name: string;
+};
+
+export type CollectionLogPage = {
+  page: string;
+  items: CollectionLogItemEntry[];
+};
+
+export type CollectionLogCategory = {
+  category: string;
+  pages: CollectionLogPage[];
+};
+
+// Keyed by OSRS item id: how many distinct members have it + total drops.
+export type CollectionLogSummary = Record<
+  number,
+  { memberCount: number; totalCount: number }
+>;
+
+/** One member obtaining one collection log item, newest first. */
+export type CollectionLogEvent = {
+  id: string;
+  runescapeName: string;
+  itemId: number;
+  itemName: string;
+  obtainedAt: string;
+};
+
+export type CollectionLogMember = {
+  discordId: string;
+  runescapeName: string;
+  discordImg?: string;
+  rank: string;
+  count: number;
+  firstObtained: string | null;
+  lastObtained: string | null;
+};
+
 export type ApplicationResponse = {
   goals: string;
   id: string;

@@ -10,6 +10,7 @@ import {
   FileText,
   Grid3X3,
   Map,
+  BookOpen,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,6 +19,7 @@ const iconMap: Record<string, React.ElementType> = {
   Home: Home,
   Profile: UserIcon,
   Leaderboards: Trophy,
+  "Collection Log": BookOpen,
   Applications: FileText,
   Bingo: Grid3X3,
   Conquest: Map,
@@ -35,6 +37,7 @@ export default function NavBarLinks({
     { href: "/", title: "Home" },
     { href: `/profile/${user?.discordId}`, title: "Profile" },
     { href: "/leaderboards", title: "Leaderboards" },
+    { href: "/collection-log", title: "Collection Log" },
   ];
 
   if (user?.isAdmin) {

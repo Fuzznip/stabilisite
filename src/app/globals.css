@@ -4,6 +4,27 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* RuneScape interface fonts (RuneLite's TTF recreations) for the collection log */
+@font-face {
+  font-family: "RuneScape";
+  src: url("/collection-log/runescape.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "RuneScape";
+  src: url("/collection-log/runescape_bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+.font-osrs {
+  font-family: "RuneScape", ui-serif, serif;
+  /* Pixel font: keep edges crisp and turn off anti-alias smoothing. */
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 @theme {
   --color-tall-poppy-50: #fdf3f3;
   --color-tall-poppy-100: #fbe5e5;
@@ -125,24 +146,28 @@
   }
 
   .dark {
-    --background: 224 71.4% 4.1%;
+    /* Charcoal, not navy. Lifted from 4.1% and desaturated from 71.4%: at 4.1%
+       the saturation was invisible, but raising lightness made it read blue.
+       6% keeps a faint cool cast (channel spread 3) without a hue. Surfaces
+       move together so cards stay flush with the page. */
+    --background: 220 6% 10%;
     --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
+    --card: 220 6% 10%;
     --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
+    --popover: 220 6% 10%;
     --popover-foreground: 210 20% 98%;
     --primary: 210 20% 98%;
     --primary-foreground: 220.9 39.3% 11%;
-    --secondary: 215 27.9% 16.9%;
+    --secondary: 220 6% 16.9%;
     --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
+    --muted: 220 6% 16.9%;
     --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
+    --accent: 220 6% 16.9%;
     --accent-foreground: 210 20% 98%;
     --destructive: 0 72.8% 50.6%;
     --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
+    --border: 220 6% 16.9%;
+    --input: 220 6% 16.9%;
     --ring: 216 12.2% 83.9%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;

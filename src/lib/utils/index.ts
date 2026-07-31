@@ -141,6 +141,12 @@ export function formatDiaryTime(time?: string | null): string {
   return tenths > 0 ? `${base}.${tenths}` : base;
 }
 
+// Collection log item icons, rendered from the game cache's item models by
+// scripts/cache/extract.sh. These are the exact 36x32 icons the client draws.
+export function collectionLogItemImage(itemId: number): string {
+  return `/collection-log/items/${itemId}.png`;
+}
+
 export function getScaleDisplay(scale: string): string | undefined {
   switch (scale) {
     case "1":
