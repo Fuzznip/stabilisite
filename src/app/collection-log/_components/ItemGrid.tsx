@@ -23,7 +23,7 @@ export function ItemGrid({
       className={cn(
         "grid justify-items-center",
         "grid-cols-[repeat(auto-fill,minmax(calc(47*var(--cl-px)),1fr))]",
-        "px-[calc(6*var(--cl-px))] pt-[calc(6*var(--cl-px))] pb-[calc(10*var(--cl-px))]"
+        "px-[calc(6*var(--cl-px))] pt-[calc(6*var(--cl-px))] pb-[calc(10*var(--cl-px))]",
       )}
     >
       {items.map((item) => {
@@ -38,7 +38,7 @@ export function ItemGrid({
                 className={cn(
                   "relative cursor-pointer",
                   "w-[calc(36*var(--cl-px))] h-[calc(40*var(--cl-px))]",
-                  "focus-visible:[outline:var(--cl-px)_solid_var(--cl-white)]"
+                  "focus-visible:[outline:var(--cl-px)_solid_var(--cl-white)]",
                 )}
               >
                 <Image
@@ -50,14 +50,14 @@ export function ItemGrid({
                   className={cn(
                     "block w-[calc(36*var(--cl-px))] h-[calc(32*var(--cl-px))]",
                     // The client draws items nobody has as dark silhouettes.
-                    !obtained && "brightness-[0.25]"
+                    !obtained && "brightness-[0.25]",
                   )}
                 />
                 {obtained && (
                   <span
                     className={cn(
                       "absolute top-0 left-0 pointer-events-none",
-                      "text-[var(--cl-yellow)] leading-[calc(12*var(--cl-px))]"
+                      "text-[var(--cl-yellow)] leading-[calc(12*var(--cl-px))]",
                     )}
                   >
                     {memberCount}
@@ -65,13 +65,16 @@ export function ItemGrid({
                 )}
               </button>
             </TooltipTrigger>
-            <TooltipContent className="font-osrs bg-[#0f0e0c] border-[#5a4f3a] text-[#ff9040]">
-              <span>{item.name}</span>
-              <span className="text-[#f4f4f4]">
-                {obtained
-                  ? ` — ${memberCount} member${memberCount === 1 ? "" : "s"}`
-                  : " — not obtained"}
-              </span>
+            <TooltipContent
+              showArrow={false}
+              className="font-osrs bg-[#0f0e0c] border-[#5a4f3a] text-[#ff9040]"
+            >
+              <span className="text-lg">{item.name}</span>
+              {obtained && (
+                <span className="text-[#f4f4f4] text-base">
+                  {` — ${memberCount} member${memberCount === 1 ? "" : "s"}`}
+                </span>
+              )}
             </TooltipContent>
           </Tooltip>
         );

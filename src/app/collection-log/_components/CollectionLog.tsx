@@ -258,7 +258,7 @@ export function CollectionLog({
             />
             <PopoverContent
               align="end"
-              className="font-osrs max-w-xs bg-[#0f0e0c] border-[#5a4f3a] text-[#ff9040]"
+              className="text-xl font-osrs max-w-xs bg-[#0f0e0c] border-[#5a4f3a] text-[#ff9040]"
             >
               This collection log tracks progress across all clan members with
               Dink active.

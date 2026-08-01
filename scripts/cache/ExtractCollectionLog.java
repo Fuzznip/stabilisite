@@ -16,9 +16,13 @@ import java.util.*;
  * Extracts everything the /collection-log page needs straight out of the OSRS
  * game cache, so the site renders the same pixels the client does:
  *
- *   1. src/lib/data/collectionLogCatalog.json  - tabs / pages / item order
- *   2. public/collection-log/items/<id>.png    - item icons rendered from models
+ *   1. collection_log_catalog.json             - flat catalog rows for the
+ *                                                backend to seed into the DB
+ *   2. scripts/cache/.build/items/<id>.png     - item icons rendered from models
  *   3. public/collection-log/ui/*.png          - interface sprites (frame, tabs, ...)
+ *
+ * The item icons are NOT committed — there are ~1,700 of them. They go to S3 via
+ * scripts/cache/upload-items.sh, which is where the site loads them from.
  *
  * Run via scripts/cache/extract.sh, which resolves the RuneLite cache library.
  */
@@ -82,13 +86,18 @@ public class ExtractCollectionLog {
 
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("usage: ExtractCollectionLog <cacheDir> <repoRoot>");
+      System.err.println("usage: ExtractCollectionLog <cacheDir> <repoRoot> [catalogOut]");
       System.exit(2);
     }
     Path cacheDir = Paths.get(args[0]);
     Path repo = Paths.get(args[1]);
-    Path catalogFile = repo.resolve("src/lib/data/collectionLogCatalog.json");
-    Path itemDir = repo.resolve("public/collection-log/items");
+    // Written to the backend's seed data: the catalog lives in the database
+    // (collection_log_items), and both the website and stabiliserver read it
+    // from there. args[2] overrides the location.
+    Path catalogFile = args.length > 2
+        ? Paths.get(args[2])
+        : repo.resolve("scripts/cache/.build/collection_log_catalog.json");
+    Path itemDir = repo.resolve("scripts/cache/.build/items");
     Path uiDir = repo.resolve("public/collection-log/ui");
     Files.createDirectories(catalogFile.getParent());
     Files.createDirectories(itemDir);
@@ -105,44 +114,48 @@ public class ExtractCollectionLog {
       for (ItemDefinition d : itemManager.getItems()) if (d != null) items.put(d.id, d);
 
       // ---- 1. catalog ----
+      // Flat placements, the shape scripts/seed_collection_log.py inserts into
+      // collection_log_items. One row per (item, page): an item can sit on
+      // several pages (shared clue rewards, pets that also appear under
+      // "All Pets"), which is why (item_id, page) is the natural key.
       JsonArray catalog = new JsonArray();
       Set<Integer> usedItems = new TreeSet<>();
-      int pageCount = 0, slotCount = 0;
+      // page_order runs across every tab, not per tab: /collection-log/catalog
+      // orders by (page_order, sequence) alone, so this is what keeps the tabs
+      // themselves in in-game order too.
+      int pageOrder = 0;
+      int pageCount = 0;
       for (int tab = 0; tab < TAB_ENUMS.length; tab++) {
-        JsonObject cat = new JsonObject();
-        cat.addProperty("category", TABS[tab]);
-        JsonArray pages = new JsonArray();
         for (int[] entry : intPairs(enums.get(TAB_ENUMS[tab]))) {
           StructDefinition st = structs.get(entry[1]);
           if (st == null || st.getParams() == null) continue;
           Object name = st.getParams().get(PARAM_PAGE_NAME);
           Object itemEnum = st.getParams().get(PARAM_ITEM_ENUM);
           if (!(name instanceof String) || !(itemEnum instanceof Integer)) continue;
-          JsonArray arr = new JsonArray();
+          int sequence = 0;
           for (int[] kv : intPairs(enums.get((Integer) itemEnum))) {
             ItemDefinition item = items.get(kv[1]);
             if (item == null) continue;
-            JsonObject io = new JsonObject();
-            io.addProperty("itemId", kv[1]);
-            io.addProperty("name", item.name);
-            arr.add(io);
+            JsonObject row = new JsonObject();
+            row.addProperty("item_id", kv[1]);
+            row.addProperty("name", item.name);
+            row.addProperty("category", TABS[tab]);
+            row.addProperty("page", (String) name);
+            row.addProperty("page_order", pageOrder);
+            row.addProperty("sequence", sequence);
+            catalog.add(row);
             usedItems.add(kv[1]);
-            slotCount++;
+            sequence++;
           }
-          JsonObject pg = new JsonObject();
-          pg.addProperty("page", (String) name);
-          pg.add("items", arr);
-          pages.add(pg);
+          pageOrder++;
           pageCount++;
         }
-        cat.add("pages", pages);
-        catalog.add(cat);
       }
       try (Writer w = Files.newBufferedWriter(catalogFile)) {
         new GsonBuilder().create().toJson(catalog, w);
       }
-      System.out.printf("catalog: %d tabs, %d pages, %d slots, %d unique items -> %s%n",
-          catalog.size(), pageCount, slotCount, usedItems.size(), catalogFile);
+      System.out.printf("catalog: %d pages, %d placements, %d unique items -> %s%n",
+          pageCount, catalog.size(), usedItems.size(), catalogFile);
 
       // ---- 2. item icons ----
       SpriteManager spriteManager = new SpriteManager(store);

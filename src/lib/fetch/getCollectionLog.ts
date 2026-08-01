@@ -1,5 +1,12 @@
 import { CollectionLogCategory, CollectionLogSummary } from "@/lib/types";
-import catalog from "@/lib/data/collectionLogCatalog.json";
+
+type CatalogResponse = {
+  category: string;
+  pages: {
+    page: string;
+    items: { item_id: number; name: string }[];
+  }[];
+}[];
 
 type SummaryResponse = {
   item_id: number;
@@ -13,32 +20,56 @@ export type CollectionLogData = {
 };
 
 /**
- * The tab/page/item structure comes from collectionLogCatalog.json, which
- * scripts/cache/extract.sh reads straight out of the game cache — so the pages
- * and their item order match the in-game log exactly. Only the obtained counts
- * are dynamic, so that's all we ask the API for.
+ * The catalog lives in the database (collection_log_items), seeded from the
+ * game cache by the sibling repo's scripts/cache/extract.sh. Reading it from
+ * the API rather than a checked-in file keeps one source of truth: the same
+ * rows drive this page and the /collection-log/items filter stabiliserver uses
+ * to decide which drops are collection log items.
+ *
+ * The catalog only changes when the game does, so it's cached for a day; the
+ * obtained counts move as drops arrive and refresh far more often.
  */
 export async function getCollectionLog(): Promise<CollectionLogData> {
-  const categories = catalog as CollectionLogCategory[];
+  const [catalog, summaryRows] = await Promise.all([
+    fetchJson<CatalogResponse>("/collection-log/catalog", 86400, []),
+    fetchJson<SummaryResponse>("/collection-log/summary", 60, []),
+  ]);
+
+  const categories: CollectionLogCategory[] = catalog.map((cat) => ({
+    category: cat.category,
+    pages: cat.pages.map((page) => ({
+      page: page.page,
+      items: page.items.map((item) => ({
+        itemId: item.item_id,
+        name: item.name,
+      })),
+    })),
+  }));
 
   const summary: CollectionLogSummary = {};
-  try {
-    const response = await fetch(`${process.env.API_URL}/collection-log/summary`, {
-      // Obtained counts change as drops arrive.
-      next: { revalidate: 60 },
-    });
-    if (response.ok) {
-      const rows: SummaryResponse = await response.json();
-      for (const row of rows) {
-        summary[row.item_id] = {
-          memberCount: row.member_count,
-          totalCount: row.total_count,
-        };
-      }
-    }
-  } catch {
-    // The log still renders with nothing obtained if the API is unreachable.
+  for (const row of summaryRows) {
+    summary[row.item_id] = {
+      memberCount: row.member_count,
+      totalCount: row.total_count,
+    };
   }
 
   return { categories, summary };
+}
+
+/** An unreachable API renders an empty log rather than throwing the page away. */
+async function fetchJson<T>(
+  path: string,
+  revalidate: number,
+  fallback: T
+): Promise<T> {
+  try {
+    const response = await fetch(`${process.env.API_URL}${path}`, {
+      next: { revalidate },
+    });
+    if (!response.ok) return fallback;
+    return (await response.json()) as T;
+  } catch {
+    return fallback;
+  }
 }
