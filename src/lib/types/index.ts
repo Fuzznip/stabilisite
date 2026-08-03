@@ -30,7 +30,7 @@ export type UserResponse = {
   rank_points?: number;
   join_date?: string;
   progression_data?: string;
-  previous_names: string[];
+  previous_names: string[] | null;
   alt_names: string[] | null;
   is_admin: boolean | null;
   is_member?: boolean;
