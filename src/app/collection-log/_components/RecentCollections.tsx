@@ -8,6 +8,7 @@ import { CollectionLogEvent } from "@/lib/types";
 import { PaginatedResponse } from "@/lib/fetch/getSplits";
 import { cn, collectionLogItemImage } from "@/lib/utils";
 import { OsrsPanel, PANEL_RULE } from "./OsrsPanel";
+import { DropGallery } from "./DropGallery";
 import { getRecentPage } from "../_actions/getRecentPage";
 
 /** Pager buttons reuse the search field's sunken bevel rather than a sprite. */
@@ -36,6 +37,7 @@ export function RecentCollections({
 }): React.ReactElement {
   const [data, setData] = useState(initial);
   const [pending, startTransition] = useTransition();
+  const [viewing, setViewing] = useState<CollectionLogEvent | null>(null);
 
   const goTo = (page: number) => {
     startTransition(async () => {
@@ -65,13 +67,26 @@ export function RecentCollections({
         {data.items.length ? (
           <ul className="flex flex-col">
             {data.items.map((event) => (
+              // The row button and the profile link are siblings, not nested —
+              // an anchor inside a button is invalid and unreachable by
+              // keyboard. The button covers the row; the link sits above it.
               <li
                 key={event.id}
                 className={cn(
-                  "flex items-center gap-[calc(8*var(--cl-px))]",
-                  "px-[calc(8*var(--cl-px))] py-[calc(2*var(--cl-px))]"
+                  "relative flex items-center gap-[calc(8*var(--cl-px))]",
+                  "px-[calc(8*var(--cl-px))] py-[calc(2*var(--cl-px))]",
+                  "hover:bg-black/20"
                 )}
               >
+                <button
+                  type="button"
+                  onClick={() => setViewing(event)}
+                  aria-label={`View ${event.runescapeName}'s ${event.itemName} screenshot`}
+                  className={cn(
+                    "absolute inset-0 cursor-pointer",
+                    "focus-visible:[outline:var(--cl-px)_solid_var(--cl-white)]"
+                  )}
+                />
                 <Image
                   src={collectionLogItemImage(event.itemId)}
                   alt={event.itemName}
@@ -83,7 +98,7 @@ export function RecentCollections({
                 <p className="min-w-0 flex-1 truncate">
                   <Link
                     href={`/profile/${event.runescapeName}`}
-                    className="text-[var(--cl-green)] hover:text-[var(--cl-orange-hover)]"
+                    className="relative text-[var(--cl-green)] hover:text-[var(--cl-orange-hover)]"
                   >
                     {event.runescapeName}
                   </Link>
@@ -138,6 +153,26 @@ export function RecentCollections({
           Next
         </button>
       </div>
+
+      <DropGallery
+        key={viewing?.id ?? "none"}
+        open={!!viewing}
+        onOpenChange={(open) => !open && setViewing(null)}
+        itemId={viewing?.itemId ?? 0}
+        itemName={viewing?.itemName ?? ""}
+        playerName={viewing?.runescapeName}
+        drops={
+          viewing
+            ? [
+                {
+                  id: viewing.id,
+                  screenshot: viewing.screenshot,
+                  obtainedAt: viewing.obtainedAt,
+                },
+              ]
+            : []
+        }
+      />
     </OsrsPanel>
   );
 }

@@ -220,6 +220,16 @@ export type CollectionLogEvent = {
   itemId: number;
   itemName: string;
   obtainedAt: string;
+  /** Dink's loot screenshot, when the client sent one. */
+  screenshot?: string | null;
+};
+
+/** A single drop of one item by one member. */
+export type CollectionLogDrop = {
+  id: string;
+  screenshot?: string | null;
+  source?: string | null;
+  obtainedAt: string | null;
 };
 
 export type CollectionLogMember = {
@@ -230,6 +240,8 @@ export type CollectionLogMember = {
   count: number;
   firstObtained: string | null;
   lastObtained: string | null;
+  /** This member's individual drops of the item, newest first. */
+  drops: CollectionLogDrop[];
 };
 
 export type ApplicationResponse = {

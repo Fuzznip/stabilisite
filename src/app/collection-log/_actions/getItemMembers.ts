@@ -10,6 +10,12 @@ type ItemMembersResponse = {
   count: number;
   first_obtained: string | null;
   last_obtained: string | null;
+  drops?: {
+    id: string;
+    screenshot: string | null;
+    source: string | null;
+    obtained_at: string | null;
+  }[];
 }[];
 
 export async function getItemMembers(
@@ -35,5 +41,11 @@ export async function getItemMembers(
     count: member.count,
     firstObtained: member.first_obtained,
     lastObtained: member.last_obtained,
+    drops: (member.drops ?? []).map((drop) => ({
+      id: drop.id,
+      screenshot: drop.screenshot,
+      source: drop.source,
+      obtainedAt: drop.obtained_at,
+    })),
   }));
 }

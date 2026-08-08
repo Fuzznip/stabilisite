@@ -15,9 +15,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Images, Loader2 } from "lucide-react";
 import { CollectionLogItemEntry, CollectionLogMember } from "@/lib/types";
-import { collectionLogItemImage, formatDate } from "@/lib/utils";
+import { cn, collectionLogItemImage, formatDate } from "@/lib/utils";
+import { DropGallery } from "./DropGallery";
 
 export function ItemMembersDialog({
   item,
@@ -30,6 +32,8 @@ export function ItemMembersDialog({
   loading: boolean;
   onOpenChange: (open: boolean) => void;
 }): React.ReactElement {
+  const [gallery, setGallery] = useState<CollectionLogMember | null>(null);
+
   return (
     <Dialog open={!!item} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
@@ -73,8 +77,27 @@ export function ItemMembersDialog({
                     <TableCell className="capitalize">
                       {member.runescapeName}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {member.count}
+                    <TableCell className="text-right tabular-nums p-0">
+                      {/* The count opens that member's screenshots for this
+                          item. Drops without one are still listed, so the
+                          gallery length always matches the count. */}
+                      <button
+                        type="button"
+                        disabled={!member.drops.length}
+                        onClick={() => setGallery(member)}
+                        aria-label={`View ${member.runescapeName}'s ${member.count} drops`}
+                        className={cn(
+                          "w-full h-full px-4 py-2 inline-flex items-center justify-end gap-1.5",
+                          member.drops.length
+                            ? "cursor-pointer hover:text-stability"
+                            : "cursor-default"
+                        )}
+                      >
+                        {member.count}
+                        {member.drops.length > 0 && (
+                          <Images className="size-3.5 opacity-60" />
+                        )}
+                      </button>
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground">
                       {member.firstObtained
@@ -92,6 +115,18 @@ export function ItemMembersDialog({
           </p>
         )}
       </DialogContent>
+
+      {item && (
+        <DropGallery
+          key={gallery?.discordId ?? "none"}
+          open={!!gallery}
+          onOpenChange={(open) => !open && setGallery(null)}
+          itemId={item.itemId}
+          itemName={item.name}
+          playerName={gallery?.runescapeName}
+          drops={gallery?.drops ?? []}
+        />
+      )}
     </Dialog>
   );
 }

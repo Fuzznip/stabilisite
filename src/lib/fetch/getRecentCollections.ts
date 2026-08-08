@@ -6,6 +6,7 @@ type RecentResponse = {
   runescape_name: string;
   item_id: number;
   item_name: string;
+  screenshot: string | null;
   obtained_at: string;
 };
 
@@ -50,6 +51,7 @@ export async function getRecentCollections(
         runescapeName: row.runescape_name,
         itemId: row.item_id,
         itemName: row.item_name,
+        screenshot: row.screenshot,
         obtainedAt: row.obtained_at,
       })),
       page: data.page ?? page,
