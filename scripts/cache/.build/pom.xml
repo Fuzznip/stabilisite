@@ -1,0 +1,13 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>stabilisite</groupId><artifactId>cache-extract</artifactId><version>1</version>
+  <repositories>
+    <repository><id>runelite</id><url>https://repo.runelite.net</url></repository>
+  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>net.runelite</groupId><artifactId>cache</artifactId>
+      <version>1.12.33</version>
+    </dependency>
+  </dependencies>
+</project>

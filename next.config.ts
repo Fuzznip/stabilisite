@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Lets a build run against a throwaway output directory so it can't disturb
+  // a dev server using the default .next (mixing the two corrupts its cache).
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   typescript: {
     ignoreBuildErrors: false,
   },

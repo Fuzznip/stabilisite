@@ -19,7 +19,7 @@ export default async function ApplyPage() {
               animation="blurInUp"
               by="character"
               duration={1}
-              className="text-stability"
+              className="text-stability-accent"
               once
             >
               {`${user?.name}!` || ""}
