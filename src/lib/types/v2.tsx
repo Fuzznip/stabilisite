@@ -69,11 +69,11 @@ export type EventLogType =
 export type EventLogEntityType = "challenge" | "territory" | "region" | null;
 
 export type EventLogMeta = {
-  previousTeamId?: string | null;  // TERRITORY_CONTROL, REGION_CONTROL
-  completionCount?: number;        // CHALLENGE_COMPLETED
-  challengeName?: string;          // CHALLENGE_COMPLETED
-  unique?: boolean;                // CHALLENGE_COMPLETED: true = first ever completion by this team
-  playerName?: string;             // all log types
+  previousTeamId?: string | null; // TERRITORY_CONTROL, REGION_CONTROL
+  completionCount?: number; // CHALLENGE_COMPLETED
+  challengeName?: string; // CHALLENGE_COMPLETED
+  unique?: boolean; // CHALLENGE_COMPLETED: true = first ever completion by this team
+  playerName?: string; // all log types
 };
 
 export type EventLog = {
@@ -235,10 +235,19 @@ export type BotwBoss = {
 /** One drop a player has banked, with how many they've had. */
 export type BotwLeaderboardDrop = {
   trigger_id: string;
+  /** Owns this drop's proof screenshots. Absent on a backend predating it. */
+  status_id?: string;
   name: string;
   img_path: string | null;
   quantity: number;
   points: number;
+};
+
+/** One screenshot banked against a challenge status. */
+export type BotwProof = {
+  id: string;
+  img_path: string | null;
+  created_at: string;
 };
 
 export type BotwLeaderboardBoss = {
@@ -473,9 +482,9 @@ export type TeamProgressResponse = TileProgress[];
 export type TerritoryProgressEntry = {
   team_id: string;
   team_name: string;
-  quantity: number;       // current progress toward the challenge
+  quantity: number; // current progress toward the challenge
   required: number | null; // quantity needed; null = repeatable
-  completions: number;    // total times completed
+  completions: number; // total times completed
 };
 
 export type PlayerActionEntry = {

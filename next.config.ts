@@ -16,6 +16,20 @@ images: {
         pathname: "/avatars/**",
       },
       {
+        // Proof screenshots from manual bot submissions are stored as the
+        // Discord attachment URL rather than being re-uploaded to S3.
+        protocol: "https",
+        hostname: "cdn.discordapp.com",
+        port: "",
+        pathname: "/attachments/**",
+      },
+      {
+        protocol: "https",
+        hostname: "media.discordapp.net",
+        port: "",
+        pathname: "/attachments/**",
+      },
+      {
         protocol: "https",
         hostname: "oldschool.runescape.wiki",
         port: "",

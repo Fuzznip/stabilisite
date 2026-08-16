@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Package, Swords, Trophy } from "lucide-react";
 import { normalizeLeaderboard } from "@/lib/fetch/getBotw";
 import { cn } from "@/lib/utils";
+import { BotwProofDialog } from "./BotwProofDialog";
 import type {
   BotwLeaderboardBoss,
   BotwLeaderboardDrop,
@@ -98,12 +99,30 @@ function BossTile({ boss }: { boss: BotwLeaderboardBoss }) {
 }
 
 /** One drop the player has banked, badged with how many they've had. */
-function DropTile({ drop }: { drop: BotwLeaderboardDrop }) {
+function DropTile({
+  drop,
+  onOpenProofs,
+}: {
+  drop: BotwLeaderboardDrop;
+  onOpenProofs?: () => void;
+}) {
   const [failed, setFailed] = useState(false);
 
+  // Only clickable once the backend supplies a status_id — without it there is
+  // nothing to fetch proofs from, and a dead button is worse than a plain tile.
+  const Tag = onOpenProofs ? "button" : "div";
+
   return (
-    <div
-      className={cn(TILE, "shrink-0 border-stability/40")}
+    <Tag
+      type={onOpenProofs ? "button" : undefined}
+      onClick={onOpenProofs}
+      aria-label={onOpenProofs ? `View ${drop.name} screenshots` : undefined}
+      className={cn(
+        TILE,
+        "shrink-0 border-stability/40",
+        onOpenProofs &&
+          "cursor-pointer transition-colors hover:border-stability hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stability",
+      )}
       title={`${drop.name} — ${drop.quantity}× (${drop.points} pts)`}
     >
       {drop.img_path && !failed ? (
@@ -120,7 +139,7 @@ function DropTile({ drop }: { drop: BotwLeaderboardDrop }) {
         <Package className="absolute inset-0 m-auto size-7 text-foreground/40" />
       )}
       <CountBadge count={drop.quantity} />
-    </div>
+    </Tag>
   );
 }
 
@@ -137,6 +156,19 @@ function Standings({
     initialData,
     refetchInterval: 10_000,
   });
+
+  // Which drop was clicked. One dialog serves the whole table rather than one
+  // per row, so opening a second player's proofs reuses the same instance.
+  const [proofTarget, setProofTarget] = useState<{
+    playerId: string;
+    triggerId: string;
+  } | null>(null);
+
+  const proofEntry = standings.find((e) => e.player_id === proofTarget?.playerId);
+  // Flattened across bosses: the carousel spans everything the player has.
+  const proofDrops = (proofEntry?.bosses ?? []).flatMap((boss) =>
+    boss.drops.filter((drop) => drop.status_id),
+  );
 
   if (standings.length === 0) {
     return (
@@ -198,7 +230,19 @@ function Standings({
                       >
                         <BossTile boss={boss} />
                         {boss.drops.map((drop) => (
-                          <DropTile key={drop.trigger_id} drop={drop} />
+                          <DropTile
+                            key={drop.trigger_id}
+                            drop={drop}
+                            onOpenProofs={
+                              drop.status_id
+                                ? () =>
+                                    setProofTarget({
+                                      playerId: entry.player_id,
+                                      triggerId: drop.trigger_id,
+                                    })
+                                : undefined
+                            }
+                          />
                         ))}
                       </div>
                     ))}
@@ -213,6 +257,16 @@ function Standings({
           })}
         </ul>
       </CardContent>
+
+      <BotwProofDialog
+        open={proofTarget !== null}
+        onOpenChange={(next) => {
+          if (!next) setProofTarget(null);
+        }}
+        playerName={proofEntry?.rsn ?? ""}
+        drops={proofDrops}
+        initialTriggerId={proofTarget?.triggerId ?? null}
+      />
     </Card>
   );
 }
