@@ -18,6 +18,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { cn } from "@/lib/utils";
 import type { BotwLeaderboardDrop, BotwProof } from "@/lib/types/v2";
 
 async function fetchProofs(statusId: string): Promise<BotwProof[]> {
@@ -63,7 +64,11 @@ export function BotwProofDialog({
   drops: BotwLeaderboardDrop[];
   initialTriggerId: string | null;
 }) {
+  // Two carousels: the full-size image, and the thumbnail strip along the
+  // bottom. The strip is what makes the rest of the haul visible at a glance
+  // rather than something you discover by paging blindly.
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [thumbApi, setThumbApi] = useState<CarouselApi>();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const results = useQueries({
@@ -120,6 +125,11 @@ export function BotwProofDialog({
       carouselApi.off("select", onSelect);
     };
   }, [carouselApi]);
+
+  // Drag the strip along so the active thumbnail never scrolls out of sight.
+  useEffect(() => {
+    thumbApi?.scrollTo(selectedIndex);
+  }, [thumbApi, selectedIndex]);
 
   const go = useCallback(
     (index: number) => carouselApi?.scrollTo(index),
@@ -184,37 +194,88 @@ export function BotwProofDialog({
             <p className="text-lg">No screenshots for this player yet.</p>
           </div>
         ) : (
-          <Carousel
-            setApi={setCarouselApi}
-            opts={{ loop: false }}
-            className="flex-1 min-h-0 flex flex-col"
-          >
-            <CarouselContent className="flex-1 min-h-0 ml-0">
-              {slides.map((slide, i) => (
-                <CarouselItem
-                  key={`${slide.triggerId}-${i}`}
-                  className="pl-0 h-full"
-                >
-                  <div className="relative w-full h-full min-h-[50vh] bg-black/20">
-                    <Image
-                      src={slide.src}
-                      alt={slide.itemName}
-                      fill
-                      sizes="95vw"
-                      unoptimized
-                      className="object-contain"
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
+          <>
+            <Carousel
+              setApi={setCarouselApi}
+              opts={{ loop: false }}
+              className="flex-1 min-h-0 flex flex-col"
+            >
+              <CarouselContent className="flex-1 min-h-0 ml-0">
+                {slides.map((slide, i) => (
+                  <CarouselItem
+                    key={`${slide.triggerId}-${i}`}
+                    className="pl-0 h-full"
+                  >
+                    <div className="relative w-full h-full min-h-[40vh] bg-black/20">
+                      <Image
+                        src={slide.src}
+                        alt={slide.itemName}
+                        fill
+                        sizes="95vw"
+                        unoptimized
+                        className="object-contain"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              {slides.length > 1 && (
+                <>
+                  <CarouselPrevious className="left-4" />
+                  <CarouselNext className="right-4" />
+                </>
+              )}
+            </Carousel>
+
             {slides.length > 1 && (
-              <>
-                <CarouselPrevious className="left-4" />
-                <CarouselNext className="right-4" />
-              </>
+              <div className="shrink-0 border-t border-foreground/10">
+                <div className="px-6 py-4">
+                  <Carousel
+                    setApi={setThumbApi}
+                    opts={{ align: "start", dragFree: true }}
+                    className="w-full"
+                  >
+                    <CarouselContent className="p-1">
+                      {slides.map((slide, i) => (
+                        <CarouselItem
+                          key={`thumb-${slide.triggerId}-${i}`}
+                          className="pl-3 basis-auto"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => go(i)}
+                            aria-label={`${slide.itemName} screenshot ${i + 1}`}
+                            aria-current={selectedIndex === i}
+                            className={cn(
+                              "relative size-20 rounded-lg overflow-hidden border-2 transition-all duration-200 cursor-pointer",
+                              selectedIndex === i
+                                ? "border-stability ring-2 ring-stability/30 scale-105"
+                                : "border-foreground/20 opacity-50 hover:opacity-100 hover:border-foreground/40",
+                            )}
+                          >
+                            <Image
+                              src={slide.src}
+                              alt=""
+                              fill
+                              sizes="80px"
+                              unoptimized
+                              className="object-cover"
+                            />
+                          </button>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    {slides.length > 8 && (
+                      <>
+                        <CarouselPrevious className="left-0 -translate-x-1/2 size-10" />
+                        <CarouselNext className="right-0 translate-x-1/2 size-10" />
+                      </>
+                    )}
+                  </Carousel>
+                </div>
+              </div>
             )}
-          </Carousel>
+          </>
         )}
       </DialogContent>
     </Dialog>
