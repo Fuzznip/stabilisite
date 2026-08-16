@@ -225,7 +225,6 @@ export type BotwBoss = {
   id: string;
   event_id: string;
   name: string;
-  clog_page: string;
   image_url: string | null;
   display_order: number | null;
   challenge_id: string | null;

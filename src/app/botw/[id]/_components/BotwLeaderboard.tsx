@@ -76,7 +76,7 @@ function BossTile({ boss }: { boss: BotwLeaderboardBoss }) {
 
   return (
     <div
-      className={cn(TILE, "shrink-0")}
+      className={cn(TILE, "shrink-0 border-stability/40")}
       title={`${boss.boss_name} — ${boss.kills} ${boss.kills === 1 ? "kill" : "kills"}, ${boss.points} pts`}
     >
       {boss.image_url && !failed ? (

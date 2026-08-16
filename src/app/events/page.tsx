@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { TriangleAlert } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import { getEvents } from "@/lib/fetch/getBingo";
 import {
   eventHref,
@@ -19,10 +23,9 @@ export const metadata: Metadata = {
   description: "Stability clan events — active, upcoming and past.",
 };
 
-// Events start and end on their own schedule, so a cached page goes stale on a
-// boundary no request triggers. A minute is well inside the resolution anyone
-// cares about for a multi-day event.
-export const revalidate = 60;
+// No `revalidate`: reading the session to gate on admin makes this route
+// per-user and dynamic, so a route-level cache window would never apply. The
+// underlying getEvents() fetch is still tag-revalidated on "bingo-event".
 
 function formatRange(event: Event): string {
   const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
@@ -43,26 +46,14 @@ function EventCard({ event }: { event: Event }) {
   const card = (
     <Card
       className={
-        "relative overflow-hidden h-44 w-full transition-transform " +
-        (released ? "hover:scale-[1.01] hover:border-stability/60" : "opacity-60")
+        "h-44 w-full border-stability transition-transform " +
+        (released ? "hover:scale-[1.01]" : "opacity-60")
       }
     >
-      <Image
-        src="/map_background.png"
-        alt=""
-        fill
-        sizes="(max-width: 640px) 100vw, 33vw"
-        className="object-cover opacity-25"
-      />
-      <CardContent className="relative z-10 h-full flex flex-col justify-between p-5">
+      <CardContent className="h-full flex flex-col justify-between p-5">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="secondary">{eventTypeLabel(event.type)}</Badge>
-            {phase === "active" && (
-              <Badge className="bg-stability text-white hover:bg-stability">
-                Live
-              </Badge>
-            )}
           </div>
           <h3 className="text-2xl font-bold text-foreground leading-tight">
             {event.name}
@@ -71,7 +62,24 @@ function EventCard({ event }: { event: Event }) {
         <div className="flex items-end justify-between gap-2">
           <p className="text-sm text-foreground/60">{formatRange(event)}</p>
           {released ? (
-            <span className="text-sm font-semibold text-stability-accent inline-flex items-center gap-1">
+            // A span, not a Button: the whole card is already a Link, and
+            // nesting a button inside an anchor is invalid. `group-hover`
+            // drives the hover state from the card rather than the pill, so
+            // it reacts anywhere on the card — which is what's clickable.
+            <span
+              className={cn(
+                buttonVariants({ size: "sm" }),
+                // Filled, not outlined: the card itself carries a red border,
+                // so an outlined button reads as part of it. Fill against
+                // outline is what separates the action from its container.
+                //
+                // Brand red rather than the theme's primary, which is
+                // near-white in dark mode. White on --stability is 5.99:1.
+                // The bare `hover:` displaces the variant's own
+                // hover:bg-primary/90 for anyone pointing straight at the pill.
+                "bg-stability text-white hover:bg-stability/90 group-hover:bg-stability/90",
+              )}
+            >
               View <ArrowRight className="size-4" />
             </span>
           ) : (
@@ -85,7 +93,7 @@ function EventCard({ event }: { event: Event }) {
   // An unreleased event has nothing to show yet, so it renders as a dead card
   // rather than a link into an empty page.
   return released ? (
-    <Link href={eventHref(event)} className="block">
+    <Link href={eventHref(event)} className="group block">
       {card}
     </Link>
   ) : (
@@ -93,13 +101,7 @@ function EventCard({ event }: { event: Event }) {
   );
 }
 
-function EventSection({
-  title,
-  events,
-}: {
-  title: string;
-  events: Event[];
-}) {
+function EventSection({ title, events }: { title: string; events: Event[] }) {
   if (events.length === 0) return null;
   return (
     <section className="flex flex-col gap-4">
@@ -114,6 +116,19 @@ function EventSection({
 }
 
 export default async function EventsPage() {
+  // Checked before fetching, unlike the applications page, so a non-admin
+  // request does not pay for data it will never render.
+  const user = await getAuthUser();
+  if (!user?.isAdmin) {
+    return (
+      <Alert className="w-1/2 mx-auto bg-muted">
+        <TriangleAlert className="size-4" />
+        <AlertTitle>Page not found</AlertTitle>
+        <AlertDescription>What are you trying to do?</AlertDescription>
+      </Alert>
+    );
+  }
+
   const events = await getEvents();
   const now = new Date();
 
@@ -141,9 +156,6 @@ export default async function EventsPage() {
     <div className="flex flex-col gap-10 px-4 pb-20 max-w-6xl mx-auto w-full">
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold text-foreground">Events</h1>
-        <p className="text-foreground/60">
-          Every Stability event, past and present.
-        </p>
       </div>
 
       {total === 0 ? (

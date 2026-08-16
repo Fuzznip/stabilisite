@@ -126,7 +126,7 @@ export function BossCard({ boss }: { boss: BotwBoss }) {
         </CollapsibleTrigger>
 
         <CollapsibleContent>
-          <CardContent className="@container px-5 pb-5 pt-0">
+          <CardContent className="@container px-5 pb-5 pt-0 mt-2">
             {drops.length > 0 ? (
               // Columns keyed to the *card's* width, not the viewport: the same
               // card is full width with one boss and a third of it with three.
