@@ -1,15 +1,13 @@
 "use client";
 
 import { User } from "@/lib/types";
-import { Event } from "@/lib/types/v2";
 import { cn } from "@/lib/utils";
 import {
   Home,
   User as UserIcon,
   Trophy,
   FileText,
-  Grid3X3,
-  Map,
+  CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -19,16 +17,17 @@ const iconMap: Record<string, React.ElementType> = {
   Profile: UserIcon,
   Leaderboards: Trophy,
   Applications: FileText,
-  Bingo: Grid3X3,
-  Conquest: Map,
+  Events: CalendarDays,
 };
+
+/** Event pages live under their own type-specific route, so the Events tab has
+ *  to stay highlighted while the user is on any of them. */
+const EVENT_ROUTES = ["/events", "/conquest", "/bingo", "/botw"];
 
 export default function NavBarLinks({
   user,
-  event,
 }: {
   user: User | null;
-  event?: Event;
 }): React.ReactElement {
   const pathname = usePathname();
   const tabs = [
@@ -37,20 +36,18 @@ export default function NavBarLinks({
     { href: "/leaderboards", title: "Leaderboards" },
   ];
 
+  // Both pages are admin-only, and the page itself enforces it — hiding the
+  // tab just keeps a non-admin from clicking through to a "Page not found".
   if (user?.isAdmin) {
+    tabs.push({ href: "/events", title: "Events" });
     tabs.push({ href: "/applications", title: "Applications" });
-  }
-
-  if (event) {
-    if (event.type === "conquest") {
-      tabs.push({ href: `/conquest/${event.id}`, title: "Conquest" });
-    } else {
-      tabs.push({ href: `/bingo/${event.id}`, title: "Bingo" });
-    }
   }
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
+    if (href === "/events") {
+      return EVENT_ROUTES.some((route) => pathname.startsWith(route));
+    }
     return pathname.startsWith(href);
   };
 
@@ -66,7 +63,7 @@ export default function NavBarLinks({
               href={tab.href}
               className={cn(
                 "p-2 pb-1 text-muted-foreground hover:text-foreground font-bold relative",
-                active && "text-stability hover:text-stability",
+                active && "text-stability-accent hover:text-stability-accent",
               )}
             >
               {tab.title}
@@ -101,7 +98,7 @@ export default function NavBarLinks({
                   "transition-all duration-200 ease-out",
                   "active:scale-95",
                   active
-                    ? "text-stability"
+                    ? "text-stability-accent"
                     : "text-muted-foreground active:bg-accent/50",
                 )}
               >

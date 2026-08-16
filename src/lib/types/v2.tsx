@@ -2,7 +2,7 @@
 // BASE MODELS - Direct database representations
 // ===========================================
 
-export type EventType = "bingo" | "conquest";
+export type EventType = "bingo" | "conquest" | "botw";
 
 export type Event = {
   id: string;
@@ -196,6 +196,69 @@ export type Player = {
  * Response from GET /v2/events/active and GET /v2/events/:id
  * Includes related teams and tiles
  */
+// ===========================================
+// BOSS OF THE WEEK EVENT TYPES
+// ===========================================
+
+export type BotwTrigger = {
+  id: string;
+  name: string;
+  source: string | null;
+  type: "KC" | "DROP";
+  img_path: string | null;
+  wiki_id: number | null;
+};
+
+/** A scoring challenge under a boss: its KC, or one of its drops. */
+export type BotwChallenge = {
+  id: string;
+  parent_challenge_id: string | null;
+  trigger_id: string;
+  /** Points awarded each time the trigger fires. */
+  value: number;
+  quantity: number | null;
+  count_per_action: number | null;
+  trigger: BotwTrigger;
+};
+
+export type BotwBoss = {
+  id: string;
+  event_id: string;
+  name: string;
+  image_url: string | null;
+  display_order: number | null;
+  challenge_id: string | null;
+  created_at: string;
+  challenges: BotwChallenge[];
+};
+
+/** One drop a player has banked, with how many they've had. */
+export type BotwLeaderboardDrop = {
+  trigger_id: string;
+  name: string;
+  img_path: string | null;
+  quantity: number;
+  points: number;
+};
+
+export type BotwLeaderboardBoss = {
+  boss_id: string;
+  boss_name: string;
+  image_url: string | null;
+  points: number;
+  /** Kills recorded against this boss. */
+  kills: number;
+  drops: BotwLeaderboardDrop[];
+};
+
+export type BotwLeaderboardEntry = {
+  rank: number;
+  player_id: string;
+  rsn: string;
+  points: number;
+  bosses: BotwLeaderboardBoss[];
+};
+
 export type EventWithDetails = Event & {
   teams: TeamWithMembers[];
   tiles: Tile[];
