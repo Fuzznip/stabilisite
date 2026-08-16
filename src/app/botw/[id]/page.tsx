@@ -57,9 +57,7 @@ async function BotwContent({ id }: { id: string }) {
     <div className="flex flex-col gap-10 px-4 pb-20 w-full">
       <div className="flex flex-col gap-1">
         <h1 className="text-4xl font-bold text-foreground">{event.name}</h1>
-        <p className="text-lg text-foreground/60">
-          Kill the bosses, bank the drops. Every drop scores, every time.
-        </p>
+        <p className="text-lg text-foreground/60">Boss of the Week</p>
       </div>
 
       <section className="flex flex-col gap-4">
