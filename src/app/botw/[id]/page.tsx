@@ -2,8 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getEvent } from "@/lib/fetch/getBingo";
 import { getBotwBosses, getBotwLeaderboard } from "@/lib/fetch/getBotw";
-import { cn } from "@/lib/utils";
-import { BossCard } from "./_components/BossCard";
+import { BossHeader } from "./_components/BossHeader";
 import { BotwLeaderboard } from "./_components/BotwLeaderboard";
 import Loading from "./loading";
 
@@ -55,35 +54,7 @@ async function BotwContent({ id }: { id: string }) {
 
   return (
     <div className="flex flex-col gap-10 px-4 pb-20 w-full">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-4xl font-bold text-foreground">{event.name}</h1>
-        <p className="text-lg text-foreground/60">Boss of the Week</p>
-      </div>
-
-      <section className="flex flex-col gap-4">
-        {ordered.length === 0 ? (
-          <p className="text-lg text-foreground/60">
-            No bosses configured yet.
-          </p>
-        ) : (
-          <div
-            className={cn(
-              "grid gap-5 items-stretch",
-              // Up to three across, but fewer bosses stretch to fill the row
-              // rather than leaving dead space beside a lone card.
-              ordered.length === 1
-                ? "grid-cols-1"
-                : ordered.length === 2
-                  ? "md:grid-cols-2"
-                  : "md:grid-cols-2 lg:grid-cols-3",
-            )}
-          >
-            {ordered.map((boss) => (
-              <BossCard key={boss.id} boss={boss} />
-            ))}
-          </div>
-        )}
-      </section>
+      <BossHeader event={event} bosses={ordered} />
 
       <section className="flex flex-col gap-4">
         <h2 className="text-2xl font-semibold text-foreground/80">

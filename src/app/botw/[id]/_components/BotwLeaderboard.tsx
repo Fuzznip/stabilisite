@@ -24,9 +24,18 @@ const MEDAL_CLASS: Record<number, string> = {
   3: "text-amber-700",
 };
 
-/** Icon tile, matching the trigger tiles on the conquest region detail. */
+const PLACE_LABEL: Record<number, string> = {
+  1: "1st",
+  2: "2nd",
+  3: "3rd",
+};
+
+
+/** Icon tile, matching the trigger tiles on the conquest region detail.
+ *  foreground-based rather than white-based so the tile is visible on the
+ *  light theme, where a white wash on a white card renders as nothing. */
 const TILE =
-  "relative size-16 rounded-md bg-white/[0.04] border border-white/10";
+  "relative size-16 rounded-md bg-foreground/[0.04] border border-foreground/10";
 /** Clips the image to the tile's rounded corners without clipping the badge. */
 const TILE_IMG = "object-contain rounded-md";
 
@@ -68,6 +77,28 @@ function CountBadge({ count }: { count: number }) {
     <span className="absolute -bottom-1.5 -right-1.5 min-w-6 rounded-full bg-stability px-1.5 text-center text-sm font-bold leading-6 text-white shadow-md">
       {count}
     </span>
+  );
+}
+
+/**
+ * A player's share of the leader's score, drawn behind the row.
+ *
+ * Purely a second encoding of the points number already displayed — it makes
+ * the size of the gap readable without reading two numbers and subtracting —
+ * so it is aria-hidden and carries no text of its own.
+ */
+function PointsBar({ value, max }: { value: number; max: number }) {
+  const pct = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0;
+
+  return (
+    <span
+      aria-hidden
+      // -z-10 against the container's `isolate`: keeps the fill behind the row
+      // content without needing a z-index on every cell, and the isolation
+      // stops it sliding behind the card itself.
+      className="absolute inset-y-0 left-0 -z-10 bg-stability/10"
+      style={{ width: `${pct}%` }}
+    />
   );
 }
 
@@ -121,7 +152,7 @@ function DropTile({
         TILE,
         "shrink-0 border-stability/40",
         onOpenProofs &&
-          "cursor-pointer transition-colors hover:border-stability hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stability",
+          "cursor-pointer transition-colors hover:border-stability hover:bg-foreground/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stability",
       )}
       title={`${drop.name} — ${drop.quantity}× (${drop.points} pts)`}
     >
@@ -143,6 +174,135 @@ function DropTile({
   );
 }
 
+/** The player's bosses and drops. Shared so a podium card and a table row
+ *  render the same tiles from the same rules. */
+function PlayerTiles({
+  entry,
+  onOpenProofs,
+  className,
+}: {
+  entry: BotwLeaderboardEntry;
+  onOpenProofs: (triggerId: string) => void;
+  className?: string;
+}) {
+  // Only bosses the player has actually engaged with; a boss they've never
+  // killed but have a drop from still belongs here.
+  const bosses = entry.bosses.filter(
+    (boss) => boss.kills > 0 || boss.drops.length > 0,
+  );
+  if (bosses.length === 0) return null;
+
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0",
+        className,
+      )}
+    >
+      {bosses.map((boss) => (
+        <div
+          key={boss.boss_id}
+          className="flex flex-wrap items-center gap-2 pr-3 border-r border-border/40 last:border-r-0 last:pr-0"
+        >
+          <BossTile boss={boss} />
+          {boss.drops.map((drop) => (
+            <DropTile
+              key={drop.trigger_id}
+              drop={drop}
+              onOpenProofs={
+                drop.status_id
+                  ? () => onOpenProofs(drop.trigger_id)
+                  : undefined
+              }
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Top three, as full-width featured rows above the table.
+ *
+ * Laid out like a table row rather than a stacked card: at full width a
+ * vertical stack leaves most of the row empty, and matching the table's
+ * left-to-right reading order keeps the whole board one continuous ranking
+ * that happens to get quieter after third.
+ */
+function PodiumRow({
+  entry,
+  place,
+  max,
+  onOpenProofs,
+}: {
+  entry: BotwLeaderboardEntry;
+  place: number;
+  max: number;
+  onOpenProofs: (triggerId: string) => void;
+}) {
+  const first = place === 1;
+
+  return (
+    <li
+      className={cn(
+        "relative isolate overflow-hidden rounded-xl border bg-card px-5 py-4",
+        first ? "border-stability/60 md:py-5" : "border-border",
+      )}
+    >
+      <PointsBar value={entry.points} max={max} />
+
+      {/* A fixed medal column rather than an auto one: each featured row is its
+          own <li> with its own grid, so an auto track would be measured per row
+          and the three would not line up with each other. */}
+      <div className="grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-x-4 gap-y-3">
+        <div className="col-start-1 row-span-full flex flex-col items-center justify-center gap-1 self-center">
+          <Trophy
+            className={cn("size-6", MEDAL_CLASS[place] ?? "text-foreground/40")}
+          />
+          <span className="text-sm font-bold uppercase tracking-wide text-foreground/65">
+            {PLACE_LABEL[place]}
+          </span>
+        </div>
+
+        <div className="col-start-2 row-start-1 flex items-center gap-4">
+          {/* Scaled down on a phone: at full size the winner's points crowd
+              the name column hard enough to truncate the very name the row
+              exists to celebrate. */}
+          <span
+            className={cn(
+              "min-w-0 truncate font-bold tracking-wide text-foreground",
+              first ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl",
+            )}
+          >
+            {entry.rsn}
+          </span>
+
+          <span
+            className={cn(
+              "ml-auto shrink-0 font-extrabold tabular-nums leading-none text-stability-accent",
+              first ? "text-4xl sm:text-5xl" : "text-3xl sm:text-4xl",
+            )}
+          >
+            {entry.points}
+          </span>
+        </div>
+
+        {/* Its own row under the name. Inline, each row's tiles would start
+            wherever that player's name happened to end, so the three featured
+            rows would never line up — the table below only avoids that by
+            sharing a name column through grid-cols-subgrid, which these
+            separately-bordered rows can't do. */}
+        <PlayerTiles
+          entry={entry}
+          onOpenProofs={onOpenProofs}
+          className="col-start-2 row-start-2"
+        />
+      </div>
+    </li>
+  );
+}
+
 function Standings({
   eventId,
   initialData,
@@ -157,14 +317,16 @@ function Standings({
     refetchInterval: 10_000,
   });
 
-  // Which drop was clicked. One dialog serves the whole table rather than one
+  // Which drop was clicked. One dialog serves the whole board rather than one
   // per row, so opening a second player's proofs reuses the same instance.
   const [proofTarget, setProofTarget] = useState<{
     playerId: string;
     triggerId: string;
   } | null>(null);
 
-  const proofEntry = standings.find((e) => e.player_id === proofTarget?.playerId);
+  const proofEntry = standings.find(
+    (e) => e.player_id === proofTarget?.playerId,
+  );
   // Flattened across bosses: the carousel spans everything the player has.
   const proofDrops = (proofEntry?.bosses ?? []).flatMap((boss) =>
     boss.drops.filter((drop) => drop.status_id),
@@ -181,82 +343,86 @@ function Standings({
     );
   }
 
+  const max = Math.max(...standings.map((e) => e.points), 0);
+  // A podium needs three to be a podium; below that everyone stays in the table
+  // rather than one player standing alone on a plinth.
+  const podium = standings.length >= 3 ? standings.slice(0, 3) : [];
+  const rows = podium.length > 0 ? standings.slice(3) : standings;
+
+  const openProofs = (playerId: string) => (triggerId: string) =>
+    setProofTarget({ playerId, triggerId });
+
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-0">
-        {/*
-          One grid for the whole table rather than a flex row per player, so the
-          name column is sized by the *longest* name in the standings and every
-          player's icons start at the same x. Each row opts into those shared
-          tracks with `grid-cols-subgrid`.
+    <div className="flex flex-col gap-5">
+      {podium.length > 0 && (
+        <ol className="flex flex-col gap-3">
+          {podium.map((entry, i) => (
+            <PodiumRow
+              key={entry.player_id}
+              entry={entry}
+              place={i + 1}
+              max={max}
+              onOpenProofs={openProofs(entry.player_id)}
+            />
+          ))}
+        </ol>
+      )}
 
-          Narrow screens drop to three columns and stack the name over the
-          icons; the alignment only buys anything once the two sit side by side.
-        */}
-        <ul className="grid grid-cols-[auto_minmax(0,1fr)_auto] md:grid-cols-[auto_auto_minmax(0,1fr)_auto] divide-y divide-border/60">
-          {standings.map((entry) => {
-            // Only bosses the player has actually engaged with; a boss they've
-            // never killed but have a drop from still belongs here.
-            const bosses = entry.bosses.filter(
-              (boss) => boss.kills > 0 || boss.drops.length > 0,
-            );
+      {rows.length > 0 && (
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            {/*
+              One grid for the whole table rather than a flex row per player, so
+              the name column is sized by the *longest* name in the standings
+              and every player's icons start at the same x. Each row opts into
+              those shared tracks with `grid-cols-subgrid`.
 
-            return (
-              <li
-                key={entry.player_id}
-                className="col-span-full grid grid-cols-subgrid items-center gap-x-4 gap-y-3 px-5 py-4"
-              >
-                {/* Rank and points span whatever rows the row ends up with —
-                    two when the icons wrap under the name, one on md+. */}
-                <span
-                  className={cn(
-                    "col-start-1 row-span-full self-center w-8 text-2xl font-bold tabular-nums",
-                    MEDAL_CLASS[entry.rank] ?? "text-foreground/40",
-                  )}
+              Narrow screens drop to three columns and stack the name over the
+              icons; the alignment only buys anything once the two sit side by
+              side.
+            */}
+            <ul className="grid grid-cols-[auto_minmax(0,1fr)_auto] md:grid-cols-[auto_auto_minmax(0,1fr)_auto] divide-y divide-border/60">
+              {rows.map((entry) => (
+                <li
+                  key={entry.player_id}
+                  className="relative isolate col-span-full grid grid-cols-subgrid items-center gap-x-4 gap-y-3 px-5 py-4"
                 >
-                  {entry.rank}
-                </span>
+                  <PointsBar value={entry.points} max={max} />
 
-                <span className="col-start-2 row-start-1 self-center text-xl font-bold tracking-wide text-foreground truncate md:max-w-56">
-                  {entry.rsn}
-                </span>
+                  {/* Rank and points span whatever rows the row ends up with —
+                      two when the icons wrap under the name, one on md+.
 
-                {bosses.length > 0 && (
-                  <div className="col-start-2 row-start-2 md:col-start-3 md:row-start-1 flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0">
-                    {bosses.map((boss) => (
-                      <div
-                        key={boss.boss_id}
-                        className="flex flex-wrap items-center gap-2 pr-3 border-r border-border/40 last:border-r-0 last:pr-0"
-                      >
-                        <BossTile boss={boss} />
-                        {boss.drops.map((drop) => (
-                          <DropTile
-                            key={drop.trigger_id}
-                            drop={drop}
-                            onOpenProofs={
-                              drop.status_id
-                                ? () =>
-                                    setProofTarget({
-                                      playerId: entry.player_id,
-                                      triggerId: drop.trigger_id,
-                                    })
-                                : undefined
-                            }
-                          />
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      w-16 to match the featured rows' medal column, so every
+                      name on the board — podium or table — starts at the same
+                      x rather than the list stepping left after third place. */}
+                  <span
+                    className={cn(
+                      "col-start-1 row-span-full self-center w-16 text-center text-2xl font-bold tabular-nums",
+                      MEDAL_CLASS[entry.rank] ?? "text-foreground/40",
+                    )}
+                  >
+                    {entry.rank}
+                  </span>
 
-                <span className="col-start-3 md:col-start-4 row-span-full self-center text-4xl font-extrabold tabular-nums leading-none text-stability-accent">
-                  {entry.points}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </CardContent>
+                  <span className="col-start-2 row-start-1 self-center text-xl font-bold tracking-wide text-foreground truncate md:max-w-56">
+                    {entry.rsn}
+                  </span>
+
+                  <PlayerTiles
+                    entry={entry}
+                    onOpenProofs={openProofs(entry.player_id)}
+                    className="col-start-2 row-start-2 md:col-start-3 md:row-start-1"
+                  />
+
+                  <span className="col-start-3 md:col-start-4 row-span-full self-center text-4xl font-extrabold tabular-nums leading-none text-stability-accent">
+                    {entry.points}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       <BotwProofDialog
         open={proofTarget !== null}
@@ -267,6 +433,6 @@ function Standings({
         drops={proofDrops}
         initialTriggerId={proofTarget?.triggerId ?? null}
       />
-    </Card>
+    </div>
   );
 }

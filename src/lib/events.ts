@@ -1,3 +1,4 @@
+import { formatDistanceToNowStrict } from "date-fns";
 import type { Event, EventType } from "@/lib/types/v2";
 
 /** Where an event's own page lives. Bingo is the fallback for older events
@@ -42,4 +43,47 @@ export function isReleased(
   now: Date = new Date(),
 ): boolean {
   return !event.release_date || now >= new Date(event.release_date);
+}
+
+/** The background utility for an event type's accent dot. Returns whole class
+ *  names rather than an interpolated fragment, because Tailwind scans source
+ *  text and never sees a class assembled at runtime. */
+export function eventAccent(type: EventType | undefined): string {
+  switch (type) {
+    case "conquest":
+      return "bg-event-conquest";
+    case "botw":
+      return "bg-event-botw";
+    default:
+      return "bg-event-bingo";
+  }
+}
+
+/** The phase-appropriate relative time — the thing a date range alone never
+ *  tells you, and the reason to look at a live event at all. */
+export function countdownLabel(
+  event: Pick<Event, "start_date" | "end_date">,
+  now: Date = new Date(),
+): string {
+  const opts = { addSuffix: false } as const;
+  switch (eventPhase(event, now)) {
+    case "active":
+      return `Ends in ${formatDistanceToNowStrict(new Date(event.end_date), opts)}`;
+    case "upcoming":
+      return `Starts in ${formatDistanceToNowStrict(new Date(event.start_date), opts)}`;
+    case "past":
+      return `Ended ${formatDistanceToNowStrict(new Date(event.end_date), opts)} ago`;
+  }
+}
+
+/** How far a running event has progressed, 0–100, for the hero's elapsed bar.
+ *  Clamped because an event can be edited to start after it ends. */
+export function elapsedPercent(
+  event: Pick<Event, "start_date" | "end_date">,
+  now: Date = new Date(),
+): number {
+  const start = new Date(event.start_date).getTime();
+  const end = new Date(event.end_date).getTime();
+  if (!(end > start)) return 100;
+  return Math.min(100, Math.max(0, ((now.getTime() - start) / (end - start)) * 100));
 }

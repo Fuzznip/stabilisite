@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { format } from "date-fns";
+import { CalendarDays, ChevronRight, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import { getEvents } from "@/lib/fetch/getBingo";
 import {
+  countdownLabel,
+  elapsedPercent,
+  eventAccent,
   eventHref,
   eventPhase,
   eventTypeLabel,
@@ -17,6 +17,7 @@ import {
   type EventPhase,
 } from "@/lib/events";
 import type { Event } from "@/lib/types/v2";
+import PastEvents from "./_components/PastEvents";
 
 export const metadata: Metadata = {
   title: "Events",
@@ -39,79 +40,195 @@ function formatRange(event: Event): string {
   )}${sameYear ? `, ${year}` : ""}`;
 }
 
-function EventCard({ event }: { event: Event }) {
-  const phase = eventPhase(event);
-  const released = isReleased(event);
-
-  const card = (
-    <Card
-      className={
-        "h-44 w-full border-stability transition-transform " +
-        (released ? "hover:scale-[1.01]" : "opacity-60")
-      }
-    >
-      <CardContent className="h-full flex flex-col justify-between p-5">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary">{eventTypeLabel(event.type)}</Badge>
-          </div>
-          <h3 className="text-2xl font-bold text-foreground leading-tight">
-            {event.name}
-          </h3>
-        </div>
-        <div className="flex items-end justify-between gap-2">
-          <p className="text-sm text-foreground/60">{formatRange(event)}</p>
-          {released ? (
-            // A span, not a Button: the whole card is already a Link, and
-            // nesting a button inside an anchor is invalid. `group-hover`
-            // drives the hover state from the card rather than the pill, so
-            // it reacts anywhere on the card — which is what's clickable.
-            <span
-              className={cn(
-                buttonVariants({ size: "sm" }),
-                // Filled, not outlined: the card itself carries a red border,
-                // so an outlined button reads as part of it. Fill against
-                // outline is what separates the action from its container.
-                //
-                // Brand red rather than the theme's primary, which is
-                // near-white in dark mode. White on --stability is 5.99:1.
-                // The bare `hover:` displaces the variant's own
-                // hover:bg-primary/90 for anyone pointing straight at the pill.
-                "bg-stability text-white hover:bg-stability/90 group-hover:bg-stability/90",
-              )}
-            >
-              View <ArrowRight className="size-4" />
-            </span>
-          ) : (
-            <span className="text-sm text-foreground/50">Coming soon</span>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  // An unreleased event has nothing to show yet, so it renders as a dead card
-  // rather than a link into an empty page.
-  return released ? (
+/** Wraps a card in its link only once the event is released. An unreleased
+ *  event has nothing behind it yet, so it stays inert rather than linking into
+ *  an empty page. */
+function MaybeLink({
+  event,
+  now,
+  children,
+}: {
+  event: Event;
+  now: Date;
+  children: React.ReactNode;
+}): React.ReactElement {
+  if (!isReleased(event, now)) return <>{children}</>;
+  return (
     <Link href={eventHref(event)} className="group block">
-      {card}
+      {children}
     </Link>
-  ) : (
-    card
   );
 }
 
-function EventSection({ title, events }: { title: string; events: Event[] }) {
-  if (events.length === 0) return null;
+function AccentDot({
+  type,
+  className,
+}: {
+  type: Event["type"];
+  className?: string;
+}): React.ReactElement {
   return (
-    <section className="flex flex-col gap-4">
-      <h2 className="text-xl font-semibold text-foreground/80">{title}</h2>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
+    <span
+      aria-hidden
+      className={cn(
+        "size-2 shrink-0 rounded-full",
+        eventAccent(type),
+        className,
+      )}
+    />
+  );
+}
+
+/** The one event that matters right now, so it gets the full width and the
+ *  only brand red on the page. */
+function LiveEvent({
+  event,
+  now,
+}: {
+  event: Event;
+  now: Date;
+}): React.ReactElement {
+  return (
+    <MaybeLink event={event} now={now}>
+      {/* A tinted fill, not just a border: in dark mode --card and --background
+          are the same value, so an outline-only card has no surface of its own
+          to sit on. */}
+      <div className="rounded-xl border border-stability bg-stability/5 p-6 sm:p-8 transition-colors group-hover:bg-stability/10">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span className="relative flex size-2.5">
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-stability opacity-75 motion-reduce:hidden" />
+            <span className="relative inline-flex size-2.5 rounded-full bg-stability" />
+          </span>
+          <span className="text-xs font-bold uppercase tracking-widest text-stability-accent">
+            Live
+          </span>
+          <span aria-hidden className="text-foreground/25">
+            ·
+          </span>
+          <span className="text-sm text-foreground/70">
+            {eventTypeLabel(event.type)}
+          </span>
+          <span className="ml-auto text-sm font-semibold text-foreground/80">
+            {countdownLabel(event, now)}
+          </span>
+        </div>
+
+        <h3 className="mt-4 text-3xl sm:text-4xl font-bold leading-tight text-foreground">
+          {event.name}
+        </h3>
+        <p className="mt-1.5 text-sm text-foreground/60">
+          {formatRange(event)}
+        </p>
+
+        {/* Static at render time, so a plain div rather than the Radix
+            Progress client component. */}
+        <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-foreground/10">
+          <div
+            className="h-full rounded-full bg-stability"
+            style={{ width: `${elapsedPercent(event, now)}%` }}
+          />
+        </div>
       </div>
-    </section>
+    </MaybeLink>
+  );
+}
+
+function UpcomingEvent({
+  event,
+  now,
+}: {
+  event: Event;
+  now: Date;
+}): React.ReactElement {
+  const released = isReleased(event, now);
+  return (
+    <MaybeLink event={event} now={now}>
+      {/* Height comes from content with a floor, not a fixed h-44 — that is
+          what used to leave a hole in the middle of every card. */}
+      <div
+        className={cn(
+          "flex h-full min-h-36 flex-col rounded-xl border border-border bg-card p-5 transition-colors",
+          released && "group-hover:border-foreground/30 group-hover:bg-accent/40",
+        )}
+      >
+        <div className="flex items-center gap-2">
+          <AccentDot type={event.type} className={cn(!released && "opacity-40")} />
+          <span className="text-xs font-semibold uppercase tracking-widest text-foreground/60">
+            {eventTypeLabel(event.type)}
+          </span>
+        </div>
+
+        <h3 className="mt-3 text-xl font-bold leading-tight text-foreground">
+          {event.name}
+        </h3>
+
+        {/* mt-auto aligns the metadata across a row of cards; because the card
+            height is content-driven the alignment costs no empty space. */}
+        <div className="mt-auto flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 pt-4">
+          <span className="text-sm text-foreground/60">
+            {formatRange(event)}
+          </span>
+          <span className="text-sm font-semibold text-foreground/70">
+            {released ? countdownLabel(event, now) : "Coming soon"}
+          </span>
+        </div>
+      </div>
+    </MaybeLink>
+  );
+}
+
+function PastEventRow({
+  event,
+  now,
+}: {
+  event: Event;
+  now: Date;
+}): React.ReactElement {
+  const released = isReleased(event, now);
+  const row = (
+    <div
+      className={cn(
+        "flex items-center gap-3 px-4 py-3 transition-colors",
+        released && "group-hover:bg-accent/50",
+      )}
+    >
+      <AccentDot type={event.type} className={cn(!released && "opacity-40")} />
+      {/* /65 rather than a lighter mute: below ~56% opacity this text drops
+          under 4.5:1 on the light theme's white card (axe measured 3.22:1 at
+          /45). It stays clearly secondary to the /90 event name. */}
+      <span className="hidden w-32 shrink-0 truncate text-[11px] font-semibold uppercase tracking-widest text-foreground/65 sm:block">
+        {eventTypeLabel(event.type)}
+      </span>
+      <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground/90">
+        {event.name}
+      </span>
+      <span className="shrink-0 text-xs text-foreground/65">
+        {format(new Date(event.end_date), "MMM yyyy")}
+      </span>
+      <ChevronRight
+        aria-hidden
+        className={cn(
+          "size-4 shrink-0 text-foreground/25",
+          released ? "group-hover:text-foreground/60" : "invisible",
+        )}
+      />
+    </div>
+  );
+
+  return released ? (
+    <Link href={eventHref(event)} className="group block">
+      {row}
+    </Link>
+  ) : (
+    row
+  );
+}
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-xs font-bold uppercase tracking-widest text-foreground/65">
+      {children}
+    </h2>
   );
 }
 
@@ -152,23 +269,54 @@ export default async function EventsPage() {
   const total =
     byPhase.active.length + byPhase.upcoming.length + byPhase.past.length;
 
-  return (
-    <div className="flex flex-col gap-10 px-4 pb-20 max-w-6xl mx-auto w-full">
-      <div className="flex flex-col gap-1">
+  if (total === 0) {
+    return (
+      <div className="flex w-full max-w-6xl mx-auto flex-col gap-10 px-4 pb-20">
         <h1 className="text-3xl font-bold text-foreground">Events</h1>
-      </div>
-
-      {total === 0 ? (
         <div className="flex flex-col items-center gap-3 py-20 text-foreground/60">
           <CalendarDays className="size-10" />
           <p>No events yet. Check back soon.</p>
         </div>
-      ) : (
-        <>
-          <EventSection title="Happening now" events={byPhase.active} />
-          <EventSection title="Upcoming" events={byPhase.upcoming} />
-          <EventSection title="Past" events={byPhase.past} />
-        </>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex w-full max-w-6xl mx-auto flex-col gap-10 px-4 pb-20">
+      <h1 className="text-3xl font-bold text-foreground">Events</h1>
+
+      <section className="flex flex-col gap-4">
+        <SectionHeading>Happening now</SectionHeading>
+        {byPhase.active.length > 0 ? (
+          byPhase.active.map((event) => (
+            <LiveEvent key={event.id} event={event} now={now} />
+          ))
+        ) : (
+          // A quiet line rather than an empty hero — nothing running is a
+          // one-sentence fact, not a hole in the layout.
+          <p className="text-sm text-foreground/65">
+            Nothing running right now.
+          </p>
+        )}
+      </section>
+
+      {byPhase.upcoming.length > 0 && (
+        <section className="flex flex-col gap-4">
+          <SectionHeading>Upcoming</SectionHeading>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {byPhase.upcoming.map((event) => (
+              <UpcomingEvent key={event.id} event={event} now={now} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {byPhase.past.length > 0 && (
+        <PastEvents count={byPhase.past.length}>
+          {byPhase.past.map((event) => (
+            <PastEventRow key={event.id} event={event} now={now} />
+          ))}
+        </PastEvents>
       )}
     </div>
   );
