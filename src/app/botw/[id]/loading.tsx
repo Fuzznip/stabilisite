@@ -3,9 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function Loading() {
   return (
     <div className="flex flex-col gap-10 px-4 pb-20 w-full">
-      {/* Mirrors BossHeader: boss image on the left, title block beside it.
-          The point breakdown is collapsed on load, so nothing stands in for
-          it here. */}
       <div className="flex items-start gap-5">
         <Skeleton className="size-28 shrink-0 rounded-xl sm:size-36 lg:size-44" />
         <div className="flex flex-col gap-2">

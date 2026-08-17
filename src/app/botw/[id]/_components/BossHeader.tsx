@@ -28,14 +28,13 @@ function formatRange(event: Event): string {
   )}${sameYear ? `, ${end.getFullYear()}` : ""}`;
 }
 
-/**
- * Boss icon: the icon uploaded to S3, or a generic glyph. `onError` still
- * covers the case where the stored URL 404s.
- *
- * Framed rather than bare — boss icons are transparent PNGs, and at this size
- * an unframed one reads as floating on the page instead of sitting in a slot.
- */
-function BossImage({ boss, className }: { boss: BotwBoss; className?: string }) {
+function BossImage({
+  boss,
+  className,
+}: {
+  boss: BotwBoss;
+  className?: string;
+}) {
   const [failed, setFailed] = useState(false);
 
   return (
@@ -62,13 +61,6 @@ function BossImage({ boss, className }: { boss: BotwBoss; className?: string }) 
   );
 }
 
-/**
- * One scoring line: the boss's kill rate or one of its drops.
- *
- * The value is a filled pill rather than red text. Brand red as small text on
- * this chip measures 4.39:1 — under the 4.5:1 AA floor — while white on
- * --stability is 5.99:1, and it matches the count badges on the leaderboard.
- */
 function ChallengeChip({
   challenge,
   label,
@@ -77,7 +69,6 @@ function ChallengeChip({
 }: {
   challenge: BotwChallenge;
   label?: string;
-  /** Overrides the trigger's own icon — the kill line shows the boss. */
   imgSrc?: string | null;
   highlight?: boolean;
 }) {
@@ -88,10 +79,6 @@ function ChallengeChip({
   return (
     <li
       className={cn(
-        // min-w-0 on the grid item itself: a grid item's automatic minimum is
-        // its min-content size, and `truncate` sets white-space: nowrap, so
-        // without this the chip refuses to shrink below the untruncated name
-        // and pushes its points pill outside the card.
         "flex min-w-0 items-center gap-2.5 rounded-md px-3 py-2",
         highlight
           ? "bg-stability/[0.07] border border-stability/30"
@@ -114,9 +101,6 @@ function ChallengeChip({
         )}
       </span>
 
-      {/* Titled because a long drop name (e.g. "Executioner's axe head") still
-          truncates in a three-column layout, and the chip has no other way to
-          reveal it. */}
       <span
         title={label ?? trigger.name}
         className="min-w-0 flex-1 truncate text-base text-foreground/90"
@@ -131,8 +115,13 @@ function ChallengeChip({
   );
 }
 
-/** Every way one boss scores: its kill rate first, then its drops by value. */
-function BossScoring({ boss, showName }: { boss: BotwBoss; showName: boolean }) {
+function BossScoring({
+  boss,
+  showName,
+}: {
+  boss: BotwBoss;
+  showName: boolean;
+}) {
   const kc = boss.challenges.find((c) => c.trigger.type === "KC");
   const drops = boss.challenges
     .filter((c) => c.trigger.type === "DROP")
@@ -151,7 +140,6 @@ function BossScoring({ boss, showName }: { boss: BotwBoss; showName: boolean }) 
         </h3>
       )}
       <ul className="grid gap-2 @md/lines:grid-cols-2 @3xl/lines:grid-cols-3">
-        {/* Kill rate leads: it is the one line that scores on every kill. */}
         {kc && (
           <ChallengeChip
             challenge={kc}
@@ -168,15 +156,6 @@ function BossScoring({ boss, showName }: { boss: BotwBoss; showName: boolean }) 
   );
 }
 
-/**
- * The page's header: what the boss is, when it runs, and — on request — how it
- * scores.
- *
- * The scoring breakdown is collapsed by default and opens directly above the
- * leaderboard. Someone arriving mid-event wants the standings, and an
- * always-open breakdown pushes them down the page; someone deciding what to
- * farm opens it once.
- */
 export function BossHeader({
   event,
   bosses,
@@ -186,9 +165,6 @@ export function BossHeader({
 }) {
   const [open, setOpen] = useState(false);
 
-  // With a single boss the event *is* that boss, so it supplies the title and
-  // the image. Multi-boss events fall back to the event's own name and list
-  // each boss inside the breakdown instead.
   const single = bosses.length === 1 ? bosses[0] : null;
   const title = single?.name ?? event.name;
   const hasScoring = bosses.some((b) => b.challenges.length > 0);
@@ -214,8 +190,6 @@ export function BossHeader({
             <span className="text-base text-foreground/70">
               {formatRange(event)}
             </span>
-            {/* Hidden on a phone, where the countdown always wraps to its own
-                line and the separator would dangle at the end of the date. */}
             <span aria-hidden className="hidden text-foreground/25 sm:inline">
               ·
             </span>

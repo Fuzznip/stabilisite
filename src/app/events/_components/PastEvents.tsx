@@ -9,12 +9,6 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
-/** The archive only grows, so it stays folded away by default and the page
- *  leads with what is actually happening.
- *
- *  Only the toggle lives on the client: the rows arrive already rendered as
- *  `children` from the server component, so no event data crosses the
- *  boundary and the JS here is just the open/closed state. */
 export default function PastEvents({
   count,
   children,
@@ -28,15 +22,9 @@ export default function PastEvents({
     <Collapsible open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger
         className={cn(
-          // bg-card, not a bare border: in light mode --border (91%) sits
-          // almost on top of --background (96%), so an unfilled panel has no
-          // edge to read. In dark mode --card equals --background, so this
-          // costs nothing there and the border does the work instead.
           "flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3",
           "text-left transition-colors hover:bg-accent/50",
           "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
-          // Square off the bottom while open so the trigger and the rows below
-          // read as one surface rather than two stacked cards.
           open && "rounded-b-none border-b-0",
         )}
       >

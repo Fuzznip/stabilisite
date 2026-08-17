@@ -131,11 +131,6 @@
     --stability-accent: 0 73% 44%;
     --bingo-grid: 196, 66%, 53%;
 
-    /* One hue per event type, so Bingo/Conquest/BOTW are distinguishable at a
-       glance instead of only by badge text. Deliberately NOT built on
-       --chart-*, which inverts between themes (--chart-3 is navy here and
-       orange in .dark) and would make an accent change meaning with the theme.
-       Darkened against the 96%-lightness light background. */
     --event-bingo: 196 70% 40%;
     --event-conquest: 280 55% 48%;
     --event-botw: 27 80% 42%;
@@ -175,8 +170,6 @@
     --stability-accent: 0 73% 55%;
     --bingo-grid: 196, 66%, 53%;
 
-    /* Lightened counterparts for the 4.1%-lightness dark background. Bingo
-       matches --bingo-grid so the board and its accent agree. */
     --event-bingo: 196 66% 53%;
     --event-conquest: 280 65% 65%;
     --event-botw: 30 85% 58%;

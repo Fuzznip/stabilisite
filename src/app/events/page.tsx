@@ -40,9 +40,6 @@ function formatRange(event: Event): string {
   )}${sameYear ? `, ${year}` : ""}`;
 }
 
-/** Wraps a card in its link only once the event is released. An unreleased
- *  event has nothing behind it yet, so it stays inert rather than linking into
- *  an empty page. */
 function MaybeLink({
   event,
   now,
@@ -79,8 +76,6 @@ function AccentDot({
   );
 }
 
-/** The one event that matters right now, so it gets the full width and the
- *  only brand red on the page. */
 function LiveEvent({
   event,
   now,
@@ -90,9 +85,6 @@ function LiveEvent({
 }): React.ReactElement {
   return (
     <MaybeLink event={event} now={now}>
-      {/* A tinted fill, not just a border: in dark mode --card and --background
-          are the same value, so an outline-only card has no surface of its own
-          to sit on. */}
       <div className="rounded-xl border border-stability bg-stability/5 p-6 sm:p-8 transition-colors group-hover:bg-stability/10">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <span className="relative flex size-2.5">
@@ -120,8 +112,6 @@ function LiveEvent({
           {formatRange(event)}
         </p>
 
-        {/* Static at render time, so a plain div rather than the Radix
-            Progress client component. */}
         <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-foreground/10">
           <div
             className="h-full rounded-full bg-stability"
@@ -143,16 +133,18 @@ function UpcomingEvent({
   const released = isReleased(event, now);
   return (
     <MaybeLink event={event} now={now}>
-      {/* Height comes from content with a floor, not a fixed h-44 — that is
-          what used to leave a hole in the middle of every card. */}
       <div
         className={cn(
           "flex h-full min-h-36 flex-col rounded-xl border border-border bg-card p-5 transition-colors",
-          released && "group-hover:border-foreground/30 group-hover:bg-accent/40",
+          released &&
+            "group-hover:border-foreground/30 group-hover:bg-accent/40",
         )}
       >
         <div className="flex items-center gap-2">
-          <AccentDot type={event.type} className={cn(!released && "opacity-40")} />
+          <AccentDot
+            type={event.type}
+            className={cn(!released && "opacity-40")}
+          />
           <span className="text-xs font-semibold uppercase tracking-widest text-foreground/60">
             {eventTypeLabel(event.type)}
           </span>
@@ -162,8 +154,6 @@ function UpcomingEvent({
           {event.name}
         </h3>
 
-        {/* mt-auto aligns the metadata across a row of cards; because the card
-            height is content-driven the alignment costs no empty space. */}
         <div className="mt-auto flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 pt-4">
           <span className="text-sm text-foreground/60">
             {formatRange(event)}
@@ -193,9 +183,6 @@ function PastEventRow({
       )}
     >
       <AccentDot type={event.type} className={cn(!released && "opacity-40")} />
-      {/* /65 rather than a lighter mute: below ~56% opacity this text drops
-          under 4.5:1 on the light theme's white card (axe measured 3.22:1 at
-          /45). It stays clearly secondary to the /90 event name. */}
       <span className="hidden w-32 shrink-0 truncate text-[11px] font-semibold uppercase tracking-widest text-foreground/65 sm:block">
         {eventTypeLabel(event.type)}
       </span>
@@ -292,8 +279,6 @@ export default async function EventsPage() {
             <LiveEvent key={event.id} event={event} now={now} />
           ))
         ) : (
-          // A quiet line rather than an empty hero — nothing running is a
-          // one-sentence fact, not a hole in the layout.
           <p className="text-sm text-foreground/65">
             Nothing running right now.
           </p>

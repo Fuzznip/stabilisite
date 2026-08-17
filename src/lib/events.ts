@@ -45,9 +45,6 @@ export function isReleased(
   return !event.release_date || now >= new Date(event.release_date);
 }
 
-/** The background utility for an event type's accent dot. Returns whole class
- *  names rather than an interpolated fragment, because Tailwind scans source
- *  text and never sees a class assembled at runtime. */
 export function eventAccent(type: EventType | undefined): string {
   switch (type) {
     case "conquest":
@@ -59,8 +56,6 @@ export function eventAccent(type: EventType | undefined): string {
   }
 }
 
-/** The phase-appropriate relative time — the thing a date range alone never
- *  tells you, and the reason to look at a live event at all. */
 export function countdownLabel(
   event: Pick<Event, "start_date" | "end_date">,
   now: Date = new Date(),
@@ -76,8 +71,6 @@ export function countdownLabel(
   }
 }
 
-/** How far a running event has progressed, 0–100, for the hero's elapsed bar.
- *  Clamped because an event can be edited to start after it ends. */
 export function elapsedPercent(
   event: Pick<Event, "start_date" | "end_date">,
   now: Date = new Date(),
@@ -85,5 +78,8 @@ export function elapsedPercent(
   const start = new Date(event.start_date).getTime();
   const end = new Date(event.end_date).getTime();
   if (!(end > start)) return 100;
-  return Math.min(100, Math.max(0, ((now.getTime() - start) / (end - start)) * 100));
+  return Math.min(
+    100,
+    Math.max(0, ((now.getTime() - start) / (end - start)) * 100),
+  );
 }
