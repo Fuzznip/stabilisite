@@ -39,6 +39,30 @@ import type {
 
 const queryClient = new QueryClient();
 
+// TEMP(testing): fake team control for visual testing only — NOT for production.
+// Deterministically assigns each territory/region a loaded team (hashed by id so
+// colors stay stable across refetches instead of flickering).
+const FAKE_RANDOM_CONTROL = true;
+
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (h * 31 + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+function withFakeControl<T extends { id: string; controlling_team_id: string | null }>(
+  items: T[],
+  teamIds: string[],
+): T[] {
+  if (!FAKE_RANDOM_CONTROL || teamIds.length === 0) return items;
+  return items.map((it) => ({
+    ...it,
+    controlling_team_id: teamIds[hashString(it.id) % teamIds.length],
+  }));
+}
+
 interface ConquestClientWrapperProps {
   event: Event;
   regionData: RegionData[];
@@ -79,7 +103,7 @@ function ConquestInner({
   initialLogs,
   playerCount,
 }: ConquestClientWrapperProps) {
-  const { data: territories = initialTerritories ?? [] } = useQuery({
+  const { data: rawTerritories = initialTerritories ?? [] } = useQuery({
     queryKey: ["conquest-territories", event?.id],
     queryFn: async () => {
       const res = await fetch(`/api/conquest/${event.id}/territories`);
@@ -91,7 +115,7 @@ function ConquestInner({
     refetchInterval: 10_000,
   });
 
-  const { data: regions = initialRegions ?? [] } = useQuery({
+  const { data: rawRegions = initialRegions ?? [] } = useQuery({
     queryKey: ["conquest-regions", event?.id],
     queryFn: async () => {
       const res = await fetch(`/api/conquest/${event.id}/regions`);
@@ -170,6 +194,18 @@ function ConquestInner({
           `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(t.name)}&backgroundColor=${encodeURIComponent(t.color?.replace("#", "") ?? "888888")}&textColor=ffffff&fontSize=40`,
       })),
     [liveTeams],
+  );
+
+  // TEMP(testing): overlay fake team control onto territories/regions so pips,
+  // region cards, and the map render team colors. Remove for production.
+  const teamIds = useMemo(() => flatTeams.map((t) => t.id), [flatTeams]);
+  const territories = useMemo(
+    () => withFakeControl(rawTerritories, teamIds),
+    [rawTerritories, teamIds],
+  );
+  const regions = useMemo(
+    () => withFakeControl(rawRegions, teamIds),
+    [rawRegions, teamIds],
   );
 
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);

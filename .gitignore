@@ -42,3 +42,5 @@ next-env.d.ts
 
 .claude
 CLAUDE.md
+# Rendered collection log item icons (uploaded to S3, not committed)
+scripts/cache/.build/

@@ -141,6 +141,17 @@ export function formatDiaryTime(time?: string | null): string {
   return tenths > 0 ? `${base}.${tenths}` : base;
 }
 
+// Collection log item icons: the exact 36x32 icons the client draws, rendered
+// from the game cache's item models by scripts/cache/extract.sh and uploaded to
+// S3 by scripts/cache/upload-items.sh rather than committed (1,710 files).
+// The host is whitelisted in next.config.ts.
+const ITEM_ICON_BASE =
+  "https://stability-event.s3.us-east-1.amazonaws.com/collection-log/items";
+
+export function collectionLogItemImage(itemId: number): string {
+  return `${ITEM_ICON_BASE}/${itemId}.png`;
+}
+
 export function getScaleDisplay(scale: string): string | undefined {
   switch (scale) {
     case "1":

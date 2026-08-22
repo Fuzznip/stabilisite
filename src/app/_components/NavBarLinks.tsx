@@ -7,6 +7,9 @@ import {
   User as UserIcon,
   Trophy,
   FileText,
+  Grid3X3,
+  Map,
+  BookOpen,
   CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
@@ -16,6 +19,7 @@ const iconMap: Record<string, React.ElementType> = {
   Home: Home,
   Profile: UserIcon,
   Leaderboards: Trophy,
+  "Collection Log": BookOpen,
   Applications: FileText,
   Events: CalendarDays,
 };
@@ -36,9 +40,10 @@ export default function NavBarLinks({
     { href: "/leaderboards", title: "Leaderboards" },
   ];
 
-  // Both pages are admin-only, and the page itself enforces it — hiding the
+  // These pages are admin-only, and each page itself enforces it — hiding the
   // tab just keeps a non-admin from clicking through to a "Page not found".
   if (user?.isAdmin) {
+    tabs.push({ href: "/collection-log", title: "Collection Log" });
     tabs.push({ href: "/events", title: "Events" });
     tabs.push({ href: "/applications", title: "Applications" });
   }
