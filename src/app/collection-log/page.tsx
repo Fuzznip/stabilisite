@@ -1,9 +1,23 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import { getCollectionLog } from "@/lib/fetch/getCollectionLog";
 import { getRecentCollections } from "@/lib/fetch/getRecentCollections";
+import { TriangleAlert } from "lucide-react";
 import { CollectionLog } from "./_components/CollectionLog";
 import { RecentCollections } from "./_components/RecentCollections";
 
 export default async function CollectionLogPage(): Promise<React.ReactElement> {
+  const user = await getAuthUser();
+  if (!user?.isAdmin) {
+    return (
+      <Alert className="w-1/2 mx-auto bg-muted">
+        <TriangleAlert className="size-4" />
+        <AlertTitle>Page not found</AlertTitle>
+        <AlertDescription>What are you trying to do?</AlertDescription>
+      </Alert>
+    );
+  }
+
   const [{ categories, summary }, recent] = await Promise.all([
     getCollectionLog(),
     getRecentCollections(1),

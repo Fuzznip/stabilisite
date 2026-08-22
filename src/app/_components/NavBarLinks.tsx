@@ -38,12 +38,12 @@ export default function NavBarLinks({
     { href: "/", title: "Home" },
     { href: `/profile/${user?.discordId}`, title: "Profile" },
     { href: "/leaderboards", title: "Leaderboards" },
-    { href: "/collection-log", title: "Collection Log" },
   ];
 
-  // Both pages are admin-only, and the page itself enforces it — hiding the
+  // These pages are admin-only, and each page itself enforces it — hiding the
   // tab just keeps a non-admin from clicking through to a "Page not found".
   if (user?.isAdmin) {
+    tabs.push({ href: "/collection-log", title: "Collection Log" });
     tabs.push({ href: "/events", title: "Events" });
     tabs.push({ href: "/applications", title: "Applications" });
   }

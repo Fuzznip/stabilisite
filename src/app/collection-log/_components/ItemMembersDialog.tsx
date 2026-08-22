@@ -16,9 +16,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { Images, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { CollectionLogItemEntry, CollectionLogMember } from "@/lib/types";
-import { cn, collectionLogItemImage, formatDate } from "@/lib/utils";
+import { collectionLogItemImage, formatDate } from "@/lib/utils";
 import { DropGallery } from "./DropGallery";
 
 export function ItemMembersDialog({
@@ -72,40 +72,40 @@ export function ItemMembersDialog({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {members.map((member) => (
-                  <TableRow key={member.discordId}>
-                    <TableCell className="capitalize">
-                      {member.runescapeName}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums p-0">
-                      {/* The count opens that member's screenshots for this
-                          item. Drops without one are still listed, so the
-                          gallery length always matches the count. */}
-                      <button
-                        type="button"
-                        disabled={!member.drops.length}
-                        onClick={() => setGallery(member)}
-                        aria-label={`View ${member.runescapeName}'s ${member.count} drops`}
-                        className={cn(
-                          "w-full h-full px-4 py-2 inline-flex items-center justify-end gap-1.5",
-                          member.drops.length
-                            ? "cursor-pointer hover:text-stability"
-                            : "cursor-default"
+                {members.map((member) => {
+                  const hasScreenshot = member.drops.some(
+                    (drop) => !!drop.screenshot
+                  );
+
+                  return (
+                    <TableRow key={member.discordId}>
+                      <TableCell className="p-0">
+                        {hasScreenshot ? (
+                          <button
+                            type="button"
+                            onClick={() => setGallery(member)}
+                            aria-label={`View ${member.runescapeName}'s screenshots`}
+                            className="w-full h-full px-4 py-2 flex items-center capitalize cursor-pointer hover:text-stability"
+                          >
+                            {member.runescapeName}
+                          </button>
+                        ) : (
+                          <span className="block px-4 py-2 capitalize">
+                            {member.runescapeName}
+                          </span>
                         )}
-                      >
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
                         {member.count}
-                        {member.drops.length > 0 && (
-                          <Images className="size-3.5 opacity-60" />
-                        )}
-                      </button>
-                    </TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {member.firstObtained
-                        ? formatDate(new Date(member.firstObtained))
-                        : "—"}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {member.firstObtained
+                          ? formatDate(new Date(member.firstObtained))
+                          : "—"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

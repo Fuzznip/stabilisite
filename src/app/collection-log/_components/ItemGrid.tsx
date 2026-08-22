@@ -28,6 +28,7 @@ export function ItemGrid({
     >
       {items.map((item) => {
         const memberCount = summary[item.itemId]?.memberCount ?? 0;
+        const totalCount = summary[item.itemId]?.totalCount ?? 0;
         const obtained = memberCount > 0;
         return (
           <Tooltip key={item.itemId}>
@@ -60,7 +61,7 @@ export function ItemGrid({
                       "text-[var(--cl-yellow)] leading-[calc(12*var(--cl-px))]",
                     )}
                   >
-                    {memberCount}
+                    {totalCount}
                   </span>
                 )}
               </button>

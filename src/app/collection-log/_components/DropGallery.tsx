@@ -58,6 +58,7 @@ export function DropGallery({
 }): React.ReactElement {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [selected, setSelected] = useState(0);
+  const [zoomed, setZoomed] = useState<string | null>(null);
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -80,7 +81,13 @@ export function DropGallery({
   const currentDate = formatDate(current?.obtainedAt);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) setZoomed(null);
+        onOpenChange(next);
+      }}
+    >
       <DialogContent className="sm:max-w-3xl p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-foreground/10">
           <DialogTitle className="flex items-center gap-3 pr-8">
@@ -128,13 +135,20 @@ export function DropGallery({
                   <CarouselItem key={drop.id}>
                     <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-black/20 flex items-center justify-center">
                       {drop.screenshot ? (
-                        <Image
-                          src={drop.screenshot}
-                          alt={`${itemName} drop`}
-                          fill
-                          sizes="(max-width: 640px) 100vw, 768px"
-                          className="object-contain"
-                        />
+                        <button
+                          type="button"
+                          onClick={() => setZoomed(drop.screenshot ?? null)}
+                          aria-label="Enlarge screenshot"
+                          className="absolute inset-0 cursor-zoom-in"
+                        >
+                          <Image
+                            src={drop.screenshot}
+                            alt={`${itemName} drop`}
+                            fill
+                            sizes="(max-width: 640px) 100vw, 768px"
+                            className="object-contain"
+                          />
+                        </button>
                       ) : (
                         <span className="flex flex-col items-center gap-2 text-muted-foreground text-sm">
                           <ImageOff className="size-8" />
@@ -188,6 +202,28 @@ export function DropGallery({
           </div>
         )}
       </DialogContent>
+
+      <Dialog open={!!zoomed} onOpenChange={(next) => !next && setZoomed(null)}>
+        <DialogContent className="max-w-none w-auto sm:max-w-none bg-transparent border-0 shadow-none p-0 gap-0">
+          <DialogTitle className="sr-only">{itemName} screenshot</DialogTitle>
+          {zoomed && (
+            <button
+              type="button"
+              onClick={() => setZoomed(null)}
+              aria-label="Close enlarged screenshot"
+              className="relative block w-[95vw] h-[90vh] cursor-zoom-out"
+            >
+              <Image
+                src={zoomed}
+                alt={`${itemName} drop`}
+                fill
+                sizes="95vw"
+                className="object-contain"
+              />
+            </button>
+          )}
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
