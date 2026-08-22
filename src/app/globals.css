@@ -74,7 +74,12 @@
 
   --color-discord: hsl(var(--discord));
   --color-stability: hsl(var(--stability));
+  --color-stability-accent: hsl(var(--stability-accent));
   --color-bingo-grid: hsl(var(--bingo-grid));
+
+  --color-event-bingo: hsl(var(--event-bingo));
+  --color-event-conquest: hsl(var(--event-conquest));
+  --color-event-botw: hsl(var(--event-botw));
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -142,7 +147,14 @@
     --chart-5: 27 87% 67%;
     --discord: 235 86% 65%;
     --stability: 0 73% 44%;
+    /* Brand red as *text*. On white it clears AA at 5.99:1, so light mode uses
+       the fill colour unchanged; only .dark has to diverge. */
+    --stability-accent: 0 73% 44%;
     --bingo-grid: 196, 66%, 53%;
+
+    --event-bingo: 196 70% 40%;
+    --event-conquest: 280 55% 48%;
+    --event-botw: 27 80% 42%;
   }
 
   .dark {
@@ -175,8 +187,17 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     --discord: 235 86% 65%;
+    /* Stays the fill colour: white on it is 5.99:1, and lightening it to suit
+       text would push the "Live" badge and rank pip under AA. */
     --stability: 0 73% 44%;
+    /* 44% red on the 4.1%-lightness background is only 3.36:1 — unreadable as
+       body text. 55% brings it to 4.61:1 without leaving the brand hue. */
+    --stability-accent: 0 73% 55%;
     --bingo-grid: 196, 66%, 53%;
+
+    --event-bingo: 196 66% 53%;
+    --event-conquest: 280 65% 65%;
+    --event-botw: 30 85% 58%;
   }
 }
 

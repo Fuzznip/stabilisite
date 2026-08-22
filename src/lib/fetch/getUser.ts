@@ -13,7 +13,7 @@ export default async function getUser(id: string): Promise<User | undefined> {
     rankPoints: user.rank_points,
     joinDate: new Date(user.join_date || ""),
     progressionData: JSON.parse(JSON.stringify(user.progression_data)),
-    previousNames: user.previous_names.filter((name: string) => name),
+    previousNames: (user.previous_names ?? []).filter((name: string) => name),
     altNames: user.alt_names,
     isAdmin: user.is_admin,
     isMember: user.is_member,

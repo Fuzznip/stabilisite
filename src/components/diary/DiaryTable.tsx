@@ -2,7 +2,7 @@
 
 import { DiaryApplication, ShortDiary } from "@/lib/types";
 import { getScaleDisplay, cn, formatDate } from "@/lib/utils";
-import { Camera } from "lucide-react";
+import { Camera, Clock } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Card } from "../ui/card";
 import {
@@ -32,11 +32,15 @@ export function DiaryTable({
   diaries: ShortDiary[];
   entries: DiaryApplication[];
 }): React.ReactElement {
-  const [currentDiary, setCurrentDiary] = useState(diaries[0].name);
+  // `diaries` arrives empty whenever nothing has a target time configured —
+  // `Diaries` filters on that before passing it down. Seed the state
+  // defensively and bail out below rather than here: hooks have to run
+  // unconditionally, so the guard can't come before them.
+  const [currentDiary, setCurrentDiary] = useState(diaries[0]?.name ?? "");
   const [currentScale, setCurrentScale] = useState<{
     scale: string;
     shorthand: string;
-  } | null>(diaries[0].scales[0]);
+  } | null>(diaries[0]?.scales[0] ?? null);
 
   const currentAttempts = useMemo(
     () =>
@@ -50,6 +54,18 @@ export function DiaryTable({
   );
 
   const selectedDiary = diaries.find((diary) => diary.name === currentDiary);
+
+  if (diaries.length === 0) {
+    return (
+      <section className="flex flex-col w-full h-full">
+        <h2 className="text-2xl mb-2">Diaries</h2>
+        <Card className="flex flex-col items-center justify-center gap-3 p-10 min-h-72 h-full text-muted-foreground">
+          <Clock className="size-10" />
+          <p className="text-lg">No diaries have target times set yet.</p>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <section className="flex flex-col w-full h-full">

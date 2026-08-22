@@ -22,8 +22,8 @@ export async function getAuthUser(): Promise<User | null> {
       image: session.user.image,
       isMember: storedUser.is_member,
       name: session.user.name,
-      previousNames: storedUser.previous_names.filter((name) => name),
-      altNames: storedUser.alt_names,
+      previousNames: (storedUser.previous_names ?? []).filter((name) => name),
+      altNames: storedUser.alt_names ?? [],
       isAdmin: storedUser.is_admin,
     };
 

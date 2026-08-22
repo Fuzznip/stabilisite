@@ -14,13 +14,12 @@ import { getDiaryEntries } from "@/lib/fetch/getDiaryEntries";
 import { getRaids } from "@/lib/fetch/getRaids";
 import { getRanks } from "@/lib/fetch/getRanks";
 import { SubmitPopoverClient } from "./SubmitPopoverClient";
-import { getReleasedEvent } from "@/lib/fetch/getBingo";
 import { getRaidTierApplications } from "@/lib/db/raidTier";
 import { getMaxRaidTiers } from "@/lib/utils";
 import type { RaidName } from "@/lib/types";
 
 export default async function NavBar(): Promise<React.ReactElement> {
-  const [user, event] = await Promise.all([getAuthUser(), getReleasedEvent()]);
+  const user = await getAuthUser();
   return (
     <div className="flex w-full h-16 px-2 sm:px-4 justify-between items-center mt-2">
       <div className="flex items-center h-full w-full">
@@ -36,7 +35,7 @@ export default async function NavBar(): Promise<React.ReactElement> {
             className="object-contain"
           />
         </Link>
-        <NavBarLinks user={user} event={event} />
+        <NavBarLinks user={user} />
       </div>
       <div className="flex items-center gap-2">
         {user && !user.isMember && (

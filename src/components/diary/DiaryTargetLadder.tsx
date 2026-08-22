@@ -76,7 +76,7 @@ export function DiaryTargetLadder({
                 {formatDiaryTime(target.diaryTime)}
               </span>
               {isNext && gap != null && (
-                <span className="text-xs text-stability">
+                <span className="text-xs text-stability-accent">
                   (-{formatGap(gap)})
                 </span>
               )}
@@ -85,7 +85,7 @@ export function DiaryTargetLadder({
               className={cn(
                 "font-semibold",
                 achieved && "text-green-600 dark:text-green-500",
-                isNext && "text-stability",
+                isNext && "text-stability-accent",
               )}
             >
               +{target.diaryPoints.toLocaleString()} points

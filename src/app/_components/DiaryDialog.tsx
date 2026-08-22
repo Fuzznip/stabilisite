@@ -61,7 +61,7 @@ const speedRunSchema = z
       .string()
       .regex(
         /^\d{1,2}:\d{1,2}.\d{1}$/,
-        "Invalid duration format (MM:SS.TICKS)"
+        "Invalid duration format (MM:SS.TICKS)",
       ),
     teamMembers: z.array(z.string()).optional(),
     proof: z.any().refine((file) => file instanceof File && file.size > 0, {
@@ -81,7 +81,7 @@ const speedRunSchema = z
     {
       message: "Number of team members must not exceed the scale",
       path: ["teamMembers"], // show the error under teamMembers
-    }
+    },
   );
 
 type SpeedRunZodForm = z.infer<typeof speedRunSchema>;
@@ -106,12 +106,12 @@ export function DiaryDialog({
     .filter((diary) => diary.scales.filter((scale) => !scale.diaryTime).length)
     .filter(
       (diary) =>
-        !acceptedDiaryNames.includes(diary.name) || diary.scales.length > 1
+        !acceptedDiaryNames.includes(diary.name) || diary.scales.length > 1,
     )
     .map((diary) =>
       diary.name === "Combat Achievements"
         ? mapDiariesForComabtAchievements(diary, entries)
-        : diary
+        : diary,
     )
     .filter((diary) => !!diary);
   return (
@@ -143,7 +143,7 @@ export function DiaryDialog({
               user={user}
               diaries={diaries.filter(
                 (diary) =>
-                  diary.scales.filter((scale) => scale.diaryTime).length > 0
+                  diary.scales.filter((scale) => scale.diaryTime).length > 0,
               )}
               entries={entries}
               setDialogOpen={onOpenChange}
@@ -182,7 +182,7 @@ function SpeedRunForm({
 }): React.ReactElement {
   const [selectedDiary, setSelectedDiary] = useState(diaries[0]);
   const [selectedScale, setSelectedScale] = useState(
-    diaries[0].scales[0].scale
+    diaries[0].scales[0].scale,
   );
   const [teamInput, setTeamInput] = useState("");
   const [teamMembers, setTeamMembers] = useState<string[]>([
@@ -215,8 +215,8 @@ function SpeedRunForm({
       if (result.success) {
         toast.success(
           `Your ${selectedDiary.name} (${getScaleDisplay(
-            selectedScale
-          )}) diary was submitted and is under review.`
+            selectedScale,
+          )}) diary was submitted and is under review.`,
         );
         setDialogOpen(false);
         form.reset(defaultForm);
@@ -224,20 +224,22 @@ function SpeedRunForm({
       } else {
         toast.error(
           "Something went wrong submitting your diary entry. Please try again.",
-          { duration: 10000 }
+          { duration: 10000 },
         );
       }
     } catch (err) {
       console.error("[DiaryDialog] Submission error:", err);
       toast.error(
         "Something went wrong submitting your diary entry. Please try again.",
-        { duration: 10000 }
+        { duration: 10000 },
       );
     }
   };
 
   const onInvalid = () => {
-    toast.error("Please complete all fields and upload proof before submitting.");
+    toast.error(
+      "Please complete all fields and upload proof before submitting.",
+    );
   };
 
   const handleTeamAdd = () => {
@@ -256,17 +258,17 @@ function SpeedRunForm({
   };
 
   const selectedScaleData = selectedDiary.scales.find(
-    (scale) => scale.scale === selectedScale
+    (scale) => scale.scale === selectedScale,
   );
   const bestTime = entries
     .filter(
-      (entry) => entry.shorthand === selectedScaleData?.shorthand && entry.time
+      (entry) => entry.shorthand === selectedScaleData?.shorthand && entry.time,
     )
     .map((entry) => entry.time as string)
     .sort(
       (a, b) =>
         (parseDiaryTimeToSeconds(a) ?? Infinity) -
-        (parseDiaryTimeToSeconds(b) ?? Infinity)
+        (parseDiaryTimeToSeconds(b) ?? Infinity),
     )[0];
 
   return (
@@ -388,7 +390,7 @@ function SpeedRunForm({
                 };
 
                 const { minutes, seconds, milliseconds } = parseTime(
-                  field.value ?? "00:00.00"
+                  field.value ?? "00:00.00",
                 );
 
                 return (
@@ -407,8 +409,8 @@ function SpeedRunForm({
                               formatTime(
                                 +e.target.value,
                                 seconds || 0,
-                                milliseconds || 0
-                              )
+                                milliseconds || 0,
+                              ),
                             )
                           }
                           className="w-20 dark:bg-input/30"
@@ -424,8 +426,8 @@ function SpeedRunForm({
                               formatTime(
                                 minutes || 0,
                                 +e.target.value,
-                                milliseconds || 0
-                              )
+                                milliseconds || 0,
+                              ),
                             )
                           }
                           className="w-20 dark:bg-input/30"
@@ -441,8 +443,8 @@ function SpeedRunForm({
                               formatTime(
                                 minutes || 0,
                                 seconds || 0,
-                                +e.target.value
-                              )
+                                +e.target.value,
+                              ),
                             )
                           }
                           className="w-24 dark:bg-input/30"
@@ -511,7 +513,7 @@ function SpeedRunForm({
                 <div
                   className={cn(
                     "flex flex-wrap gap-2 max-w-full absolute top-14",
-                    form.formState.errors.teamMembers ? "mt-8" : "mt-2"
+                    form.formState.errors.teamMembers ? "mt-8" : "mt-2",
                   )}
                 >
                   {teamMembers.map((name) => (
@@ -561,7 +563,7 @@ function AchievementForm({
 }): React.ReactElement {
   const [selectedDiary, setSelectedDiary] = useState(diaries[0]);
   const [selectedShorthand, setSelectedShorthand] = useState(
-    diaries[0].scales[0]?.shorthand
+    diaries[0].scales[0]?.shorthand,
   );
   const defaultForm = {
     diary: diaries[0].name,
@@ -586,27 +588,29 @@ function AchievementForm({
 
       if (result.success) {
         toast.success(
-          `Your ${selectedDiary.name} diary was submitted and is under review.`
+          `Your ${selectedDiary.name} diary was submitted and is under review.`,
         );
         setDialogOpen(false);
         form.reset(defaultForm);
       } else {
         toast.error(
           "Something went wrong submitting your diary entry. Please try again.",
-          { duration: 10000 }
+          { duration: 10000 },
         );
       }
     } catch (err) {
       console.error("[DiaryDialog] Submission error:", err);
       toast.error(
         "Something went wrong submitting your diary entry. Please try again.",
-        { duration: 10000 }
+        { duration: 10000 },
       );
     }
   };
 
   const onInvalid = () => {
-    toast.error("Please complete all fields and upload proof before submitting.");
+    toast.error(
+      "Please complete all fields and upload proof before submitting.",
+    );
   };
 
   return (
@@ -739,7 +743,9 @@ function DiaryTimeTargets({
         </span>
       </span>
       <div className="flex flex-col gap-2 rounded-lg border p-3 dark:bg-input/30">
-        <span className="text-sm text-muted-foreground">Clan point targets</span>
+        <span className="text-sm text-muted-foreground">
+          Clan point targets
+        </span>
         <DiaryTargetLadder targets={times} bestTime={bestTime} />
       </div>
     </div>
@@ -759,7 +765,7 @@ function ProofField({ onFileSelect }: { onFileSelect: (file: File) => void }) {
         onFileSelect(file);
       }
     },
-    [onFileSelect]
+    [onFileSelect],
   );
 
   const onDropRejected = useCallback((rejections: FileRejection[]) => {
