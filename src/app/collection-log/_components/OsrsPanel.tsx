@@ -24,8 +24,12 @@ export const OSRS_TOKENS = cn(
   "[--cl-tab-border:#5d5848]"
 );
 
-/** Widest a panel gets, so it doesn't sprawl on ultrawide displays. */
-export const PANEL_MAX_WIDTH = "max-w-[calc(900*var(--cl-px))]";
+/**
+ * Widest a panel gets, so it doesn't sprawl on ultrawide displays. It caps the
+ * framed window rather than the body inside it, so the frame stops with the
+ * panel background: 900px of body plus the 6px frame either side.
+ */
+export const PANEL_MAX_WIDTH = "max-w-[calc(912*var(--cl-px))]";
 
 const CORNER = cn(
   "absolute pointer-events-none z-2 bg-no-repeat [background-size:100%_100%]",
@@ -81,7 +85,13 @@ export function OsrsPanel({
   className?: string;
 }): React.ReactElement {
   return (
-    <div className={cn("font-osrs w-full [image-rendering:pixelated]", OSRS_TOKENS)}>
+    <div
+      className={cn(
+        "font-osrs w-full mx-auto [image-rendering:pixelated]",
+        PANEL_MAX_WIDTH,
+        OSRS_TOKENS
+      )}
+    >
       <div className="relative p-[calc(6*var(--cl-px))]">
         <span
           aria-hidden
@@ -135,7 +145,6 @@ export function OsrsPanel({
         <div
           className={cn(
             "flex flex-col w-full",
-            PANEL_MAX_WIDTH,
             "bg-[url(/collection-log/ui/bg.png)] bg-repeat",
             "[background-size:calc(88*var(--cl-px))_calc(60*var(--cl-px))]",
             "text-[length:calc(16px*var(--cl-scale))] leading-[calc(16*var(--cl-px))]",
