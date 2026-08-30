@@ -20,7 +20,7 @@ export async function generateMetadata({
       year: "numeric",
     });
   return {
-    title: event.name,
+    title: `BOTW: ${event.name}`,
     description: `Stability Boss of the Week — ${range(event.start_date)} to ${range(event.end_date)}`,
   };
 }
