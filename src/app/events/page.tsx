@@ -272,18 +272,20 @@ export default async function EventsPage() {
     <div className="flex w-full max-w-6xl mx-auto flex-col gap-10 px-4 pb-20">
       <h1 className="text-3xl font-bold text-foreground">Events</h1>
 
-      <section className="flex flex-col gap-4">
-        <SectionHeading>Happening now</SectionHeading>
-        {byPhase.active.length > 0 ? (
-          byPhase.active.map((event) => (
-            <LiveEvent key={event.id} event={event} now={now} />
-          ))
-        ) : (
-          <p className="text-sm text-foreground/65">
-            Nothing running right now.
-          </p>
-        )}
-      </section>
+      {byPhase.active.length > 0 && (
+        <section className="flex flex-col gap-4">
+          <SectionHeading>Happening now</SectionHeading>
+          {byPhase.active.length > 0 ? (
+            byPhase.active.map((event) => (
+              <LiveEvent key={event.id} event={event} now={now} />
+            ))
+          ) : (
+            <p className="text-sm text-foreground/65">
+              Nothing running right now.
+            </p>
+          )}
+        </section>
+      )}
 
       {byPhase.upcoming.length > 0 && (
         <section className="flex flex-col gap-4">
