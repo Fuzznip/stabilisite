@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { format } from "date-fns";
-import { CalendarDays, ChevronRight, TriangleAlert } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CalendarDays, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import { getEvents } from "@/lib/fetch/getBingo";
 import {
   countdownLabel,
@@ -24,9 +22,11 @@ export const metadata: Metadata = {
   description: "Stability clan events — active, upcoming and past.",
 };
 
-// No `revalidate`: reading the session to gate on admin makes this route
-// per-user and dynamic, so a route-level cache window would never apply. The
-// underlying getEvents() fetch is still tag-revalidated on "bingo-event".
+// No `revalidate`: `now` below drives every phase bucket, countdown and release
+// check, so this route must not be prerendered. It stays dynamic because the
+// root layout's NavBar reads the session — if that ever stops being true, this
+// page needs its own `await connection()`. getEvents() is tag-revalidated on
+// "bingo-event" either way.
 
 function formatRange(event: Event): string {
   const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
@@ -220,19 +220,6 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 }
 
 export default async function EventsPage() {
-  // Checked before fetching, unlike the applications page, so a non-admin
-  // request does not pay for data it will never render.
-  const user = await getAuthUser();
-  if (!user?.isAdmin) {
-    return (
-      <Alert className="w-1/2 mx-auto bg-muted">
-        <TriangleAlert className="size-4" />
-        <AlertTitle>Page not found</AlertTitle>
-        <AlertDescription>What are you trying to do?</AlertDescription>
-      </Alert>
-    );
-  }
-
   const events = await getEvents();
   const now = new Date();
 
