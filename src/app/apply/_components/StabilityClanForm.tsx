@@ -46,9 +46,13 @@ function ClanForm({
     if (result.success) {
       setApplied(true);
     } else {
-      toast.error("Something went wrong submitting your application. Please try again.", {
-        duration: 10000,
-      });
+      toast.error(
+        result.error ??
+          "Something went wrong submitting your application. Please try again.",
+        {
+          duration: 10000,
+        }
+      );
     }
   };
   return (
