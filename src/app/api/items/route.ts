@@ -27,6 +27,9 @@ export async function GET() {
         },
       }
     );
+    if (!mappingRes.ok) {
+      throw new Error(`Item mapping fetch failed: ${mappingRes.status}`);
+    }
     const mappingData: OsrsItemMapping[] = await mappingRes.json();
 
     // Fetch GE prices

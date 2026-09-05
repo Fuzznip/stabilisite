@@ -10,7 +10,9 @@ export function useOsrsItems() {
     async function fetchItems() {
       try {
         const res = await fetch("/api/items");
+        if (!res.ok) throw new Error(`/api/items responded ${res.status}`);
         const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("/api/items did not return a list");
 
         setAllItems(data);
         setLoading(false);
