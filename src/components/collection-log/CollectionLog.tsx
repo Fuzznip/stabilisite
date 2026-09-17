@@ -1,12 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import {
-  CollectionLogCategory,
-  CollectionLogItemEntry,
-  CollectionLogMember,
-  CollectionLogSummary,
-} from "@/lib/types";
+import { CollectionLogCategory, CollectionLogItemEntry } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
   Popover,
@@ -15,9 +10,10 @@ import {
 } from "@/components/ui/popover";
 import { ItemGrid } from "./ItemGrid";
 import { OsrsPanel, PANEL_RULE } from "./OsrsPanel";
-import { ItemMembersDialog } from "./ItemMembersDialog";
 import { ScrollPane, useResetScroll } from "./ScrollPane";
-import { getItemMembers } from "../_actions/getItemMembers";
+
+export type ObtainedEntry = { statusId: string; points: number };
+export type ObtainedMap = Record<number, ObtainedEntry | undefined>;
 
 const TAB = cn(
   // Tabs keep their in-game 96px width rather than stretching, so widening the
@@ -74,10 +70,9 @@ const PAGE_BUTTON = cn(
 
 function obtainedCount(
   items: CollectionLogItemEntry[],
-  summary: CollectionLogSummary,
+  obtained: ObtainedMap,
 ): number {
-  return items.filter((item) => (summary[item.itemId]?.memberCount ?? 0) > 0)
-    .length;
+  return items.filter((item) => obtained[item.itemId] !== undefined).length;
 }
 
 /** The log's own colouring: green complete, yellow partial, red none. */
@@ -89,10 +84,14 @@ function countColor(got: number, total: number): string {
 
 export function CollectionLog({
   categories,
-  summary,
+  obtained,
+  onSelectItem,
+  title = "Clan Collection Log",
 }: {
   categories: CollectionLogCategory[];
-  summary: CollectionLogSummary;
+  obtained: ObtainedMap;
+  onSelectItem?: (item: CollectionLogItemEntry) => void;
+  title?: string;
 }): React.ReactElement {
   const [activeCategory, setActiveCategory] = useState(
     categories[0]?.category ?? "",
@@ -101,25 +100,10 @@ export function CollectionLog({
     categories[0]?.pages[0]?.page ?? "",
   );
   const [search, setSearch] = useState("");
-  const [selectedItem, setSelectedItem] =
-    useState<CollectionLogItemEntry | null>(null);
-  const [members, setMembers] = useState<CollectionLogMember[]>([]);
-  const [membersLoading, setMembersLoading] = useState(false);
-  const requestedItemId = useRef<number | null>(null);
   const itemPaneRef = useRef<HTMLDivElement>(null);
 
   const handleSelect = (item: CollectionLogItemEntry) => {
-    setSelectedItem(item);
-    setMembers([]);
-    setMembersLoading(true);
-    requestedItemId.current = item.itemId;
-    getItemMembers(item.itemId)
-      .then((result) => {
-        if (requestedItemId.current === item.itemId) setMembers(result);
-      })
-      .finally(() => {
-        if (requestedItemId.current === item.itemId) setMembersLoading(false);
-      });
+    onSelectItem?.(item);
   };
 
   const category =
@@ -130,18 +114,17 @@ export function CollectionLog({
   // Totals across the whole log, for the "Collection Log - x/y" title.
   const totals = useMemo(() => {
     const ids = new Set<number>();
-    const obtained = new Set<number>();
+    const obtainedIds = new Set<number>();
     for (const cat of categories) {
       for (const pg of cat.pages) {
         for (const item of pg.items) {
           ids.add(item.itemId);
-          if ((summary[item.itemId]?.memberCount ?? 0) > 0)
-            obtained.add(item.itemId);
+          if (obtained[item.itemId] !== undefined) obtainedIds.add(item.itemId);
         }
       }
     }
-    return { total: ids.size, obtained: obtained.size };
-  }, [categories, summary]);
+    return { total: ids.size, obtained: obtainedIds.size };
+  }, [categories, obtained]);
 
   const query = search.trim().toLowerCase();
 
@@ -171,7 +154,7 @@ export function CollectionLog({
   }, [category, query]);
 
   const shownItems = searchResults ?? page?.items ?? [];
-  const shownObtained = obtainedCount(shownItems, summary);
+  const shownObtained = obtainedCount(shownItems, obtained);
 
   useResetScroll(itemPaneRef, searchResults ? query : page?.page);
 
@@ -237,7 +220,7 @@ export function CollectionLog({
           </div>
 
           <h2 className="min-w-0 font-bold text-center whitespace-nowrap overflow-hidden text-ellipsis">
-            Clan Collection Log - {totals.obtained}/{totals.total}
+            {title} - {totals.obtained}/{totals.total}
           </h2>
 
           {/* Sits in the third track, which is the same width as the search
@@ -306,7 +289,7 @@ export function CollectionLog({
               <div className="flex flex-col pt-[calc(3*var(--cl-px))]">
                 {visiblePages.map((pg) => {
                   const total = pg.items.length;
-                  const got = obtainedCount(pg.items, summary);
+                  const got = obtainedCount(pg.items, obtained);
                   const complete = got === total && total > 0;
                   const current = !searchResults && pg.page === activePage;
                   return (
@@ -369,7 +352,7 @@ export function CollectionLog({
               <ScrollPane>
                 <ItemGrid
                   items={shownItems}
-                  summary={summary}
+                  obtained={obtained}
                   onSelect={handleSelect}
                 />
               </ScrollPane>
@@ -386,13 +369,6 @@ export function CollectionLog({
           </div>
         </div>
       </OsrsPanel>
-
-      <ItemMembersDialog
-        item={selectedItem}
-        members={members}
-        loading={membersLoading}
-        onOpenChange={(open) => !open && setSelectedItem(null)}
-      />
     </>
   );
 }

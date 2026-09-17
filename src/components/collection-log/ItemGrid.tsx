@@ -1,21 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { CollectionLogItemEntry, CollectionLogSummary } from "@/lib/types";
+import { CollectionLogItemEntry } from "@/lib/types";
 import { cn, collectionLogItemImage } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { ObtainedMap } from "./CollectionLog";
 
 export function ItemGrid({
   items,
-  summary,
+  obtained,
   onSelect,
 }: {
   items: CollectionLogItemEntry[];
-  summary: CollectionLogSummary;
+  obtained: ObtainedMap;
   onSelect: (item: CollectionLogItemEntry) => void;
 }): React.ReactElement {
   return (
@@ -27,9 +28,8 @@ export function ItemGrid({
       )}
     >
       {items.map((item) => {
-        const memberCount = summary[item.itemId]?.memberCount ?? 0;
-        const totalCount = summary[item.itemId]?.totalCount ?? 0;
-        const obtained = memberCount > 0;
+        const entry = obtained[item.itemId];
+        const isObtained = entry !== undefined;
         return (
           <Tooltip key={item.itemId}>
             <TooltipTrigger asChild>
@@ -51,17 +51,17 @@ export function ItemGrid({
                   className={cn(
                     "block w-[calc(36*var(--cl-px))] h-[calc(32*var(--cl-px))]",
                     // The client draws items nobody has as dark silhouettes.
-                    !obtained && "brightness-[0.25]",
+                    !isObtained && "brightness-[0.25]",
                   )}
                 />
-                {obtained && (
+                {isObtained && entry.points > 0 && (
                   <span
                     className={cn(
                       "absolute top-0 left-0 pointer-events-none",
                       "text-[var(--cl-yellow)] leading-[calc(12*var(--cl-px))]",
                     )}
                   >
-                    {totalCount}
+                    {entry.points}
                   </span>
                 )}
               </button>
@@ -71,9 +71,9 @@ export function ItemGrid({
               className="font-osrs bg-[#0f0e0c] border-[#5a4f3a] text-[#ff9040]"
             >
               <span className="text-lg">{item.name}</span>
-              {obtained && (
+              {isObtained && (
                 <span className="text-[#f4f4f4] text-base">
-                  {` — ${memberCount} member${memberCount === 1 ? "" : "s"}`}
+                  {` — ${entry.points} pt${entry.points === 1 ? "" : "s"}`}
                 </span>
               )}
             </TooltipContent>

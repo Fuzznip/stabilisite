@@ -2,7 +2,7 @@
 // BASE MODELS - Direct database representations
 // ===========================================
 
-export type EventType = "bingo" | "conquest" | "botw";
+export type EventType = "bingo" | "conquest" | "botw" | "clog";
 
 export type Event = {
   id: string;
@@ -520,6 +520,34 @@ export type TerritoryProofEntry = {
     date: string | null;
     player?: { id: string; runescape_name: string };
   };
+};
+
+export type ClogSlot = {
+  id: string;
+  event_id: string;
+  item_id: number;
+  name: string;
+  category: string;
+  page: string;
+  page_order: number;
+  sequence: number;
+  image_url: string | null;
+  points: number;
+};
+
+export type ClogStanding = {
+  team_id: string;
+  name: string;
+  color: string | null;
+  image_url: string | null;
+  points: number;
+  slots_completed: number;
+  rank: number;
+};
+
+export type ClogProgress = {
+  standings: ClogStanding[];
+  completed: Record<string, Record<string, { status_id: string; points: number }>>;
 };
 
 // ===========================================
