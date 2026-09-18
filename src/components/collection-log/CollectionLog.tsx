@@ -68,10 +68,9 @@ const PAGE_BUTTON = cn(
   // A step down from the panel's own 16px*scale: this is a long list of names
   // sitting beside the thing you actually came to look at, so it buys its
   // width back for the item grid.
-  "text-[length:calc(13px*var(--cl-scale))]",
+  "text-xs sm:text-lg leading-snug",
   // Vertical padding separates entries once some of them run to two lines.
   "px-[calc(5*var(--cl-px))] py-[calc(2*var(--cl-px))]",
-  "leading-[calc(14*var(--cl-px))]",
   "focus-visible:[outline:var(--cl-px)_solid_var(--cl-white)]",
   "focus-visible:[outline-offset:calc(-1*var(--cl-px))]",
 );

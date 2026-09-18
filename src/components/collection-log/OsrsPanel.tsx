@@ -147,7 +147,7 @@ export function OsrsPanel({
             "flex flex-col w-full",
             "bg-[url(/collection-log/ui/bg.png)] bg-repeat",
             "[background-size:calc(88*var(--cl-px))_calc(60*var(--cl-px))]",
-            "text-[length:calc(16px*var(--cl-scale))] leading-[calc(16*var(--cl-px))]",
+            "text-sm sm:text-xl leading-normal",
             "text-[var(--cl-orange)] [text-shadow:var(--cl-px)_var(--cl-px)_0_#000]",
             className
           )}

@@ -87,7 +87,9 @@ export function ClogActivity({
   const totalPages = Math.max(1, data.pages);
 
   return (
-    <OsrsPanel>
+    // One size up from the log panel across the board — heading, rows, pager
+    // and empty state all inherit from here.
+    <OsrsPanel className="text-base sm:text-2xl">
       <h2
         className={cn(
           "shrink-0 font-bold text-center",
@@ -112,8 +114,9 @@ export function ClogActivity({
                 className={cn(
                   "relative flex items-center gap-[calc(8*var(--cl-px))]",
                   "px-[calc(8*var(--cl-px))] py-[calc(2*var(--cl-px))]",
-                  // Same step down from the panel default as the boss/raid list.
-                  "text-[length:calc(13px*var(--cl-scale))]",
+                  // A step below this panel's own heading, matching how the
+                  // boss/raid list sits below the log panel's title.
+                  "text-sm sm:text-xl",
                   "hover:bg-black/20",
                 )}
               >

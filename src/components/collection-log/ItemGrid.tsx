@@ -66,8 +66,7 @@ export function ItemGrid({
                       "pointer-events-none absolute top-0 right-0",
                       "rounded-[calc(2*var(--cl-px))] bg-black/70",
                       "px-[calc(2*var(--cl-px))]",
-                      "text-[length:calc(8px*var(--cl-scale))]",
-                      "leading-[calc(11*var(--cl-px))] text-[var(--cl-yellow)]",
+                      "text-xs sm:text-sm leading-none text-[var(--cl-yellow)]",
                     )}
                   >
                     {item.points} pts
