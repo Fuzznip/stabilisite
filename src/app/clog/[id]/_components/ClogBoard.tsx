@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
 import {
   CollectionLog,
   type ObtainedEntry,
@@ -16,12 +20,21 @@ import {
 import type { CollectionLogCategory } from "@/lib/types";
 import type { ClogProgress, ClogSlot } from "@/lib/types/v2";
 import { ClogActivity } from "./ClogActivity";
-import { ClogProofDialog } from "./ClogProofDialog";
+import { ClogProofDialog, type ClogProofTarget } from "./ClogProofDialog";
 import { ClogTeamDetail } from "./ClogTeamDetail";
 
 // One client per page module, as every other event page here does — a client
 // created inside the component would be rebuilt on every render.
 const queryClient = new QueryClient();
+
+/** How often the board, roster and feed re-poll. */
+export const CLOG_REFETCH_MS = 60_000;
+
+async function fetchProgress(eventId: string): Promise<ClogProgress> {
+  const res = await fetch(`/api/clog/${eventId}/progress`);
+  if (!res.ok) throw new Error("Failed to fetch clog progress");
+  return (await res.json()) as ClogProgress;
+}
 
 /** Slots arrive flat; the log renders tab → page → items. */
 function toCategories(slots: ClogSlot[]): CollectionLogCategory[] {
@@ -51,15 +64,39 @@ function toCategories(slots: ClogSlot[]): CollectionLogCategory[] {
   }));
 }
 
-export function ClogBoard({
+export function ClogBoard(props: {
+  eventId: string;
+  slots: ClogSlot[];
+  progress: ClogProgress;
+}): React.ReactElement {
+  // useQuery needs the provider above it, so the provider cannot live inside
+  // the component that polls.
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ClogBoardInner {...props} />
+    </QueryClientProvider>
+  );
+}
+
+function ClogBoardInner({
   eventId,
   slots,
-  progress,
+  progress: initialProgress,
 }: {
   eventId: string;
   slots: ClogSlot[];
   progress: ClogProgress;
 }): React.ReactElement {
+  // Seeded from the server render, then re-polled so a drop landing mid-session
+  // shows up without a reload. Slots are not polled: they only change when an
+  // admin prunes one, which a refresh picks up.
+  const { data: progress = initialProgress } = useQuery({
+    queryKey: ["clog-progress", eventId],
+    queryFn: () => fetchProgress(eventId),
+    initialData: initialProgress,
+    refetchInterval: CLOG_REFETCH_MS,
+  });
+
   // Null means "all teams", which is the default: a race is best read as one
   // board showing who holds what, not as three boards you flip between.
   // Selecting a team narrows the lighting to that team; the pips keep showing
@@ -67,8 +104,9 @@ export function ClogBoard({
   const [teamId, setTeamId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [proof, setProof] = useState<{
-    statusId: string;
+    targets: ClogProofTarget[];
     itemName: string;
+    page?: string;
   } | null>(null);
 
   const categories = useMemo(() => toCategories(slots), [slots]);
@@ -133,6 +171,12 @@ export function ClogBoard({
     [progress, teamId],
   );
 
+  const slotByItemId = useMemo(() => {
+    const map = new Map<number, ClogSlot>();
+    for (const slot of slots) map.set(slot.item_id, slot);
+    return map;
+  }, [slots]);
+
   const selectedTeam = teams.find((t) => t.id === teamId) ?? null;
   // CollectionLog appends " - obtained/total" itself, and `obtained` already
   // means "anyone has it" when no team is picked, so the count is right either
@@ -140,7 +184,7 @@ export function ClogBoard({
   const logTitle = selectedTeam ? selectedTeam.name : "Collection Log Race";
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <div className="flex flex-col gap-6">
       {/* Side by side once there is room. The log panel is `max-w` and its item
           grid is auto-fill, so it reflows into the narrower column rather than
@@ -151,13 +195,34 @@ export function ClogBoard({
           <CollectionLog
             categories={categories}
             obtained={obtained}
-            teamMarks={teamMarks}
+            teamMarks={teamId ? undefined : teamMarks}
             title={logTitle}
             onSelectItem={(item) => {
-              const entry = obtained[item.itemId];
+              // In the all-teams view every claimant contributes a slide, so
+              // the gallery shows the whole race for that slot. Filtered to a
+              // team, it shows only theirs.
+              const targets: ClogProofTarget[] = progress.standings
+                .filter((t) => !teamId || t.team_id === teamId)
+                .flatMap((t) => {
+                  const entry =
+                    progress.completed[t.team_id]?.[String(item.itemId)];
+                  return entry
+                    ? [
+                        {
+                          statusId: entry.status_id,
+                          teamName: t.name,
+                          teamColor: t.color,
+                        },
+                      ]
+                    : [];
+                });
               setProof(
-                entry
-                  ? { statusId: entry.statusId, itemName: item.name }
+                targets.length
+                  ? {
+                      targets,
+                      itemName: item.name,
+                      page: slotByItemId.get(item.itemId)?.page,
+                    }
                   : null,
               );
             }}
@@ -199,8 +264,9 @@ export function ClogBoard({
         </div>
 
         <ClogProofDialog
-          statusId={proof?.statusId ?? null}
+          targets={proof?.targets ?? []}
           itemName={proof?.itemName ?? null}
+          page={proof?.page}
           onClose={() => setProof(null)}
         />
       </div>
@@ -215,6 +281,6 @@ export function ClogBoard({
         teamName={selectedTeam?.name}
       />
       </div>
-    </QueryClientProvider>
+    </>
   );
 }

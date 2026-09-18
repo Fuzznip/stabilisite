@@ -8,6 +8,7 @@ import { formatDistanceToNow } from "date-fns";
 import { OsrsPanel, PANEL_RULE } from "@/components/collection-log/OsrsPanel";
 import type { ClogActivityEntry } from "@/lib/types/v2";
 import { cn, collectionLogItemImage } from "@/lib/utils";
+import { CLOG_REFETCH_MS } from "./ClogBoard";
 import { ClogProofDialog } from "./ClogProofDialog";
 
 const PER_PAGE = 10;
@@ -80,6 +81,7 @@ export function ClogActivity({
     // does not collapse to empty and jump the page around between clicks.
     placeholderData: keepPreviousData,
     staleTime: 10_000,
+    refetchInterval: CLOG_REFETCH_MS,
   });
 
   const totalPages = Math.max(1, data.pages);
@@ -110,6 +112,8 @@ export function ClogActivity({
                 className={cn(
                   "relative flex items-center gap-[calc(8*var(--cl-px))]",
                   "px-[calc(8*var(--cl-px))] py-[calc(2*var(--cl-px))]",
+                  // Same step down from the panel default as the boss/raid list.
+                  "text-[length:calc(13px*var(--cl-scale))]",
                   "hover:bg-black/20",
                 )}
               >
@@ -146,9 +150,6 @@ export function ClogActivity({
                     {entry.team_name}
                   </span>
                 </p>
-                <span className="shrink-0 text-[var(--cl-yellow)]">
-                  {entry.points} pt{entry.points === 1 ? "" : "s"}
-                </span>
                 <span className="shrink-0 text-[var(--cl-tan)]">
                   {relativeTime(entry.created_at)}
                 </span>
@@ -199,8 +200,19 @@ export function ClogActivity({
       </div>
 
       <ClogProofDialog
-        statusId={viewing?.status_id ?? null}
+        targets={
+          viewing
+            ? [
+                {
+                  statusId: viewing.status_id,
+                  teamName: viewing.team_name,
+                  teamColor: viewing.team_color,
+                },
+              ]
+            : []
+        }
         itemName={viewing?.item_name ?? null}
+        page={viewing?.page}
         onClose={() => setViewing(null)}
       />
     </OsrsPanel>

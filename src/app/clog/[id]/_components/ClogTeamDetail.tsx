@@ -4,7 +4,13 @@ import { useMemo } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import type { LeaderboardTeam } from "@/components/event-leaderboard/EventLeaderboard";
+import { CLOG_REFETCH_MS } from "./ClogBoard";
 import type { ClogSlot, ClogTeamPlayers } from "@/lib/types/v2";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn, collectionLogItemImage } from "@/lib/utils";
 
 async function fetchPlayers(eventId: string): Promise<ClogTeamPlayers[]> {
@@ -58,6 +64,7 @@ export function ClogTeamDetail({
     queryKey: ["clog-players", eventId],
     queryFn: () => fetchPlayers(eventId),
     staleTime: 10_000,
+    refetchInterval: CLOG_REFETCH_MS,
   });
 
   const roster = allTeams?.find((t) => t.team_id === team.id)?.players ?? [];
@@ -140,27 +147,42 @@ export function ClogTeamDetail({
                 </div>
 
                 {player.drops.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1.5">
                     {player.drops.map((drop) => (
-                      <span
-                        key={`${player.player_id}-${drop.item_id}`}
-                        title={`${drop.item_name} — ${drop.page} — ${drop.points} pt${drop.points === 1 ? "" : "s"}`}
-                        className={cn(
-                          "relative inline-flex size-8 items-center justify-center rounded border",
-                          drop.points >= highValuePoints
-                            ? "border-yellow-500/50 bg-yellow-500/10"
-                            : "border-border bg-muted/40",
-                        )}
-                      >
-                        <Image
-                          src={collectionLogItemImage(drop.item_id)}
-                          alt={drop.item_name}
-                          width={28}
-                          height={24}
-                          unoptimized
-                          className="object-contain"
-                        />
-                      </span>
+                      <Tooltip key={`${player.player_id}-${drop.item_id}`}>
+                        <TooltipTrigger asChild>
+                          <span
+                            className={cn(
+                              "relative inline-flex size-12 items-center justify-center rounded border",
+                              drop.points >= highValuePoints
+                                ? "border-yellow-500/50 bg-yellow-500/10"
+                                : "border-border bg-muted/40",
+                            )}
+                          >
+                            <Image
+                              src={collectionLogItemImage(drop.item_id)}
+                              alt={drop.item_name}
+                              width={44}
+                              height={38}
+                              unoptimized
+                              className="object-contain"
+                            />
+                          </span>
+                        </TooltipTrigger>
+                        {/* Local surface, not the stock bg-primary one, so
+                            text-muted-foreground reads as muted. showArrow is
+                            off because the arrow's colour is hardcoded in the
+                            primitive and would stay bg-primary. */}
+                        <TooltipContent
+                          showArrow={false}
+                          className="border bg-background text-foreground"
+                        >
+                          <span className="block">{drop.item_name}</span>
+                          <span className="block text-muted-foreground">
+                            {drop.page}
+                          </span>
+                        </TooltipContent>
+                      </Tooltip>
                     ))}
                   </div>
                 )}

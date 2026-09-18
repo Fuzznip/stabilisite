@@ -205,7 +205,6 @@ export function EventLeaderboard({
                       <h3 className="truncate text-2xl font-bold">
                         {selected.name}
                       </h3>
-                      <RankBadge rank={selectedIndex + 1} />
                     </div>
                     <div className="flex items-baseline gap-2">
                       <span className="text-3xl font-bold tabular-nums">

@@ -35,6 +35,7 @@ export function ItemGrid({
       {items.map((item) => {
         const isObtained = obtained[item.itemId] !== undefined;
         const marks = teamMarks?.[item.itemId] ?? [];
+        const src = collectionLogItemImage(item.itemId);
         return (
           <Tooltip key={item.itemId}>
             <TooltipTrigger asChild>
@@ -48,7 +49,7 @@ export function ItemGrid({
                 )}
               >
                 <Image
-                  src={collectionLogItemImage(item.itemId)}
+                  src={src}
                   alt={item.name}
                   width={36}
                   height={32}
@@ -76,7 +77,7 @@ export function ItemGrid({
                   <span
                     aria-hidden
                     className={cn(
-                      "pointer-events-none absolute bottom-0 right-0",
+                      "pointer-events-none absolute bottom-[calc(7*var(--cl-px))] right-0",
                       "flex gap-[calc(1*var(--cl-px))]",
                     )}
                   >
