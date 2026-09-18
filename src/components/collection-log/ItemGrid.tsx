@@ -8,15 +8,20 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { ObtainedMap } from "./CollectionLog";
+import type { ObtainedMap, TeamMarkMap } from "./CollectionLog";
 
 export function ItemGrid({
   items,
   obtained,
+  teamMarks,
   onSelect,
 }: {
   items: CollectionLogItemEntry[];
   obtained: ObtainedMap;
+  /** Who else has each slot, drawn as pips. Independent of `obtained`, so a
+   *  slot another team holds still shows its pip while sitting dark for yours —
+   *  which is the "they have it, we don't" read. */
+  teamMarks?: TeamMarkMap;
   onSelect: (item: CollectionLogItemEntry) => void;
 }): React.ReactElement {
   return (
@@ -28,8 +33,8 @@ export function ItemGrid({
       )}
     >
       {items.map((item) => {
-        const entry = obtained[item.itemId];
-        const isObtained = entry !== undefined;
+        const isObtained = obtained[item.itemId] !== undefined;
+        const marks = teamMarks?.[item.itemId] ?? [];
         return (
           <Tooltip key={item.itemId}>
             <TooltipTrigger asChild>
@@ -54,14 +59,34 @@ export function ItemGrid({
                     !isObtained && "brightness-[0.25]",
                   )}
                 />
-                {isObtained && entry.points > 0 && (
+                {(item.points ?? 0) > 1 && (
                   <span
                     className={cn(
-                      "absolute top-0 left-0 pointer-events-none",
-                      "text-[var(--cl-yellow)] leading-[calc(12*var(--cl-px))]",
+                      "pointer-events-none absolute top-0 right-0",
+                      "rounded-[calc(2*var(--cl-px))] bg-black/70",
+                      "px-[calc(2*var(--cl-px))]",
+                      "text-[length:calc(8px*var(--cl-scale))]",
+                      "leading-[calc(11*var(--cl-px))] text-[var(--cl-yellow)]",
                     )}
                   >
-                    {entry.points}
+                    {item.points} pts
+                  </span>
+                )}
+                {marks.length > 0 && (
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "pointer-events-none absolute bottom-0 right-0",
+                      "flex gap-[calc(1*var(--cl-px))]",
+                    )}
+                  >
+                    {marks.map((team) => (
+                      <span
+                        key={team.id}
+                        className="size-[calc(5*var(--cl-px))] rounded-full ring-1 ring-black/60"
+                        style={{ background: team.color ?? "#9ca3af" }}
+                      />
+                    ))}
                   </span>
                 )}
               </button>
@@ -71,9 +96,16 @@ export function ItemGrid({
               className="font-osrs bg-[#0f0e0c] border-[#5a4f3a] text-[#ff9040]"
             >
               <span className="text-lg">{item.name}</span>
-              {isObtained && (
+              {item.points !== undefined && (
                 <span className="text-[#f4f4f4] text-base">
-                  {` — ${entry.points} pt${entry.points === 1 ? "" : "s"}`}
+                  {` — ${item.points} pt${item.points === 1 ? "" : "s"}`}
+                </span>
+              )}
+              {/* Pips are coloured dots and nothing more, so the teams are
+                  named here — otherwise two dots are unreadable. */}
+              {marks.length > 0 && (
+                <span className="block text-[#f4f4f4] text-base">
+                  {marks.map((t) => t.name).join(", ")}
                 </span>
               )}
             </TooltipContent>

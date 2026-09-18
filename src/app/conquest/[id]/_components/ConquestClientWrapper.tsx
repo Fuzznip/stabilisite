@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import {
   QueryClient,
   QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import { EventCountdown } from "@/components/event-countdown/EventCountdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -79,19 +80,6 @@ export function ConquestClientWrapper(props: ConquestClientWrapperProps) {
       <ConquestInner {...props} />
     </QueryClientProvider>
   );
-}
-
-function formatCountdown(endDateIso: string, now: Date): string | null {
-  const diff = new Date(endDateIso).getTime() - now.getTime();
-  if (diff <= 0) return null;
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const parts: string[] = [];
-  if (days > 0) parts.push(`${days}D`);
-  if (hours > 0 || days > 0) parts.push(`${hours}H`);
-  parts.push(`${minutes}M`);
-  return parts.join(" ");
 }
 
 function ConquestInner({
@@ -211,28 +199,16 @@ function ConquestInner({
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
 
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60_000);
-    return () => clearInterval(id);
-  }, []);
-
-  const countdown = formatCountdown(event.end_date, now);
-
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
       {/* Hero */}
       <header className="flex items-end justify-between gap-4 sm:gap-8 flex-wrap">
         <div>
           <div className="flex items-center gap-4 mb-2.5">
-            {countdown ? (
-              <span className="text-xs uppercase text-muted-foreground font-mono">
-                ENDS IN{" "}
-                <strong className="text-foreground font-semibold">
-                  {countdown}
-                </strong>
-              </span>
-            ) : null}
+            <EventCountdown
+                startDate={event.start_date}
+                endDate={event.end_date}
+              />
           </div>
           <h1 className="text-2xl sm:text-4xl font-semibold uppercase leading-none">
             {event.name}

@@ -195,6 +195,10 @@ export type OsrsItem = {
 export type CollectionLogItemEntry = {
   itemId: number;
   name: string;
+  /** What the slot is worth, when the log is scoring one (an event board).
+   *  Independent of whether anyone has it — an unclaimed 3-pointer still needs
+   *  to advertise its value. */
+  points?: number;
 };
 
 export type CollectionLogPage = {

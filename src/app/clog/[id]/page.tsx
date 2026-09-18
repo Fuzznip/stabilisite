@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getEvent } from "@/lib/fetch/getBingo";
 import { getClogProgress, getClogSlots } from "@/lib/fetch/getClog";
+import { EventCountdown } from "@/components/event-countdown/EventCountdown";
 import { ClogBoard } from "./_components/ClogBoard";
-import { ClogLeaderboard } from "./_components/ClogLeaderboard";
 import Loading from "./loading";
 
 export async function generateMetadata({
@@ -45,18 +45,22 @@ async function ClogContent({ id }: { id: string }) {
     getClogProgress(id),
   ]);
 
-  const totalPoints = slots.reduce((sum, slot) => sum + slot.points, 0);
 
   return (
-    <div className="flex w-full flex-col gap-10 px-4 pb-20">
-      <section className="flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold text-foreground/80">
+    <div className="flex w-full flex-col gap-6 px-4 pb-20">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-2xl sm:text-4xl font-semibold uppercase leading-none">
           {event.name}
         </h1>
-        <ClogLeaderboard progress={progress} totalPoints={totalPoints} />
-      </section>
+        <EventCountdown
+          startDate={event.start_date}
+          endDate={event.end_date}
+        />
+      </header>
 
-      <ClogBoard slots={slots} progress={progress} />
+      {/* The leaderboard lives inside ClogBoard: selecting a team both opens its
+          detail pane and swaps the log below, so the two share one selection. */}
+      <ClogBoard eventId={id} slots={slots} progress={progress} />
     </div>
   );
 }

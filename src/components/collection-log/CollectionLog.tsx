@@ -3,17 +3,16 @@
 import { useMemo, useRef, useState } from "react";
 import { CollectionLogCategory, CollectionLogItemEntry } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { ItemGrid } from "./ItemGrid";
 import { OsrsPanel, PANEL_RULE } from "./OsrsPanel";
 import { ScrollPane, useResetScroll } from "./ScrollPane";
 
 export type ObtainedEntry = { statusId: string; points: number };
 export type ObtainedMap = Record<number, ObtainedEntry | undefined>;
+
+/** A team to mark against a slot — drawn as a pip on the item. */
+export type TeamMark = { id: string; name: string; color: string | null };
+export type TeamMarkMap = Record<number, TeamMark[] | undefined>;
 
 const TAB = cn(
   // Tabs keep their in-game 96px width rather than stretching, so widening the
@@ -62,8 +61,17 @@ const TAB_IDLE = cn(
 );
 
 const PAGE_BUTTON = cn(
-  "text-left cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis",
-  "px-[calc(6*var(--cl-px))] leading-[calc(15*var(--cl-px))]",
+  // Names wrap rather than ellipsize: the column is narrow enough that
+  // "Thermonuclear Smoke Devil" and "Vet'ion and Calvar'ion" would both be cut
+  // off, and a boss list you cannot read defeats the point of the column.
+  "text-left cursor-pointer whitespace-normal break-words",
+  // A step down from the panel's own 16px*scale: this is a long list of names
+  // sitting beside the thing you actually came to look at, so it buys its
+  // width back for the item grid.
+  "text-[length:calc(13px*var(--cl-scale))]",
+  // Vertical padding separates entries once some of them run to two lines.
+  "px-[calc(5*var(--cl-px))] py-[calc(2*var(--cl-px))]",
+  "leading-[calc(14*var(--cl-px))]",
   "focus-visible:[outline:var(--cl-px)_solid_var(--cl-white)]",
   "focus-visible:[outline-offset:calc(-1*var(--cl-px))]",
 );
@@ -85,11 +93,13 @@ function countColor(got: number, total: number): string {
 export function CollectionLog({
   categories,
   obtained,
+  teamMarks,
   onSelectItem,
   title = "Clan Collection Log",
 }: {
   categories: CollectionLogCategory[];
   obtained: ObtainedMap;
+  teamMarks?: TeamMarkMap;
   onSelectItem?: (item: CollectionLogItemEntry) => void;
   title?: string;
 }): React.ReactElement {
@@ -225,28 +235,6 @@ export function CollectionLog({
 
           {/* Sits in the third track, which is the same width as the search
                 field's, so the title stays centred in the window. */}
-          <Popover>
-            <PopoverTrigger
-              aria-label="About this collection log"
-              className={cn(
-                "justify-self-end cursor-pointer bg-no-repeat",
-                "w-[calc(21*var(--cl-px))] h-[calc(21*var(--cl-px))]",
-                "bg-[url(/collection-log/ui/btn-info.png)]",
-                "[background-size:100%_100%]",
-                // 2522 is the sprite's pressed state: light bevel bottom-right.
-                "active:bg-[url(/collection-log/ui/btn-info-pressed.png)]",
-                "data-[state=open]:bg-[url(/collection-log/ui/btn-info-pressed.png)]",
-                "focus-visible:[outline:var(--cl-px)_solid_var(--cl-white)]",
-              )}
-            />
-            <PopoverContent
-              align="end"
-              className="text-xl font-osrs max-w-xs bg-[#0f0e0c] border-[#5a4f3a] text-[#ff9040]"
-            >
-              This collection log tracks progress across all clan members with
-              Dink active.
-            </PopoverContent>
-          </Popover>
         </div>
 
         {/* Rule so the top bar reads as its own section above the tabs. */}
@@ -284,7 +272,7 @@ export function CollectionLog({
         </div>
 
         <div className="flex flex-1 min-h-0">
-          <div className="flex shrink-0 w-[calc(130*var(--cl-px))] sm:w-[calc(185*var(--cl-px))]">
+          <div className="flex shrink-0 w-[calc(104*var(--cl-px))] sm:w-[calc(140*var(--cl-px))]">
             <ScrollPane>
               <div className="flex flex-col pt-[calc(3*var(--cl-px))]">
                 {visiblePages.map((pg) => {
@@ -353,6 +341,7 @@ export function CollectionLog({
                 <ItemGrid
                   items={shownItems}
                   obtained={obtained}
+            teamMarks={teamMarks}
                   onSelect={handleSelect}
                 />
               </ScrollPane>
