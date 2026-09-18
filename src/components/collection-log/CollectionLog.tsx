@@ -1,23 +1,18 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import {
-  CollectionLogCategory,
-  CollectionLogItemEntry,
-  CollectionLogMember,
-  CollectionLogSummary,
-} from "@/lib/types";
+import { CollectionLogCategory, CollectionLogItemEntry } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { ItemGrid } from "./ItemGrid";
 import { OsrsPanel, PANEL_RULE } from "./OsrsPanel";
-import { ItemMembersDialog } from "./ItemMembersDialog";
 import { ScrollPane, useResetScroll } from "./ScrollPane";
-import { getItemMembers } from "../_actions/getItemMembers";
+
+export type ObtainedEntry = { statusId: string; points: number };
+export type ObtainedMap = Record<number, ObtainedEntry | undefined>;
+
+/** A team to mark against a slot — drawn as a pip on the item. */
+export type TeamMark = { id: string; name: string; color: string | null };
+export type TeamMarkMap = Record<number, TeamMark[] | undefined>;
 
 const TAB = cn(
   // Tabs keep their in-game 96px width rather than stretching, so widening the
@@ -66,18 +61,25 @@ const TAB_IDLE = cn(
 );
 
 const PAGE_BUTTON = cn(
-  "text-left cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis",
-  "px-[calc(6*var(--cl-px))] leading-[calc(15*var(--cl-px))]",
+  // Names wrap rather than ellipsize: the column is narrow enough that
+  // "Thermonuclear Smoke Devil" and "Vet'ion and Calvar'ion" would both be cut
+  // off, and a boss list you cannot read defeats the point of the column.
+  "text-left cursor-pointer whitespace-normal break-words",
+  // A step down from the panel's own 16px*scale: this is a long list of names
+  // sitting beside the thing you actually came to look at, so it buys its
+  // width back for the item grid.
+  "text-xs sm:text-lg leading-snug",
+  // Vertical padding separates entries once some of them run to two lines.
+  "px-[calc(5*var(--cl-px))] py-[calc(2*var(--cl-px))]",
   "focus-visible:[outline:var(--cl-px)_solid_var(--cl-white)]",
   "focus-visible:[outline-offset:calc(-1*var(--cl-px))]",
 );
 
 function obtainedCount(
   items: CollectionLogItemEntry[],
-  summary: CollectionLogSummary,
+  obtained: ObtainedMap,
 ): number {
-  return items.filter((item) => (summary[item.itemId]?.memberCount ?? 0) > 0)
-    .length;
+  return items.filter((item) => obtained[item.itemId] !== undefined).length;
 }
 
 /** The log's own colouring: green complete, yellow partial, red none. */
@@ -89,10 +91,16 @@ function countColor(got: number, total: number): string {
 
 export function CollectionLog({
   categories,
-  summary,
+  obtained,
+  teamMarks,
+  onSelectItem,
+  title = "Clan Collection Log",
 }: {
   categories: CollectionLogCategory[];
-  summary: CollectionLogSummary;
+  obtained: ObtainedMap;
+  teamMarks?: TeamMarkMap;
+  onSelectItem?: (item: CollectionLogItemEntry) => void;
+  title?: string;
 }): React.ReactElement {
   const [activeCategory, setActiveCategory] = useState(
     categories[0]?.category ?? "",
@@ -101,25 +109,10 @@ export function CollectionLog({
     categories[0]?.pages[0]?.page ?? "",
   );
   const [search, setSearch] = useState("");
-  const [selectedItem, setSelectedItem] =
-    useState<CollectionLogItemEntry | null>(null);
-  const [members, setMembers] = useState<CollectionLogMember[]>([]);
-  const [membersLoading, setMembersLoading] = useState(false);
-  const requestedItemId = useRef<number | null>(null);
   const itemPaneRef = useRef<HTMLDivElement>(null);
 
   const handleSelect = (item: CollectionLogItemEntry) => {
-    setSelectedItem(item);
-    setMembers([]);
-    setMembersLoading(true);
-    requestedItemId.current = item.itemId;
-    getItemMembers(item.itemId)
-      .then((result) => {
-        if (requestedItemId.current === item.itemId) setMembers(result);
-      })
-      .finally(() => {
-        if (requestedItemId.current === item.itemId) setMembersLoading(false);
-      });
+    onSelectItem?.(item);
   };
 
   const category =
@@ -130,18 +123,17 @@ export function CollectionLog({
   // Totals across the whole log, for the "Collection Log - x/y" title.
   const totals = useMemo(() => {
     const ids = new Set<number>();
-    const obtained = new Set<number>();
+    const obtainedIds = new Set<number>();
     for (const cat of categories) {
       for (const pg of cat.pages) {
         for (const item of pg.items) {
           ids.add(item.itemId);
-          if ((summary[item.itemId]?.memberCount ?? 0) > 0)
-            obtained.add(item.itemId);
+          if (obtained[item.itemId] !== undefined) obtainedIds.add(item.itemId);
         }
       }
     }
-    return { total: ids.size, obtained: obtained.size };
-  }, [categories, summary]);
+    return { total: ids.size, obtained: obtainedIds.size };
+  }, [categories, obtained]);
 
   const query = search.trim().toLowerCase();
 
@@ -171,7 +163,7 @@ export function CollectionLog({
   }, [category, query]);
 
   const shownItems = searchResults ?? page?.items ?? [];
-  const shownObtained = obtainedCount(shownItems, summary);
+  const shownObtained = obtainedCount(shownItems, obtained);
 
   useResetScroll(itemPaneRef, searchResults ? query : page?.page);
 
@@ -237,33 +229,11 @@ export function CollectionLog({
           </div>
 
           <h2 className="min-w-0 font-bold text-center whitespace-nowrap overflow-hidden text-ellipsis">
-            Clan Collection Log - {totals.obtained}/{totals.total}
+            {title} - {totals.obtained}/{totals.total}
           </h2>
 
           {/* Sits in the third track, which is the same width as the search
                 field's, so the title stays centred in the window. */}
-          <Popover>
-            <PopoverTrigger
-              aria-label="About this collection log"
-              className={cn(
-                "justify-self-end cursor-pointer bg-no-repeat",
-                "w-[calc(21*var(--cl-px))] h-[calc(21*var(--cl-px))]",
-                "bg-[url(/collection-log/ui/btn-info.png)]",
-                "[background-size:100%_100%]",
-                // 2522 is the sprite's pressed state: light bevel bottom-right.
-                "active:bg-[url(/collection-log/ui/btn-info-pressed.png)]",
-                "data-[state=open]:bg-[url(/collection-log/ui/btn-info-pressed.png)]",
-                "focus-visible:[outline:var(--cl-px)_solid_var(--cl-white)]",
-              )}
-            />
-            <PopoverContent
-              align="end"
-              className="text-xl font-osrs max-w-xs bg-[#0f0e0c] border-[#5a4f3a] text-[#ff9040]"
-            >
-              This collection log tracks progress across all clan members with
-              Dink active.
-            </PopoverContent>
-          </Popover>
         </div>
 
         {/* Rule so the top bar reads as its own section above the tabs. */}
@@ -301,12 +271,12 @@ export function CollectionLog({
         </div>
 
         <div className="flex flex-1 min-h-0">
-          <div className="flex shrink-0 w-[calc(130*var(--cl-px))] sm:w-[calc(185*var(--cl-px))]">
+          <div className="flex shrink-0 w-[calc(104*var(--cl-px))] sm:w-[calc(140*var(--cl-px))]">
             <ScrollPane>
               <div className="flex flex-col pt-[calc(3*var(--cl-px))]">
                 {visiblePages.map((pg) => {
                   const total = pg.items.length;
-                  const got = obtainedCount(pg.items, summary);
+                  const got = obtainedCount(pg.items, obtained);
                   const complete = got === total && total > 0;
                   const current = !searchResults && pg.page === activePage;
                   return (
@@ -369,7 +339,8 @@ export function CollectionLog({
               <ScrollPane>
                 <ItemGrid
                   items={shownItems}
-                  summary={summary}
+                  obtained={obtained}
+            teamMarks={teamMarks}
                   onSelect={handleSelect}
                 />
               </ScrollPane>
@@ -386,13 +357,6 @@ export function CollectionLog({
           </div>
         </div>
       </OsrsPanel>
-
-      <ItemMembersDialog
-        item={selectedItem}
-        members={members}
-        loading={membersLoading}
-        onOpenChange={(open) => !open && setSelectedItem(null)}
-      />
     </>
   );
 }

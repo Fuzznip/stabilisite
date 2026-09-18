@@ -80,6 +80,7 @@
   --color-event-bingo: hsl(var(--event-bingo));
   --color-event-conquest: hsl(var(--event-conquest));
   --color-event-botw: hsl(var(--event-botw));
+  --color-event-clog: hsl(var(--event-clog));
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -155,6 +156,7 @@
     --event-bingo: 196 70% 40%;
     --event-conquest: 280 55% 48%;
     --event-botw: 27 80% 42%;
+    --event-clog: 145 55% 32%;
   }
 
   .dark {
@@ -198,6 +200,7 @@
     --event-bingo: 196 66% 53%;
     --event-conquest: 280 65% 65%;
     --event-botw: 30 85% 58%;
+    --event-clog: 145 60% 48%;
   }
 }
 

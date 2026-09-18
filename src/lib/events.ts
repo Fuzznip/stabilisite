@@ -9,6 +9,8 @@ export function eventHref(event: Pick<Event, "id" | "type">): string {
       return `/conquest/${event.id}`;
     case "botw":
       return `/botw/${event.id}`;
+    case "clog":
+      return `/clog/${event.id}`;
     default:
       return `/bingo/${event.id}`;
   }
@@ -20,6 +22,8 @@ export function eventTypeLabel(type: EventType | undefined): string {
       return "Conquest";
     case "botw":
       return "Boss of the Week";
+    case "clog":
+      return "Collection Log Race";
     default:
       return "Bingo";
   }
@@ -51,6 +55,8 @@ export function eventAccent(type: EventType | undefined): string {
       return "bg-event-conquest";
     case "botw":
       return "bg-event-botw";
+    case "clog":
+      return "bg-event-clog";
     default:
       return "bg-event-bingo";
   }

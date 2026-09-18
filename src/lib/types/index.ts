@@ -195,6 +195,10 @@ export type OsrsItem = {
 export type CollectionLogItemEntry = {
   itemId: number;
   name: string;
+  /** What the slot is worth, when the log is scoring one (an event board).
+   *  Independent of whether anyone has it — an unclaimed 3-pointer still needs
+   *  to advertise its value. */
+  points?: number;
 };
 
 export type CollectionLogPage = {
@@ -205,43 +209,6 @@ export type CollectionLogPage = {
 export type CollectionLogCategory = {
   category: string;
   pages: CollectionLogPage[];
-};
-
-// Keyed by OSRS item id: how many distinct members have it + total drops.
-export type CollectionLogSummary = Record<
-  number,
-  { memberCount: number; totalCount: number }
->;
-
-/** One member obtaining one collection log item, newest first. */
-export type CollectionLogEvent = {
-  id: string;
-  runescapeName: string;
-  itemId: number;
-  itemName: string;
-  obtainedAt: string;
-  /** Dink's loot screenshot, when the client sent one. */
-  screenshot?: string | null;
-};
-
-/** A single drop of one item by one member. */
-export type CollectionLogDrop = {
-  id: string;
-  screenshot?: string | null;
-  source?: string | null;
-  obtainedAt: string | null;
-};
-
-export type CollectionLogMember = {
-  discordId: string;
-  runescapeName: string;
-  discordImg?: string;
-  rank: string;
-  count: number;
-  firstObtained: string | null;
-  lastObtained: string | null;
-  /** This member's individual drops of the item, newest first. */
-  drops: CollectionLogDrop[];
 };
 
 export type ApplicationResponse = {
