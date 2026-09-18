@@ -98,8 +98,7 @@ export function ClogTeamDetail({
           </h4>
           {roster.length > 0 && (
             <span className="text-sm tabular-nums text-muted-foreground">
-              {roster.filter((p) => p.drops.length > 0).length} /{" "}
-              {roster.length} on the board
+              {roster.length} member{roster.length === 1 ? "" : "s"}
             </span>
           )}
         </div>
