@@ -202,7 +202,7 @@ export function CollectionLog({
             <span
               aria-hidden
               className={cn(
-                "shrink-0 w-[calc(20*var(--cl-px))] h-[calc(20*var(--cl-px))]",
+                "shrink-0 w-[calc(14*var(--cl-px))] h-[calc(14*var(--cl-px))]",
                 "bg-[url(/collection-log/ui/icon-search.png)] bg-no-repeat",
                 "[background-size:100%_100%]",
               )}
@@ -215,9 +215,9 @@ export function CollectionLog({
               onChange={(event) => setSearch(event.target.value)}
               className={cn(
                 "min-w-0 p-0 bg-transparent border-none outline-none",
-                // Narrow on phones so the title still fits beside the info
-                // button without ellipsising.
-                "w-[calc(50*var(--cl-px))] sm:w-[calc(140*var(--cl-px))]",
+                // Kept short deliberately: the well is sized by this field, and a
+                // long one crowds the centred title.
+                "w-[calc(44*var(--cl-px))] sm:w-[calc(96*var(--cl-px))]",
                 "text-[var(--cl-white)] [font:inherit] [text-shadow:inherit]",
                 // Strip the UA search styling (white field, native clear).
                 "appearance-none",
@@ -228,7 +228,7 @@ export function CollectionLog({
             />
           </div>
 
-          <h2 className="min-w-0 font-bold text-center whitespace-nowrap overflow-hidden text-ellipsis">
+          <h2 className="min-w-0 text-base sm:text-2xl font-bold text-center whitespace-nowrap overflow-hidden text-ellipsis">
             {title} - {totals.obtained}/{totals.total}
           </h2>
 

@@ -16,6 +16,18 @@ export function eventHref(event: Pick<Event, "id" | "type">): string {
   }
 }
 
+/** Event types not yet public. Both the events listing and the event's own
+ *  page consult this, so a type is hidden in both places or neither. */
+const ADMIN_ONLY_TYPES: readonly EventType[] = ["clog"];
+
+export function canViewEvent(
+  event: Pick<Event, "type">,
+  isAdmin: boolean | null | undefined,
+): boolean {
+  if (isAdmin) return true;
+  return !event.type || !ADMIN_ONLY_TYPES.includes(event.type);
+}
+
 export function eventTypeLabel(type: EventType | undefined): string {
   switch (type) {
     case "conquest":

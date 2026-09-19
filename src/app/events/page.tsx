@@ -4,7 +4,9 @@ import { format } from "date-fns";
 import { CalendarDays, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getEvents } from "@/lib/fetch/getBingo";
+import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import {
+  canViewEvent,
   countdownLabel,
   elapsedPercent,
   eventAccent,
@@ -220,15 +222,21 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 }
 
 export default async function EventsPage() {
-  const events = await getEvents();
+  const [events, user] = await Promise.all([getEvents(), getAuthUser()]);
   const now = new Date();
+
+  // Filtered before bucketing so a hidden event cannot leak through a phase
+  // count, the past-events toggle, or an empty-state check.
+  const visible = (events ?? []).filter((event) =>
+    canViewEvent(event, user?.isAdmin),
+  );
 
   const byPhase: Record<EventPhase, Event[]> = {
     active: [],
     upcoming: [],
     past: [],
   };
-  for (const event of events ?? []) {
+  for (const event of visible) {
     byPhase[eventPhase(event, now)].push(event);
   }
 

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
+import { canViewEvent } from "@/lib/events";
 import { getEvent } from "@/lib/fetch/getBingo";
 import { getClogProgress, getClogSlots } from "@/lib/fetch/getClog";
 import { EventCountdown } from "@/components/event-countdown/EventCountdown";
@@ -45,7 +46,9 @@ async function ClogContent({ id }: { id: string }) {
   // Admin-only while the event is still being built out. Matches how the old
   // collection log page gated itself, down to the deliberately unhelpful copy.
   const user = await getAuthUser();
-  if (!user?.isAdmin) {
+  // Same rule the events listing uses, so the page and the listing cannot
+  // disagree about whether this event type is public yet.
+  if (!canViewEvent({ type: "clog" }, user?.isAdmin)) {
     return (
       <Alert className="mx-auto w-1/2 bg-muted">
         <TriangleAlert className="size-4" />
