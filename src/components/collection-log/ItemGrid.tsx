@@ -96,11 +96,6 @@ export function ItemGrid({
               className="font-osrs bg-[#0f0e0c] border-[#5a4f3a] text-[#ff9040]"
             >
               <span className="text-lg">{item.name}</span>
-              {item.points !== undefined && (
-                <span className="text-[#f4f4f4] text-base">
-                  {` — ${item.points} pt${item.points === 1 ? "" : "s"}`}
-                </span>
-              )}
               {/* Pips are coloured dots and nothing more, so the teams are
                   named here — otherwise two dots are unreadable. */}
               {marks.length > 0 && (
