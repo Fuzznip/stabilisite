@@ -522,17 +522,28 @@ export type TerritoryProofEntry = {
   };
 };
 
+/** One page a slot is drawn on. A shared drop has several. */
+export type ClogSlotPlacement = {
+  category: string;
+  page: string;
+  page_order: number;
+  sequence: number;
+};
+
 export type ClogSlot = {
   id: string;
   event_id: string;
   item_id: number;
   name: string;
   category: string;
+  /** The scoring home — what the activity feed and Discord notification print.
+   *  For where the slot is *drawn*, use `placements`, which always includes it. */
   page: string;
   page_order: number;
   sequence: number;
   image_url: string | null;
   points: number;
+  placements: ClogSlotPlacement[];
 };
 
 export type ClogStanding = {

@@ -17,8 +17,13 @@ import {
   EventLeaderboard,
   type LeaderboardTeam,
 } from "@/components/event-leaderboard/EventLeaderboard";
-import type { CollectionLogCategory } from "@/lib/types";
-import type { ClogProgress, ClogSlot } from "@/lib/types/v2";
+import {
+  OSRS_TOKENS,
+  PANEL_MAX_WIDTH,
+} from "@/components/collection-log/OsrsPanel";
+import type { CollectionLogCategory, CollectionLogItemEntry } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import type { ClogProgress, ClogSlot, ClogSlotPlacement } from "@/lib/types/v2";
 import { ClogActivity } from "./ClogActivity";
 import { ClogProofDialog, type ClogProofTarget } from "./ClogProofDialog";
 import { ClogTeamDetail } from "./ClogTeamDetail";
@@ -36,30 +41,52 @@ async function fetchProgress(eventId: string): Promise<ClogProgress> {
   return (await res.json()) as ClogProgress;
 }
 
-/** Slots arrive flat; the log renders tab → page → items. */
+/** Where a slot is drawn. Older API responses only carry the single home page. */
+function placementsOf(slot: ClogSlot): ClogSlotPlacement[] {
+  if (slot.placements?.length) return slot.placements;
+  const { category, page, page_order, sequence } = slot;
+  return [{ category, page, page_order, sequence }];
+}
+
+/** Slots arrive flat; the log renders tab → page → items.
+ *
+ *  A slot can land on several pages: an item the game lists under more than one
+ *  boss (Awakener's orb at every DT2 boss, Dragon pickaxe across the wilderness)
+ *  is scored once but shown everywhere it appears, so a page only goes green
+ *  when the team really has everything on it. Nothing downstream double-counts,
+ *  because `obtained`, `teamMarks` and the log's own header all key on item id.
+ */
 function toCategories(slots: ClogSlot[]): CollectionLogCategory[] {
-  const tabs = new Map<string, Map<string, ClogSlot[]>>();
+  type Entry = { sequence: number; item: CollectionLogItemEntry };
+  type Page = { page_order: number; entries: Entry[] };
+  const tabs = new Map<string, Map<string, Page>>();
+
   for (const slot of slots) {
-    const pages = tabs.get(slot.category) ?? new Map<string, ClogSlot[]>();
-    const items = pages.get(slot.page) ?? [];
-    items.push(slot);
-    pages.set(slot.page, items);
-    tabs.set(slot.category, pages);
+    const item: CollectionLogItemEntry = {
+      itemId: slot.item_id,
+      name: slot.name,
+      points: slot.points,
+    };
+    for (const at of placementsOf(slot)) {
+      const pages = tabs.get(at.category) ?? new Map<string, Page>();
+      // page_order comes off the placement, not the slot: a mirrored item sorts
+      // by where it is being drawn, not by where it is scored.
+      const pg = pages.get(at.page) ?? { page_order: at.page_order, entries: [] };
+      pg.entries.push({ sequence: at.sequence, item });
+      pages.set(at.page, pg);
+      tabs.set(at.category, pages);
+    }
   }
 
   return [...tabs.entries()].map(([category, pages]) => ({
     category,
     pages: [...pages.entries()]
-      .sort((a, b) => (a[1][0]?.page_order ?? 0) - (b[1][0]?.page_order ?? 0))
-      .map(([page, items]) => ({
+      .sort((a, b) => a[1].page_order - b[1].page_order)
+      .map(([page, { entries }]) => ({
         page,
-        items: items
+        items: entries
           .sort((a, b) => a.sequence - b.sequence)
-          .map((slot) => ({
-            itemId: slot.item_id,
-            name: slot.name,
-            points: slot.points,
-          })),
+          .map((entry) => entry.item),
       })),
   }));
 }
@@ -189,8 +216,20 @@ function ClogBoardInner({
       {/* Side by side once there is room. The log panel is `max-w` and its item
           grid is auto-fill, so it reflows into the narrower column rather than
           overflowing; below lg the two stack. The sidebar is 22rem, which
-          fits a 56px logo, a text-2xl name and the points on one row. */}
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-6">
+          fits a 56px logo, a text-2xl name and the points on one row.
+
+          The row carries the panel cap itself so log + sidebar together end
+          where the activity panel below does — capping only the log would let
+          the sidebar push the row wider than everything under it. OSRS_TOKENS
+          comes along because --cl-px, which the cap is written in, is defined
+          by the panels rather than the page. */}
+      <div
+        className={cn(
+          "flex w-full mx-auto flex-col gap-6 lg:flex-row lg:items-start lg:gap-6",
+          OSRS_TOKENS,
+          PANEL_MAX_WIDTH,
+        )}
+      >
         <div className="flex min-w-0 flex-1 flex-col">
           <CollectionLog
             categories={categories}

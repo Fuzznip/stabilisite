@@ -7,6 +7,11 @@ import { canViewEvent } from "@/lib/events";
 import { getEvent } from "@/lib/fetch/getBingo";
 import { getClogProgress, getClogSlots } from "@/lib/fetch/getClog";
 import { EventCountdown } from "@/components/event-countdown/EventCountdown";
+import {
+  OSRS_TOKENS,
+  PANEL_MAX_WIDTH,
+} from "@/components/collection-log/OsrsPanel";
+import { cn } from "@/lib/utils";
 import { ClogBoard } from "./_components/ClogBoard";
 import Loading from "./loading";
 
@@ -67,7 +72,15 @@ async function ClogContent({ id }: { id: string }) {
 
   return (
     <div className="flex w-full flex-col gap-6 px-4 pb-20">
-      <header className="flex flex-col gap-1">
+      {/* Same cap and centring as the board below, so the title starts where
+          the log panel does instead of at the page edge on wide screens. */}
+      <header
+        className={cn(
+          "flex w-full mx-auto flex-col gap-1",
+          OSRS_TOKENS,
+          PANEL_MAX_WIDTH,
+        )}
+      >
         <h1 className="text-2xl sm:text-4xl font-semibold uppercase leading-none">
           {event.name}
         </h1>
