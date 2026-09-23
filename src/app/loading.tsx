@@ -1,61 +1,57 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
 
-function SplitCardSkeleton() {
-  return (
-    <div className="flex flex-col items-center">
-      <Skeleton className="h-5 w-24 ml-auto mb-1" />
-      <Card className="w-full">
-        <CardContent className="p-4 flex items-center">
-          <div className="w-fit p-1 rounded-lg bg-accent mr-4">
-            <Skeleton className="size-12 rounded-sm" />
-          </div>
-          <div className="flex flex-col w-fit max-w-64 xl:max-w-full gap-1">
-            <Skeleton className="h-7 w-32 hidden sm:block" />
-            <Skeleton className="h-6 w-24" />
-          </div>
-          <div className="flex items-center gap-2 ml-auto pl-4 sm:pl-0">
-            <Skeleton className="size-8 rounded-full" />
-            <Skeleton className="h-7 w-12" />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+/** Mirrors the homepage's real layout — hero, stat row, then the activity
+ *  feed — so the page doesn't reflow into a different shape once it resolves. */
 
-function DiaryCardSkeleton() {
+function RowSkeleton() {
   return (
-    <div className="flex flex-col items-center">
-      <Skeleton className="h-5 w-24 ml-auto mb-1" />
-      <Card className="w-full">
-        <CardContent className="p-4 flex items-baseline">
-          <div className="flex items-start flex-col gap-1">
-            <Skeleton className="h-7 w-48" />
-            <Skeleton className="h-5 w-32" />
-          </div>
-          <Skeleton className="h-7 w-16 ml-auto" />
-        </CardContent>
-      </Card>
-    </div>
+    <li className="flex items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4">
+      <Skeleton className="size-2 shrink-0 rounded-full" />
+      <Skeleton className="size-11 shrink-0 rounded-lg" />
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <Skeleton className="h-4 w-40 max-w-full" />
+        <Skeleton className="h-3.5 w-28 max-w-full" />
+      </div>
+      <Skeleton className="h-6 w-12 shrink-0" />
+      <Skeleton className="h-3 w-8 shrink-0" />
+    </li>
   );
 }
 
 export default function Loading(): React.ReactElement {
   return (
-    <div className="flex flex-col lg:flex-row gap-18 sm:gap-12 mb-12">
-      <div className="flex flex-col gap-4 w-full lg:w-1/2">
-        <h2 className="text-3xl text-foreground">Recent Splits</h2>
-        {Array.from({ length: 10 }).map((_, i) => (
-          <SplitCardSkeleton key={i} />
+    <div className="flex flex-col gap-12 pb-12">
+      <section className="pt-10 pb-2 sm:pt-16">
+        <Skeleton className="h-3 w-40" />
+        <Skeleton className="mt-4 h-16 w-72 max-w-full sm:h-20 lg:h-24" />
+        <Skeleton className="mt-5 h-6 w-full max-w-xl" />
+        <Skeleton className="mt-2 h-6 w-64 max-w-full" />
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Skeleton className="h-10 w-44 rounded-md" />
+          <Skeleton className="h-10 w-36 rounded-md" />
+        </div>
+      </section>
+
+      <div className="grid grid-cols-1 divide-y divide-border overflow-hidden rounded-xl border border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex flex-col items-center gap-2 px-6 py-5"
+          >
+            <Skeleton className="h-9 w-24 sm:h-10" />
+            <Skeleton className="h-3 w-20" />
+          </div>
         ))}
       </div>
-      <div className="flex flex-col gap-4 w-full lg:w-1/2">
-        <h2 className="text-3xl text-foreground">Recent Diaries</h2>
-        {Array.from({ length: 10 }).map((_, i) => (
-          <DiaryCardSkeleton key={i} />
-        ))}
-      </div>
+
+      <section className="flex flex-col gap-4">
+        <Skeleton className="h-3 w-28" />
+        <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <RowSkeleton key={index} />
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

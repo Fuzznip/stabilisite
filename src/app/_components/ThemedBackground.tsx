@@ -22,7 +22,19 @@ export function ThemedBackground() {
   // Dark mode: keep the original warm reddish aesthetic
   const gridConfig = isDark
     ? {
-        color: "#A52D2A",
+        // Saturation, not brightness, is what keeps this from looking washed.
+        // Compositing at 25% alpha over a grey page roughly halves the
+        // source's saturation, so the old #A52D2A (59%) landed each lit square
+        // at ~31% — a grey-mauve rather than a red. This sits at 78%, which
+        // puts the square near 45% and reads as actual colour at the same
+        // luminance.
+        //
+        // Don't reach for maxOpacity instead: 4px squares on a 14px pitch
+        // cover 8% of the area, so the grid spatially averages into a film of
+        // about maxOpacity/24 rather than resolving as separate squares, and
+        // raising it just brightens the veil. Page contrast belongs to
+        // --background in globals.css.
+        color: "#D01A1A",
         maxOpacity: 0.25,
         flickerChance: 0.25,
       }

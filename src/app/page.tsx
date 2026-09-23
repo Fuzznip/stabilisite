@@ -1,151 +1,194 @@
-import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
-import { getSplitsPaginated } from "@/lib/fetch/getSplits";
-import { getDiaryApplicationsPaginated } from "@/lib/db/diary";
-import { cn, getScaleDisplay } from "@/lib/utils";
-import getUser from "@/lib/fetch/getUser";
-import { formatDistanceToNow } from "date-fns";
+import type { Metadata } from "next";
 import Link from "next/link";
+import { unstable_rethrow } from "next/navigation";
+import {
+  getSplitsPaginated,
+  getTopRecentSplits,
+  type PaginatedResponse,
+} from "@/lib/fetch/getSplits";
+import { getTotalSplitValue } from "@/lib/fetch/getClanStats";
+import { getDiaryApplicationsPaginated } from "@/lib/db/diary";
+import { getRankApplications } from "@/lib/db/rank";
+import { getEvents } from "@/lib/fetch/getBingo";
+import { getAuthUser } from "@/lib/fetch/getAuthUser";
+import getUsers from "@/lib/fetch/getUsers";
+import { buildActivityFeed, usersByDiscordId } from "@/lib/activity";
+import { canViewEvent, eventPhase } from "@/lib/events";
+import { LiveEvent, UpcomingEvent } from "@/components/events/EventCards";
+import { HomeHero } from "./_components/home/HomeHero";
+import { ClanStats } from "./_components/home/ClanStats";
+import { ActivityFeed } from "./_components/home/ActivityFeed";
+import { TopSplits } from "./_components/home/TopSplits";
+import type { DiaryApplication, Split } from "@/lib/types";
+import type { Event } from "@/lib/types/v2";
 
-export default async function HomePage(): Promise<React.ReactElement> {
-  const [splitsData, diariesData] = await Promise.all([
-    getSplitsPaginated(1, 5),
-    getDiaryApplicationsPaginated(1, 5, "Accepted"),
-  ]);
+export const metadata: Metadata = {
+  description:
+    "Stability — an Old School RuneScape raiding and PvM clan. Recent splits, achievements, promotions and events.",
+};
 
-  const splits = splitsData.items;
-  const diaries = diariesData.items;
+// Dynamic by necessity: the hero branches on the session, and `now` drives
+// every relative time and event phase below. The expensive clan-wide split
+// aggregate is cached inside getSplitTotals() rather than here.
+
+/** How many rows the merged feed shows. Each source is over-fetched a little
+ *  so one busy category can't crowd the others out of the merge. */
+const FEED_LENGTH = 12;
+
+/** The "top splits" highlight window, and how many make the cut. */
+const TOP_SPLIT_DAYS = 30;
+const TOP_SPLIT_COUNT = 3;
+
+/** A failing endpoint should cost its own section, not the whole homepage.
+ *  Next signals redirects, notFound() and dynamic-API usage by throwing, so
+ *  those have to be rethrown — swallowing them would quietly break the
+ *  framework's own control flow (and did: it turned the dynamic-usage signal
+ *  into a bogus "fetch failed" log line during the build). */
+function orElse<T>(promise: Promise<T>, fallback: T): Promise<T> {
+  return promise.catch((error) => {
+    unstable_rethrow(error);
+    console.error("[home] fetch failed:", error);
+    return fallback;
+  });
+}
+
+function emptyPage<T>(): PaginatedResponse<T> {
+  return {
+    items: [],
+    page: 1,
+    per_page: 0,
+    total: 0,
+    pages: 0,
+    has_next: false,
+    has_prev: false,
+  };
+}
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-xs font-bold uppercase tracking-widest text-foreground/65">
+      {children}
+    </h2>
+  );
+}
+
+function EventStrip({
+  events,
+  isAdmin,
+  now,
+}: {
+  events: Event[];
+  isAdmin: boolean | null | undefined;
+  now: Date;
+}): React.ReactElement | null {
+  // Filtered before bucketing so a hidden event can't leak through an
+  // emptiness check, matching how /events does it.
+  const visible = events.filter((event) => canViewEvent(event, isAdmin));
+
+  const active = visible
+    .filter((event) => eventPhase(event, now) === "active")
+    .sort((a, b) => +new Date(a.end_date) - +new Date(b.end_date));
+
+  const upcoming = visible
+    .filter((event) => eventPhase(event, now) === "upcoming")
+    .sort((a, b) => +new Date(a.start_date) - +new Date(b.start_date));
+
+  if (active.length === 0 && upcoming.length === 0) return null;
+
+  // A running event is the headline; upcoming ones only take the stage when
+  // nothing is live.
+  const showing = active.length > 0 ? active : upcoming.slice(0, 3);
 
   return (
-    <div className="flex flex-col gap-12 mb-12">
-      <div className="flex flex-col lg:flex-row gap-18 sm:gap-12">
-        <div className="flex flex-col gap-4 w-full lg:w-1/2">
-          <h2 className="text-3xl text-foreground">Recent Splits</h2>
-          {splits.map(async (split) => {
-            const user = await getUser(split.userId);
-            return (
-              <div key={split.id} className="flex flex-col items-center">
-                <span className="text-muted-foreground ml-auto mb-1">
-                  {formatDistanceToNow(split.date)} ago
-                </span>
-                <Card className="w-full">
-                  <CardContent className="p-4 flex items-center">
-                    <div className="w-fit p-1 rounded-lg bg-accent mr-4">
-                      <div className="relative size-12">
-                        <Image
-                          src={split.itemImg || ""}
-                          alt={split.itemName}
-                          sizes="100%"
-                          fill
-                          className="rounded-sm absolute object-contain"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex flex-col w-fit max-w-64 xl:max-w-full">
-                      <span className="text-foreground text-2xl w-fit hidden sm:flex">
-                        {split.itemName}
-                      </span>
-                      <span className="sm:text-muted-foreground text-2xl sm:text-lg w-fit">
-                        <Link
-                          href={`/profile/${user?.runescapeName}`}
-                          className="hover:underline"
-                        >
-                          {user?.runescapeName}
-                        </Link>
-                      </span>
-                    </div>
-                    <div
-                      className={cn(
-                        "flex items-center text-2xl gap-2 justify-start w-32 ml-auto pl-4 sm:pl-0",
-                        split.itemPrice >= 10000000 && "text-[#23FE9A]",
-                      )}
-                    >
-                      <div className="relative size-8 mr-1">
-                        <Image
-                          src="/coins.png"
-                          alt="coins"
-                          className="absolute object-contain"
-                          sizes="100%"
-                          fill
-                        />
-                      </div>
-                      {Math.floor(split.itemPrice / 10000 / 100)}m
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            );
-          })}
-        </div>
-        <div className="flex flex-col gap-4 w-full lg:w-1/2">
-          <h2 className="text-3xl text-foreground">Recent Diaries</h2>
-          {diaries.map(async (diary) => {
-            const scale = getScaleDisplay(
-              diary.shorthand?.replace(/\D/g, "") || "1",
-            );
-            return (
-              <div key={diary.id} className="flex flex-col items-center">
-                <span className="text-muted-foreground ml-auto mb-1">
-                  {formatDistanceToNow(diary.date || "")} ago
-                </span>
-                <Card className="w-full">
-                  <CardContent className="p-4 flex items-baseline">
-                    <div className="flex items-sart flex-col">
-                      <div className="flex w-fit">
-                        <div className="text-foreground text-2xl w-fit inline">
-                          {scale && diary.name === "Combat Achievements" && (
-                            <span className="inline capitalize mr-2">
-                              {diary.shorthand}
-                            </span>
-                          )}
-                          {diary.name}
-                          {scale && diary.time && (
-                            <span className="ml-2 text-muted-foreground inline">
-                              ({scale})
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <span className="text-lg text-muted-foreground capitalize">
-                        {diary.party
-                          ?.sort((playerA, playerB) =>
-                            playerA.localeCompare(playerB),
-                          )
-                          .map(async (member, index) => {
-                            const user = await getUser(member);
-                            return (
-                              <span
-                                key={member}
-                                className={
-                                  user ? "" : "text-muted-foreground/70"
-                                }
-                              >
-                                {user ? (
-                                  <Link
-                                    href={`/profile/${member}`}
-                                    className="hover:underline"
-                                  >
-                                    {member}
-                                  </Link>
-                                ) : (
-                                  member
-                                )}
-                                {index < (diary.party?.length || 0) - 1 && ", "}
-                              </span>
-                            );
-                          })}
-                      </span>
-                    </div>
-                    <span className="my-auto text-2xl ml-auto text-foreground font-bold">
-                      {diary.time}
-                    </span>
-                  </CardContent>
-                </Card>
-              </div>
-            );
-          })}
-        </div>
+    <section className="flex flex-col gap-4">
+      <div className="flex items-baseline justify-between gap-4">
+        <SectionHeading>
+          {active.length > 0 ? "Happening now" : "Coming up"}
+        </SectionHeading>
+        <Link
+          href="/events"
+          className="text-xs font-semibold text-foreground/60 hover:text-foreground hover:underline"
+        >
+          All events →
+        </Link>
       </div>
+
+      {active.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          {showing.map((event) => (
+            <LiveEvent key={event.id} event={event} now={now} />
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {showing.map((event) => (
+            <UpcomingEvent key={event.id} event={event} now={now} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+export default async function HomePage(): Promise<React.ReactElement> {
+  const [
+    user,
+    splitsData,
+    diariesData,
+    promotions,
+    events,
+    users,
+    totalSplitValue,
+    topSplits,
+  ] = await Promise.all([
+      orElse(getAuthUser(), null),
+      orElse(getSplitsPaginated(1, FEED_LENGTH), emptyPage<Split>()),
+      orElse(
+        getDiaryApplicationsPaginated(1, FEED_LENGTH, "Accepted"),
+        emptyPage<DiaryApplication>(),
+      ),
+      orElse(getRankApplications(), []),
+      orElse(getEvents(), []),
+      orElse(getUsers(), []),
+      orElse(getTotalSplitValue(), 0),
+      orElse(getTopRecentSplits(TOP_SPLIT_DAYS, TOP_SPLIT_COUNT), []),
+    ]);
+
+  const now = new Date();
+  const userMap = usersByDiscordId(users);
+
+  const feed = buildActivityFeed(
+    {
+      splits: splitsData.items ?? [],
+      diaries: diariesData.items ?? [],
+      promotions: promotions ?? [],
+      users: userMap,
+    },
+    FEED_LENGTH,
+  );
+
+  const memberCount = (users ?? []).filter((member) => member.isMember).length;
+
+  return (
+    <div className="flex flex-col gap-12 pb-12">
+      <HomeHero user={user} />
+
+      <ClanStats
+        memberCount={memberCount}
+        achievementCount={diariesData.total ?? 0}
+        splitValue={totalSplitValue}
+      />
+
+      <EventStrip events={events ?? []} isAdmin={user?.isAdmin} now={now} />
+
+      <TopSplits
+        splits={topSplits}
+        users={userMap}
+        days={TOP_SPLIT_DAYS}
+        now={now}
+      />
+
+      <ActivityFeed items={feed} now={now} />
     </div>
   );
 }

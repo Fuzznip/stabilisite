@@ -17,8 +17,9 @@ export function eventHref(event: Pick<Event, "id" | "type">): string {
 }
 
 /** Event types not yet public. Both the events listing and the event's own
- *  page consult this, so a type is hidden in both places or neither. */
-const ADMIN_ONLY_TYPES: readonly EventType[] = ["clog"];
+ *  page consult this, so a type is hidden in both places or neither. Empty
+ *  while every type is live — add a type here to hide it again. */
+const ADMIN_ONLY_TYPES: readonly EventType[] = [];
 
 export function canViewEvent(
   event: Pick<Event, "type">,

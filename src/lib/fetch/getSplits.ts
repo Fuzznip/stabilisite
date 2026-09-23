@@ -27,6 +27,35 @@ function mapSplit(split: SplitResponse): Split {
   };
 }
 
+/**
+ * The biggest splits from the last `days` days, largest first.
+ *
+ * Uses the endpoint's `begin_date` filter rather than sorting the whole
+ * table client-side: the window is a few dozen rows, not thousands. Omitting
+ * `page` makes the endpoint return every match in the window, so the sort
+ * below sees all of them and not just the first page.
+ */
+export async function getTopRecentSplits(
+  days: number,
+  limit: number,
+): Promise<Split[]> {
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  const beginDate = since.toISOString().slice(0, 10);
+
+  const response = await fetch(
+    `${process.env.API_URL}/splits?begin_date=${beginDate}`,
+    { next: { revalidate: 300 } },
+  );
+  if (!response.ok) return [];
+
+  const splits: SplitResponse[] = await response.json();
+  return splits
+    .map(mapSplit)
+    .sort((a, b) => b.itemPrice - a.itemPrice)
+    .slice(0, limit);
+}
+
 export async function getSplits(user?: User | null): Promise<Split[]> {
   const endpoint = user ? `users/${user.discordId}/splits` : "splits";
   return fetch(`${process.env.API_URL}/${endpoint}`)

@@ -73,6 +73,7 @@
   --color-chart-5: hsl(var(--chart-5));
 
   --color-discord: hsl(var(--discord));
+  --color-split-highlight: hsl(var(--split-highlight));
   --color-stability: hsl(var(--stability));
   --color-stability-accent: hsl(var(--stability-accent));
   --color-bingo-grid: hsl(var(--bingo-grid));
@@ -152,6 +153,10 @@
        the fill colour unchanged; only .dark has to diverge. */
     --stability-accent: 0 73% 44%;
     --bingo-grid: 196, 66%, 53%;
+    /* Marks a big (10m+) split in the activity feed. The mint the feed used
+       to hard-code is ~1.6:1 on a white card — invisible. Light mode drops to
+       30% lightness for 5.4:1; only .dark can afford the bright original. */
+    --split-highlight: 152 70% 30%;
 
     --event-bingo: 196 70% 40%;
     --event-conquest: 280 55% 48%;
@@ -160,29 +165,40 @@
   }
 
   .dark {
-    /* Charcoal, not navy. Lifted from 4.1% and desaturated from 71.4%: at 4.1%
-       the saturation was invisible, but raising lightness made it read blue.
-       6% keeps a faint cool cast (channel spread 3) without a hue. Surfaces
-       move together so cards stay flush with the page. */
-    --background: 220 6% 10%;
+    /* Cool charcoal, not near-black. Hue 220 at 5% saturation gives a channel
+       spread of 4 — a definite cool cast without tipping into navy.
+
+       Lightness is a ladder, not one value. Lifting a flat palette to read as
+       "less black" backfires: with --card equal to --background the whole
+       viewport becomes a single uniform tone, and a uniform mid-grey field
+       reads as haze over the page rather than as a lighter page. So the ground
+       stays low — 9%, actually darker than the near-black it replaces — and
+       the surfaces above it carry the separation. Depth is what makes a dark
+       UI legible, not lift; raising every rung together just removes it. */
+    --background: 220 5% 9%;
     --foreground: 210 20% 98%;
-    --card: 220 6% 10%;
+    /* Cards sit above the page now rather than flush with it; this separation
+       is what keeps the page from reading as one flat wash. The gap matters
+       more than either value: keep roughly four points between this and
+       --background, or the rungs merge and the flatness comes back. */
+    --card: 220 5% 13%;
     --card-foreground: 210 20% 98%;
-    --popover: 220 6% 10%;
+    --popover: 220 5% 13%;
     --popover-foreground: 210 20% 98%;
     --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
-    --secondary: 220 6% 16.9%;
+    --primary-foreground: 220 6% 9%;
+    --secondary: 220 5% 21%;
     --secondary-foreground: 210 20% 98%;
-    --muted: 220 6% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 220 6% 16.9%;
+    --muted: 220 5% 21%;
+    --muted-foreground: 220 5% 65%;
+    --accent: 220 5% 21%;
     --accent-foreground: 210 20% 98%;
     --destructive: 0 72.8% 50.6%;
     --destructive-foreground: 210 20% 98%;
-    --border: 220 6% 16.9%;
-    --input: 220 6% 16.9%;
-    --ring: 216 12.2% 83.9%;
+    /* Borders have to clear the card they sit on (13%), not the page. */
+    --border: 220 5% 24%;
+    --input: 220 5% 24%;
+    --ring: 220 6% 84%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -192,10 +208,14 @@
     /* Stays the fill colour: white on it is 5.99:1, and lightening it to suit
        text would push the "Live" badge and rank pip under AA. */
     --stability: 0 73% 44%;
-    /* 44% red on the 4.1%-lightness background is only 3.36:1 — unreadable as
-       body text. 55% brings it to 4.61:1 without leaving the brand hue. */
-    --stability-accent: 0 73% 55%;
+    /* 44% red on the page background is only 2.6:1 — unreadable as body text.
+       59% clears AA at 4.58:1 while staying recognisably the brand hue. That
+       margin is thin and depends on the 9% ground: lighten --background and
+       this drops back under 4.5, so re-check it if the page moves. */
+    --stability-accent: 0 73% 59%;
     --bingo-grid: 196, 66%, 53%;
+    /* The original #23FE9A, which only ever worked on the dark surface. */
+    --split-highlight: 152 99% 57%;
 
     --event-bingo: 196 66% 53%;
     --event-conquest: 280 65% 65%;

@@ -103,7 +103,10 @@ export async function getDiaryApplicationsPaginated(
     page: String(page),
     per_page: String(perPage),
   });
-  if (status) params.set("status", status);
+  // The endpoint reads this as `filter`, not `status`. Sent under the wrong
+  // name it was silently ignored, so "Accepted" returned every application —
+  // rejected ones included — and `total` counted them all.
+  if (status) params.set("filter", status);
 
   const response = await fetch(
     `${process.env.API_URL}/applications/diary?${params}`,
