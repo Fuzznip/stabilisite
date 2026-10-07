@@ -71,13 +71,13 @@ export function CalendarChip({
       isAdmin={isAdmin}
       onSelectEntry={onSelectEntry}
       className={cn(
-        "flex min-h-5 w-full min-w-0 items-center gap-1.5 rounded-md px-1.5 py-0.5 text-[0.7rem] font-semibold leading-tight text-foreground transition-[filter] hover:brightness-110 dark:hover:brightness-125",
+        "flex min-h-8 w-full min-w-0 items-center gap-2 rounded-md px-2 py-1.5 text-sm font-semibold leading-tight text-foreground transition-[filter] hover:brightness-110 dark:hover:brightness-125",
         calendarTint(item.type),
         !item.isPublic && "border border-dashed border-foreground/40",
         className,
       )}
     >
-      <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", calendarAccent(item.type))} />
+      <span aria-hidden className={cn("size-2 shrink-0 rounded-full", calendarAccent(item.type))} />
       <span className="min-w-0 break-words">{item.name}</span>
     </CalendarItemAction>
   );

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { unstable_rethrow } from "next/navigation";
 import {
   getSplitsPaginated,
+  getSplitsSince,
   getTopRecentSplits,
   type PaginatedResponse,
 } from "@/lib/fetch/getSplits";
@@ -17,6 +18,7 @@ import { canViewEvent, eventPhase } from "@/lib/events";
 import { LiveEvent, UpcomingEvent } from "@/components/events/EventCards";
 import { getCalendarEntries } from "@/lib/fetch/getCalendar";
 import { calendarWindow } from "@/lib/calendar/grid";
+import { buildCalendarActivity } from "@/lib/calendar/activity";
 import { HomeHero } from "./_components/home/HomeHero";
 import { ClanStats } from "./_components/home/ClanStats";
 import { ActivityFeed } from "./_components/home/ActivityFeed";
@@ -152,6 +154,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
     totalSplitValue,
     topSplits,
     calendarEntries,
+    calendarSplits,
   ] = await Promise.all([
       orElse(getAuthUser(), null),
       orElse(getSplitsPaginated(1, FEED_LENGTH), emptyPage<Split>()),
@@ -168,6 +171,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
         getCalendarEntries(calendarRange.from, calendarRange.to),
         [] as CalendarEntry[],
       ),
+      orElse(getSplitsSince(calendarRange.from), [] as Split[]),
     ]);
 
   const userMap = usersByDiscordId(users);
@@ -210,6 +214,11 @@ export default async function HomePage(): Promise<React.ReactElement> {
         <ClanCalendar
           entries={calendarEntries}
           events={events ?? []}
+          activity={buildCalendarActivity({
+            splits: calendarSplits,
+            promotions: promotions ?? [],
+            users: userMap,
+          })}
           isAdmin={isStaff}
           now={now}
         />

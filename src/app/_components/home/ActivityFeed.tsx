@@ -24,7 +24,7 @@ function diaryIcon(diary: DiaryApplication): string {
   return diary.name === "Combat Achievements" ? "/combat.png" : "/diary.png";
 }
 
-function PlayerLink({ name }: { name: string }): React.ReactElement {
+export function PlayerLink({ name }: { name: string }): React.ReactElement {
   return (
     <Link href={`/profile/${name}`} className="hover:underline">
       {name}
@@ -32,7 +32,7 @@ function PlayerLink({ name }: { name: string }): React.ReactElement {
   );
 }
 
-function Icon({
+export function Icon({
   src,
   alt,
   className,

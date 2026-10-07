@@ -41,8 +41,13 @@ export async function getTopRecentSplits(
 ): Promise<Split[]> {
   const since = new Date();
   since.setDate(since.getDate() - days);
-  const beginDate = since.toISOString().slice(0, 10);
+  const splits = await getSplitsSince(since);
+  return splits.sort((a, b) => b.itemPrice - a.itemPrice).slice(0, limit);
+}
 
+/** Every split from `since`'s UTC day onwards, unsorted. */
+export async function getSplitsSince(since: Date): Promise<Split[]> {
+  const beginDate = since.toISOString().slice(0, 10);
   const response = await fetch(
     `${process.env.API_URL}/splits?begin_date=${beginDate}`,
     { next: { revalidate: 300 } },
@@ -50,10 +55,7 @@ export async function getTopRecentSplits(
   if (!response.ok) return [];
 
   const splits: SplitResponse[] = await response.json();
-  return splits
-    .map(mapSplit)
-    .sort((a, b) => b.itemPrice - a.itemPrice)
-    .slice(0, limit);
+  return splits.map(mapSplit);
 }
 
 export async function getSplits(user?: User | null): Promise<Split[]> {

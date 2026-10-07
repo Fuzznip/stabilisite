@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { addMonths, monthLabel } from "@/lib/calendar/grid";
+import type { CalendarActivity } from "@/lib/calendar/activity";
 import type { CalendarEntry, CalendarItem } from "@/lib/types/calendar";
 import type { Event } from "@/lib/types/v2";
 import { AgendaList } from "./AgendaList";
@@ -12,6 +13,7 @@ import { MonthGrid } from "./MonthGrid";
 
 export function CalendarView({
   items,
+  activity,
   linkableEvents,
   isAdmin,
   today,
@@ -19,6 +21,7 @@ export function CalendarView({
   maxMonth,
 }: {
   items: CalendarItem[];
+  activity: CalendarActivity[];
   linkableEvents: Event[];
   isAdmin: boolean;
   today: string;
@@ -78,7 +81,14 @@ export function CalendarView({
       </div>
 
       <div className="hidden sm:block">
-        <MonthGrid month={month} today={today} items={items} isAdmin={isAdmin} onSelectEntry={openEntry} />
+        <MonthGrid
+          month={month}
+          today={today}
+          items={items}
+          activity={activity}
+          isAdmin={isAdmin}
+          onSelectEntry={openEntry}
+        />
       </div>
       <div className="sm:hidden">
         <AgendaList items={items} today={today} isAdmin={isAdmin} onSelectEntry={openEntry} />
