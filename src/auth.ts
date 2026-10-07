@@ -6,6 +6,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Discord({
       authorization:
         "https://discord.com/api/oauth2/authorize?scope=identify+guilds",
+      // Discord now sends `iss` on the OAuth callback (RFC 9207), and Auth.js
+      // rejects it unless it matches the provider's issuer, which the built-in
+      // Discord provider leaves unset (falling back to "https://authjs.dev").
+      issuer: "https://discord.com",
     }),
   ],
   pages: {
