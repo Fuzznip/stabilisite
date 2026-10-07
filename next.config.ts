@@ -16,6 +16,13 @@ images: {
         pathname: "/avatars/**",
       },
       {
+        // Default avatars for users who haven't set a custom one.
+        protocol: "https",
+        hostname: "cdn.discordapp.com",
+        port: "",
+        pathname: "/embed/avatars/**",
+      },
+      {
         // Proof screenshots from manual bot submissions are stored as the
         // Discord attachment URL rather than being re-uploaded to S3.
         protocol: "https",

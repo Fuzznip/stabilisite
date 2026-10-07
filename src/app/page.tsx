@@ -15,12 +15,16 @@ import getUsers from "@/lib/fetch/getUsers";
 import { buildActivityFeed, usersByDiscordId } from "@/lib/activity";
 import { canViewEvent, eventPhase } from "@/lib/events";
 import { LiveEvent, UpcomingEvent } from "@/components/events/EventCards";
+import { getCalendarEntries } from "@/lib/fetch/getCalendar";
+import { calendarWindow } from "@/lib/calendar/grid";
 import { HomeHero } from "./_components/home/HomeHero";
 import { ClanStats } from "./_components/home/ClanStats";
 import { ActivityFeed } from "./_components/home/ActivityFeed";
 import { TopSplits } from "./_components/home/TopSplits";
+import { ClanCalendar } from "./_components/home/calendar/ClanCalendar";
 import type { DiaryApplication, Split } from "@/lib/types";
 import type { Event } from "@/lib/types/v2";
+import type { CalendarEntry } from "@/lib/types/calendar";
 
 export const metadata: Metadata = {
   description:
@@ -75,10 +79,13 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 function EventStrip({
   events,
   isAdmin,
+  showUpcoming,
   now,
 }: {
   events: Event[];
   isAdmin: boolean | null | undefined;
+  /** Off when the calendar is shown, since it already covers what's coming up. */
+  showUpcoming: boolean;
   now: Date;
 }): React.ReactElement | null {
   // Filtered before bucketing so a hidden event can't leak through an
@@ -89,9 +96,11 @@ function EventStrip({
     .filter((event) => eventPhase(event, now) === "active")
     .sort((a, b) => +new Date(a.end_date) - +new Date(b.end_date));
 
-  const upcoming = visible
-    .filter((event) => eventPhase(event, now) === "upcoming")
-    .sort((a, b) => +new Date(a.start_date) - +new Date(b.start_date));
+  const upcoming = showUpcoming
+    ? visible
+        .filter((event) => eventPhase(event, now) === "upcoming")
+        .sort((a, b) => +new Date(a.start_date) - +new Date(b.start_date))
+    : [];
 
   if (active.length === 0 && upcoming.length === 0) return null;
 
@@ -131,6 +140,8 @@ function EventStrip({
 }
 
 export default async function HomePage(): Promise<React.ReactElement> {
+  const now = new Date();
+  const calendarRange = calendarWindow(now);
   const [
     user,
     splitsData,
@@ -140,6 +151,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
     users,
     totalSplitValue,
     topSplits,
+    calendarEntries,
   ] = await Promise.all([
       orElse(getAuthUser(), null),
       orElse(getSplitsPaginated(1, FEED_LENGTH), emptyPage<Split>()),
@@ -152,9 +164,12 @@ export default async function HomePage(): Promise<React.ReactElement> {
       orElse(getUsers(), []),
       orElse(getTotalSplitValue(), 0),
       orElse(getTopRecentSplits(TOP_SPLIT_DAYS, TOP_SPLIT_COUNT), []),
+      orElse(
+        getCalendarEntries(calendarRange.from, calendarRange.to),
+        [] as CalendarEntry[],
+      ),
     ]);
 
-  const now = new Date();
   const userMap = usersByDiscordId(users);
 
   const feed = buildActivityFeed(
@@ -166,6 +181,11 @@ export default async function HomePage(): Promise<React.ReactElement> {
     },
     FEED_LENGTH,
   );
+
+  // Staff-only while the calendar is being trialled; members keep the
+  // "Coming up" cards until it's opened up.
+  const isStaff = Boolean(user?.isAdmin);
+  const showCalendar = isStaff;
 
   const memberCount = (users ?? []).filter((member) => member.isMember).length;
 
@@ -179,7 +199,21 @@ export default async function HomePage(): Promise<React.ReactElement> {
         splitValue={totalSplitValue}
       />
 
-      <EventStrip events={events ?? []} isAdmin={user?.isAdmin} now={now} />
+      <EventStrip
+        events={events ?? []}
+        isAdmin={user?.isAdmin}
+        showUpcoming={!showCalendar}
+        now={now}
+      />
+
+      {showCalendar && (
+        <ClanCalendar
+          entries={calendarEntries}
+          events={events ?? []}
+          isAdmin={isStaff}
+          now={now}
+        />
+      )}
 
       <TopSplits
         splits={topSplits}
