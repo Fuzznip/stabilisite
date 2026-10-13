@@ -59,7 +59,7 @@ export function CalendarView({
             >
               <ChevronLeft />
             </Button>
-            <span className="min-w-32 text-center text-sm font-semibold" aria-live="polite">
+            <span className="min-w-36 text-center text-base font-semibold" aria-live="polite">
               {monthLabel(month)}
             </span>
             <Button

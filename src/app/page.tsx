@@ -15,7 +15,7 @@ import { getAuthUser } from "@/lib/fetch/getAuthUser";
 import getUsers from "@/lib/fetch/getUsers";
 import { buildActivityFeed, usersByDiscordId } from "@/lib/activity";
 import { canViewEvent, eventPhase } from "@/lib/events";
-import { LiveEvent, UpcomingEvent } from "@/components/events/EventCards";
+import { LiveEvent } from "@/components/events/EventCards";
 import { getCalendarEntries } from "@/lib/fetch/getCalendar";
 import { calendarWindow } from "@/lib/calendar/grid";
 import { buildCalendarActivity } from "@/lib/calendar/activity";
@@ -78,44 +78,29 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Running events. What's coming up lives on the calendar below. */
 function EventStrip({
   events,
   isAdmin,
-  showUpcoming,
   now,
 }: {
   events: Event[];
   isAdmin: boolean | null | undefined;
-  /** Off when the calendar is shown, since it already covers what's coming up. */
-  showUpcoming: boolean;
   now: Date;
 }): React.ReactElement | null {
   // Filtered before bucketing so a hidden event can't leak through an
   // emptiness check, matching how /events does it.
-  const visible = events.filter((event) => canViewEvent(event, isAdmin));
-
-  const active = visible
+  const active = events
+    .filter((event) => canViewEvent(event, isAdmin))
     .filter((event) => eventPhase(event, now) === "active")
     .sort((a, b) => +new Date(a.end_date) - +new Date(b.end_date));
 
-  const upcoming = showUpcoming
-    ? visible
-        .filter((event) => eventPhase(event, now) === "upcoming")
-        .sort((a, b) => +new Date(a.start_date) - +new Date(b.start_date))
-    : [];
-
-  if (active.length === 0 && upcoming.length === 0) return null;
-
-  // A running event is the headline; upcoming ones only take the stage when
-  // nothing is live.
-  const showing = active.length > 0 ? active : upcoming.slice(0, 3);
+  if (active.length === 0) return null;
 
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-baseline justify-between gap-4">
-        <SectionHeading>
-          {active.length > 0 ? "Happening now" : "Coming up"}
-        </SectionHeading>
+        <SectionHeading>Happening now</SectionHeading>
         <Link
           href="/events"
           className="text-xs font-semibold text-foreground/60 hover:text-foreground hover:underline"
@@ -124,19 +109,11 @@ function EventStrip({
         </Link>
       </div>
 
-      {active.length > 0 ? (
-        <div className="flex flex-col gap-4">
-          {showing.map((event) => (
-            <LiveEvent key={event.id} event={event} now={now} />
-          ))}
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {showing.map((event) => (
-            <UpcomingEvent key={event.id} event={event} now={now} />
-          ))}
-        </div>
-      )}
+      <div className="flex flex-col gap-4">
+        {active.map((event) => (
+          <LiveEvent key={event.id} event={event} now={now} />
+        ))}
+      </div>
     </section>
   );
 }
@@ -186,10 +163,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
     FEED_LENGTH,
   );
 
-  // Staff-only while the calendar is being trialled; members keep the
-  // "Coming up" cards until it's opened up.
   const isStaff = Boolean(user?.isAdmin);
-  const showCalendar = isStaff;
 
   const memberCount = (users ?? []).filter((member) => member.isMember).length;
 
@@ -206,23 +180,20 @@ export default async function HomePage(): Promise<React.ReactElement> {
       <EventStrip
         events={events ?? []}
         isAdmin={user?.isAdmin}
-        showUpcoming={!showCalendar}
         now={now}
       />
 
-      {showCalendar && (
-        <ClanCalendar
-          entries={calendarEntries}
-          events={events ?? []}
-          activity={buildCalendarActivity({
-            splits: calendarSplits,
-            promotions: promotions ?? [],
-            users: userMap,
-          })}
-          isAdmin={isStaff}
-          now={now}
-        />
-      )}
+      <ClanCalendar
+        entries={calendarEntries}
+        events={events ?? []}
+        activity={buildCalendarActivity({
+          splits: calendarSplits,
+          promotions: promotions ?? [],
+          users: userMap,
+        })}
+        isAdmin={isStaff}
+        now={now}
+      />
 
       <TopSplits
         splits={topSplits}

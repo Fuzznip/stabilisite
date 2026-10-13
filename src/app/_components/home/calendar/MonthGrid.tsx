@@ -87,7 +87,7 @@ export function MonthGrid({
               >
                 <span
                   className={cn(
-                    "inline-flex size-7 items-center justify-center rounded-full text-sm tabular-nums",
+                    "inline-flex size-8 items-center justify-center rounded-full text-base tabular-nums",
                     day.inMonth ? "text-foreground/80" : "text-foreground/35",
                     day.date === today && "font-bold text-foreground ring-2 ring-stability",
                   )}
