@@ -21,10 +21,21 @@ export function eventHref(event: Pick<Event, "id" | "type">): string {
  *  while every type is live — add a type here to hide it again. */
 const ADMIN_ONLY_TYPES: readonly EventType[] = [];
 
+/** Events that exist only so the bot posts drops to Discord, never shown on the
+ *  site — not even to admins. */
+const HIDDEN_EVENT_IDS: readonly string[] = [
+  "92d66804-7636-43c5-912b-0b680c8369e8", // The Fractured Archive drop feed
+];
+
+export function isHiddenEvent(event: Pick<Event, "id">): boolean {
+  return HIDDEN_EVENT_IDS.includes(event.id);
+}
+
 export function canViewEvent(
-  event: Pick<Event, "type">,
+  event: Pick<Event, "id" | "type">,
   isAdmin: boolean | null | undefined,
 ): boolean {
+  if (isHiddenEvent(event)) return false;
   if (isAdmin) return true;
   return !event.type || !ADMIN_ONLY_TYPES.includes(event.type);
 }

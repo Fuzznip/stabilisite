@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getEvent } from "@/lib/fetch/getBingo";
 import { getBotwBosses, getBotwLeaderboard } from "@/lib/fetch/getBotw";
+import { isHiddenEvent } from "@/lib/events";
 import { BossHeader } from "./_components/BossHeader";
 import { BotwLeaderboard } from "./_components/BotwLeaderboard";
 import Loading from "./loading";
@@ -31,6 +33,7 @@ export default async function BotwPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  if (isHiddenEvent({ id })) notFound();
   return (
     <Suspense fallback={<Loading />}>
       <BotwContent id={id} />
