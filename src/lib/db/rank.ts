@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import {
   RankApplication,
   RankApplicationResponse,
@@ -15,7 +16,7 @@ export async function submitRankForm(
     rank_order: rankForm.rankOrder,
     proof: rankForm.proof,
   };
-  const response = await fetch(`${process.env.API_URL}/applications/rank`, {
+  const response = await apiFetch(`/applications/rank`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -33,8 +34,8 @@ export async function submitRankForm(
 export async function getRankApplications(
   user?: User | undefined,
 ): Promise<RankApplication[]> {
-  const rankApplicationResponse = await fetch(
-    `${process.env.API_URL}/applications/rank`,
+  const rankApplicationResponse = await apiFetch(
+    `/applications/rank`,
   ).then((res) => res.json());
 
   const applications: RankApplication[] = rankApplicationResponse.map(

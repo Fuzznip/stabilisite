@@ -1,7 +1,8 @@
+import { apiFetch } from "@/lib/api";
 import { User } from "../types";
 
 export default async function getUser(id: string): Promise<User | undefined> {
-  const response = await fetch(`${process.env.API_URL}/users/${id}`);
+  const response = await apiFetch(`/users/${id}`);
   if (!response.ok) return undefined;
 
   const user = await response.json();

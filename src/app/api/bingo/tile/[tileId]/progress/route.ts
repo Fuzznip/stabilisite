@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import { NextResponse } from "next/server";
 import { TileProgressResponse } from "@/lib/types/v2";
 
@@ -7,8 +8,8 @@ export async function GET(
 ) {
   try {
     const { tileId } = await params;
-    const response = await fetch(
-      `${process.env.API_URL}/v2/tiles/${tileId}/progress`,
+    const response = await apiFetch(
+      `/v2/tiles/${tileId}/progress`,
       { next: { tags: ["bingo-progress", `tile-progress-${tileId}`] } },
     );
     const progress: TileProgressResponse = await response.json();

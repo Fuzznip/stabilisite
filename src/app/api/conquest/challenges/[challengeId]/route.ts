@@ -1,11 +1,12 @@
+import { apiFetch } from "@/lib/api";
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ challengeId: string }> }
 ) {
   const { challengeId } = await params;
 
-  const res = await fetch(
-    `${process.env.API_URL}/v2/challenges/${challengeId}`,
+  const res = await apiFetch(
+    `/v2/challenges/${challengeId}`,
     { cache: "no-store" }
   );
 

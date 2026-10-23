@@ -1,7 +1,8 @@
+import { apiFetch } from "@/lib/api";
 import { Rank, RankResponse } from "../types";
 
 export async function getRanks(): Promise<Rank[]> {
-  const rankResponse = await fetch(`${process.env.API_URL}/ranks`).then((res) =>
+  const rankResponse = await apiFetch(`/ranks`).then((res) =>
     res.json()
   );
 

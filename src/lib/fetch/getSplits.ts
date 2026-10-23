@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import { Split, SplitResponse, User } from "../types";
 
 export type PaginatedResponse<T> = {
@@ -48,8 +49,8 @@ export async function getTopRecentSplits(
 /** Every split from `since`'s UTC day onwards, unsorted. */
 export async function getSplitsSince(since: Date): Promise<Split[]> {
   const beginDate = since.toISOString().slice(0, 10);
-  const response = await fetch(
-    `${process.env.API_URL}/splits?begin_date=${beginDate}`,
+  const response = await apiFetch(
+    `/splits?begin_date=${beginDate}`,
     { next: { revalidate: 300 } },
   );
   if (!response.ok) return [];
@@ -60,7 +61,7 @@ export async function getSplitsSince(since: Date): Promise<Split[]> {
 
 export async function getSplits(user?: User | null): Promise<Split[]> {
   const endpoint = user ? `users/${user.discordId}/splits` : "splits";
-  return fetch(`${process.env.API_URL}/${endpoint}`)
+  return apiFetch(`/${endpoint}`)
     .then((response) => response.json())
     .then((splits) =>
       splits
@@ -73,8 +74,8 @@ export async function getSplitsPaginated(
   page: number,
   perPage: number = 10,
 ): Promise<PaginatedResponse<Split>> {
-  const response = await fetch(
-    `${process.env.API_URL}/splits?page=${page}&per_page=${perPage}`,
+  const response = await apiFetch(
+    `/splits?page=${page}&per_page=${perPage}`,
   );
   const data = await response.json();
 

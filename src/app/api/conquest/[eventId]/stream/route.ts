@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 export const dynamic = "force-dynamic";
 
 export async function GET(
@@ -6,8 +7,8 @@ export async function GET(
 ) {
   const { eventId } = await params;
 
-  const upstream = await fetch(
-    `${process.env.API_URL}/v2/events/${eventId}/scoreboard/stream`,
+  const upstream = await apiFetch(
+    `/v2/events/${eventId}/scoreboard/stream`,
     {
       headers: {
         Accept: "text/event-stream",

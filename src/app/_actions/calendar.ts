@@ -1,5 +1,6 @@
 "use server";
 
+import { apiFetch } from "@/lib/api";
 import { revalidatePath } from "next/cache";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getAuthUser } from "@/lib/fetch/getAuthUser";
@@ -44,7 +45,7 @@ async function send(
 ): Promise<CalendarActionResult> {
   if (!(await isStaff())) return { success: false, error: "Not authorized" };
   try {
-    const res = await fetch(`${process.env.API_URL}${path}`, {
+    const res = await apiFetch(path, {
       method,
       headers: { "Content-Type": "application/json" },
       body: body ? JSON.stringify(body) : undefined,
@@ -95,7 +96,7 @@ export async function uploadCoverPhoto(formData: FormData): Promise<CoverUploadR
 export async function getDiscordChannels(): Promise<DiscordChannel[] | null> {
   if (!(await isStaff())) return null;
   try {
-    const res = await fetch(`${process.env.API_URL}/v2/calendar/discord-channels`, { cache: "no-store" });
+    const res = await apiFetch(`/v2/calendar/discord-channels`, { cache: "no-store" });
     if (!res.ok) return null;
     const json = await res.json();
     return json.data ?? null;

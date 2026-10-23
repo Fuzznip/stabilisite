@@ -1,11 +1,12 @@
+import { apiFetch } from "@/lib/api";
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ territoryId: string }> }
 ) {
   const { territoryId } = await params;
 
-  const res = await fetch(
-    `${process.env.API_URL}/v2/territories/${territoryId}/progress`,
+  const res = await apiFetch(
+    `/v2/territories/${territoryId}/progress`,
     { cache: "no-store" }
   );
 

@@ -1,10 +1,11 @@
+import { apiFetch } from "@/lib/api";
 import { User as NextAuthUser } from "next-auth";
 import { UserResponse } from "../types";
 
 export async function getStoredUser(
   authUser: NextAuthUser
 ): Promise<UserResponse | undefined> {
-  const response = await fetch(`${process.env.API_URL}/users/${authUser.id}`);
+  const response = await apiFetch(`/users/${authUser.id}`);
   if (!response.ok) return undefined;
   return response.json();
 }
@@ -14,7 +15,7 @@ export async function storeUser(
   username: string
 ): Promise<UserResponse> {
   return (
-    await fetch(`${process.env.API_URL}/users`, {
+    await apiFetch(`/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -31,7 +32,7 @@ export async function storeUser(
 
 export async function deleteUser(id: string): Promise<boolean> {
   return (
-    await fetch(`${process.env.API_URL}/users/${id}`, {
+    await apiFetch(`/users/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

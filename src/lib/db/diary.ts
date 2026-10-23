@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import {
   DiaryApplication,
   DiaryApplicationResponse,
@@ -36,7 +37,7 @@ export async function submitDiaryEntry(
     diaryRequest.time_split = `${diaryForm.time}0`;
   }
 
-  const response = await fetch(`${process.env.API_URL}/applications/diary`, {
+  const response = await apiFetch(`/applications/diary`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -87,8 +88,8 @@ export async function getDiaryApplications(
 ): Promise<DiaryApplication[]> {
   const userParam = `?discord_id=${user?.discordId}`;
 
-  const userDiaries = await fetch(
-    `${process.env.API_URL}/applications/diary${user ? userParam : ""}`,
+  const userDiaries = await apiFetch(
+    `/applications/diary${user ? userParam : ""}`,
   ).then((res) => res.json());
 
   return userDiaries.map(mapDiaryApplication);
@@ -108,8 +109,8 @@ export async function getDiaryApplicationsPaginated(
   // rejected ones included — and `total` counted them all.
   if (status) params.set("filter", status);
 
-  const response = await fetch(
-    `${process.env.API_URL}/applications/diary?${params}`,
+  const response = await apiFetch(
+    `/applications/diary?${params}`,
   );
   const data = await response.json();
 

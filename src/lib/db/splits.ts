@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import { SplitForm, User } from "../types";
 
 export async function submitSplitEntry(
@@ -12,7 +13,7 @@ export async function submitSplitEntry(
     group_size: splitForm.teamSize,
     screenshot_link: fileUrl,
   };
-  const response = await fetch(`${process.env.API_URL}/splits`, {
+  const response = await apiFetch(`/splits`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

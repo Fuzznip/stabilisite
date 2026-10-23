@@ -1,3 +1,5 @@
+import { apiFetch } from "@/lib/api";
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ territoryId: string }> }
@@ -6,12 +8,12 @@ export async function GET(
   const { searchParams } = new URL(request.url);
   const teamId = searchParams.get("team_id");
 
-  const url = new URL(
-    `${process.env.API_URL}/v2/territories/${territoryId}/proofs`
-  );
-  if (teamId) url.searchParams.set("team_id", teamId);
+  const query = teamId ? `?${new URLSearchParams({ team_id: teamId })}` : "";
 
-  const res = await fetch(url.toString(), { cache: "no-store" });
+  const res = await apiFetch(
+    `/v2/territories/${territoryId}/proofs${query}`,
+    { cache: "no-store" }
+  );
 
   if (!res.ok) {
     return new Response("Failed to fetch territory proofs", { status: 502 });

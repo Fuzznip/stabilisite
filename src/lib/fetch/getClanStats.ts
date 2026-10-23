@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import type { SplitResponse } from "../types";
 
 /**
@@ -14,7 +15,7 @@ import type { SplitResponse } from "../types";
  * real-time counter.
  */
 export async function getTotalSplitValue(): Promise<number> {
-  const response = await fetch(`${process.env.API_URL}/splits`, {
+  const response = await apiFetch(`/splits`, {
     next: { revalidate: 900 },
   });
   if (!response.ok) return 0;

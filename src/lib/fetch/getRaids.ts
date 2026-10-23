@@ -1,7 +1,8 @@
+import { apiFetch } from "@/lib/api";
 import { Raid, RaidTierResponse } from "../types";
 
 export async function getRaids(): Promise<Raid[]> {
-  const raidResposne = await fetch(`${process.env.API_URL}/raidTier`).then(
+  const raidResposne = await apiFetch(`/raidTier`).then(
     (res) => res.json(),
   );
 

@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import { NextResponse } from "next/server";
 import { TeamProgressResponse } from "@/lib/types/v2";
 
@@ -7,8 +8,8 @@ export async function GET(
 ) {
   try {
     const { teamId } = await params;
-    const response = await fetch(
-      `${process.env.API_URL}/v2/teams/${teamId}/progress`
+    const response = await apiFetch(
+      `/v2/teams/${teamId}/progress`
     );
     const progress: TeamProgressResponse = await response.json();
     return NextResponse.json(progress);

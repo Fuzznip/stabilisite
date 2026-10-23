@@ -1,7 +1,8 @@
+import { apiFetch } from "@/lib/api";
 import { Application, ApplicationResponse } from "../types";
 
 export async function getApplications(): Promise<Application[]> {
-  return fetch(`${process.env.API_URL}/applications`)
+  return apiFetch(`/applications`)
     .then((response) => response.json())
     .then((applications) =>
       applications.map((application: ApplicationResponse) => ({

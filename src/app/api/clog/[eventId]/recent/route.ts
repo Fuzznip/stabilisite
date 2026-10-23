@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ eventId: string }> },
@@ -13,8 +14,8 @@ export async function GET(
     if (value) query.set(key, value);
   }
 
-  const res = await fetch(
-    `${process.env.API_URL}/v2/events/${eventId}/clog/recent?${query}`,
+  const res = await apiFetch(
+    `/v2/events/${eventId}/clog/recent?${query}`,
     // Shared across viewers, and the feed only moves when someone lands a drop.
     { next: { revalidate: 10 } },
   );
