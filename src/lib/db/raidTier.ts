@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import {
   RaidTierApplication,
   RaidTierApplicationResponse,
@@ -15,7 +16,7 @@ export async function submitRaidTierForm(
     target_raid_tier_id: raidTierForm.targetRaidTierId,
     proof: fileUrls[0],
   };
-  const response = await fetch(`${process.env.API_URL}/applications/raidTier`, {
+  const response = await apiFetch(`/applications/raidTier`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -33,8 +34,8 @@ export async function submitRaidTierForm(
 export async function getRaidTierApplications(
   user?: User | undefined,
 ): Promise<RaidTierApplication[]> {
-  const raidTierApplicationResponse = await fetch(
-    `${process.env.API_URL}/applications/raidTier`,
+  const raidTierApplicationResponse = await apiFetch(
+    `/applications/raidTier`,
   ).then((res) => res.json());
 
   const applications: RaidTierApplication[] = raidTierApplicationResponse.map(

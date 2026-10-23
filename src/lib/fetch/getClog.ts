@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import type { ClogProgress, ClogSlot } from "@/lib/types/v2";
 
 /**
@@ -5,8 +6,8 @@ import type { ClogProgress, ClogSlot } from "@/lib/types/v2";
  * hour. Progress moves with every drop and is never cached.
  */
 export async function getClogSlots(eventId: string): Promise<ClogSlot[]> {
-  const response = await fetch(
-    `${process.env.API_URL}/v2/events/${eventId}/clog/slots`,
+  const response = await apiFetch(
+    `/v2/events/${eventId}/clog/slots`,
     { next: { revalidate: 3600, tags: ["clog-slots"] } },
   );
   if (!response.ok) return [];
@@ -15,8 +16,8 @@ export async function getClogSlots(eventId: string): Promise<ClogSlot[]> {
 }
 
 export async function getClogProgress(eventId: string): Promise<ClogProgress> {
-  const response = await fetch(
-    `${process.env.API_URL}/v2/events/${eventId}/clog/progress`,
+  const response = await apiFetch(
+    `/v2/events/${eventId}/clog/progress`,
     { cache: "no-store" },
   );
   if (!response.ok) return { standings: [], completed: {} };

@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import {
   Event,
   EventWithDetails,
@@ -6,7 +7,7 @@ import {
 } from "../types/v2";
 
 export async function getEvents(): Promise<Event[]> {
-  const res = await fetch(`${process.env.API_URL}/v2/events`, {
+  const res = await apiFetch(`/v2/events`, {
     next: { tags: ["bingo-event"] },
   });
   const json = await res.json();
@@ -14,7 +15,7 @@ export async function getEvents(): Promise<Event[]> {
 }
 
 export async function getActiveEvent(): Promise<EventWithDetails | undefined> {
-  const res = await fetch(`${process.env.API_URL}/v2/events/active`, {
+  const res = await apiFetch(`/v2/events/active`, {
     next: { tags: ["bingo-event"] },
   });
   const json = res.json();
@@ -30,14 +31,14 @@ export async function getReleasedEvent(): Promise<Event | undefined> {
 }
 
 export async function getEvent(id: string): Promise<EventWithDetails> {
-  const res = await fetch(`${process.env.API_URL}/v2/events/${id}`, {
+  const res = await apiFetch(`/v2/events/${id}`, {
     next: { tags: ["bingo-event"] },
   });
   return res.json();
 }
 
 export async function getTile(tileId: string): Promise<TileWithTasks> {
-  const res = await fetch(`${process.env.API_URL}/v2/tiles/${tileId}`, {
+  const res = await apiFetch(`/v2/tiles/${tileId}`, {
     next: { tags: [`tile-${tileId}`] },
   });
   return res.json();
@@ -46,8 +47,8 @@ export async function getTile(tileId: string): Promise<TileWithTasks> {
 export async function getTileProgress(
   tileId: string,
 ): Promise<TileProgressResponse> {
-  const res = await fetch(
-    `${process.env.API_URL}/v2/tiles/${tileId}/progress`,
+  const res = await apiFetch(
+    `/v2/tiles/${tileId}/progress`,
     {
       next: { tags: ["bingo-progress", `tile-progress-${tileId}`] },
     },

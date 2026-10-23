@@ -1,11 +1,12 @@
+import { apiFetch } from "@/lib/api";
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ eventId: string }> },
 ) {
   const { eventId } = await params;
 
-  const res = await fetch(
-    `${process.env.API_URL}/v2/events/${eventId}/clog/players`,
+  const res = await apiFetch(
+    `/v2/events/${eventId}/clog/players`,
     // Shared across all viewers; at most one upstream fetch per 10s. The roster
     // only moves when someone lands a drop, so a few seconds stale is fine.
     { next: { revalidate: 10 } },

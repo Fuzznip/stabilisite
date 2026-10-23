@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import type { CalendarEntry } from "../types/calendar";
 
 /** Every entry overlapping [from, to), private ones included — callers filter
@@ -8,7 +9,7 @@ export async function getCalendarEntries(from: Date, to: Date): Promise<Calendar
     to: to.toISOString(),
     include_private: "true",
   });
-  const res = await fetch(`${process.env.API_URL}/v2/calendar?${params}`, {
+  const res = await apiFetch(`/v2/calendar?${params}`, {
     cache: "no-store",
   });
   if (!res.ok) throw new Error(`GET /v2/calendar failed: ${res.status}`);

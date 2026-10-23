@@ -1,11 +1,12 @@
+import { apiFetch } from "@/lib/api";
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ statusId: string }> },
 ) {
   const { statusId } = await params;
 
-  const res = await fetch(
-    `${process.env.API_URL}/v2/statuses/challenges/${statusId}/proofs`,
+  const res = await apiFetch(
+    `/v2/statuses/challenges/${statusId}/proofs`,
     // Proofs arrive as players submit, and the dialog is opened on demand —
     // a stale screenshot list is more confusing than a fresh fetch is costly.
     { cache: "no-store" },

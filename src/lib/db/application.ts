@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import { Application, User, UserResponse } from "../types";
 
 export async function createApplication(
@@ -11,7 +12,7 @@ export async function createApplication(
     reason: application.reason,
     goals: application.goals,
   };
-  const response = await fetch(`${process.env.API_URL}/applications`, {
+  const response = await apiFetch(`/applications`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import { NextResponse } from "next/server";
 import { TileWithTasks } from "@/lib/types/v2";
 
@@ -7,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { tileId } = await params;
-    const response = await fetch(`${process.env.API_URL}/v2/tiles/${tileId}`);
+    const response = await apiFetch(`/v2/tiles/${tileId}`);
     const tile: TileWithTasks = await response.json();
     return NextResponse.json(tile);
   } catch (error) {

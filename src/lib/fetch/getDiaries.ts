@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import { DiaryTimeTarget, ShortDiary } from "@/lib/types";
 import { parseDiaryTimeToSeconds } from "@/lib/utils";
 
@@ -9,7 +10,7 @@ type ScaleAccumulator = {
 };
 
 export async function getDiaries(): Promise<ShortDiary[]> {
-  const diaryResponse = await fetch(`${process.env.API_URL}/diary`, {
+  const diaryResponse = await apiFetch(`/diary`, {
     cache: "force-cache",
   }).then((res) => res.json());
 

@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import type { BotwBoss, BotwLeaderboardEntry } from "@/lib/types/v2";
 
 /**
@@ -32,8 +33,8 @@ async function safeJson(res: Response) {
 }
 
 export async function getBotwBosses(eventId: string): Promise<BotwBoss[]> {
-  const res = await fetch(
-    `${process.env.API_URL}/v2/events/${eventId}/botw/bosses`,
+  const res = await apiFetch(
+    `/v2/events/${eventId}/botw/bosses`,
     { next: { tags: [`botw-bosses-${eventId}`] } },
   );
   const json = await safeJson(res);
@@ -43,8 +44,8 @@ export async function getBotwBosses(eventId: string): Promise<BotwBoss[]> {
 export async function getBotwLeaderboard(
   eventId: string,
 ): Promise<BotwLeaderboardEntry[]> {
-  const res = await fetch(
-    `${process.env.API_URL}/v2/events/${eventId}/botw/leaderboard`,
+  const res = await apiFetch(
+    `/v2/events/${eventId}/botw/leaderboard`,
     { next: { tags: [`botw-leaderboard-${eventId}`] } },
   );
   const json = await safeJson(res);
